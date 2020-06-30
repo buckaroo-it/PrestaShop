@@ -1,0 +1,42 @@
+<?php
+/**
+* 2014-2015 Buckaroo.nl
+*
+* NOTICE OF LICENSE
+*
+* This source file is subject to the Academic Free License (AFL 3.0)
+* It is available through the world-wide-web at this URL:
+* http://opensource.org/licenses/afl-3.0.php
+*
+* DISCLAIMER
+*
+* Do not edit or add to this file if you wish to upgrade this file
+*
+*  @author    Buckaroo.nl <plugins@buckaroo.nl>
+*  @copyright 2014-2015 Buckaroo.nl
+*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+*/
+
+include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php');
+
+class CashTicketCheckout extends Checkout
+{
+
+    final public function setCheckout()
+    {
+
+        parent::setCheckout();
+
+        //$this->payment_request->description = 'Pay with cash ticket';
+    }
+
+    public function isRedirectRequired()
+    {
+        return true;
+    }
+
+    protected function initialize()
+    {
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_CASHTICKET);
+    }
+}

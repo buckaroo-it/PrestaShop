@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>buckaroo3</name>
+	<displayName><![CDATA[Buckaroo BPE 3.0 (v 3.3.0)]]></displayName>
+	<version><![CDATA[3.3.0]]></version>
+	<description><![CDATA[Buckaroo BPE 3.0 module. Geschikt voor Prestashop versie 1.7.x.]]></description>
+	<author><![CDATA[Buckaroo]]></author>
+	<tab><![CDATA[payments_gateways]]></tab>
+	<confirmUninstall><![CDATA[Weet u zeker dat u de Buckaroo BPE 3.0 module wilt verwijderen? ]]></confirmUninstall>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+	<limited_countries></limited_countries>
+</module>

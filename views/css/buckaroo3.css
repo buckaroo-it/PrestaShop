@@ -1,0 +1,335 @@
+.modal-open {
+    overflow: hidden;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9999;
+    display: none;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+}
+
+.modal.fade .modal-dialog {
+    -webkit-transition: -webkit-transform .3s ease-out;
+    -o-transition: -o-transform .3s ease-out;
+    transition: transform .3s ease-out;
+    -webkit-transform: translate(0, -25%);
+    -ms-transform: translate(0, -25%);
+    -o-transform: translate(0, -25%);
+    transform: translate(0, -25%);
+}
+
+.modal.in .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+}
+
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 10px;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+    border: 1px solid #999;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: 6px;
+    outline: 0;
+    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9998;
+    background-color: #000;
+}
+
+.modal-backdrop.fade {
+    filter: alpha(opacity=0);
+    opacity: 0;
+}
+
+.modal-backdrop.in {
+    filter: alpha(opacity=50);
+    opacity: .5;
+}
+
+.modal-header {
+    min-height: 16.42857143px;
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-header .close {
+    margin-top: -2px;
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.42857143;
+}
+
+.modal-body {
+    position: relative;
+    padding: 15px;
+}
+
+.modal-footer {
+    padding: 15px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+}
+
+.modal-footer .btn + .btn {
+    margin-bottom: 0;
+    margin-left: 5px;
+}
+
+.modal-footer .btn-group .btn + .btn {
+    margin-left: -1px;
+}
+
+.modal-footer .btn-block + .btn-block {
+    margin-left: 0;
+}
+
+.modal-scrollbar-measure {
+    position: absolute;
+    top: -9999px;
+    width: 50px;
+    height: 50px;
+    overflow: scroll;
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 600px;
+        margin: 30px auto;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+    }
+
+    .modal-sm {
+        width: 300px;
+    }
+}
+
+@media (min-width: 992px) {
+    .modal-lg {
+        width: 900px;
+    }
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.booLinkH {
+    background: #E5E6E7;
+    color: #374853
+}
+
+/*.booBlH {border: 1px solid #488C40}*/
+.booLinkO {
+    background: #FFF;
+    color: #5D717E;
+}
+
+.booBlO {
+    border: 1px solid #595A5E;
+}
+
+.booRH {
+    font-style: italic;
+    font-weight: bold;
+}
+
+.booBlAnim {
+    margin: 0.5em 0 0.5em 0.7em;
+    border: 1px solid #595A5E;
+}
+
+.booBlAnimLogo {
+    margin-right: 1em;
+    vertical-align: middle;
+}
+
+.booBlAnimCont {
+    display: none;
+    margin: 5px;
+    padding: 10px 0 10px 0
+}
+
+.booBlAnimError {
+    color: #ff3649;
+    text-align: center;
+    display: none;
+    margin-bottom: 15px;
+}
+
+.booBlAnimBtnBl {
+    margin: 5px 0 15px 132px;
+}
+
+/* "I confirm my order" button div*/
+.booBlAnimBtn {
+    margin: 0 auto !important
+}
+
+/* "I confirm my order" button*/
+.booBlAnim a {
+    cursor: pointer;
+    display: block;
+    padding: 0.6em;
+    text-decoration: none;
+}
+
+.buckaroo_payment {
+    text-transform: none !important;
+}
+
+.buckaroo_payment img {
+    height: 32px;
+}
+
+/*Payment Guarantee slidedown div*/
+
+.booBlAnimCont input[type="text"], .booBlAnimCont select {
+    border: 1px solid #CCCCCC;
+    color: #666666;
+    font-size: 12px;
+    height: 22px;
+    padding: 0 0 0 5px;
+    vertical-align: bottom;
+    /* the following ensures they're all using the same box-model for rendering */
+    -moz-box-sizing: content-box; /* or `border-box` */
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+
+}
+
+.booBlAnimCont p.text label, .booBlAnimCont p.text span {
+    display: inline-block;
+    font-size: 14px;
+    padding: 6px 15px;
+    text-align: right;
+    width: 120px;
+}
+
+.dateofbirth {
+    width: 28px !important;
+    padding: 6px 2px !important;
+    text-align: left !important;
+}
+
+.booTGSelect {
+    width: 80px;
+    margin-left: 3px;
+}
+
+.booTGName {
+    width: 170px;
+}
+
+.booTGEmail {
+    width: 263px;
+}
+
+.booTGPhone {
+    width: 263px;
+}
+
+.booTGAccount {
+    width: 263px;
+}
+
+.booTGDateS {
+    width: 30px;
+}
+
+.booTGDateL {
+    width: 45px;
+}
+
+.row-padding {
+    padding-right: 25px;
+    padding-top: 5px
+}
+
+.form-control-middle {
+    width: 70px;
+    display: inline
+}
+.form-control-small {
+    width: 50px;
+    display: inline
+}
+
+.padding-right-button {
+    margin: 7px;
+}
+
+/* end */
+
+p.payment_module a.buckaroo_paylink {
+    background-position: 15px center;
+    background-repeat: no-repeat;
+    background-color: #fbfbfb;
+}
+
+p.payment_module a.buckaroo_paylink:after {
+    display: block;
+    content: "\f054";
+    position: absolute;
+    right: 15px;
+    margin-top: -11px;
+    top: 50%;
+    font-family: "FontAwesome";
+    font-size: 25px;
+    height: 22px;
+    width: 14px;
+    color: #777777;
+}
+
+.error{
+    outline: 0.1875rem solid #FF0000;
+}
+/*iDeal slidedown div*/
+
+.bankRadioBtn {
+    margin-left: 20px;
+
+}
+
+table.bankdetails td.label, table.bankdetails td.labelvalue {
+    color: #000000;
+    padding: 9px 10px;
+}
+
+/* end */
+

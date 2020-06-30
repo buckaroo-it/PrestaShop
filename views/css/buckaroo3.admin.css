@@ -1,0 +1,9 @@
+legend.test {
+    background-color: #FFF000;
+    color: #585A69;
+}
+
+legend.active {
+    background-color: #97C600;
+    color: white;
+}

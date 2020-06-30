@@ -1,0 +1,108 @@
+{*
+*
+ * 2014-2015 Buckaroo.nl
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * @author Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright 2014-2015 Buckaroo.nl
+ * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
+*}
+{if $input.type == 'mode'}
+    <label>{l s='Mode' mod='buckaroo3'}</label>
+    <div class="margin-form">
+        <select id="{$input.name}" class="mode" name="{$input.name|escape:'quotes':'UTF-8'}">
+            <option value="0" {if $fields_value[$input.name] == 0}selected{/if}>{l s='Live' mod='buckaroo3'}</option>
+            <option value="1" {if $fields_value[$input.name] == 1}selected{/if}>{l s='Test' mod='buckaroo3'}</option>
+        </select>
+    </div>
+{elseif $input.type == 'enabled'}
+    <label>Enabled</label>
+    <div class="margin-form">
+        <select id="{$input.name}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
+            <option value="0"
+                    {if $fields_value[$input.name] == 0}selected="selected"{/if}>{l s='No' mod='buckaroo3'}</option>
+            <option value="1"
+                    {if $fields_value[$input.name] == 1}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
+        </select>
+    </div>
+{elseif $input.type == 'submit'}
+    <label>&nbsp;</label>
+    <div class="margin-form">
+        <input id="{$input.name}" name="{$input.name}" {if isset($input.class)}class="{$input.class|escape:'quotes':'UTF-8'}"{/if} type="submit"
+               value=" {$input.label|escape:'html':'UTF-8'} "/>
+    </div>
+{elseif $input.type == 'multiselect'}
+    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <div class="margin-form">
+        <select id="{$input.name|escape:'html':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}[]" multiple="multiple"
+                style="height:{$input.height|escape:'quotes':'UTF-8'}px; width:200px">
+            {foreach from=$input.options item=option}
+                <option value="{$option.value|escape:'quotes':'UTF-8'}"
+                        {if isset($fields_value[$input.name][$option.value])}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
+            {/foreach}
+        </select>
+        {if isset($input.smalltext)}
+            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+    </div>
+{elseif $input.type == 'select'}
+    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <div class="margin-form">
+        <select id="{$input.name|escape:'quotes':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}">
+            {foreach from=$input.options item=option}
+                <option value="{$option.value|escape:'quotes':'UTF-8'}"
+                        {if $fields_value[$input.name] == $option.value}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
+            {/foreach}
+        </select>
+        {if isset($input.smalltext)}
+            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+    </div>
+{elseif $input.type == 'text'}
+    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <div class="margin-form">
+        <input id="{$input.name}" name="{$input.name}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="text"
+               size="{if $input.size}{$input.size}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
+        {if isset($input.required)}<sup>*</sup>{/if}
+        {if isset($input.smalltext)}
+            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+    </div>
+{elseif $input.type == 'taxrate'}
+    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <div class="margin-form">
+        <table>
+            {foreach from=$input.taxarray key=it item=option}
+                <tr>
+                    <td style="color: #000000">{$option|escape:'quotes':'UTF-8'}:&nbsp;</td>
+                    <td><select id="{$input.name|escape:'quotes':'UTF-8'}[{$it|escape:'quotes':'UTF-8'}]" class="" name="{$input.name|escape:'quotes':'UTF-8'}[{$it|escape:'quotes':'UTF-8'}]">
+                            {foreach from=$input.taxoptions item=option}
+                                <option value="{$option.value|escape:'quotes':'UTF-8'}"
+                                        {if (Tools::getIsset($input.taxvalues[$it]) && $input.taxvalues[$it] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
+                            {/foreach}
+                        </select></td>
+                </tr>
+            {/foreach}
+        </table>
+    </div>
+{elseif $input.type == 'certificate'}
+    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <div class="margin-form">
+        <input type="file" class="" value="" name="{$input.name|escape:'html':'UTF-8'}"
+               id="{$input.name|escape:'html':'UTF-8'}"/> {if !empty($fields_value[$input.name])}{$fields_value[$input.name]}{else}{l s='No file uploaded.' mod='buckaroo3'}{/if}
+    </div>
+{elseif $input.type == 'simpletext'}
+    <div class="margin-form">
+        {$input.name|escape:'html':'UTF-8'}
+    </div>
+{elseif $input.type == 'hidearea_start'}
+    <div class='hidable {if !$enabled}disabled{/if}'>
+        {elseif $input.type == 'hidearea_end'}
+    </div>
+{/if}
+
+{if !in_array($input.type,array('hidearea_start','hidearea_end'))}
+    <div class="clear"></div>
+{/if}
