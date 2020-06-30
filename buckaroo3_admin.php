@@ -96,7 +96,6 @@ class Buckaroo3Admin
                     'BUCKAROO_PGBY_PAYMENT',
                     serialize(Tools::getValue('BUCKAROO_PGBY_PAYMENT'))
                 );
-                Configuration::updateValue('BUCKAROO_DD_PAYMENT', serialize(Tools::getValue('BUCKAROO_DD_PAYMENT')));
 
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
@@ -116,16 +115,6 @@ class Buckaroo3Admin
                 );
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_SDD_TEST', Tools::getValue('BUCKAROO_SDD_TEST'));
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_USECREDITMANAGMENT',
-                    Tools::getValue('BUCKAROO_SDD_USECREDITMANAGMENT')
-                );
-                Configuration::updateValue('BUCKAROO_SDD_INVOICEDELAY', Tools::getValue('BUCKAROO_SDD_INVOICEDELAY'));
-                Configuration::updateValue('BUCKAROO_SDD_DATEDUE', Tools::getValue('BUCKAROO_SDD_DATEDUE'));
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_MAXREMINDERLEVEL',
-                    Tools::getValue('BUCKAROO_SDD_MAXREMINDERLEVEL')
-                );
                 Configuration::updateValue(
                     'BUCKAROO_SDD_USENOTIFICATION',
                     Tools::getValue('BUCKAROO_SDD_USENOTIFICATION')
@@ -276,7 +265,6 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_PGST_PAYMENT'] = array();
         $fields_value['BUCKAROO_PGBY_PAYMENT'] = array();
-        $fields_value['BUCKAROO_DD_PAYMENT'] = array();
 
         $tmp_arr = Configuration::get('BUCKAROO_PGST_PAYMENT');
         if (!empty($tmp_arr)) {
@@ -294,14 +282,6 @@ class Buckaroo3Admin
             }
         }
 
-        $tmp_arr = Configuration::get('BUCKAROO_DD_PAYMENT');
-        if (!empty($tmp_arr)) {
-            $c = unserialize($tmp_arr);
-            if (is_array($c)) {
-                $fields_value['BUCKAROO_DD_PAYMENT'] = array_flip($c);
-            }
-        }
-
         $fields_value['BUCKAROO_PAYPAL_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST'] = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_EMPAYMENT_ENABLED'] = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
@@ -314,10 +294,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_DD_MAXREMINDERLEVEL'] = Configuration::get('BUCKAROO_DD_MAXREMINDERLEVEL');
         $fields_value['BUCKAROO_SDD_ENABLED'] = Configuration::get('BUCKAROO_SDD_ENABLED');
         $fields_value['BUCKAROO_SDD_TEST'] = Configuration::get('BUCKAROO_SDD_TEST');
-        $fields_value['BUCKAROO_SDD_USECREDITMANAGMENT'] = Configuration::get('BUCKAROO_SDD_USECREDITMANAGMENT');
-        $fields_value['BUCKAROO_SDD_INVOICEDELAY'] = Configuration::get('BUCKAROO_SDD_INVOICEDELAY');
-        $fields_value['BUCKAROO_SDD_DATEDUE'] = Configuration::get('BUCKAROO_SDD_DATEDUE');
-        $fields_value['BUCKAROO_SDD_MAXREMINDERLEVEL'] = Configuration::get('BUCKAROO_SDD_MAXREMINDERLEVEL');
         $fields_value['BUCKAROO_SDD_USENOTIFICATION'] = Configuration::get('BUCKAROO_SDD_USENOTIFICATION');
         $fields_value['BUCKAROO_SDD_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_SDD_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_IDEAL_USENOTIFICATION'] = Configuration::get('BUCKAROO_IDEAL_USENOTIFICATION');
@@ -560,219 +536,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_SDD_TEST',
-                ),
-                array(
-                    'type' => 'multiselect',
-                    'name' => 'BUCKAROO_DD_PAYMENT',
-                    'label' => $this->module->l('Payment methods allowed') . '<br />' . $this->module->l(
-                        'Ctrl + click to select multiple'
-                    ),
-                    'height' => 520,
-                    'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',
-                    'options' => array(
-                        array(
-                            'text' => $this->module->l('iDEAL'),
-                            'value' => 'ideal',
-                        ),
-                        array(
-                            'text' => $this->module->l('Overboeking (SEPA Credit Transfer)'),
-                            'value' => 'transfer',
-                        ),
-                        array(
-                            'text' => $this->module->l('Mastercard'),
-                            'value' => 'mastercard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Visa'),
-                            'value' => 'visa',
-                        ),
-                        array(
-                            'text' => $this->module->l('eMaestro'),
-                            'value' => 'maestro',
-                        ),
-                        array(
-                            'text' => $this->module->l('Giropay'),
-                            'value' => 'giropay',
-                        ),
-                        array(
-                            'text' => $this->module->l('Paypal'),
-                            'value' => 'paypal',
-                        ),
-                        array(
-                            'text' => $this->module->l('Mr. Cash/Bancontact'),
-                            'value' => 'bancontactmrcash',
-                        ),
-                        array(
-                            'text' => $this->module->l('Machtiging (SEPA Direct Debit)'),
-                            'value' => 'sepadirectdebit',
-                        ),
-                        array(
-                            'text' => $this->module->l('Sofortbanking'),
-                            'value' => 'sofortueberweisung',
-                        ),
-                        array(
-                            'text' => $this->module->l('Paysafecard'),
-                            'value' => 'paysafecard',
-                        ),
-                        array(
-                            'text' => $this->module->l('?M! Payment'),
-                            'value' => 'empayment',
-                        ),
-                        array(
-                            'text' => $this->module->l('Baby Giftcard'),
-                            'value' => 'babygiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Babypark Giftcard'),
-                            'value' => 'babyparkgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Beauty Wellness'),
-                            'value' => 'beautywellness',
-                        ),
-                        array(
-                            'text' => $this->module->l('Boekenbon'),
-                            'value' => 'boekenbon',
-                        ),
-                        array(
-                            'text' => $this->module->l('Boekenvoordeel'),
-                            'value' => 'boekenvoordeel',
-                        ),
-                        array(
-                            'text' => $this->module->l('Designshops Giftcard'),
-                            'value' => 'designshopsgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Fijn Cadeau'),
-                            'value' => 'fijncadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Koffie Cadeau'),
-                            'value' => 'koffiecadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Koken En Zo'),
-                            'value' => 'kokenzo',
-                        ),
-                        array(
-                            'text' => $this->module->l('Kook Cadeau'),
-                            'value' => 'kookcadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Nationale Entertainment Card'),
-                            'value' => 'nationaleentertainmentcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Natures Gift'),
-                            'value' => 'naturesgift',
-                        ),
-                        array(
-                            'text' => $this->module->l('Podium Cadeaukaart'),
-                            'value' => 'podiumcadeaukaart',
-                        ),
-                        array(
-                            'text' => $this->module->l('Shoes Accessories'),
-                            'value' => 'shoesaccessories',
-                        ),
-                        array(
-                            'text' => $this->module->l('Webshop Giftcard'),
-                            'value' => 'webshopgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Wijn Cadeau'),
-                            'value' => 'wijncadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Wonen En Zo'),
-                            'value' => 'wonenzo',
-                        ),
-                        array(
-                            'text' => $this->module->l('Your Gift'),
-                            'value' => 'yourgift',
-                        ),
-                        array(
-                            'text' => $this->module->l('VVV Giftcard'),
-                            'value' => 'vvvgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Fashioncheque'),
-                            'value' => 'fashioncheque',
-                        ),
-                        array(
-                            'text' => $this->module->l('Fashion Giftcard'),
-                            'value' => 'fashionucadeaukaart',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'simpletext',
-                    'name' => '<hr>',
-                ),
-                array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_SDD_USECREDITMANAGMENT',
-                    'label' => $this->module->l('Use credit management'),
-                    'smalltext' => $this->module->l(
-                        'Buckaroo sends payment reminders to the customer. (Contact Buckaroo before activating Credit Management. By default this is excluded in the contract.)'
-                    ),
-                    'options' => array(
-                        array(
-                            'text' => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text' => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_SDD_INVOICEDELAY',
-                    'label' => $this->module->l('Invoice delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'Specify the amount of days before Buckaroo invoices the order and sends out the payment mail.'
-                    ),
-                    'size' => 4,
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_SDD_DATEDUE',
-                    'label' => $this->module->l('Due date (in days)'),
-                    'smalltext' => $this->module->l(
-                        'Specify the number of days the customer has to complete their payment before the first reminder e-mail will be sent by Buckaroo.'
-                    ),
-                    'size' => 4,
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_SDD_MAXREMINDERLEVEL',
-                    'label' => $this->module->l('Max reminder level'),
-                    'smalltext' => $this->module->l('Select the maximum reminder level buckaroo will use.'),
-                    'options' => array(
-                        array(
-                            'text' => '4',
-                            'value' => '4',
-                        ),
-                        array(
-                            'text' => '3',
-                            'value' => '3',
-                        ),
-                        array(
-                            'text' => '2',
-                            'value' => '2',
-                        ),
-                        array(
-                            'text' => '1',
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'simpletext',
-                    'name' => '<hr>',
                 ),
                 array(
                     'type' => 'select',

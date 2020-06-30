@@ -338,10 +338,6 @@ class Buckaroo3 extends PaymentModule
         //sepadirectdebit
         Configuration::deleteByName('BUCKAROO_SDD_ENABLED');
         Configuration::deleteByName('BUCKAROO_SDD_TEST');
-        Configuration::deleteByName('BUCKAROO_SDD_USECREDITMANAGMENT');
-        Configuration::deleteByName('BUCKAROO_SDD_INVOICEDELAY');
-        Configuration::deleteByName('BUCKAROO_SDD_DATEDUE');
-        Configuration::deleteByName('BUCKAROO_SDD_MAXREMINDERLEVEL');
         Configuration::deleteByName('BUCKAROO_SDD_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_SDD_NOTIFICATIONDELAY');
 
@@ -393,10 +389,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY');
 
-        //Configuration::deleteByName('BUCKAROO_ORDER_STATE_INPROGRESS');
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
-        //Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
-        //Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
 
         return true;
     }
