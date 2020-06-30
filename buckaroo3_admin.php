@@ -1011,7 +1011,7 @@ class Buckaroo3Admin
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Buckaroo transfer settings'),
+            'legend' => $this->module->l('Bank Transfer settings'),
             'name' => 'TRANSFER',
             'test' => (Configuration::get('BUCKAROO_TRANSFER_TEST') == '1' ? true : false),
             'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED') == '1' ? true : false),

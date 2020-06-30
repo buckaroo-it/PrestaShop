@@ -564,7 +564,7 @@ class Buckaroo3 extends PaymentModule
          }
          if(Config::get('BUCKAROO_TRANSFER_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Transfer'))
+            $newOption->setCallToActionText($this->l('Pay by Bank Transfer'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
                     ;
             $payment_options[] =$newOption;
