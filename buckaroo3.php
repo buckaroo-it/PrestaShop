@@ -38,14 +38,14 @@ class Buckaroo3 extends PaymentModule
 
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '3.3.0';
+        $this->version = '3.3.1';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.7');
 
         $response = ResponseFactory::getResponse();
-        $this->displayName = $this->l('Buckaroo BPE 3.0') . ' (v ' . $this->version . ')';
+        $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         if ($response->isValid()) {
             if ($response->brq_transaction_type == 'I150') {
                 $this->displayName = 'Group transaction';
@@ -61,8 +61,8 @@ class Buckaroo3 extends PaymentModule
 
         parent::__construct();
 
-        $this->description = $this->l('Buckaroo BPE 3.0 module. Compatible with PrestShop version 1.6.x.');
-        $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo BPE 3.0 module?');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
+        $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
 
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY') ||
             !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')

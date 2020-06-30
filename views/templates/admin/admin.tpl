@@ -25,7 +25,7 @@
             {if $fieldset.name == 'GLOBAL'}
                 <div style="margin: 0 0 10px 0; padding: 5px;">
                     <b>Welcome to Buckaroo Payment Engine</b><br>
-                    Contact Buckaroo Sales to obtain credentials. Phone number: 0031307115010 Email: sales@buckaroo.nl
+                    Contact Buckaroo for any questions regarding your account. <b>Phone number</b>: +31 (0)30 711 50 00 <b>E-mail</b>: info@buckaroo.nl
                 </div>
                 {foreach from=$fieldset.input item=input}
                     {include file="$dir/admin.input.tpl" input=$input}

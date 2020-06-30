@@ -2,8 +2,8 @@
 
 global $_MODULE;
 $_MODULE = array();
-$_MODULE['<{buckaroo3}prestashop>buckaroo3_8f4405315c39dce720ea5fa91e3230bb'] = 'Buckaroo BPE 3.0';
-$_MODULE['<{buckaroo3}prestashop>buckaroo3_d756c80681e846b865a6482d72f55b9d'] = 'Buckaroo BPE 3.0 module. Geschikt voor Prestashop versie 1.6.x.';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_8f4405315c39dce720ea5fa91e3230bb'] = 'Buckaroo Payments';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_d756c80681e846b865a6482d72f55b9d'] = 'Buckaroo Payments module. Geschikt voor Prestashop versie 1.6.x.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_f86b21d6153e556d8764c706e02da635'] = 'Weet u zeker dat u de Buckaroo BPE 3.0 module wilt verwijderen? ';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9b1d44d9910cef88c667f46cb63a21bf'] = 'Voor gebruik dient u de Buckaroo Module te configureren!';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_60741e153ff40c5a402b5eaee5e17345'] = 'Uw betaling was niet succesvol. Probeer het alstublieft opnieuw of kies een andere betaalmethode. ';
