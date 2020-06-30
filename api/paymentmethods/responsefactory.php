@@ -60,8 +60,6 @@ class ResponseFactory
                 return new PayPalResponse($data);
             case 'ideal':
                 return new IdealResponse($data);
-            case 'paymentguarantee':
-                return new PayGarantResponse($data);
             case 'transfer':
                 return new TransferResponse($data);
             default:

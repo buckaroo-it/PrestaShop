@@ -20,9 +20,6 @@ void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!=
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
  */
 
-//var Payment = Payment || {};
-//console.log('Payment.confirmationSelector: ' + Payment.confirmationSelector);
-
 $(function() {
     $(document).on('click','input[name="payment-option"]', function() {
         paymentMethodValidation.formPointer = $('#pay-with-' + $(this).attr('id') + '-form form');
@@ -38,12 +35,6 @@ $(function() {
 
          paymentMethodValidation.init();
     });
-    /*$(document).on('click','#payment-confirmation button',  function (event) {
-
-        paymentMethodValidation.afterpayDigiTrigger();
-        window.stop();
-
-    });*/
 });
 var paymentMethodValidation;
 paymentMethodValidation={
@@ -102,74 +93,12 @@ paymentMethodValidation={
 
         return error;
     },
-   /* giropayTrigger: function () {
-        $("#booGiropaySendBtn").click(
-            function () {
-                if ($("#BPE_Bic").val().length == 0) {
-                    $("#BPE_Bic").addClass("error");
-                    showError("booGiropayErr");
-                }
-                else {
-                    $("#BPE_Bic").removeClass("error");
-                    hideError("booGiropayErr");
-                    $("#booGiropaySendBtn").attr('disabled', 'disabled');
-                    $('#modal-loading').modal({
-                        backdrop: 'static',
-                        keyboard: false
-                    });
-                    $("#booGiropayForm").
-
-                    submit();
-                }
-                ;
-            }
-        );
-    },*/
-   /* giftcardsTrigger: function () {
-        $("#booGiftcardsSendBtn").click(
-            function () {
-                $("#booGiftcardsSendBtn").attr('disabled', 'disabled');
-                $('#modal-loading').modal({
-                    backdrop: 'static',
-                    keyboard: false
-                });
-                $("#booGiftcardsForm").submit();
-            }
-        );
-    },*/
     sepaDirectdebitTrigger: function () {
         var error = 0;
         if (!validateIBAN($("#bpe_sepadirectdebit_iban").val())) {
             $("#bpe_sepadirectdebit_iban").addClass("error");
             error = 1;
         } else { $("#bpe_sepadirectdebit_iban").removeClass("error"); }
-        return error;
-    },
-    paygarantByJunoTrigger: function () {
-        var error = 0;
-        if (!validateIBAN($("#bpe_bj_customer_account_number").val())) {
-            $("#bpe_bj_customer_account_number").addClass("error");
-            error = 1;
-        } else { $("#bpe_bj_customer_account_number").removeClass("error"); }
-
-        if (!validateEmail($("#BPE_BJ_Customermail").val())) {
-            $("#BPE_BJ_Customermail").addClass("error");
-            error = 1;
-        } else { $("#BPE_BJ_Customermail").removeClass("error"); }
-
-        return error;
-    },
-    paygarantTrigger: function () {
-        var error = 0;
-        if (!validateIBAN($("#bpe_customer_account_number").val())) {
-            $("#bpe_customer_account_number").addClass("error");
-            error = 1;
-        } else { $("#bpe_customer_account_number").removeClass("error"); }
-
-        if (!validateEmail($("#BPE_Customermail").val())) {
-            $("#BPE_Customermail").addClass("error");
-            error = 1;
-        } else { $("#BPE_Customermail").removeClass("error"); }
         return error;
     },
     init: function (e) {
@@ -181,9 +110,6 @@ paymentMethodValidation={
         switch (this.methodSelector){
             case 'sepadirectdebit':
                 error = error + this.sepaDirectdebitTrigger();
-                break;
-            case 'paygarantbyjuno':
-                error = error + this.paygarantByJunoTrigger();
                 break;
             case 'afterpay&service=digi':
                 error = error + this.afterpayDigiTrigger();

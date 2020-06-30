@@ -26,7 +26,6 @@ class PaymentRequestFactory
     const REQUEST_TYPE_PAYPAL = 'buckaroopaypal';
     const REQUEST_TYPE_EMPAYMENT = 'empayment';
     const REQUEST_TYPE_IDEAL = 'ideal';
-    const REQUEST_TYPE_PAYGARANTBYJUNO = 'paygarantbyjuno';
     const REQUEST_TYPE_GIROPAY = 'giropay';
     const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const REQUEST_TYPE_PAYSAFECARD = 'paysafecard';
@@ -35,7 +34,6 @@ class PaymentRequestFactory
     const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
     const REQUEST_TYPE_GIFTCARD = 'giftcard';
     const REQUEST_TYPE_CREDITCARD = 'creditcard';
-    //const REQUEST_TYPE_CASHTICKET = 'cashticket';
     const REQUEST_TYPE_TRANSFER = 'transfer';
     const REQUEST_TYPE_AFTERPAY = 'afterpay';
 
@@ -45,7 +43,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_EMPAYMENT => 'Empayment',
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
-        PaymentRequestFactory::REQUEST_TYPE_PAYGARANTBYJUNO => 'PayGarantByJuno',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
         PaymentRequestFactory::REQUEST_TYPE_PAYSAFECARD => 'PaySafeCard',
         PaymentRequestFactory::REQUEST_TYPE_MISTERCASH => 'MisterCash',

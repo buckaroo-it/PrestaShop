@@ -102,10 +102,6 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', Tools::getValue('BUCKAROO_EMPAYMENT_ENABLED'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', Tools::getValue('BUCKAROO_EMPAYMENT_TEST'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_ENABLED', Tools::getValue('BUCKAROO_PGBYJUNO_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_TEST', Tools::getValue('BUCKAROO_PGBYJUNO_TEST'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_DATEDUE', Tools::getValue('BUCKAROO_PGBYJUNO_DATEDUE'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_SENDMAIL', Tools::getValue('BUCKAROO_PGBYJUNO_SENDMAIL'));
                 Configuration::updateValue('BUCKAROO_DD_ENABLED', Tools::getValue('BUCKAROO_DD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_DD_TEST', Tools::getValue('BUCKAROO_DD_TEST'));
                 Configuration::updateValue(
@@ -206,8 +202,6 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_USENOTIFICATION', Tools::getValue('BUCKAROO_EMPAYMENT_USENOTIFICATION'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_USENOTIFICATION', Tools::getValue('BUCKAROO_PGBYJUNO_USENOTIFICATION'));
-                Configuration::updateValue('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_USENOTIFICATION', Tools::getValue('BUCKAROO_GIROPAY_USENOTIFICATION'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY'));
                 Configuration::updateValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION', Tools::getValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION'));
@@ -312,10 +306,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPAL_TEST'] = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_EMPAYMENT_ENABLED'] = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
         $fields_value['BUCKAROO_EMPAYMENT_TEST'] = Configuration::get('BUCKAROO_EMPAYMENT_TEST');
-        $fields_value['BUCKAROO_PGBYJUNO_ENABLED'] = Configuration::get('BUCKAROO_PGBYJUNO_ENABLED');
-        $fields_value['BUCKAROO_PGBYJUNO_TEST'] = Configuration::get('BUCKAROO_PGBYJUNO_TEST');
-        $fields_value['BUCKAROO_PGBYJUNO_DATEDUE'] = Configuration::get('BUCKAROO_PGBYJUNO_DATEDUE');
-        $fields_value['BUCKAROO_PGBYJUNO_SENDMAIL'] = Configuration::get('BUCKAROO_PGBYJUNO_SENDMAIL');
         $fields_value['BUCKAROO_DD_ENABLED'] = Configuration::get('BUCKAROO_DD_ENABLED');
         $fields_value['BUCKAROO_DD_TEST'] = Configuration::get('BUCKAROO_DD_TEST');
         $fields_value['BUCKAROO_DD_USECREDITMANAGMENT'] = Configuration::get('BUCKAROO_DD_USECREDITMANAGMENT');
@@ -367,8 +357,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPAL_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_PAYPAL_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_EMPAYMENT_USENOTIFICATION'] = Configuration::get('BUCKAROO_EMPAYMENT_USENOTIFICATION');
         $fields_value['BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_PGBYJUNO_USENOTIFICATION'] = Configuration::get('BUCKAROO_PGBYJUNO_USENOTIFICATION');
-        $fields_value['BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_GIROPAY_USENOTIFICATION'] = Configuration::get('BUCKAROO_GIROPAY_USENOTIFICATION');
         $fields_value['BUCKAROO_GIROPAY_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_GIROPAY_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_PAYSAFECARD_USENOTIFICATION'] = Configuration::get('BUCKAROO_PAYSAFECARD_USENOTIFICATION');
@@ -557,226 +545,6 @@ class Buckaroo3Admin
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Payment Guarantee byJuno settings'),
-            'name' => 'PGBYJUNO',
-            'test' => Configuration::get('BUCKAROO_PGBYJUNO_TEST'),
-            'enabled' => Configuration::get('BUCKAROO_PGBYJUNO_ENABLED'),
-            'input' => array(
-                array(
-                    'type' => 'enabled',
-                    'name' => 'BUCKAROO_PGBYJUNO_ENABLED',
-                ),
-                array(
-                    'type' => 'hidearea_start'
-                ),
-                array(
-                    'type' => 'mode',
-                    'name' => 'BUCKAROO_PGBYJUNO_TEST',
-                ),
-                array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_PGBYJUNO_DATEDUE',
-                    'label' => $this->module->l('Number of days between order and invoice'),
-                    'smalltext' => $this->module->l('Maximum days of delay 30.'),
-                    'size' => 4,
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_PGBYJUNO_SENDMAIL',
-                    'label' => $this->module->l('Send payment email'),
-                    'smalltext' => 'Buckaroo sends an email to the customer with the payment procedures.',
-                    'options' => array(
-                        array(
-                            'text' => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text' => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'multiselect',
-                    'name' => 'BUCKAROO_PGBY_PAYMENT',
-                    'label' => $this->module->l('Payment methods allowed') . '<br />' . $this->module->l(
-                        'Ctrl + click to select multiple'
-                    ),
-                    'height' => 520,
-                    'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',
-                    'options' => array(
-                        array(
-                            'text' => $this->module->l('iDEAL'),
-                            'value' => 'ideal',
-                        ),
-                        array(
-                            'text' => $this->module->l('Overboeking (SEPA Credit Transfer)'),
-                            'value' => 'transfer',
-                        ),
-                        array(
-                            'text' => $this->module->l('Mastercard'),
-                            'value' => 'mastercard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Visa'),
-                            'value' => 'visa',
-                        ),
-                        array(
-                            'text' => $this->module->l('eMaestro'),
-                            'value' => 'maestro',
-                        ),
-                        array(
-                            'text' => $this->module->l('Giropay'),
-                            'value' => 'giropay',
-                        ),
-                        array(
-                            'text' => $this->module->l('Paypal'),
-                            'value' => 'paypal',
-                        ),
-                        array(
-                            'text' => $this->module->l('Mr. Cash/Bancontact'),
-                            'value' => 'bancontactmrcash',
-                        ),
-                        array(
-                            'text' => $this->module->l('Machtiging (SEPA Direct Debit)'),
-                            'value' => 'sepadirectdebit',
-                        ),
-                        array(
-                            'text' => $this->module->l('Sofortbanking'),
-                            'value' => 'sofortueberweisung',
-                        ),
-                        array(
-                            'text' => $this->module->l('Payment guarantee'),
-                            'value' => 'paymentguarantee',
-                        ),
-                        array(
-                            'text' => $this->module->l('Paysafecard'),
-                            'value' => 'paysafecard',
-                        ),
-                        array(
-                            'text' => $this->module->l('?M! Payment'),
-                            'value' => 'empayment',
-                        ),
-                        array(
-                            'text' => $this->module->l('Baby Giftcard'),
-                            'value' => 'babygiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Babypark Giftcard'),
-                            'value' => 'babyparkgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Beauty Wellness'),
-                            'value' => 'beautywellness',
-                        ),
-                        array(
-                            'text' => $this->module->l('Boekenbon'),
-                            'value' => 'boekenbon',
-                        ),
-                        array(
-                            'text' => $this->module->l('Boekenvoordeel'),
-                            'value' => 'boekenvoordeel',
-                        ),
-                        array(
-                            'text' => $this->module->l('Designshops Giftcard'),
-                            'value' => 'designshopsgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Fijn Cadeau'),
-                            'value' => 'fijncadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Koffie Cadeau'),
-                            'value' => 'koffiecadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Koken En Zo'),
-                            'value' => 'kokenzo',
-                        ),
-                        array(
-                            'text' => $this->module->l('Kook Cadeau'),
-                            'value' => 'kookcadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Nationale Entertainment Card'),
-                            'value' => 'nationaleentertainmentcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Natures Gift'),
-                            'value' => 'naturesgift',
-                        ),
-                        array(
-                            'text' => $this->module->l('Podium Cadeaukaart'),
-                            'value' => 'podiumcadeaukaart',
-                        ),
-                        array(
-                            'text' => $this->module->l('Shoes Accessories'),
-                            'value' => 'shoesaccessories',
-                        ),
-                        array(
-                            'text' => $this->module->l('Webshop Giftcard'),
-                            'value' => 'webshopgiftcard',
-                        ),
-                        array(
-                            'text' => $this->module->l('Wijn Cadeau'),
-                            'value' => 'wijncadeau',
-                        ),
-                        array(
-                            'text' => $this->module->l('Wonen En Zo'),
-                            'value' => 'wonenzo',
-                        ),
-                        array(
-                            'text' => $this->module->l('Your Gift'),
-                            'value' => 'yourgift',
-                        ),
-                        array(
-                            'text' => $this->module->l('Fashioncheque'),
-                            'value' => 'fashioncheque',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_PGBYJUNO_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PreNotification service)'
-                        ),
-                    'options' => array(
-                        array(
-                            'text' => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text' => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end'
-                )
-            )
-        );
-
-        $fields_form[$i++] = array(
             'legend' => $this->module->l('SEPA Direct debit settings'),
             'name' => 'SEPADD',
             'test' => Configuration::get('BUCKAROO_SDD_TEST'),
@@ -841,10 +609,6 @@ class Buckaroo3Admin
                         array(
                             'text' => $this->module->l('Sofortbanking'),
                             'value' => 'sofortueberweisung',
-                        ),
-                        array(
-                            'text' => $this->module->l('Payment guarantee'),
-                            'value' => 'paymentguarantee',
                         ),
                         array(
                             'text' => $this->module->l('Paysafecard'),

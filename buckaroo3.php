@@ -197,10 +197,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_DD_INVOICEDELAY', '0');
         Configuration::updateValue('BUCKAROO_DD_DATEDUE', '0');
         Configuration::updateValue('BUCKAROO_DD_MAXREMINDERLEVEL', '4');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_TEST', '1');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_DATEDUE', '14');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_SENDMAIL', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', '0');
@@ -240,8 +236,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_USENOTIFICATION', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_USENOTIFICATION', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION', '0');
@@ -350,13 +344,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_SDD_MAXREMINDERLEVEL');
         Configuration::deleteByName('BUCKAROO_SDD_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_SDD_NOTIFICATIONDELAY');
-        //byJuno
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_TEST');
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_DATEDUE');
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_SENDMAIL');
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_IDEAL_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
@@ -521,14 +508,6 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by PayPal'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
-                    ;
-            $payment_options[] =$newOption;
-         }
-         if(Config::get('BUCKAROO_PGBYJUNO_ENABLED')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Payment Guarantee byJuno'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paygarantbyjuno']))
-                          ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paygarantbyjuno.tpl'))
                     ;
             $payment_options[] =$newOption;
          }
@@ -737,9 +716,6 @@ class Buckaroo3 extends PaymentModule
             case 'SepaDirectDebit':
             case 'sepadirectdebit':
                 $payment_method_tr = $this->l('Sepa Direct Debit');
-                break;
-            case 'paygarantbyjuno':
-                $payment_method_tr = $this->l('Payment Guarantee byJuno');
                 break;
             case 'ideal':
                 $payment_method_tr = $this->l('iDeal');

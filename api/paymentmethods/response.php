@@ -32,7 +32,7 @@ abstract class Response extends BuckarooAbstract
     private $_isPost;
     //payment key
     public $payment;
-    //paypal, paymentguarantee, ideal...
+    //paypal, ideal...
     public $payment_method;
     public $statuscode;
     public $statuscode_detail;
@@ -52,16 +52,6 @@ abstract class Response extends BuckarooAbstract
     //transaction key
     public $transactions;
     //if is errors, othervise = null
-    /* [ParameterError] => stdClass Object
-      (
-      [_] => Parameter "CustomerAccountNumber" has wrong value
-      [Service] => paymentguarantee
-      [Action] => PaymentInvitation
-      [Name] => CustomerAccountNumber
-      [Error] => ParameterInvalid
-      )
-     * 
-     */
     public $parameterError = null;
     /*     * **************************************************** */
     protected $_responseXML = '';
