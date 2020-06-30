@@ -19,7 +19,6 @@
 
 require_once(dirname(__FILE__) . '/buckaroopaypal/paypalresponse.php');
 require_once(dirname(__FILE__) . '/ideal/idealresponse.php');
-require_once(dirname(__FILE__) . '/paygarant/paygarantresponse.php');
 require_once(dirname(__FILE__) . '/transfer/transferresponse.php');
 require_once(dirname(__FILE__) . '/creditcard/creditcardresponse.php');
 require_once(dirname(__FILE__) . '/giftcard/giftcardresponse.php');

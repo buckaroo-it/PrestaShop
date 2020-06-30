@@ -182,9 +182,6 @@ paymentMethodValidation={
             case 'sepadirectdebit':
                 error = error + this.sepaDirectdebitTrigger();
                 break;
-            case 'payguarant':
-                error = error + this.paygarantTrigger();
-                break;
             case 'paygarantbyjuno':
                 error = error + this.paygarantByJunoTrigger();
                 break;

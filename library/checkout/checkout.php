@@ -28,7 +28,6 @@ abstract class Checkout
     const CHECKOUT_TYPE_DIRECTDEBIT = 'directdebit';
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_PAYGARANTBYJUNO = 'paygarantbyjuno';
-    const CHECKOUT_TYPE_PAYGUARANT = 'payguarant';
     const CHECKOUT_TYPE_GIROPAY = 'giropay';
     const CHECKOUT_TYPE_PAYSAFECARD = 'paysafecard';
     const CHECKOUT_TYPE_MISTERCASH = 'bancontactmrcash';
@@ -36,7 +35,6 @@ abstract class Checkout
     const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
     const CHECKOUT_TYPE_EMAESTRO = 'maestro';
     const CHECKOUT_TYPE_SOFORTBANKING = 'sofortueberweisung';
-    //const CHECKOUT_TYPE_CASHTICKET = 'cashticket';
     const CHECKOUT_TYPE_TRANSFER = 'transfer';
     const CHECKOUT_TYPE_AFTERPAY = 'afterpay';
 
@@ -47,7 +45,6 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_IDEAL => 'IDeal',
         Checkout::CHECKOUT_TYPE_DIRECTDEBIT => 'DirectDebit',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
-        Checkout::CHECKOUT_TYPE_PAYGUARANT => 'PayGuarant',
         Checkout::CHECKOUT_TYPE_PAYGARANTBYJUNO => 'PayGarantByJuno',
         Checkout::CHECKOUT_TYPE_GIROPAY => 'Giropay',
         Checkout::CHECKOUT_TYPE_PAYSAFECARD => 'PaySafeCard',
@@ -56,7 +53,6 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
         Checkout::CHECKOUT_TYPE_EMAESTRO => 'EMaestro',
         Checkout::CHECKOUT_TYPE_SOFORTBANKING => 'Sofortbanking',
-        //Checkout::CHECKOUT_TYPE_CASHTICKET => 'CashTicket',
         Checkout::CHECKOUT_TYPE_TRANSFER => 'Transfer',
         Checkout::CHECKOUT_TYPE_AFTERPAY => 'AfterPay',
     );

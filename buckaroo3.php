@@ -201,10 +201,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PGBYJUNO_TEST', '1');
         Configuration::updateValue('BUCKAROO_PGBYJUNO_DATEDUE', '14');
         Configuration::updateValue('BUCKAROO_PGBYJUNO_SENDMAIL', '0');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_TEST', '1');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_DATEDUE', '14');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_SENDMAIL', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', '0');
@@ -246,8 +242,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_PGBYJUNO_USENOTIFICATION', '0');
         Configuration::updateValue('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_PAYGARANT_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_USENOTIFICATION', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY', '0');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION', '0');
@@ -363,13 +357,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_PGBYJUNO_SENDMAIL');
         Configuration::deleteByName('BUCKAROO_PGBYJUNO_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_PGBYJUNO_NOTIFICATIONDELAY');
-        //paygarant
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_DATEDUE');
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_SENDMAIL');
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_PAYGARANT_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_IDEAL_USENOTIFICATION');
         Configuration::deleteByName('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
@@ -518,23 +505,7 @@ class Buckaroo3 extends PaymentModule
                  'phone_afterpay_billing' => $phone_afterpay_billing,
                  'total' => $cart->getOrderTotal(true, 3),
                  'afterpay_serviss' => Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME'),
-                 'afterpay_btb' => Config::get('BUCKAROO_AFTERPAY_BTB'),
-//                 'paypal_enabled' => Config::get('BUCKAROO_PAYPAL_ENABLED'),
-//                 'empayment_enabled' => Config::get('BUCKAROO_EMPAYMENT_ENABLED'),
-//                 'sepadirectdebit_enabled' => Config::get('BUCKAROO_SDD_ENABLED'),
-//                 'paygarantbyjuno_enabled' => Config::get('BUCKAROO_PGBYJUNO_ENABLED'),
-//                 'paygarant_enabled' => Config::get('BUCKAROO_PAYGARANT_ENABLED'),
-//                 'ideal_enabled' => Config::get('BUCKAROO_IDEAL_ENABLED'),
-//                 'giropay_enabled' => Config::get('BUCKAROO_GIROPAY_ENABLED'),
-//                 'paysafecard_enabled' => Config::get('BUCKAROO_PAYSAFECARD_ENABLED'),
-//                 'mistercash_enabled' => Config::get('BUCKAROO_MISTERCASH_ENABLED'),
-//                 'giftcard_enabled' => Config::get('BUCKAROO_GIFTCARD_ENABLED'),
-//                 'creditcard_enabled' => Config::get('BUCKAROO_CREDITCARD_ENABLED'),
-//                 'emaestro_enabled' => Config::get('BUCKAROO_EMAESTRO_ENABLED'),
-//                 'sofortbanking_enabled' => Config::get('BUCKAROO_SOFORTBANKING_ENABLED'),
-//                 'transfer_enabled' => Config::get('BUCKAROO_TRANSFER_ENABLED'),
-//                 'afterpay_enabled' => Config::get('BUCKAROO_AFTERPAY_ENABLED'),
-                 //'this_path_ssl' => Support::getHttpHost(true, true) . __PS_BASE_URI__ . 'modules/buckarootransfergarant/'
+                 'afterpay_btb' => Config::get('BUCKAROO_AFTERPAY_BTB')
              )
          );
          $payment_options = [];
@@ -558,14 +529,6 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->l('Payment Guarantee byJuno'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paygarantbyjuno']))
                           ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paygarantbyjuno.tpl'))
-                    ;
-            $payment_options[] =$newOption;
-         }
-         if(Config::get('BUCKAROO_PAYGARANT_ENABLED')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Payment Guarantee'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payguarant']))
-                          ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_payguarant.tpl'))
                     ;
             $payment_options[] =$newOption;
          }
@@ -653,108 +616,6 @@ class Buckaroo3 extends PaymentModule
 
          return $payment_options;
      }
-
-
-//    public function hookPayment($params)
-//    {
-//        if (!$this->active) {
-//            return;
-//        }
-//
-//        $cookie = new Cookie('ps');
-//        $cart = new Cart($params['cookie']->__get('id_cart'));
-//        $customer = new Customer($cart->id_customer);
-//        $id_lang = ((int)($cookie->id_lang) ? (int)($cookie->id_lang) : (int)(Configuration::get('PS_LANG_DEFAULT')));
-//        $addresses = $customer->getAddresses($id_lang);
-//        $company = '';
-//        $vat = '';
-//        $firstNameBilling = '';
-//        $firstNameShipping = '';
-//        $lastNameBilling = '';
-//        $lastNameShipping = '';
-//        foreach ($addresses as $address) {
-//            if ($address['id_address'] == $cart->id_address_delivery) {
-//                $phone = $address['phone'];
-//                $phone_mobile = $address['phone_mobile'];
-//                $firstNameShipping = $address["firstname"];
-//                $lastNameShipping = $address["lastname"];
-//            }
-//            if ($address['id_address'] == $cart->id_address_invoice) {
-//                $company = $address['company'];
-//                $vat = $address['vat_number'];
-//                $phone_billing = $address['phone'];
-//                $phone_mobile_billing = $address['phone_mobile'];
-//                $firstNameBilling = $address["firstname"];
-//                $lastNameBilling = $address["lastname"];
-//            }
-//        }
-//        $phone_afterpay_shipping = '';
-//        if (!empty($phone_mobile)) {
-//            $phone_afterpay_shipping = $phone_mobile;
-//        }
-//        if (empty($phone_afterpay_shipping) && !empty($phone)) {
-//            $phone_afterpay_shipping = $phone;
-//        }
-//
-//
-//        $phone_afterpay_billing = '';
-//        if (!empty($phone_mobile_billing)) {
-//            $phone_afterpay_billing = $phone_mobile_billing;
-//        }
-//        if (empty($phone_afterpay_billing) && !empty($phone_billing)) {
-//            $phone_afterpay_billing = $phone_billing;
-//        }
-//
-//        $address_differ = 0;
-//      
-//        if ($cart->id_address_delivery != $cart->id_address_invoice && $lastNameShipping == $lastNameBilling && $firstNameShipping == $firstNameBilling) {
-//            $address_differ = 2;
-//        } else if ($cart->id_address_delivery != $cart->id_address_invoice) {
-//            $address_differ = 1;
-//        }
-//      
-//        require_once dirname(__FILE__) . '/config.php';
-//        $this->smarty->assign(
-//            array(
-//                'address_differ' => $address_differ,
-//                'this_path' => $this->_path,
-//                'this_path_ssl' => Tools::getShopDomainSsl(
-//                    true,
-//                    true
-//                ) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
-//                'customer_gender' => $customer->id_gender,
-//                'customer_name' => $customer->firstname . ' ' . $customer->lastname,
-//                'customer_email' => $customer->email,
-//                'customer_birthday' => explode('-', $customer->birthday),
-//                'customer_company' => $company,
-//                'customer_vat' => $vat,
-//                'phone' => $phone,
-//                'phone_mobile' => $phone_mobile,
-//                'phone_afterpay_shipping' => $phone_afterpay_shipping,
-//                'phone_afterpay_billing' => $phone_afterpay_billing,
-//                'total' => $cart->getOrderTotal(true, 3),
-//                'afterpay_serviss' => Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME'),
-//                'afterpay_btb' => Config::get('BUCKAROO_AFTERPAY_BTB'),
-//                'paypal_enabled' => Config::get('BUCKAROO_PAYPAL_ENABLED'),
-//                'empayment_enabled' => Config::get('BUCKAROO_EMPAYMENT_ENABLED'),
-//                'sepadirectdebit_enabled' => Config::get('BUCKAROO_SDD_ENABLED'),
-//                'paygarantbyjuno_enabled' => Config::get('BUCKAROO_PGBYJUNO_ENABLED'),
-//                'paygarant_enabled' => Config::get('BUCKAROO_PAYGARANT_ENABLED'),
-//                'ideal_enabled' => Config::get('BUCKAROO_IDEAL_ENABLED'),
-//                'giropay_enabled' => Config::get('BUCKAROO_GIROPAY_ENABLED'),
-//                'paysafecard_enabled' => Config::get('BUCKAROO_PAYSAFECARD_ENABLED'),
-//                'mistercash_enabled' => Config::get('BUCKAROO_MISTERCASH_ENABLED'),
-//                'giftcard_enabled' => Config::get('BUCKAROO_GIFTCARD_ENABLED'),
-//                'creditcard_enabled' => Config::get('BUCKAROO_CREDITCARD_ENABLED'),
-//                'emaestro_enabled' => Config::get('BUCKAROO_EMAESTRO_ENABLED'),
-//                'sofortbanking_enabled' => Config::get('BUCKAROO_SOFORTBANKING_ENABLED'),
-//                'transfer_enabled' => Config::get('BUCKAROO_TRANSFER_ENABLED'),
-//                'afterpay_enabled' => Config::get('BUCKAROO_AFTERPAY_ENABLED'),
-//                //'this_path_ssl' => Support::getHttpHost(true, true) . __PS_BASE_URI__ . 'modules/buckarootransfergarant/'
-//            )
-//        );
-//        return $this->display(__FILE__, 'payment.tpl');
-//    }
 
     public function hookPaymentReturn($params)
     {
@@ -879,10 +740,6 @@ class Buckaroo3 extends PaymentModule
                 break;
             case 'paygarantbyjuno':
                 $payment_method_tr = $this->l('Payment Guarantee byJuno');
-                break;
-            case 'paymentguarantee':
-            case 'payguarant':
-                $payment_method_tr = $this->l('Payment Guarantee');
                 break;
             case 'ideal':
                 $payment_method_tr = $this->l('iDeal');
