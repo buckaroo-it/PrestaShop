@@ -447,7 +447,6 @@ class Buckaroo3 extends PaymentModule
             $phone_afterpay_shipping = $phone;
         }
 
-
         $phone_afterpay_billing = '';
         if (!empty($phone_mobile_billing)) {
             $phone_afterpay_billing = $phone_mobile_billing;
@@ -469,10 +468,6 @@ class Buckaroo3 extends PaymentModule
              array(
                  'address_differ' => $address_differ,
                  'this_path' => $this->_path,
-//                 'this_path_ssl' => Tools::getShopDomainSsl(
-//                     true,
-//                     true
-//                 ) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
                  'customer_gender' => $customer->id_gender,
                  'customer_name' => $customer->firstname . ' ' . $customer->lastname,
                  'customer_email' => $customer->email,
@@ -494,14 +489,14 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->l('Pay by iDeal'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal']))
                           ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/ideal.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_PAYPAL_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by PayPal'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
-                    ;
+                        ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
+                        ->setLogo($this->_path . 'views/img/buckaroo_images/paypal.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_SDD_ENABLED')) {
@@ -509,7 +504,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->l('Pay by SEPA Direct Debit'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sepadirectdebit']))
                           ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_sepadirectdebit.tpl'))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/sepa_dd.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_GIROPAY_ENABLED')) {
@@ -517,72 +512,72 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->l('Pay by GiroPay'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                           ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/giropay.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_PAYSAFECARD_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Paysafecard'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paysafecard']))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/paysafecard.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_MISTERCASH_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Bancontact / Mister Cash'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'bancontactmrcash']))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/mistercash.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_GIFTCARD_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Giftcards'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard']))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/giftcard.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_CREDITCARD_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Creditcards'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
-                    ;
+                    ->setLogo($this->_path . 'views/img/buckaroo_images/cc.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_EMAESTRO_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by eMaestro'))
                           ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'maestro']))
-                    ;
+                          ->setLogo($this->_path . 'views/img/buckaroo_images/emaestro.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_SOFORTBANKING_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Sofortbanking'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung']))
-                    ;
+                        ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung']))
+                        ->setLogo($this->_path . 'views/img/buckaroo_images/sofort.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_TRANSFER_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Pay by Bank Transfer'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
-                    ;
+                        ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
+                        ->setLogo($this->_path . 'views/img/buckaroo_images/transfer.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_AFTERPAY_ENABLED') && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept' || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Afterpay Digitale Factuur'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi']))
-                          ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_digi.tpl'))
-                    ;
+                    ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi']))
+                    ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_digi.tpl'))
+                    ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');
             $payment_options[] =$newOption;
          }
          if(Config::get('BUCKAROO_AFTERPAY_ENABLED') && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept' || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->l('Afterpay Eenmalige Machtiging'))
-                          ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'sepa']))
-                          ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_sepa.tpl'))
-                    ;
+                    ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'sepa']))
+                    ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_sepa.tpl'))
+                    ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');
             $payment_options[] =$newOption;
          }
 
