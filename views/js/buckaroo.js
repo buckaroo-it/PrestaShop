@@ -7,7 +7,7 @@ void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!=
 
 /*
  *
- * 2014-2015 Buckaroo.nl
+ *
  *
  * NOTICE OF LICENSE
  *

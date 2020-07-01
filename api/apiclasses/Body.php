@@ -1,6 +1,6 @@
 <?php
 /**
- * 2014-2015 Buckaroo.nl
+ *
  *
  * NOTICE OF LICENSE
  *
