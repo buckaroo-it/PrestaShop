@@ -10,7 +10,7 @@
  * http://opensource.org/licenses/afl-3.0.php
  *
  * @author Buckaroo.nl <plugins@buckaroo.nl>
- * @copyright Copyright (c) Buckaroo B.V. 
+ * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
  */
 header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');

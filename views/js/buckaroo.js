@@ -16,7 +16,7 @@ void 0!==c?e&&"set"in e&&void 0!==(d=e.set(a,c,b))?d:a[b]=c:e&&"get"in e&&null!=
  * http://opensource.org/licenses/afl-3.0.php
  *
  * @author Buckaroo.nl <plugins@buckaroo.nl>
- * @copyright Copyright (c) Buckaroo B.V. 
+ * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
  */
 

@@ -9,7 +9,7 @@
  * http://opensource.org/licenses/afl-3.0.php
  *
  * @author Buckaroo.nl <plugins@buckaroo.nl>
- * @copyright Copyright (c) Buckaroo B.V. 
+ * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 {capture name=path}}{l s='Order Processing' mod='buckaroo3'}{/capture}

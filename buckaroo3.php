@@ -13,7 +13,7 @@
 * Do not edit or add to this file if you wish to upgrade this file
 *
 *  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V. 
+*  @copyright Copyright (c) Buckaroo B.V.
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 */
 
@@ -35,7 +35,6 @@ class Buckaroo3 extends PaymentModule
 
     public function __construct()
     {
-
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
         $this->version = '3.3.1';
@@ -44,8 +43,11 @@ class Buckaroo3 extends PaymentModule
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.7');
 
+        parent::__construct();
+
         $response = ResponseFactory::getResponse();
-        $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
+        // $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
+        $this->displayName = $this->l('Buckaroo Payments');
         if ($response->isValid()) {
             if ($response->brq_transaction_type == 'I150') {
                 $this->displayName = 'Group transaction';
@@ -58,8 +60,6 @@ class Buckaroo3 extends PaymentModule
             }
         }
         $this->tpl_folder = 'buckaroo3';
-
-        parent::__construct();
 
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
