@@ -45,7 +45,6 @@ class SepaDirectDebit extends PaymentMethod
         $this->data['customVars'][$this->type]['CustomerIBAN'] = $this->CustomerIBAN;
 
         if ($this->usecreditmanagment) {
-
             $this->data['services']['creditmanagement']['action'] = 'Invoice';
             $this->data['services']['creditmanagement']['version'] = '1';
             $this->data['customVars']['creditmanagement']['MaxReminderLevel'] = $customVars['MaxReminderLevel'];
@@ -82,12 +81,11 @@ class SepaDirectDebit extends PaymentMethod
             $this->data['customVars']['creditmanagement']['AmountVat'] = $customVars['AmountVat'];
 
             foreach ($customVars['ADDRESS'] as $key => $adress) {
-
                 $this->data['customVars']['creditmanagement'][$key]['value'] = $adress;
                 $this->data['customVars']['creditmanagement'][$key]['group'] = 'address';
-
             }
         }
+        
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';

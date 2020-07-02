@@ -75,7 +75,7 @@ class SoapClientWSSEC extends SoapClient
     //Calculate digest value (sha1 hash)
     private function calculateDigestValue($input)
     {
-        return base64_encode(pack('H*', sha1($input)));
+        return mb_convert_encoding(pack('H*', sha1($input)), "BASE64", "UTF-8");
     }
 
     private function signDomDocument($domDocument)
@@ -99,14 +99,14 @@ class SoapClientWSSEC extends SoapClient
 
         //Set the digest value for the control reference
         $Control = '#_control';
-        $controlHashQuery = $query = '//*[@URI="'.$Control.'"]/sig:DigestValue';
+        $controlHashQuery = '//*[@URI="'.$Control.'"]/sig:DigestValue';
         $controlHashQueryNodeset = $xPath->query($controlHashQuery);
         $controlHashNode = $controlHashQueryNodeset->item(0);
         $controlHashNode->nodeValue = $controlHash;
 
         //Set the digest value for the body reference
         $Body = '#_body';
-        $bodyHashQuery = $query = '//*[@URI="'.$Body.'"]/sig:DigestValue';
+        $bodyHashQuery = '//*[@URI="'.$Body.'"]/sig:DigestValue';
         $bodyHashQueryNodeset = $xPath->query($bodyHashQuery);
         $bodyHashNode = $bodyHashQueryNodeset->item(0);
         $bodyHashNode->nodeValue = $bodyHash;
@@ -142,13 +142,13 @@ class SoapClientWSSEC extends SoapClient
 
         //Sign signedinfo with privatekey
         $signature2 = null;
-        $signatureCreate = openssl_sign($signedINFO, $signature2, $pkeyid);
+        openssl_sign($signedINFO, $signature2, $pkeyid);
 
         //Add signature value to xml document
         $sigValQuery = '//wsse:Security/sig:Signature/sig:SignatureValue';
         $sigValQueryNodeset = $xPath->query($sigValQuery);
         $sigValNodeSet = $sigValQueryNodeset->item(0);
-        $sigValNodeSet->nodeValue = base64_encode($signature2);
+        $sigValNodeSet->nodeValue = mb_convert_encoding($signature2, "BASE64", "UTF-8");
 
         //Get signature node
         $sigQuery = '//wsse:Security/sig:Signature';

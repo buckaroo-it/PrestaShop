@@ -21,9 +21,9 @@ require_once dirname(__FILE__) . '/api/config/configcore.php';
 
 class Config extends ConfigCore
 {
-    const NAME = 'buckaroo3';
+    const NAME        = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo Payments';
-    const VERSION = '3.3.1';
+    const VERSION     = '3.3.1';
     //ATTENTION: If log is enabled it can be potential vulnerability
     const LOG = false;
 
@@ -63,12 +63,12 @@ class Config extends ConfigCore
 
     public static function getSoftware()
     {
-        $Software = new Software();
-        $Software->PlatformName = 'Prestashop';
+        $Software                  = new Software();
+        $Software->PlatformName    = 'Prestashop';
         $Software->PlatformVersion = _PS_VERSION_;
-        $Software->ModuleSupplier = 'Buckaroo';
-        $Software->ModuleName = Config::PLUGIN_NAME;
-        $Software->ModuleVersion = Config::VERSION;
+        $Software->ModuleSupplier  = 'Buckaroo';
+        $Software->ModuleName      = Config::PLUGIN_NAME;
+        $Software->ModuleVersion   = Config::VERSION;
         return $Software;
     }
 

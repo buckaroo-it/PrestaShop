@@ -21,9 +21,6 @@ require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
 class CreditCard extends PaymentMethod
 {
-    //put your code here
-    //public $cardtype = '';
-
     public function __construct()
     {
         $this->version = 1;
@@ -35,13 +32,13 @@ class CreditCard extends PaymentMethod
         return parent::refund();
     }
 
-    public function pay($customVars = Array())
+    public function pay($customVars = array())
     {
         $this->data['customVars']['servicesSelectableByClient'] = Config::get('BUCKAROO_CREDITCARD_ALLOWED_CARDS');
         $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
         $this->data['services'] = array();
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])){
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
             $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];

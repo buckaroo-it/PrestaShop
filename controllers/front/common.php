@@ -78,6 +78,6 @@ class BuckarooCommonController extends ModuleFrontController
             )
         );
 
-        $this->setTemplate('error.tpl');
+        $this->setTemplate('module:buckaroo3/views/templates/front/error.tpl');
     }
 }

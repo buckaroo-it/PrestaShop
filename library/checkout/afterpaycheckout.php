@@ -1,23 +1,23 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php');
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class AfterPayCheckout extends Checkout
 {
@@ -28,7 +28,6 @@ class AfterPayCheckout extends Checkout
 
     final public function setCheckout()
     {
-
         parent::setCheckout();
 
         $phone = '';
@@ -42,8 +41,8 @@ class AfterPayCheckout extends Checkout
         if ($ShippingCost > 0) {
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
-        $language = Language::getIsoById((int)$this->cart->id_lang);
-        $service = '';
+        $language = Language::getIsoById((int) $this->cart->id_lang);
+        $service  = '';
         if (Tools::getValue("service") == 'digi') {
             $service = 'afterpaydigiaccept';
         }
@@ -53,10 +52,10 @@ class AfterPayCheckout extends Checkout
         if (empty($service)) {
             return false;
         }
-        $this->payment_request->type = $service;
-        $this->payment_request->BillingGender = Tools::getValue("bpe_afterpay_invoice_person_gender");
-        $this->payment_request->BillingInitials = initials($this->invoice_address->firstname);
-        $this->payment_request->BillingLastName = $this->invoice_address->lastname;
+        $this->payment_request->type             = $service;
+        $this->payment_request->BillingGender    = Tools::getValue("bpe_afterpay_invoice_person_gender");
+        $this->payment_request->BillingInitials  = initials($this->invoice_address->firstname);
+        $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
         $this->payment_request->BillingBirthDate = date(
             'Y-m-d',
             strtotime(
@@ -66,18 +65,18 @@ class AfterPayCheckout extends Checkout
             )
         );
 
-        $address_components = $this->_getAddressComponents($this->invoice_address->address1);
-        $this->payment_request->BillingStreet = $address_components['street'];
-        $this->payment_request->BillingHouseNumber = $address_components['house_number'];
+        $address_components                              = $this->_getAddressComponents($this->invoice_address->address1);
+        $this->payment_request->BillingStreet            = $address_components['street'];
+        $this->payment_request->BillingHouseNumber       = $address_components['house_number'];
         $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $this->payment_request->BillingPostalCode = $this->invoice_address->postcode;
-        $this->payment_request->BillingCity = $this->invoice_address->city;
-        $country = new Country($this->invoice_address->id_country);
-        $this->payment_request->BillingCountry = Tools::strtoupper($country->iso_code);
-        $this->payment_request->BillingEmail = !empty($this->customer->email) ? $this->customer->email : '';
-        $this->payment_request->BillingLanguage = $language;
-        $this->payment_request->BillingPhoneNumber = $phone;
-        $Discount = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
+        $this->payment_request->BillingPostalCode        = $this->invoice_address->postcode;
+        $this->payment_request->BillingCity              = $this->invoice_address->city;
+        $country                                         = new Country($this->invoice_address->id_country);
+        $this->payment_request->BillingCountry           = Tools::strtoupper($country->iso_code);
+        $this->payment_request->BillingEmail             = !empty($this->customer->email) ? $this->customer->email : '';
+        $this->payment_request->BillingLanguage          = $language;
+        $this->payment_request->BillingPhoneNumber       = $phone;
+        $Discount                                        = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
         if ($Discount > 0) {
             $this->payment_request->Discount = round($Discount, 2);
         }
@@ -110,24 +109,24 @@ class AfterPayCheckout extends Checkout
                     )
                 );
             }
-            $this->payment_request->AddressesDiffer = 'TRUE';
-            $this->payment_request->ShippingGender = $shippingGender;
-            $this->payment_request->ShippingInitials = initials($this->shipping_address->firstname);
-            $this->payment_request->ShippingLastName = $this->shipping_address->lastname;
-            $this->payment_request->ShippingBirthDate = $ShippingBirthDate;
-            $address_components = $this->_getAddressComponents($this->shipping_address->address1);
-            $this->payment_request->ShippingStreet = $address_components['street'];
-            $this->payment_request->ShippingHouseNumber = $address_components['house_number'];
+            $this->payment_request->AddressesDiffer           = 'TRUE';
+            $this->payment_request->ShippingGender            = $shippingGender;
+            $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
+            $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;
+            $this->payment_request->ShippingBirthDate         = $ShippingBirthDate;
+            $address_components                               = $this->_getAddressComponents($this->shipping_address->address1);
+            $this->payment_request->ShippingStreet            = $address_components['street'];
+            $this->payment_request->ShippingHouseNumber       = $address_components['house_number'];
             $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
-            $this->payment_request->ShippingPostalCode = $this->shipping_address->postcode;
-            $this->payment_request->ShippingCity = $this->shipping_address->city;
-            $country = new Country($this->shipping_address->id_country);
-            $this->payment_request->ShippingCountryCode = Tools::strtoupper($country->iso_code);
-            $this->payment_request->ShippingEmail = Tools::getIsset(
+            $this->payment_request->ShippingPostalCode        = $this->shipping_address->postcode;
+            $this->payment_request->ShippingCity              = $this->shipping_address->city;
+            $country                                          = new Country($this->shipping_address->id_country);
+            $this->payment_request->ShippingCountryCode       = Tools::strtoupper($country->iso_code);
+            $this->payment_request->ShippingEmail             = Tools::getIsset(
                 $this->customer->email
             ) ? $this->customer->email : '';
             $this->payment_request->ShippingLanguage = $language;
-            $phone = '';
+            $phone                                   = '';
             if (!empty($this->shipping_address->phone_mobile)) {
                 $phone = $this->shipping_address->phone_mobile;
             }
@@ -137,37 +136,36 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingPhoneNumber = $phone;
         }
         $buckarooafterpayCompanyCOCRegistration = Tools::getValue("buckaroo-afterpay-CompanyCOCRegistration");
-        $buckarooafterpayCompanyName = Tools::getValue("buckaroo-afterpay-CompanyName");
-        $buckarooafterpayCostCentre = Tools::getValue("buckaroo-afterpay-CostCentre");
-        $buckarooafterpayVatNumber = Tools::getValue("buckaroo-afterpay-VatNumber");
+        $buckarooafterpayCompanyName            = Tools::getValue("buckaroo-afterpay-CompanyName");
+        $buckarooafterpayCostCentre             = Tools::getValue("buckaroo-afterpay-CostCentre");
+        $buckarooafterpayVatNumber              = Tools::getValue("buckaroo-afterpay-VatNumber");
 
         if (!empty($buckarooafterpayCompanyCOCRegistration)) {
-            $this->payment_request->B2B = 'TRUE';
+            $this->payment_request->B2B                    = 'TRUE';
             $this->payment_request->CompanyCOCRegistration = $buckarooafterpayCompanyCOCRegistration;
-            $this->payment_request->CompanyName = $buckarooafterpayCompanyName;
-            $this->payment_request->CostCentre = $buckarooafterpayCostCentre;
-            $this->payment_request->VatNumber = $buckarooafterpayVatNumber;
+            $this->payment_request->CompanyName            = $buckarooafterpayCompanyName;
+            $this->payment_request->CostCentre             = $buckarooafterpayCostCentre;
+            $this->payment_request->VatNumber              = $buckarooafterpayVatNumber;
         }
 
         $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
-        $this->payment_request->Accept = 'TRUE';
+        $this->payment_request->Accept            = 'TRUE';
 
-        if ((int)Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION')) {
-
-            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int)($this->customer->id_gender);
+        if ((int) Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION')) {
+            $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
             $gender_type = Db::getInstance()->getValue($sql);
 
             $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
 
-            $this->customVars['CustomerLastName'] = $this->invoice_address->lastname;
-            $this->customVars['Customeremail'] = !empty($this->customer->email) ? $this->customer->email : '';
-            $this->customVars['Customergender'] = ($gender_type == 0) ? '1' : ($gender_type == 1) ? '2' : '0';
+            $this->customVars['CustomerLastName']   = $this->invoice_address->lastname;
+            $this->customVars['Customeremail']      = !empty($this->customer->email) ? $this->customer->email : '';
+            $this->customVars['Customergender']     = ($gender_type == 0) ? '1' : ($gender_type == 1) ? '2' : '0';
             $this->payment_request->usenotification = 1;
-            $this->customVars['Notificationtype'] = 'PaymentComplete';
-            if ((int)(Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) > 0) {
+            $this->customVars['Notificationtype']   = 'PaymentComplete';
+            if ((int) (Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) > 0) {
                 $this->customVars['Notificationdelay'] = date(
                     'Y-m-d',
-                    strtotime('now + ' . (int)(Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) . ' day')
+                    strtotime('now + ' . (int) (Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) . ' day')
                 );
             }
         }
@@ -180,7 +178,7 @@ class AfterPayCheckout extends Checkout
 
     public function startPayment()
     {
-        $products = array();
+        $products  = array();
         $taxvalues = Configuration::get('BUCKAROO_AFTERPAY_TAXRATE');
         if (!$taxvalues) {
             $taxvalues = array();
@@ -188,12 +186,12 @@ class AfterPayCheckout extends Checkout
             $taxvalues = unserialize($taxvalues);
         }
         foreach ($this->products as $item) {
-            $tmp = array();
+            $tmp                       = array();
             $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"] = $item['id_product'];
-            $tmp["ArticleQuantity"] = $item["quantity"];
-            $tmp["ArticleUnitprice"] = round($item["price_wt"], 2);
-            $taxId = TaxCore::getTaxIdByName($item["tax_name"]);
+            $tmp["ArticleId"]          = $item['id_product'];
+            $tmp["ArticleQuantity"]    = $item["quantity"];
+            $tmp["ArticleUnitprice"]   = round($item["price_wt"], 2);
+            $taxId                     = TaxCore::getTaxIdByName($item["tax_name"]);
 
             if (Tools::getIsset($taxvalues[$taxId])) {
                 $tmp["ArticleVatcategory"] = $taxvalues[$taxId];
@@ -201,21 +199,17 @@ class AfterPayCheckout extends Checkout
                 $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
             }
             $products[] = $tmp;
-
         }
-
 
         $Wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($Wrapping > 0) {
-
-            $tmp = array();
+            $tmp                       = array();
             $tmp["ArticleDescription"] = 'Wrapping';
-            $tmp["ArticleId"] = '0';
-            $tmp["ArticleQuantity"] = '1';
-            $tmp["ArticleUnitprice"] = $Wrapping;
+            $tmp["ArticleId"]          = '0';
+            $tmp["ArticleQuantity"]    = '1';
+            $tmp["ArticleUnitprice"]   = $Wrapping;
             $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
-            $products[] = $tmp;
-
+            $products[]                = $tmp;
         }
         $this->payment_response = $this->payment_request->payAfterpay($products, $this->customVars);
     }

@@ -29,13 +29,13 @@ class GiftCard extends PaymentMethod
         $this->mode = Config::getMode('GIFTCARD');
     }
 
-    public function pay($customVars = Array())
+    public function pay($customVars = array())
     {
         $this->data['customVars']['servicesSelectableByClient'] = Config::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
         $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
         $this->data['services'] = array();
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])){
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
             $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];

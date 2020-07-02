@@ -1,25 +1,25 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php');
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/logger.php');
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php');
+include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
 class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
@@ -32,15 +32,15 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     public function initContent()
     {
 
-        $this->display_column_left = false;
+        $this->display_column_left  = false;
         $this->display_column_right = false;
-        $logger = new Logger(Logger::INFO, 'return');
+        $logger                     = new Logger(Logger::INFO, 'return');
         $logger->logInfo("\n\n\n\n***************** Return start ***********************");
 
         parent::initContent();
 
         $statuses = array();
-        $tmp = OrderState::getOrderStates(1);
+        $tmp      = OrderState::getOrderStates(1);
         foreach ($tmp as $stat) {
             $statuses[$stat["id_order_state"]] = $stat["name"];
         }
@@ -50,11 +50,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         if ($response->isValid()) {
             $logger->logInfo('Response valid');
 
-            $id_order = Order::getOrderByCartId($response->getCartId());
-            $orders = Order::getByReference($response->getReferenceId());
+            $id_order   = Order::getOrderByCartId($response->getCartId());
+            $orders     = Order::getByReference($response->getReferenceId());
             $references = array();
             foreach ($orders as $order) {
-                $row = get_object_vars($order);
+                $row          = get_object_vars($order);
                 $references[] = $row['reference'];
             }
             $logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
@@ -63,12 +63,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 if ($id_order && $response->hasSucceeded()) {
                     $order = new Order($id_order);
                     $order->setInvoice(false);
-                    $payment = new OrderPayment();
+                    $payment                  = new OrderPayment();
                     $payment->order_reference = $order->reference;
-                    $payment->id_currency = $order->id_currency;
-                    $payment->transaction_id = $response->transactions;
-                    $payment->amount = urldecode($response->amount);
-                    $payment->payment_method = $response->payment_method;
+                    $payment->id_currency     = $order->id_currency;
+                    $payment->transaction_id  = $response->transactions;
+                    $payment->amount          = urldecode($response->amount);
+                    $payment->payment_method  = $response->payment_method;
                     if ($payment->id_currency == $order->id_currency) {
                         $order->total_paid_real += $response->amount;
                     } else {
@@ -83,12 +83,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     Db::getInstance()->execute(
                         '
                                             INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
-					VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
+                    VALUES(' . (int) $order->invoice_number . ', ' . (int) $payment->id . ', ' . (int) $order->id . ')'
                     );
 
-                    $message = new Message();
+                    $message           = new Message();
                     $message->id_order = $id_order;
-                    $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
+                    $message->message  = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
                     $message->add();
                 }
                 exit();
@@ -96,15 +96,14 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if ($response->brq_relatedtransaction_refund != null) {
                 $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
                 if ($response->hasSucceeded()) {
-
-                    $order = new Order($id_order);
-                    $payment = new OrderPayment();
+                    $order                    = new Order($id_order);
+                    $payment                  = new OrderPayment();
                     $payment->order_reference = $order->reference;
-                    $payment->id_currency = $order->id_currency;
-                    $payment->transaction_id = $response->transactions;
-                    $payment->amount = urldecode($response->amount_credit) * (-1);
-                    $payment->payment_method = $response->payment_method;
-                    $oldRealpaid = $order->total_paid_real;
+                    $payment->id_currency     = $order->id_currency;
+                    $payment->transaction_id  = $response->transactions;
+                    $payment->amount          = urldecode($response->amount_credit) * (-1);
+                    $payment->payment_method  = $response->payment_method;
+                    $oldRealpaid              = $order->total_paid_real;
                     if ($payment->id_currency == $order->id_currency) {
                         $order->total_paid_real += $payment->amount;
                     } else {
@@ -115,8 +114,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     }
                     $order->save();
                     if ($order->total_paid_real == 0 && $oldRealpaid > 0) {
-                        $new_status_code = Configuration::get('PS_OS_REFUND');
-                        $history = new OrderHistory();
+                        $new_status_code   = Configuration::get('PS_OS_REFUND');
+                        $history           = new OrderHistory();
                         $history->id_order = $id_order;
                         $history->date_add = date('Y-m-d H:i:s');
                         $history->date_upd = date('Y-m-d H:i:s');
@@ -129,12 +128,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     Db::getInstance()->execute(
                         '
                                             INSERT INTO `' . _DB_PREFIX_ . 'buckaroo_transactions` (transaction_id, original_transaction)
-					VALUES(\'' . pSQL($response->transactions) . '\', \'' . pSQL($response->brq_relatedtransaction_refund) . '\')'
+                    VALUES(\'' . pSQL($response->transactions) . '\', \'' . pSQL($response->brq_relatedtransaction_refund) . '\')'
                     );
 
-                    $message = new Message();
+                    $message           = new Message();
                     $message->id_order = $id_order;
-                    $message->message = 'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage;
+                    $message->message  = 'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage;
                     $message->add();
                 }
                 exit();
@@ -148,7 +147,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $logger->logInfo('Update the order', "Order ID: " . $id_order);
 
                 $new_status_code = Buckaroo3::resolveStatusCode($response->status);
-                $order = new Order($id_order);
+                $order           = new Order($id_order);
 
                 if (!in_array($order->reference, $references)) {
                     header("HTTP/1.1 503 Service Unavailable");
@@ -161,21 +160,23 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     'Old order status code: ' . $order->getCurrentState(
                     ) . "; new order status code: " . $new_status_code
                 );
-                $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                $error = Configuration::get('PS_OS_CANCELED');
+                $pending  = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+                $error    = Configuration::get('PS_OS_CANCELED');
                 $canceled = Configuration::get('PS_OS_ERROR');
                 if ($new_status_code != $order->getCurrentState() &&
                     ($pending == $order->getCurrentState() || $error == $order->getCurrentState(
                     ) || $canceled == $order->getCurrentState())
                 ) {
                     $logger->logInfo("Update order status");
-                    $history = new OrderHistory();
+                    $history           = new OrderHistory();
                     $history->id_order = $id_order;
                     $history->date_add = date('Y-m-d H:i:s');
                     $history->date_upd = date('Y-m-d H:i:s');
                     $history->changeIdOrderState($new_status_code, $id_order);
                     $history->addWithemail(false);
-                    $payments = OrderPayment::getByOrderId($id_order);
+
+                    // $payments = OrderPayment::getByOrderId($id_order);
+                    $payments = OrderPayment::getByOrderReference($order->reference);
                     foreach ($payments as $payment) {
                         /* @var $payment OrderPaymentCore */
                         if ($payment->amount == $response->amount && $payment->transaction_id == '') {
@@ -190,14 +191,14 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 if (!empty($statuses[$new_status_code])) {
                     $statusCodeName = $statuses[$new_status_code];
                 }
-                $message = new Message();
+                $message           = new Message();
                 $message->id_order = $id_order;
-                $message->message = 'Push message recieved. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
+                $message->message  = 'Push message recieved. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
                 $message->add();
                 if ($response->statusmessage) {
-                    $message = new Message();
+                    $message           = new Message();
                     $message->id_order = $id_order;
-                    $message->message = 'Buckaroo message: ' . $response->statusmessage;
+                    $message->message  = 'Buckaroo message: ' . $response->statusmessage;
                     $message->add();
                 }
             }

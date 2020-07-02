@@ -15,7 +15,7 @@
 {if $input.type == 'mode'}
     <label>{l s='Mode' mod='buckaroo3'}</label>
     <div class="margin-form">
-        <select id="{$input.name}" class="mode" name="{$input.name|escape:'quotes':'UTF-8'}">
+        <select id="{$input.name|escape:'quotes':'UTF-8'}" class="mode" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0" {if $fields_value[$input.name] == 0}selected{/if}>{l s='Live' mod='buckaroo3'}</option>
             <option value="1" {if $fields_value[$input.name] == 1}selected{/if}>{l s='Test' mod='buckaroo3'}</option>
         </select>
@@ -23,7 +23,7 @@
 {elseif $input.type == 'enabled'}
     <label>Enabled</label>
     <div class="margin-form">
-        <select id="{$input.name}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
+        <select id="{$input.name|escape:'quotes':'UTF-8'}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0"
                     {if $fields_value[$input.name] == 0}selected="selected"{/if}>{l s='No' mod='buckaroo3'}</option>
             <option value="1"
@@ -33,7 +33,7 @@
 {elseif $input.type == 'submit'}
     <label>&nbsp;</label>
     <div class="margin-form">
-        <input id="{$input.name}" name="{$input.name}" {if isset($input.class)}class="{$input.class|escape:'quotes':'UTF-8'}"{/if} type="submit"
+        <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'quotes':'UTF-8'}"{/if} type="submit"
                value=" {$input.label|escape:'html':'UTF-8'} "/>
     </div>
 {elseif $input.type == 'multiselect'}
@@ -64,8 +64,8 @@
 {elseif $input.type == 'text'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
-        <input id="{$input.name}" name="{$input.name}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="text"
-               size="{if $input.size}{$input.size}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
+        <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="text"
+               size="{if $input.size}{$input.size|escape:'quotes':'UTF-8'}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
         {if isset($input.required)}<sup>*</sup>{/if}
         {if isset($input.smalltext)}
             <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}

@@ -40,11 +40,11 @@
 <br/>
 
 {if $is_guest}
-    <a href="{$link->getPageLink('guest-tracking.php', true)}?id_order={$order_reference|escape:'html':'UTF-8'}"
+    <a href="{$link->getPageLink('guest-tracking.php', true)|escape:'html':'UTF-8'}?id_order={$order_reference|escape:'html':'UTF-8'}"
        title="{l s='Follow my order' mod='buckaroo3'}" data-ajax="false"><img src="{$img_dir|escape:'html':'UTF-8'}icon/order.gif"
                                                                               alt="{l s='Follow my order' mod='buckaroo3'}"
                                                                               class="icon"/></a>
-    <a href="{$link->getPageLink('guest-tracking.php', true)}?id_order={$order_reference|escape:'html':'UTF-8'}"
+    <a href="{$link->getPageLink('guest-tracking.php', true)|escape:'html':'UTF-8'}?id_order={$order_reference|escape:'html':'UTF-8'}"
        title="{l s='Follow my order' mod='buckaroo3'}" data-ajax="false">{l s='Follow my order' mod='buckaroo3'}</a>
 {else}
     <a href="{$link->getPageLink('history.php', true)|escape:'quotes':'UTF-8'}" title="{l s='Back to orders' mod='buckaroo3'}"

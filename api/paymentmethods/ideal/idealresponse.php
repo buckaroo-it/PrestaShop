@@ -21,7 +21,6 @@ require_once(dirname(__FILE__) . '/../response.php');
 
 class IDealResponse extends Response
 {
-    //put your code here
     public $consumerIssuer;
     public $consumerName;
     public $consumerAccountNumber;
@@ -29,9 +28,8 @@ class IDealResponse extends Response
 
     protected function _parseSoapResponseChild()
     {
-
+        return null;
     }
-
 
     protected function _parsePostResponseChild()
     {

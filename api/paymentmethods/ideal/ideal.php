@@ -1,23 +1,23 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
-require_once(dirname(__FILE__) . '/../paymentmethod.php');
+require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class IDeal extends PaymentMethod
 {
@@ -27,9 +27,9 @@ class IDeal extends PaymentMethod
 
     public function __construct()
     {
-        $this->type = "ideal";
+        $this->type    = "ideal";
         $this->version = 2;
-        $this->mode = Config::getMode($this->type);
+        $this->mode    = Config::getMode($this->type);
     }
 
     public function pay($customVars = array())
@@ -37,14 +37,14 @@ class IDeal extends PaymentMethod
         $this->data['customVars'][$this->type]['issuer'] = $this->_getIssuer($this->issuer);
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
+            $this->data['services']['notification']['action']                = 'ExtraInfo';
+            $this->data['services']['notification']['version']               = '1';
+            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
             $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
+            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
+            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
+            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
+            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
             if (!empty($customVars['Notificationdelay'])) {
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
@@ -61,15 +61,15 @@ class IDeal extends PaymentMethod
     public static function getIssuerList()
     {
         $issuerArray = array(
-            'ABNAMRO' => array(
+            'ABNAMRO'  => array(
                 'name' => 'ABN AMRO',
                 'logo' => 'logo_abn_s.gif',
             ),
-            'ASNBANK' => array(
+            'ASNBANK'  => array(
                 'name' => 'ASN Bank',
                 'logo' => 'icon_asn.gif',
             ),
-            'INGBANK' => array(
+            'INGBANK'  => array(
                 'name' => 'ING',
                 'logo' => 'logo_ing_s.gif',
             ),
@@ -77,7 +77,7 @@ class IDeal extends PaymentMethod
                 'name' => 'Rabobank',
                 'logo' => 'logo_rabo_s.gif',
             ),
-            'SNSBANK' => array(
+            'SNSBANK'  => array(
                 'name' => 'SNS Bank',
                 'logo' => 'logo_sns_s.gif',
             ),
@@ -85,7 +85,7 @@ class IDeal extends PaymentMethod
                 'name' => 'RegioBank',
                 'logo' => 'logo_sns_s.gif',
             ),
-            'TRIODOS' => array(
+            'TRIODOS'  => array(
                 'name' => 'Triodos Bank',
                 'logo' => 'logo_triodos.gif',
             ),
@@ -93,11 +93,11 @@ class IDeal extends PaymentMethod
                 'name' => 'Van Lanschot',
                 'logo' => 'logo_lanschot_s.gif',
             ),
-            'KNAB' => array(
+            'KNAB'     => array(
                 'name' => 'Knab',
                 'logo' => 'logo_knab_s.gif',
             ),
-            'BUNQ' => array(
+            'BUNQ'     => array(
                 'name' => 'Bunq',
                 'logo' => 'logo_bunq.png',
             ),
@@ -148,8 +148,10 @@ class IDeal extends PaymentMethod
                 break;
             case 'BUNQ':
                 $issuerCode = 'BUNQNL2A';
+                break;
             case 'MOYONL21':
                 $issuerCode = 'MOYONL21';
+                break;
             case 'HANDNL2A':
                 $issuerCode = 'HANDNL2A';
                 break;

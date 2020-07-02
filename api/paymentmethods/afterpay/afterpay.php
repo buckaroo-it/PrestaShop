@@ -68,12 +68,14 @@ class AfterPay extends PaymentMethod
         $this->mode = Config::getMode('AFTERPAY');
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = Array())
     {
+    // @codingStandardsIgnoreEnd
         return null;
     }
 
-    public function payAfterpay($products = array(), $customVars = Array())
+    public function payAfterpay($products = array(), $customVars = array())
     {
         $this->data['customVars'][$this->type]['BillingInitials'] = $this->BillingInitials;
         $this->data['customVars'][$this->type]['BillingLastName'] = $this->BillingLastName;
@@ -142,7 +144,7 @@ class AfterPay extends PaymentMethod
             $i++;
         }
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])){
+        if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
             $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];

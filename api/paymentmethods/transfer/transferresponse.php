@@ -70,6 +70,6 @@ class TransferResponse extends Response
 
     protected function _parsePostResponseChild()
     {
-
+        return null;
     }
 }

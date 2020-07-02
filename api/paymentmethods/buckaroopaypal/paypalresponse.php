@@ -21,7 +21,6 @@ require_once(dirname(__FILE__) . '/../response.php');
 
 class PayPalResponse extends Response
 {
-    //put your code here
     public $payerEmail;
     public $payerCountry;
     public $payerStatus;
@@ -37,9 +36,7 @@ class PayPalResponse extends Response
         $this->payerFirstname = '';
         $this->payerLastname = '';
         $this->paypalTransactionID = '';
-
     }
-
 
     protected function _parsePostResponseChild()
     {

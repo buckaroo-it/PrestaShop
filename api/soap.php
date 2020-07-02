@@ -1,21 +1,21 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 if (!class_exists('SoapClient')) {
     $logger = new Logger(1);
@@ -63,32 +63,35 @@ final class Soap extends BuckarooAbstract
             $client = new SoapClientWSSEC(
                 Config::WSDL_URL,
                 array(
-                    'trace' => 1,
+                    'trace'      => 1,
                     'cache_wsdl' => WSDL_CACHE_DISK,
                 )
             );
-        } catch (Exception $e) { //(SoapFault $e) {
+        } catch (Exception $e) {
+            //(SoapFault $e) {
             try {
                 //second attempt: use an uncached WSDL
                 ini_set('soap.wsdl_cache_ttl', 1);
                 $client = new SoapClientWSSEC(
                     Config::WSDL_URL,
                     array(
-                        'trace' => 1,
+                        'trace'      => 1,
                         'cache_wsdl' => WSDL_CACHE_NONE,
                     )
                 );
-            } catch (Exception $e) { //(SoapFault $e) {
+            } catch (Exception $e) {
+                //(SoapFault $e) {
                 try {
                     //third and final attempt: use the supplied wsdl found in the lib folder
                     $client = new SoapClientWSSEC(
                         dirname(__FILE__) . Config::WSDL_FILE,
                         array(
-                            'trace' => 1,
+                            'trace'      => 1,
                             'cache_wsdl' => WSDL_CACHE_NONE,
                         )
                     );
-                } catch (Exception $e) { //(SoapFault $e) {
+                } catch (Exception $e) {
+                    //(SoapFault $e) {
                     return $this->_error($e);
                 }
             }
@@ -97,19 +100,19 @@ final class Soap extends BuckarooAbstract
         $client->thumbprint = Config::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
         $client->privateKey = Config::get('BUCKAROO_CERTIFICATE_PATH');
 
-        $search = array(",", " ");
-        $replace = array(".", "");
-        $TransactionRequest = new Body();
+        $search                       = array(",", " ");
+        $replace                      = array(".", "");
+        $TransactionRequest           = new Body();
         $TransactionRequest->Currency = $this->_vars['currency'];
 
-        $debit = round($this->_vars['amountDebit'], 2);
-        $credit = round($this->_vars['amountCredit'], 2);
-        $TransactionRequest->AmountDebit = str_replace($search, $replace, $debit);
+        $debit                            = round($this->_vars['amountDebit'], 2);
+        $credit                           = round($this->_vars['amountCredit'], 2);
+        $TransactionRequest->AmountDebit  = str_replace($search, $replace, $debit);
         $TransactionRequest->AmountCredit = str_replace($search, $replace, $credit);
-        $TransactionRequest->Invoice = $this->_vars['invoice'];
-        $TransactionRequest->Order = $this->_vars['order'];
-        $TransactionRequest->Description = $this->_vars['description'];
-        $TransactionRequest->ReturnURL = $this->_vars['returnUrl'];
+        $TransactionRequest->Invoice      = $this->_vars['invoice'];
+        $TransactionRequest->Order        = $this->_vars['order'];
+        $TransactionRequest->Description  = $this->_vars['description'];
+        $TransactionRequest->ReturnURL    = $this->_vars['returnUrl'];
         if (!empty($this->_vars['OriginalTransactionKey'])) {
             $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
         }
@@ -120,13 +123,13 @@ final class Soap extends BuckarooAbstract
         )
         ) {
             $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
-            $TransactionRequest->ContinueOnIncomplete = $this->_vars['customVars']['continueOnIncomplete'];
+            $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
         }
         /*
         if (array_key_exists('OriginalTransactionKey', $this->_vars)) {
-            $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
+        $TransactionRequest->OriginalTransactionKey = $this->_vars['OriginalTransactionKey'];
         }
-        */
+         */
         if (!empty($this->_vars['customParameters'])) {
             $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
         }
@@ -136,60 +139,60 @@ final class Soap extends BuckarooAbstract
 
         /*
         $TransactionRequest->Services = new Services();
-         
+
         $TransactionRequest->Services->Service = new Service();
         $TransactionRequest->Services->Service->Name= $this->_vars['service']['type'];
         $TransactionRequest->Services->Service->Action = $this->_vars['service']['action'];;
         $TransactionRequest->Services->Service->Version = $this->_vars['service']['version'];;
-        */
-        $TransactionRequest->ClientIP = new IPAddress();
+         */
+        $TransactionRequest->ClientIP       = new IPAddress();
         $TransactionRequest->ClientIP->Type = 'IPv4';
-        $TransactionRequest->ClientIP->_ = $_SERVER['REMOTE_ADDR'];
+        $TransactionRequest->ClientIP->_    = $_SERVER['REMOTE_ADDR'];
 
         foreach ($TransactionRequest->Services->Service as $key => $service) {
             $this->_addCustomFields($TransactionRequest, $key, $service->Name);
         }
 
-        $Header = new Header();
-        $Header->MessageControlBlock = new MessageControlBlock();
-        $Header->MessageControlBlock->Id = '_control';
+        $Header                                  = new Header();
+        $Header->MessageControlBlock             = new MessageControlBlock();
+        $Header->MessageControlBlock->Id         = '_control';
         $Header->MessageControlBlock->WebsiteKey = Config::get('BUCKAROO_MERCHANT_KEY');
-        $Header->MessageControlBlock->Culture = Config::get('CULTURE');
-        $Header->MessageControlBlock->TimeStamp = time();
-        $Header->MessageControlBlock->Channel = Config::CHANNEL;
-        $Header->MessageControlBlock->Software = Config::getSoftware();
-        $Header->Security = new SecurityType();
-        $Header->Security->Signature = new SignatureType();
+        $Header->MessageControlBlock->Culture    = Config::get('CULTURE');
+        $Header->MessageControlBlock->TimeStamp  = time();
+        $Header->MessageControlBlock->Channel    = Config::CHANNEL;
+        $Header->MessageControlBlock->Software   = Config::getSoftware();
+        $Header->Security                        = new SecurityType();
+        $Header->Security->Signature             = new SignatureType();
 
-        $Header->Security->Signature->SignedInfo = new SignedInfoType();
-        $Header->Security->Signature->SignedInfo->CanonicalizationMethod = new CanonicalizationMethodType();
+        $Header->Security->Signature->SignedInfo                                    = new SignedInfoType();
+        $Header->Security->Signature->SignedInfo->CanonicalizationMethod            = new CanonicalizationMethodType();
         $Header->Security->Signature->SignedInfo->CanonicalizationMethod->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';
-        $Header->Security->Signature->SignedInfo->SignatureMethod = new SignatureMethodType();
-        $Header->Security->Signature->SignedInfo->SignatureMethod->Algorithm = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1';
+        $Header->Security->Signature->SignedInfo->SignatureMethod                   = new SignatureMethodType();
+        $Header->Security->Signature->SignedInfo->SignatureMethod->Algorithm        = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1';
 
-        $Reference = new ReferenceType();
-        $Reference->URI = '#_body';
-        $Transform = new TransformType();
-        $Transform->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+        $Reference             = new ReferenceType();
+        $Reference->URI        = '#_body';
+        $Transform             = new TransformType();
+        $Transform->Algorithm  = 'http://www.w3.org/2001/10/xml-exc-c14n#';
         $Reference->Transforms = array($Transform);
 
-        $Reference->DigestMethod = new DigestMethodType();
+        $Reference->DigestMethod            = new DigestMethodType();
         $Reference->DigestMethod->Algorithm = 'http://www.w3.org/2000/09/xmldsig#sha1';
-        $Reference->DigestValue = '';
+        $Reference->DigestValue             = '';
 
-        $Transform2 = new TransformType();
-        $Transform2->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';
-        $ReferenceControl = new ReferenceType();
-        $ReferenceControl->URI = '#_control';
-        $ReferenceControl->DigestMethod = new DigestMethodType();
+        $Transform2                                = new TransformType();
+        $Transform2->Algorithm                     = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+        $ReferenceControl                          = new ReferenceType();
+        $ReferenceControl->URI                     = '#_control';
+        $ReferenceControl->DigestMethod            = new DigestMethodType();
         $ReferenceControl->DigestMethod->Algorithm = 'http://www.w3.org/2000/09/xmldsig#sha1';
-        $ReferenceControl->DigestValue = '';
-        $ReferenceControl->Transforms = array($Transform2);
+        $ReferenceControl->DigestValue             = '';
+        $ReferenceControl->Transforms              = array($Transform2);
 
         $Header->Security->Signature->SignedInfo->Reference = array($Reference, $ReferenceControl);
-        $Header->Security->Signature->SignatureValue = '';
+        $Header->Security->Signature->SignatureValue        = '';
 
-        $soapHeaders = array();
+        $soapHeaders   = array();
         $soapHeaders[] = new SOAPHeader('https://checkout.buckaroo.nl/PaymentEngine/', 'MessageControlBlock', $Header->MessageControlBlock);
         $soapHeaders[] = new SOAPHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $Header->Security);
         $client->__setSoapHeaders($soapHeaders);
@@ -222,17 +225,17 @@ final class Soap extends BuckarooAbstract
         }
 
         $responseXML = $client->__getLastResponse();
-        $requestXML = $client->__getLastRequest();
+        $requestXML  = $client->__getLastRequest();
 
         $responseDomDOC = new DOMDocument();
         $responseDomDOC->loadXML($responseXML);
         $responseDomDOC->preserveWhiteSpace = false;
-        $responseDomDOC->formatOutput = true;
+        $responseDomDOC->formatOutput       = true;
 
         $requestDomDOC = new DOMDocument();
         $requestDomDOC->loadXML($requestXML);
         $requestDomDOC->preserveWhiteSpace = false;
-        $requestDomDOC->formatOutput = true;
+        $requestDomDOC->formatOutput       = true;
 
         return array($response, $responseDomDOC, $requestDomDOC);
     }
@@ -245,9 +248,9 @@ final class Soap extends BuckarooAbstract
                 continue;
             }
 
-            $service = new Service();
-            $service->Name = $fieldName;
-            $service->Action = $value['action'];
+            $service          = new Service();
+            $service->Name    = $fieldName;
+            $service->Action  = $value['action'];
             $service->Version = $value['version'];
 
             $services[] = $service;
@@ -258,50 +261,40 @@ final class Soap extends BuckarooAbstract
 
     protected function _addCustomFields(&$TransactionRequest, $key, $name)
     {
-        if (
-            empty($this->_vars['customVars'])
-            || empty($this->_vars['customVars'][$name])
-        ) {
+        if (empty($this->_vars['customVars']) || empty($this->_vars['customVars'][$name])) {
             unset($TransactionRequest->Services->Service->RequestParameter);
             return;
         }
 
         $requestParameters = array();
         foreach ($this->_vars['customVars'][$name] as $fieldName => $value) {
-            if (
-                (is_null($value) || $value === '')
-                || (
-                    is_array($value)
-                    && (!empty($value['value']) && (is_null($value['value']) || $value['value'] === ''))
-                )
-            ) {
+            if ((is_null($value) || $value === '') || (is_array($value) && (!empty($value['value']) && (is_null($value['value']) || $value['value'] === '')))) {
                 continue;
             }
 
             if (is_array($value)) {
                 if (isset($value[0]) && is_array($value[0])) {
                     foreach ($value as $val) {
-                        $requestParameter = new RequestParameter();
-                        $requestParameter->Name = $fieldName;
-                        $requestParameter->Group = $val['group'];
+                        $requestParameter          = new RequestParameter();
+                        $requestParameter->Name    = $fieldName;
+                        $requestParameter->Group   = $val['group'];
                         $requestParameter->GroupID = $val['group'];
-                        $requestParameter->_ = $val['value'];
-                        $requestParameters[] = $requestParameter;
+                        $requestParameter->_       = $val['value'];
+                        $requestParameters[]       = $requestParameter;
                     }
                 } else {
-                    $requestParameter = new RequestParameter();
-                    $requestParameter->Name = $fieldName;
+                    $requestParameter        = new RequestParameter();
+                    $requestParameter->Name  = $fieldName;
                     $requestParameter->Group = $value['group'];
-                    $requestParameter->_ = $value['value'];
-                    $requestParameters[] = $requestParameter;
+                    $requestParameter->_     = $value['value'];
+                    $requestParameters[]     = $requestParameter;
                 };
             } else {
-                $requestParameter = new RequestParameter();
+                $requestParameter       = new RequestParameter();
                 $requestParameter->Name = $fieldName;
-                $requestParameter->_ = $value;
-                $requestParameters[] = $requestParameter;
+                $requestParameter->_    = $value;
+                $requestParameters[]    = $requestParameter;
             }
-
         }
 
         if (empty($requestParameters)) {
@@ -316,21 +309,15 @@ final class Soap extends BuckarooAbstract
     {
         $requestParameters = array();
         foreach ($this->_vars['customParameters'] as $fieldName => $value) {
-            if (
-                (is_null($value) || $value === '')
-                || (
-                    is_array($value)
-                    && (is_null($value['value']) || $value['value'] === '')
-                )
-            ) {
+            if ((is_null($value) || $value === '') || (is_array($value) && (is_null($value['value']) || $value['value'] === ''))) {
                 continue;
             }
 
-            $requestParameter = new RequestParameter();
+            $requestParameter       = new RequestParameter();
             $requestParameter->Name = $fieldName;
             if (is_array($value)) {
                 $requestParameter->Group = $value['group'];
-                $requestParameter->_ = $value['value'];
+                $requestParameter->_     = $value['value'];
             } else {
                 $requestParameter->_ = $value;
             }
@@ -353,21 +340,21 @@ final class Soap extends BuckarooAbstract
         $response = false;
 
         $responseDomDOC = new DOMDocument();
-        $requestDomDOC = new DOMDocument();
+        $requestDomDOC  = new DOMDocument();
         if ($client) {
             $responseXML = $client->__getLastResponse();
-            $requestXML = $client->__getLastRequest();
+            $requestXML  = $client->__getLastRequest();
 
             if (!empty($responseXML)) {
                 $responseDomDOC->loadXML($responseXML);
                 $responseDomDOC->preserveWhiteSpace = false;
-                $responseDomDOC->formatOutput = true;
+                $responseDomDOC->formatOutput       = true;
             }
 
             if (!empty($requestXML)) {
                 $requestDomDOC->loadXML($requestXML);
                 $requestDomDOC->preserveWhiteSpace = false;
-                $requestDomDOC->formatOutput = true;
+                $requestDomDOC->formatOutput       = true;
             }
         }
 

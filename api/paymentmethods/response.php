@@ -1,24 +1,24 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
-require_once(dirname(__FILE__) . '/../../library/logger.php');
-require_once(dirname(__FILE__) . '/../abstract.php');
+require_once dirname(__FILE__) . '/../../library/logger.php';
+require_once dirname(__FILE__) . '/../abstract.php';
 
 abstract class Response extends BuckarooAbstract
 {
@@ -55,7 +55,7 @@ abstract class Response extends BuckarooAbstract
     public $parameterError = null;
     /*     * **************************************************** */
     protected $_responseXML = '';
-    protected $_response = '';
+    protected $_response    = '';
 
     public function __construct($data = null)
     {
@@ -68,7 +68,6 @@ abstract class Response extends BuckarooAbstract
         } else {
             $logger->logInfo("Type: SOAP");
             if (!is_null($data)) {
-
                 if ($data[0] != false) {
                     $logger->logInfo("Data[0]: ", print_r($data[0], true));
                 }
@@ -81,15 +80,17 @@ abstract class Response extends BuckarooAbstract
             }
         }
 
-        $this->_isPost = $this->isHttpRequest();
+        $this->_isPost   = $this->isHttpRequest();
         $this->_received = false;
 
-        if ($this->_isPost) { //HTTP
+        if ($this->_isPost) {
+            //HTTP
             $this->_parsePostResponse();
             $this->_parsePostResponseChild();
             $this->_received = true;
         } else {
-            if (!is_null($data) && $data[0] != false) { //if valid SOAP response
+            if (!is_null($data) && $data[0] != false) {
+                //if valid SOAP response
                 $this->setResponse($data[0]);
                 $this->setResponseXML($data[1]);
                 $this->_parseSoapResponse();
@@ -109,7 +110,6 @@ abstract class Response extends BuckarooAbstract
         }
         return false;
     }
-
 
     public function isTest()
     {
@@ -184,7 +184,6 @@ abstract class Response extends BuckarooAbstract
         return $this->_response;
     }
 
-
     private function _parseSoapResponse()
     {
         $this->payment = '';
@@ -192,7 +191,7 @@ abstract class Response extends BuckarooAbstract
             $this->payment_method = $this->_response->ServiceCode;
         }
         $this->transactions = $this->_response->Key;
-        $this->statuscode = $this->_response->Status->Code->Code;
+        $this->statuscode   = $this->_response->Status->Code->Code;
         if (!empty($this->_response->Status->SubCode->_)) {
             $this->statusmessage = $this->_response->Status->SubCode->_;
         }
@@ -200,20 +199,19 @@ abstract class Response extends BuckarooAbstract
         if (!empty($this->_response->Invoice)) {
             $this->invoice = $this->_response->Invoice;
         }
-        $this->order = $this->_response->Order;
+        $this->order         = $this->_response->Order;
         $this->invoicenumber = $this->invoice;
-        $this->amount = 0;
+        $this->amount        = 0;
         if (!empty($this->_response->AmountDebit)) {
             $this->amount = $this->_response->AmountDebit;
         }
         $this->amount_credit = 0;
         if (!empty($this->_response->AmountCredit)) {
-            $this->amount = $this->_response->AmountCredit;
+            $this->amount        = $this->_response->AmountCredit;
             $this->amount_credit = $this->_response->AmountCredit;
-
         }
-        $this->currency = $this->_response->Currency;
-        $this->_test = ($this->_response->IsTest == 1) ? true : false;
+        $this->currency  = $this->_response->Currency;
+        $this->_test     = ($this->_response->IsTest == 1) ? true : false;
         $this->timestamp = $this->_response->Status->DateTime;
         if (!empty($this->_response->RequestErrors->ChannelError->_)) {
             $this->ChannelError = $this->_response->RequestErrors->ChannelError->_;
@@ -225,8 +223,8 @@ abstract class Response extends BuckarooAbstract
             }
         }
 
-        $responseArray = $this->responseCodes[(int)$this->statuscode];
-        $this->status = $responseArray['status'];
+        $responseArray = $this->responseCodes[(int) $this->statuscode];
+        $this->status  = $responseArray['status'];
         $this->message = $responseArray['message'];
 
         if (!empty($this->_response->RequestErrors->ParameterError)) {
@@ -254,29 +252,28 @@ abstract class Response extends BuckarooAbstract
             $this->payment_method = Tools::getValue('brq_transaction_method');
         }
 
-
-        $this->statuscode = $this->_setPostVariable('brq_statuscode');
-        $this->statusmessage = $this->_setPostVariable('brq_statusmessage');
-        $this->statuscode_detail = $this->_setPostVariable('brq_statuscode_detail');
+        $this->statuscode                            = $this->_setPostVariable('brq_statuscode');
+        $this->statusmessage                         = $this->_setPostVariable('brq_statusmessage');
+        $this->statuscode_detail                     = $this->_setPostVariable('brq_statuscode_detail');
         $this->brq_relatedtransaction_partialpayment = $this->_setPostVariable('brq_relatedtransaction_partialpayment');
-        $this->brq_transaction_type = $this->_setPostVariable('brq_transaction_type');
-        $this->brq_relatedtransaction_refund = $this->_setPostVariable('brq_relatedtransaction_refund');
-        $this->invoice = $this->_setPostVariable('brq_invoicenumber');
-        $this->invoicenumber = $this->_setPostVariable('brq_invoicenumber');
-        $this->amount = $this->_setPostVariable('brq_amount');
+        $this->brq_transaction_type                  = $this->_setPostVariable('brq_transaction_type');
+        $this->brq_relatedtransaction_refund         = $this->_setPostVariable('brq_relatedtransaction_refund');
+        $this->invoice                               = $this->_setPostVariable('brq_invoicenumber');
+        $this->invoicenumber                         = $this->_setPostVariable('brq_invoicenumber');
+        $this->amount                                = $this->_setPostVariable('brq_amount');
         if (Tools::getValue('brq_amount_credit')) {
             $this->amount_credit = Tools::getValue('brq_amount_credit');
         }
 
-        $this->currency = $this->_setPostVariable('brq_currency');
-        $this->_test = $this->_setPostVariable('brq_test');
-        $this->timestamp = $this->_setPostVariable('brq_timestamp');
+        $this->currency     = $this->_setPostVariable('brq_currency');
+        $this->_test        = $this->_setPostVariable('brq_test');
+        $this->timestamp    = $this->_setPostVariable('brq_timestamp');
         $this->transactions = $this->_setPostVariable('brq_transactions');
-        $this->_signature = $this->_setPostVariable('brq_signature');
+        $this->_signature   = $this->_setPostVariable('brq_signature');
 
         if (!empty($this->statuscode)) {
-            $responseArray = $this->responseCodes[(int)$this->statuscode];
-            $this->status = $responseArray['status'];
+            $responseArray = $this->responseCodes[(int) $this->statuscode];
+            $this->status  = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
     }
@@ -288,7 +285,7 @@ abstract class Response extends BuckarooAbstract
         $verified = false;
         if ($this->isReceived()) {
             $verifiedSignature = $this->_verifySignature();
-            $verifiedDigest = $this->_verifyDigest();
+            $verifiedDigest    = $this->_verifyDigest();
 
             if ($verifiedSignature === true && $verifiedDigest === true) {
                 $verified = true;
@@ -306,13 +303,13 @@ abstract class Response extends BuckarooAbstract
         $responseString = $responseDomDoc->saveXML();
 
         //retrieve the signature value
-        $sigatureRegex = "#<SignatureValue>(.*)</SignatureValue>#ims";
+        $sigatureRegex  = "#<SignatureValue>(.*)</SignatureValue>#ims";
         $signatureArray = array();
         preg_match_all($sigatureRegex, $responseString, $signatureArray);
 
         //decode the signature
-        $signature = $signatureArray[1][0];
-        $sigDecoded = base64_decode($signature);
+        $signature  = $signatureArray[1][0];
+        $sigDecoded = mb_convert_encoding($signature, "UTF-8", "BASE64");
 
         $xPath = new DOMXPath($responseDomDoc);
 
@@ -325,9 +322,9 @@ abstract class Response extends BuckarooAbstract
         $xPath->registerNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
 
         //Get the SignedInfo nodeset
-        $SignedInfoQuery = '//wsse:Security/sig:Signature/sig:SignedInfo';
+        $SignedInfoQuery        = '//wsse:Security/sig:Signature/sig:SignedInfo';
         $SignedInfoQueryNodeSet = $xPath->query($SignedInfoQuery);
-        $SignedInfoNodeSet = $SignedInfoQueryNodeSet->item(0);
+        $SignedInfoNodeSet      = $SignedInfoQueryNodeSet->item(0);
 
         //Canonicalize nodeset
         $signedInfo = $SignedInfoNodeSet->C14N(true, false);
@@ -391,11 +388,11 @@ abstract class Response extends BuckarooAbstract
 
         $controlHashReference = $xPath->query('//*[@Id="_control"]')->item(0);
         $controlHashCanonical = $controlHashReference->C14N(true, false);
-        $controlHash = base64_encode(pack('H*', sha1($controlHashCanonical)));
+        $controlHash          = mb_convert_encoding(pack('H*', sha1($controlHashCanonical)), "BASE64", "UTF-8");
 
         $bodyHashReference = $xPath->query('//*[@Id="_body"]')->item(0);
         $bodyHashCanonical = $bodyHashReference->C14N(true, false);
-        $bodyHash = base64_encode(pack('H*', sha1($bodyHashCanonical)));
+        $bodyHash          = mb_convert_encoding(pack('H*', sha1($bodyHashCanonical)), "BASE64", "UTF-8");
 
         if (in_array($controlHash, $digestValues) === true && in_array($bodyHash, $digestValues) === true) {
             $verified = true;
@@ -419,16 +416,16 @@ abstract class Response extends BuckarooAbstract
             $correctSignature = true;
         }
         /*
-          //check if the order can recieve further status updates
-          if ($correctSignature === true) {
-          $canUpdate = $this->_canUpdate();
-          }
+        //check if the order can recieve further status updates
+        if ($correctSignature === true) {
+        $canUpdate = $this->_canUpdate();
+        }
 
-          $return = array(
-          (bool) $correctSignature,
-          (bool) $canUpdate,
-          );
-         * 
+        $return = array(
+        (bool) $correctSignature,
+        (bool) $canUpdate,
+        );
+         *
          */
         return $correctSignature; //$return;
     }
@@ -446,8 +443,8 @@ abstract class Response extends BuckarooAbstract
         // Get successful state and status
         $completedStateAndStatus = array('complete', 'complete');
         $cancelledStateAndStatus = array('canceled', 'canceled');
-        $holdedStateAndStatus = array('holded', 'holded');
-        $closedStateAndStatus = array('closed', 'closed');
+        $holdedStateAndStatus    = array('holded', 'holded');
+        $closedStateAndStatus    = array('closed', 'closed');
 
         $currentStateAndStatus = array($this->_order->getState(), $this->_order->getStatus());
 
@@ -479,7 +476,7 @@ abstract class Response extends BuckarooAbstract
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            if($key == 'brq_service_paypal_payeremail') {
+            if ($key == 'brq_service_paypal_payeremail') {
                 $value = rawurldecode($value);
             } else {
                 $value = urldecode($value);
@@ -493,25 +490,28 @@ abstract class Response extends BuckarooAbstract
         return $signature;
     }
 
-    public function getCartId()
+    public function getCartIdAndReferenceId($show = false)
     {
         $e = explode("_", urldecode($this->invoicenumber));
         if (!empty($e[1])) {
             list($reference, $cartId) = $e;
         } else {
-            $cartId = 0;
+            $cartId    = 0;
+            $reference = $this->invoicenumber;
         }
-        return (int)$cartId;
+        if ($show == 'cartId') {
+            return (int) $cartId;
+        }
+        return $reference;
+    }
+
+    public function getCartId()
+    {
+        return $this->getCartIdAndReferenceId('cartId');
     }
 
     public function getReferenceId()
     {
-        $e = explode("_", urldecode($this->invoicenumber));
-        if (!empty($e[1])) {
-            list($reference, $cartId) = $e;
-        } else {
-            $reference = $this->invoicenumber;
-        }
-        return $reference;
+        return $this->getCartIdAndReferenceId('reference');
     }
 }

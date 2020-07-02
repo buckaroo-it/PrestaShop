@@ -1,25 +1,24 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 class Buckaroo3Admin
 {
-
     private $_error = '';
 
     public function __construct($module)
@@ -36,7 +35,6 @@ class Buckaroo3Admin
             if ($idTab == 0) {
                 $this->module->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1);
             }
-
         } else {
             if (Tools::isSubmit('BUCKAROO_TEST')) {
                 if (!empty(
@@ -207,8 +205,6 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_USENOTIFICATION', Tools::getValue('BUCKAROO_TRANSFER_USENOTIFICATION'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_TRANSFER_NOTIFICATIONDELAY'));
-
-
             }
         }
         return null;
@@ -218,44 +214,44 @@ class Buckaroo3Admin
     {
         // Get default Language
         $fields_value = array();
-        $default_lang = (int)Configuration::get('PS_LANG_DEFAULT');
+        $default_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
         $helper_head = new HelperForm();
         // Module, token and currentIndex
-        $helper_head->module = $this->module; //$helper_fields->module = $this->module;
+        $helper_head->module          = $this->module; //$helper_fields->module = $this->module;
         $helper_head->name_controller = $this->module->name; //$helper_fields->name_controller = $this->module->name;
-        $helper_head->token = Tools::getAdminTokenLite(
+        $helper_head->token           = Tools::getAdminTokenLite(
             'AdminModules'
         ); //$helper_fields->token = Tools::getAdminTokenLite('AdminModules');
         $helper_head->currentIndex = AdminController::$currentIndex . '&configure=' . $this->module->name; //$helper_fields->currentIndex = AdminController::$currentIndex.'&configure='.$this->module->name;
         // Language
-        $helper_head->default_form_language = $default_lang; //$helper_fields->default_form_language = $default_lang;
+        $helper_head->default_form_language    = $default_lang; //$helper_fields->default_form_language = $default_lang;
         $helper_head->allow_employee_form_lang = $default_lang; //$helper_fields->allow_employee_form_lang = $default_lang;
 
         // Title and toolbar
-        $helper_head->title = $this->module->displayName;
-        $helper_head->show_toolbar = true; // false -> remove toolbar
+        $helper_head->title          = $this->module->displayName;
+        $helper_head->show_toolbar   = true; // false -> remove toolbar
         $helper_head->toolbar_scroll = true; // yes - > Toolbar is always visible on the top of the screen.
-        $helper_head->submit_action = 'submit' . $this->module->name;
-        $helper_head->toolbar_btn = array(
+        $helper_head->submit_action  = 'submit' . $this->module->name;
+        $helper_head->toolbar_btn    = array(
             'save' => array(
                 'desc' => $this->module->l('Save'),
-                'js' => "$('#buckaroo3settings_form').submit();"
+                'js'   => "$('#buckaroo3settings_form').submit();",
             ),
             'back' => array(
                 'href' => AdminController::$currentIndex . '&token=' . Tools::getAdminTokenLite('AdminModules'),
-                'desc' => $this->module->l('Back to list')
-            )
+                'desc' => $this->module->l('Back to list'),
+            ),
         );
 
-        $fields_value['BUCKAROO_TEST'] = Configuration::get('BUCKAROO_TEST');
-        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT'] = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $fields_value['BUCKAROO_MERCHANT_KEY'] = Configuration::get('BUCKAROO_MERCHANT_KEY');
-        $fields_value['BUCKAROO_SECRET_KEY'] = Configuration::get('BUCKAROO_SECRET_KEY');
+        $fields_value['BUCKAROO_TEST']                   = Configuration::get('BUCKAROO_TEST');
+        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+        $fields_value['BUCKAROO_MERCHANT_KEY']           = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $fields_value['BUCKAROO_SECRET_KEY']             = Configuration::get('BUCKAROO_SECRET_KEY');
         $fields_value['BUCKAROO_CERTIFICATE_THUMBPRINT'] = Configuration::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $fields_value['BUCKAROO_CERTIFICATE'] = Configuration::get('BUCKAROO_CERTIFICATE');
-        $fields_value['BUCKAROO_TRANSACTION_LABEL'] = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
-        $fields_value['BUCKAROO_TRANSACTION_RETURNURL'] = Configuration::get('BUCKAROO_TRANSACTION_RETURNURL');
+        $fields_value['BUCKAROO_CERTIFICATE']            = Configuration::get('BUCKAROO_CERTIFICATE');
+        $fields_value['BUCKAROO_TRANSACTION_LABEL']      = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
+        $fields_value['BUCKAROO_TRANSACTION_RETURNURL']  = Configuration::get('BUCKAROO_TRANSACTION_RETURNURL');
         if (empty($fields_value['BUCKAROO_TRANSACTION_RETURNURL'])) {
             $fields_value['BUCKAROO_TRANSACTION_RETURNURL'] = 'http' . ((!empty(
                 $_SERVER["HTTPS"]
@@ -282,313 +278,313 @@ class Buckaroo3Admin
             }
         }
 
-        $fields_value['BUCKAROO_PAYPAL_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
-        $fields_value['BUCKAROO_PAYPAL_TEST'] = Configuration::get('BUCKAROO_PAYPAL_TEST');
-        $fields_value['BUCKAROO_EMPAYMENT_ENABLED'] = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
-        $fields_value['BUCKAROO_EMPAYMENT_TEST'] = Configuration::get('BUCKAROO_EMPAYMENT_TEST');
-        $fields_value['BUCKAROO_DD_ENABLED'] = Configuration::get('BUCKAROO_DD_ENABLED');
-        $fields_value['BUCKAROO_DD_TEST'] = Configuration::get('BUCKAROO_DD_TEST');
-        $fields_value['BUCKAROO_DD_USECREDITMANAGMENT'] = Configuration::get('BUCKAROO_DD_USECREDITMANAGMENT');
-        $fields_value['BUCKAROO_DD_INVOICEDELAY'] = Configuration::get('BUCKAROO_DD_INVOICEDELAY');
-        $fields_value['BUCKAROO_DD_DATEDUE'] = Configuration::get('BUCKAROO_DD_DATEDUE');
-        $fields_value['BUCKAROO_DD_MAXREMINDERLEVEL'] = Configuration::get('BUCKAROO_DD_MAXREMINDERLEVEL');
-        $fields_value['BUCKAROO_SDD_ENABLED'] = Configuration::get('BUCKAROO_SDD_ENABLED');
-        $fields_value['BUCKAROO_SDD_TEST'] = Configuration::get('BUCKAROO_SDD_TEST');
-        $fields_value['BUCKAROO_SDD_USENOTIFICATION'] = Configuration::get('BUCKAROO_SDD_USENOTIFICATION');
-        $fields_value['BUCKAROO_SDD_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_SDD_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_IDEAL_USENOTIFICATION'] = Configuration::get('BUCKAROO_IDEAL_USENOTIFICATION');
-        $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_IDEAL_ENABLED'] = Configuration::get('BUCKAROO_IDEAL_ENABLED');
-        $fields_value['BUCKAROO_IDEAL_TEST'] = Configuration::get('BUCKAROO_IDEAL_TEST');
-        $fields_value['BUCKAROO_GIROPAY_ENABLED'] = Configuration::get('BUCKAROO_GIROPAY_ENABLED');
-        $fields_value['BUCKAROO_GIROPAY_TEST'] = Configuration::get('BUCKAROO_GIROPAY_TEST');
-        $fields_value['BUCKAROO_PAYSAFECARD_ENABLED'] = Configuration::get('BUCKAROO_PAYSAFECARD_ENABLED');
-        $fields_value['BUCKAROO_PAYSAFECARD_TEST'] = Configuration::get('BUCKAROO_PAYSAFECARD_TEST');
-        $fields_value['BUCKAROO_MISTERCASH_ENABLED'] = Configuration::get('BUCKAROO_MISTERCASH_ENABLED');
-        $fields_value['BUCKAROO_MISTERCASH_TEST'] = Configuration::get('BUCKAROO_MISTERCASH_TEST');
-        $fields_value['BUCKAROO_GIFTCARD_ENABLED'] = Configuration::get('BUCKAROO_GIFTCARD_ENABLED');
-        $fields_value['BUCKAROO_GIFTCARD_TEST'] = Configuration::get('BUCKAROO_GIFTCARD_TEST');
-        $fields_value['BUCKAROO_GIFTCARD_ALLOWED_CARDS'] = Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
+        $fields_value['BUCKAROO_PAYPAL_ENABLED']           = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
+        $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
+        $fields_value['BUCKAROO_EMPAYMENT_ENABLED']        = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
+        $fields_value['BUCKAROO_EMPAYMENT_TEST']           = Configuration::get('BUCKAROO_EMPAYMENT_TEST');
+        $fields_value['BUCKAROO_DD_ENABLED']               = Configuration::get('BUCKAROO_DD_ENABLED');
+        $fields_value['BUCKAROO_DD_TEST']                  = Configuration::get('BUCKAROO_DD_TEST');
+        $fields_value['BUCKAROO_DD_USECREDITMANAGMENT']    = Configuration::get('BUCKAROO_DD_USECREDITMANAGMENT');
+        $fields_value['BUCKAROO_DD_INVOICEDELAY']          = Configuration::get('BUCKAROO_DD_INVOICEDELAY');
+        $fields_value['BUCKAROO_DD_DATEDUE']               = Configuration::get('BUCKAROO_DD_DATEDUE');
+        $fields_value['BUCKAROO_DD_MAXREMINDERLEVEL']      = Configuration::get('BUCKAROO_DD_MAXREMINDERLEVEL');
+        $fields_value['BUCKAROO_SDD_ENABLED']              = Configuration::get('BUCKAROO_SDD_ENABLED');
+        $fields_value['BUCKAROO_SDD_TEST']                 = Configuration::get('BUCKAROO_SDD_TEST');
+        $fields_value['BUCKAROO_SDD_USENOTIFICATION']      = Configuration::get('BUCKAROO_SDD_USENOTIFICATION');
+        $fields_value['BUCKAROO_SDD_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_SDD_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_IDEAL_USENOTIFICATION']    = Configuration::get('BUCKAROO_IDEAL_USENOTIFICATION');
+        $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY']  = Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_IDEAL_ENABLED']            = Configuration::get('BUCKAROO_IDEAL_ENABLED');
+        $fields_value['BUCKAROO_IDEAL_TEST']               = Configuration::get('BUCKAROO_IDEAL_TEST');
+        $fields_value['BUCKAROO_GIROPAY_ENABLED']          = Configuration::get('BUCKAROO_GIROPAY_ENABLED');
+        $fields_value['BUCKAROO_GIROPAY_TEST']             = Configuration::get('BUCKAROO_GIROPAY_TEST');
+        $fields_value['BUCKAROO_PAYSAFECARD_ENABLED']      = Configuration::get('BUCKAROO_PAYSAFECARD_ENABLED');
+        $fields_value['BUCKAROO_PAYSAFECARD_TEST']         = Configuration::get('BUCKAROO_PAYSAFECARD_TEST');
+        $fields_value['BUCKAROO_MISTERCASH_ENABLED']       = Configuration::get('BUCKAROO_MISTERCASH_ENABLED');
+        $fields_value['BUCKAROO_MISTERCASH_TEST']          = Configuration::get('BUCKAROO_MISTERCASH_TEST');
+        $fields_value['BUCKAROO_GIFTCARD_ENABLED']         = Configuration::get('BUCKAROO_GIFTCARD_ENABLED');
+        $fields_value['BUCKAROO_GIFTCARD_TEST']            = Configuration::get('BUCKAROO_GIFTCARD_TEST');
+        $fields_value['BUCKAROO_GIFTCARD_ALLOWED_CARDS']   = Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
         $fields_value['BUCKAROO_CREDITCARD_ALLOWED_CARDS'] = Configuration::get('BUCKAROO_CREDITCARD_ALLOWED_CARDS');
-        $fields_value['BUCKAROO_CREDITCARD_ENABLED'] = Configuration::get('BUCKAROO_CREDITCARD_ENABLED');
-        $fields_value['BUCKAROO_CREDITCARD_TEST'] = Configuration::get('BUCKAROO_CREDITCARD_TEST');
-        $fields_value['BUCKAROO_EMAESTRO_ENABLED'] = Configuration::get('BUCKAROO_EMAESTRO_ENABLED');
-        $fields_value['BUCKAROO_EMAESTRO_TEST'] = Configuration::get('BUCKAROO_EMAESTRO_TEST');
-        $fields_value['BUCKAROO_SOFORTBANKING_ENABLED'] = Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED');
-        $fields_value['BUCKAROO_SOFORTBANKING_TEST'] = Configuration::get('BUCKAROO_SOFORTBANKING_TEST');
-        $fields_value['BUCKAROO_TRANSFER_ENABLED'] = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
-        $fields_value['BUCKAROO_TRANSFER_TEST'] = Configuration::get('BUCKAROO_TRANSFER_TEST');
-        $fields_value['BUCKAROO_TRANSFER_DATEDUE'] = Configuration::get('BUCKAROO_TRANSFER_DATEDUE');
-        $fields_value['BUCKAROO_TRANSFER_SENDMAIL'] = Configuration::get('BUCKAROO_TRANSFER_SENDMAIL');
+        $fields_value['BUCKAROO_CREDITCARD_ENABLED']       = Configuration::get('BUCKAROO_CREDITCARD_ENABLED');
+        $fields_value['BUCKAROO_CREDITCARD_TEST']          = Configuration::get('BUCKAROO_CREDITCARD_TEST');
+        $fields_value['BUCKAROO_EMAESTRO_ENABLED']         = Configuration::get('BUCKAROO_EMAESTRO_ENABLED');
+        $fields_value['BUCKAROO_EMAESTRO_TEST']            = Configuration::get('BUCKAROO_EMAESTRO_TEST');
+        $fields_value['BUCKAROO_SOFORTBANKING_ENABLED']    = Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED');
+        $fields_value['BUCKAROO_SOFORTBANKING_TEST']       = Configuration::get('BUCKAROO_SOFORTBANKING_TEST');
+        $fields_value['BUCKAROO_TRANSFER_ENABLED']         = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
+        $fields_value['BUCKAROO_TRANSFER_TEST']            = Configuration::get('BUCKAROO_TRANSFER_TEST');
+        $fields_value['BUCKAROO_TRANSFER_DATEDUE']         = Configuration::get('BUCKAROO_TRANSFER_DATEDUE');
+        $fields_value['BUCKAROO_TRANSFER_SENDMAIL']        = Configuration::get('BUCKAROO_TRANSFER_SENDMAIL');
 
-        $fields_value['BUCKAROO_AFTERPAY_ENABLED'] = Configuration::get('BUCKAROO_AFTERPAY_ENABLED');
-        $fields_value['BUCKAROO_AFTERPAY_TEST'] = Configuration::get('BUCKAROO_AFTERPAY_TEST');
+        $fields_value['BUCKAROO_AFTERPAY_ENABLED']      = Configuration::get('BUCKAROO_AFTERPAY_ENABLED');
+        $fields_value['BUCKAROO_AFTERPAY_TEST']         = Configuration::get('BUCKAROO_AFTERPAY_TEST');
         $fields_value['BUCKAROO_AFTERPAY_SERVISS_NAME'] = Configuration::get('BUCKAROO_AFTERPAY_SERVISS_NAME');
-        $fields_value['BUCKAROO_AFTERPAY_BTB'] = Configuration::get('BUCKAROO_AFTERPAY_BTB');
-        $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
+        $fields_value['BUCKAROO_AFTERPAY_BTB']          = Configuration::get('BUCKAROO_AFTERPAY_BTB');
+        $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
-        $fields_value['BUCKAROO_AFTERPAY_TAXRATE'] = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
+        $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
 
-        $fields_value['BUCKAROO_PAYPAL_USENOTIFICATION'] = Configuration::get('BUCKAROO_PAYPAL_USENOTIFICATION');
-        $fields_value['BUCKAROO_PAYPAL_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_PAYPAL_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_EMPAYMENT_USENOTIFICATION'] = Configuration::get('BUCKAROO_EMPAYMENT_USENOTIFICATION');
-        $fields_value['BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_GIROPAY_USENOTIFICATION'] = Configuration::get('BUCKAROO_GIROPAY_USENOTIFICATION');
-        $fields_value['BUCKAROO_GIROPAY_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_GIROPAY_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_PAYSAFECARD_USENOTIFICATION'] = Configuration::get('BUCKAROO_PAYSAFECARD_USENOTIFICATION');
-        $fields_value['BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_MISTERCASH_USENOTIFICATION'] = Configuration::get('BUCKAROO_MISTERCASH_USENOTIFICATION');
-        $fields_value['BUCKAROO_MISTERCASH_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_CREDITCARD_USENOTIFICATION'] = Configuration::get('BUCKAROO_CREDITCARD_USENOTIFICATION');
-        $fields_value['BUCKAROO_CREDITCARD_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_EMAESTRO_USENOTIFICATION'] = Configuration::get('BUCKAROO_EMAESTRO_USENOTIFICATION');
-        $fields_value['BUCKAROO_EMAESTRO_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_SOFORTBANKING_USENOTIFICATION'] = Configuration::get('BUCKAROO_SOFORTBANKING_USENOTIFICATION');
+        $fields_value['BUCKAROO_PAYPAL_USENOTIFICATION']          = Configuration::get('BUCKAROO_PAYPAL_USENOTIFICATION');
+        $fields_value['BUCKAROO_PAYPAL_NOTIFICATIONDELAY']        = Configuration::get('BUCKAROO_PAYPAL_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_EMPAYMENT_USENOTIFICATION']       = Configuration::get('BUCKAROO_EMPAYMENT_USENOTIFICATION');
+        $fields_value['BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY']     = Configuration::get('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_GIROPAY_USENOTIFICATION']         = Configuration::get('BUCKAROO_GIROPAY_USENOTIFICATION');
+        $fields_value['BUCKAROO_GIROPAY_NOTIFICATIONDELAY']       = Configuration::get('BUCKAROO_GIROPAY_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_PAYSAFECARD_USENOTIFICATION']     = Configuration::get('BUCKAROO_PAYSAFECARD_USENOTIFICATION');
+        $fields_value['BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY']   = Configuration::get('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_MISTERCASH_USENOTIFICATION']      = Configuration::get('BUCKAROO_MISTERCASH_USENOTIFICATION');
+        $fields_value['BUCKAROO_MISTERCASH_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_CREDITCARD_USENOTIFICATION']      = Configuration::get('BUCKAROO_CREDITCARD_USENOTIFICATION');
+        $fields_value['BUCKAROO_CREDITCARD_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_EMAESTRO_USENOTIFICATION']        = Configuration::get('BUCKAROO_EMAESTRO_USENOTIFICATION');
+        $fields_value['BUCKAROO_EMAESTRO_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_SOFORTBANKING_USENOTIFICATION']   = Configuration::get('BUCKAROO_SOFORTBANKING_USENOTIFICATION');
         $fields_value['BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_AFTERPAY_USENOTIFICATION'] = Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION');
-        $fields_value['BUCKAROO_AFTERPAY_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_TRANSFER_USENOTIFICATION'] = Configuration::get('BUCKAROO_TRANSFER_USENOTIFICATION');
-        $fields_value['BUCKAROO_TRANSFER_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_TRANSFER_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_AFTERPAY_USENOTIFICATION']        = Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION');
+        $fields_value['BUCKAROO_AFTERPAY_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_TRANSFER_USENOTIFICATION']        = Configuration::get('BUCKAROO_TRANSFER_USENOTIFICATION');
+        $fields_value['BUCKAROO_TRANSFER_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_TRANSFER_NOTIFICATIONDELAY');
 
         //Global Settings
-        $i = 0;
-        $orderStatesGet = OrderState::getOrderStates((int)(Configuration::get('PS_LANG_DEFAULT')));
-        $orderStates = array();
+        $i              = 0;
+        $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
+        $orderStates    = array();
         foreach ($orderStatesGet as $o) {
             $orderStates[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
         }
-        $fields_form = array();
+        $fields_form       = array();
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Global settings'),
-            'name' => 'GLOBAL',
+            'legend'  => $this->module->l('Global settings'),
+            'name'    => 'GLOBAL',
             'enabled' => true,
-            'test' => Configuration::get('BUCKAROO_TEST'),
-            'input' => array(
+            'test'    => Configuration::get('BUCKAROO_TEST'),
+            'input'   => array(
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_TEST',
                 ),
                 array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Merchant key'),
-                    'name' => 'BUCKAROO_MERCHANT_KEY',
-                    'size' => 25,
-                    'required' => true
-                )
-            ,
-                array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Secret key'),
-                    'name' => 'BUCKAROO_SECRET_KEY',
-                    'size' => 80,
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Merchant key'),
+                    'name'     => 'BUCKAROO_MERCHANT_KEY',
+                    'size'     => 25,
                     'required' => true,
                 )
-            ,
+                ,
                 array(
-                    'type' => 'certificate',
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Secret key'),
+                    'name'     => 'BUCKAROO_SECRET_KEY',
+                    'size'     => 80,
+                    'required' => true,
+                )
+                ,
+                array(
+                    'type'  => 'certificate',
                     'label' => $this->module->l('Certificate'),
-                    'name' => 'BUCKAROO_CERTIFICATE',
+                    'name'  => 'BUCKAROO_CERTIFICATE',
                 )
-            ,
+                ,
                 array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Certificate thumbprint'),
-                    'name' => 'BUCKAROO_CERTIFICATE_THUMBPRINT',
-                    'size' => 80,
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Certificate thumbprint'),
+                    'name'     => 'BUCKAROO_CERTIFICATE_THUMBPRINT',
+                    'size'     => 80,
                     'required' => true,
                 )
-            ,
+                ,
                 array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Transaction label'),
-                    'name' => 'BUCKAROO_TRANSACTION_LABEL',
-                    'size' => 80,
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Transaction label'),
+                    'name'     => 'BUCKAROO_TRANSACTION_LABEL',
+                    'size'     => 80,
                     'required' => true,
                 )
-            ,
+                ,
                 array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Return url'),
-                    'name' => 'BUCKAROO_TRANSACTION_RETURNURL',
-                    'size' => 100,
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Return url'),
+                    'name'     => 'BUCKAROO_TRANSACTION_RETURNURL',
+                    'size'     => 100,
                     'required' => true,
                 )
-            ,
+                ,
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_TRANSACTION_CULTURE',
-                    'label' => $this->module->l('Language'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_TRANSACTION_CULTURE',
+                    'label'     => $this->module->l('Language'),
                     'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('Use webshop culture'),
+                            'text'  => $this->module->l('Use webshop culture'),
                             'value' => 'A',
                         ),
                         array(
-                            'text' => $this->module->l('English'),
+                            'text'  => $this->module->l('English'),
                             'value' => 'en',
                         ),
                         array(
-                            'text' => $this->module->l('Dutch'),
+                            'text'  => $this->module->l('Dutch'),
                             'value' => 'nl',
                         ),
                         array(
-                            'text' => $this->module->l('French'),
+                            'text'  => $this->module->l('French'),
                             'value' => 'fr',
                         ),
                         array(
-                            'text' => $this->module->l('German'),
+                            'text'  => $this->module->l('German'),
                             'value' => 'de',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_ORDER_STATE_DEFAULT',
-                    'label' => $this->module->l('Default order status after order is created'),
-                    'options' => $orderStates
+                    'type'    => 'select',
+                    'name'    => 'BUCKAROO_ORDER_STATE_DEFAULT',
+                    'label'   => $this->module->l('Default order status after order is created'),
+                    'options' => $orderStates,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'refresh_module',
-                    'label' => $this->module->l('Refresh module'),
+                    'type'     => 'submit',
+                    'name'     => 'refresh_module',
+                    'label'    => $this->module->l('Refresh module'),
                     'required' => true,
-                )
-            )
+                ),
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('PayPal Settings'),
-            'name' => 'PAYPAL',
-            'test' => Configuration::get('BUCKAROO_PAYPAL_TEST'),
+            'legend'  => $this->module->l('PayPal Settings'),
+            'name'    => 'PAYPAL',
+            'test'    => Configuration::get('BUCKAROO_PAYPAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYPAL_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_PAYPAL_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_PAYPAL_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_PAYPAL_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_PAYPAL_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_PAYPAL_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_PAYPAL_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                )
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('SEPA Direct debit settings'),
-            'name' => 'SEPADD',
-            'test' => Configuration::get('BUCKAROO_SDD_TEST'),
+            'legend'  => $this->module->l('SEPA Direct debit settings'),
+            'name'    => 'SEPADD',
+            'test'    => Configuration::get('BUCKAROO_SDD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SDD_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_SDD_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_SDD_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_SDD_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_SDD_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
                         'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PreNotification service)'
                     ),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_SDD_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_SDD_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
                         'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
                     ),
-                    'size' => 4,
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('IDeal settings'),
-            'name' => 'IDEAL',
-            'test' => Configuration::get('BUCKAROO_IDEAL_TEST'),
+            'legend'  => $this->module->l('IDeal settings'),
+            'name'    => 'IDEAL',
+            'test'    => Configuration::get('BUCKAROO_IDEAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDEAL_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_IDEAL_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
@@ -599,503 +595,503 @@ class Buckaroo3Admin
                     'name' => '<hr>',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_IDEAL_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_IDEAL_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
                         'The notification service can be used to have the payment engine sent additional notifications at certain points.
                         Different type of notifications can be sent and also using different methods to sent them.'
                     ),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_IDEAL_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_IDEAL_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
                         'The time at which the notification should be sent. If this is not specified, the notification is sent immediately. (PaymentComplete service)'
                     ),
-                    'size' => 4,
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Giropay settings'),
-            'name' => 'GIROPAY',
-            'test' => Configuration::get('BUCKAROO_GIROPAY_TEST'),
+            'legend'  => $this->module->l('Giropay settings'),
+            'name'    => 'GIROPAY',
+            'test'    => Configuration::get('BUCKAROO_GIROPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIROPAY_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_GIROPAY_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_GIROPAY_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_GIROPAY_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_GIROPAY_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_GIROPAY_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_GIROPAY_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('PaySafeCard settings'),
-            'name' => 'PAYSAFECARD',
-            'test' => Configuration::get('BUCKAROO_PAYSAFECARD_TEST'),
+            'legend'  => $this->module->l('PaySafeCard settings'),
+            'name'    => 'PAYSAFECARD',
+            'test'    => Configuration::get('BUCKAROO_PAYSAFECARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYSAFECARD_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_PAYSAFECARD_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_PAYSAFECARD_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_PAYSAFECARD_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_PAYSAFECARD_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Bancontact / Mister Cash settings'),
-            'name' => 'MISTERCASH',
-            'test' => Configuration::get('BUCKAROO_MISTERCASH_TEST'),
+            'legend'  => $this->module->l('Bancontact / Mister Cash settings'),
+            'name'    => 'MISTERCASH',
+            'test'    => Configuration::get('BUCKAROO_MISTERCASH_TEST'),
             'enabled' => Configuration::get('BUCKAROO_MISTERCASH_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_MISTERCASH_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_MISTERCASH_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_MISTERCASH_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_MISTERCASH_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_MISTERCASH_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_MISTERCASH_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('GiftCard settings'),
-            'name' => 'GIFTCARD',
-            'test' => Configuration::get('BUCKAROO_GIFTCARD_TEST'),
+            'legend'  => $this->module->l('GiftCard settings'),
+            'name'    => 'GIFTCARD',
+            'test'    => Configuration::get('BUCKAROO_GIFTCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIFTCARD_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_GIFTCARD_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_GIFTCARD_TEST',
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'hidearea_end'
+                    'type' => 'hidearea_end',
                 ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('CreditCard settings'),
-            'name' => 'CREDITCARD',
-            'test' => Configuration::get('BUCKAROO_CREDITCARD_TEST'),
+            'legend'  => $this->module->l('CreditCard settings'),
+            'name'    => 'CREDITCARD',
+            'test'    => Configuration::get('BUCKAROO_CREDITCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_CREDITCARD_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_CREDITCARD_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_CREDITCARD_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_CREDITCARD_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_CREDITCARD_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_CREDITCARD_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_CREDITCARD_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('EMaestro settings'),
-            'name' => 'EMAESTRO',
-            'test' => Configuration::get('BUCKAROO_EMAESTRO_TEST'),
+            'legend'  => $this->module->l('EMaestro settings'),
+            'name'    => 'EMAESTRO',
+            'test'    => Configuration::get('BUCKAROO_EMAESTRO_TEST'),
             'enabled' => Configuration::get('BUCKAROO_EMAESTRO_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_EMAESTRO_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_EMAESTRO_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_EMAESTRO_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_EMAESTRO_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_EMAESTRO_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_EMAESTRO_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Sofortbanking settings'),
-            'name' => 'SOFORTBANKING',
-            'test' => Configuration::get('BUCKAROO_SOFORTBANKING_TEST'),
+            'legend'  => $this->module->l('Sofortbanking settings'),
+            'name'    => 'SOFORTBANKING',
+            'test'    => Configuration::get('BUCKAROO_SOFORTBANKING_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_SOFORTBANKING_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_SOFORTBANKING_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_SOFORTBANKING_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_SOFORTBANKING_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
 
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('Bank Transfer settings'),
-            'name' => 'TRANSFER',
-            'test' => (Configuration::get('BUCKAROO_TRANSFER_TEST') == '1' ? true : false),
+            'legend'  => $this->module->l('Bank Transfer settings'),
+            'name'    => 'TRANSFER',
+            'test'    => (Configuration::get('BUCKAROO_TRANSFER_TEST') == '1' ? true : false),
             'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED') == '1' ? true : false),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_TRANSFER_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_TRANSFER_TEST',
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_TRANSFER_DATEDUE',
-                    'label' => $this->module->l('Number of days to the date that the order should be payed.'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_TRANSFER_DATEDUE',
+                    'label'     => $this->module->l('Number of days to the date that the order should be payed.'),
                     'smalltext' => $this->module->l(
                         'This is only for display purposes, to be able to use it in email templates.'
                     ),
-                    'size' => 4,
-                    'required' => true,
+                    'size'      => 4,
+                    'required'  => true,
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_TRANSFER_SENDMAIL',
-                    'label' => $this->module->l('Send payment email'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_TRANSFER_SENDMAIL',
+                    'label'     => $this->module->l('Send payment email'),
                     'smalltext' => $this->module->l(
                         'Buckaroo sends an email to the customer with the payment procedures.'
                     ),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_TRANSFER_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_TRANSFER_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_TRANSFER_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_TRANSFER_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                ),
-            )
+            ),
         );
-        $tx = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
-        $taxes = array();
+        $tx      = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
+        $taxes   = array();
         $taxes[] = "No tax";
         foreach ($tx as $t) {
             $taxes[$t["id_tax"]] = $t["name"];
@@ -1107,197 +1103,197 @@ class Buckaroo3Admin
             $taxvalues = unserialize($taxvalues);
         }
         $fields_form[$i++] = array(
-            'legend' => $this->module->l('AfterPay Settings'),
-            'name' => 'AFTERPAY',
-            'test' => Configuration::get('BUCKAROO_AFTERPAY_TEST'),
+            'legend'  => $this->module->l('AfterPay Settings'),
+            'name'    => 'AFTERPAY',
+            'test'    => Configuration::get('BUCKAROO_AFTERPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_AFTERPAY_ENABLED'),
-            'input' => array(
+            'input'   => array(
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_AFTERPAY_ENABLED',
                 ),
                 array(
-                    'type' => 'hidearea_start'
+                    'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_AFTERPAY_TEST',
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_AFTERPAY_SERVISS_NAME',
-                    'label' => $this->module->l('Select afterpay service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_SERVISS_NAME',
+                    'label'     => $this->module->l('Select afterpay service'),
                     'smalltext' => $this->module->l('Please select the service'),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('Offer customer to pay afterwards by SEPA Direct Debit.'),
+                            'text'  => $this->module->l('Offer customer to pay afterwards by SEPA Direct Debit.'),
                             'value' => 'afterpayacceptgiro',
                         ),
                         array(
-                            'text' => $this->module->l('Offer customer to pay afterwards by digital invoice.'),
+                            'text'  => $this->module->l('Offer customer to pay afterwards by digital invoice.'),
                             'value' => 'afterpaydigiaccept',
                         ),
                         array(
-                            'text' => $this->module->l('Both are enabled'),
+                            'text'  => $this->module->l('Both are enabled'),
                             'value' => 'both',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_AFTERPAY_BTB',
-                    'label' => $this->module->l('Enable AfterPay B2B'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_BTB',
+                    'label'     => $this->module->l('Enable AfterPay B2B'),
                     'smalltext' => $this->module->l(
                         'Digital invoice service may provide B2B payment. If you have subscription for it you can enable B2B'
                     ),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('Disable'),
+                            'text'  => $this->module->l('Disable'),
                             'value' => 'disable',
                         ),
                         array(
-                            'text' => $this->module->l('Enable'),
+                            'text'  => $this->module->l('Enable'),
                             'value' => 'enable',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_AFTERPAY_DEFAULT_VAT',
-                    'label' => $this->module->l('Default product Vat type'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_DEFAULT_VAT',
+                    'label'     => $this->module->l('Default product Vat type'),
                     'smalltext' => $this->module->l('Please select default vat type for your products'),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('1 = High rate'),
+                            'text'  => $this->module->l('1 = High rate'),
                             'value' => '1',
                         ),
                         array(
-                            'text' => $this->module->l('2 = Low rate'),
+                            'text'  => $this->module->l('2 = Low rate'),
                             'value' => '2',
                         ),
                         array(
-                            'text' => $this->module->l('3 = Zero rate'),
+                            'text'  => $this->module->l('3 = Zero rate'),
                             'value' => '3',
                         ),
                         array(
-                            'text' => $this->module->l('4 = Null rate'),
+                            'text'  => $this->module->l('4 = Null rate'),
                             'value' => '4',
                         ),
                         array(
-                            'text' => $this->module->l('5 = Middle rate'),
+                            'text'  => $this->module->l('5 = Middle rate'),
                             'value' => '5',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_AFTERPAY_WRAPPING_VAT',
-                    'label' => $this->module->l('Vat type for wrapping'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_WRAPPING_VAT',
+                    'label'     => $this->module->l('Vat type for wrapping'),
                     'smalltext' => $this->module->l('Please select  vat type for wrapping'),
-                    'options' => array(
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('1 = High rate'),
+                            'text'  => $this->module->l('1 = High rate'),
                             'value' => '1',
                         ),
                         array(
-                            'text' => $this->module->l('2 = Low rate'),
+                            'text'  => $this->module->l('2 = Low rate'),
                             'value' => '2',
                         ),
                         array(
-                            'text' => $this->module->l('3 = Zero rate'),
+                            'text'  => $this->module->l('3 = Zero rate'),
                             'value' => '3',
                         ),
                         array(
-                            'text' => $this->module->l('4 = Null rate'),
+                            'text'  => $this->module->l('4 = Null rate'),
                             'value' => '4',
                         ),
                         array(
-                            'text' => $this->module->l('5 = Middle rate'),
+                            'text'  => $this->module->l('5 = Middle rate'),
                             'value' => '5',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'taxrate',
-                    'name' => 'BUCKAROO_AFTERPAY_TAXRATE',
-                    'label' => $this->module->l('Select tax rates'),
-                    'taxarray' => $taxes,
-                    'taxvalues' => $taxvalues,
+                    'type'       => 'taxrate',
+                    'name'       => 'BUCKAROO_AFTERPAY_TAXRATE',
+                    'label'      => $this->module->l('Select tax rates'),
+                    'taxarray'   => $taxes,
+                    'taxvalues'  => $taxvalues,
                     'taxoptions' => array(
                         array(
-                            'text' => $this->module->l('1 = High rate'),
+                            'text'  => $this->module->l('1 = High rate'),
                             'value' => '1',
                         ),
                         array(
-                            'text' => $this->module->l('2 = Low rate'),
+                            'text'  => $this->module->l('2 = Low rate'),
                             'value' => '2',
                         ),
                         array(
-                            'text' => $this->module->l('3 = Zero rate'),
+                            'text'  => $this->module->l('3 = Zero rate'),
                             'value' => '3',
                         ),
                         array(
-                            'text' => $this->module->l('4 = Null rate'),
+                            'text'  => $this->module->l('4 = Null rate'),
                             'value' => '4',
                         ),
                         array(
-                            'text' => $this->module->l('5 = Middle rate'),
+                            'text'  => $this->module->l('5 = Middle rate'),
                             'value' => '5',
                         ),
                     ),
-                    'required' => true,
+                    'required'   => true,
                 ),
                 array(
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_AFTERPAY_USENOTIFICATION',
-                    'label' => $this->module->l('Use notification service'),
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_USENOTIFICATION',
+                    'label'     => $this->module->l('Use notification service'),
                     'smalltext' => $this->module->l(
-                            'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
-                        ),
-                    'options' => array(
+                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'
+                    ),
+                    'options'   => array(
                         array(
-                            'text' => $this->module->l('No'),
+                            'text'  => $this->module->l('No'),
                             'value' => '0',
                         ),
                         array(
-                            'text' => $this->module->l('Yes'),
+                            'text'  => $this->module->l('Yes'),
                             'value' => '1',
                         ),
                     ),
                 ),
                 array(
-                    'type' => 'text',
-                    'name' => 'BUCKAROO_AFTERPAY_NOTIFICATIONDELAY',
-                    'label' => $this->module->l('Notification delay (in days)'),
+                    'type'      => 'text',
+                    'name'      => 'BUCKAROO_AFTERPAY_NOTIFICATIONDELAY',
+                    'label'     => $this->module->l('Notification delay (in days)'),
                     'smalltext' => $this->module->l(
-                            'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
-                        ),
-                    'size' => 4,
+                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'
+                    ),
+                    'size'      => 4,
+                    'required'  => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
                     'required' => true,
                 ),
                 array(
-                    'type' => 'submit',
-                    'name' => 'save_data',
-                    'label' => $this->module->l('Save configuration'),
-                    'required' => true,
+                    'type' => 'hidearea_end',
                 ),
-                array(
-                    'type' => 'hidearea_end'
-                )
-            )
+            ),
         );
 
         $this->module->context->smarty->assign(
             array(
-                'fields_form' => $fields_form,
+                'fields_form'  => $fields_form,
                 'fields_value' => $fields_value,
-                'form_action' => Tools::safeOutput($_SERVER['REQUEST_URI']),
-                'dir' => dirname(__FILE__) . '/views/templates/admin',
-                'top_error' => $this->_error,
+                'form_action'  => Tools::safeOutput($_SERVER['REQUEST_URI']),
+                'dir'          => dirname(__FILE__) . '/views/templates/admin',
+                'top_error'    => $this->_error,
             )
         );
 
-        $tpl = 'views/templates/admin/admin.tpl';
+        $tpl    = 'views/templates/admin/admin.tpl';
         $output = $this->module->display(dirname(__FILE__), $tpl);
 
         return $helper_head->generate() . $output;
