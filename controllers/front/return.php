@@ -125,9 +125,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $payment->conversion_rate = 1;
                     $payment->save();
 
-                    Db::getInstance()->execute(
-                    'INSERT INTO `' . _DB_PREFIX_ . 'buckaroo_transactions` (transaction_id, original_transaction) VALUES(\'' . pSQL($response->transactions) . '\', \'' . pSQL($response->brq_relatedtransaction_refund) . '\')'//phpcs:ignore
-                    );
+                    $query = "INSERT INTO `" . _DB_PREFIX_ . "buckaroo_transactions` (transaction_id, original_transaction) VALUES('" . pSQL($response->transactions) . "', '" . pSQL($response->brq_relatedtransaction_refund) . "')";//phpcs:ignore
+                    Db::getInstance()->execute($query);
 
                     $message           = new Message();
                     $message->id_order = $id_order;

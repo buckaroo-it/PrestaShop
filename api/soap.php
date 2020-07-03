@@ -43,8 +43,9 @@ require_once dirname(__FILE__) . '/apiclasses/TransformType.php';
 
 final class Soap extends BuckarooAbstract
 {
-
+    // @codingStandardsIgnoreStart
     private $_vars;
+    // @codingStandardsIgnoreEnd
 
     public function setVars($vars = array())
     {
@@ -92,7 +93,7 @@ final class Soap extends BuckarooAbstract
                     );
                 } catch (Exception $e) {
                     //(SoapFault $e) {
-                    return $this->_error($e);
+                    return $this->error($e);
                 }
             }
         }
@@ -131,11 +132,11 @@ final class Soap extends BuckarooAbstract
         }
          */
         if (!empty($this->_vars['customParameters'])) {
-            $TransactionRequest = $this->_addCustomParameters($TransactionRequest);
+            $TransactionRequest = $this->addCustomParameters($TransactionRequest);
         }
 
         $TransactionRequest->Services = new Services();
-        $this->_addServices($TransactionRequest);
+        $this->addServices($TransactionRequest);
 
         /*
         $TransactionRequest->Services = new Services();
@@ -150,7 +151,7 @@ final class Soap extends BuckarooAbstract
         $TransactionRequest->ClientIP->_    = $_SERVER['REMOTE_ADDR'];
 
         foreach ($TransactionRequest->Services->Service as $key => $service) {
-            $this->_addCustomFields($TransactionRequest, $key, $service->Name);
+            $this->addCustomFields($TransactionRequest, $key, $service->Name);
         }
 
         $Header                                  = new Header();
@@ -212,12 +213,12 @@ final class Soap extends BuckarooAbstract
             $logger = new Logger(1);
             $logger->logForUser($e->getMessage());
             //$this->logException($e->getMessage());
-            return $this->_error($client);
+            return $this->error($client);
         } catch (Exception $e) {
             $logger = new Logger(1);
             $logger->logForUser($e->getMessage());
             //$this->logException($e->getMessage());
-            return $this->_error($client);
+            return $this->error($client);
         }
 
         if (is_null($response)) {
@@ -240,7 +241,7 @@ final class Soap extends BuckarooAbstract
         return array($response, $responseDomDOC, $requestDomDOC);
     }
 
-    protected function _addServices(&$TransactionRequest)
+    protected function addServices(&$TransactionRequest)
     {
         $services = array();
         foreach ($this->_vars['services'] as $fieldName => $value) {
@@ -259,7 +260,7 @@ final class Soap extends BuckarooAbstract
         $TransactionRequest->Services->Service = $services;
     }
 
-    protected function _addCustomFields(&$TransactionRequest, $key, $name)
+    protected function addCustomFields(&$TransactionRequest, $key, $name)
     {
         if (empty($this->_vars['customVars']) || empty($this->_vars['customVars'][$name])) {
             unset($TransactionRequest->Services->Service->RequestParameter);
@@ -308,7 +309,7 @@ final class Soap extends BuckarooAbstract
         }
     }
 
-    protected function _addCustomParameters(&$TransactionRequest)
+    protected function addCustomParameters(&$TransactionRequest)
     {
         $requestParameters = array();
         foreach ($this->_vars['customParameters'] as $fieldName => $value) {
@@ -340,7 +341,7 @@ final class Soap extends BuckarooAbstract
         return $TransactionRequest;
     }
 
-    protected function _error($client = false)
+    protected function error($client = false)
     {
         $response = false;
 

@@ -23,13 +23,13 @@ require_once dirname(__FILE__) . '/../abstract.php';
 abstract class Response extends BuckarooAbstract
 {
     //false if not received response
-    private $_received = false;
+    private $received = false;
     //true if validated and securety checked
-    private $_validated = false;
+    private $validated = false;
     //request is test?
-    private $_test = true;
-    private $_signature;
-    private $_isPost;
+    private $test = true;
+    private $signature;
+    private $isPost;
     //payment key
     public $payment;
     //paypal, ideal...
@@ -54,8 +54,8 @@ abstract class Response extends BuckarooAbstract
     //if is errors, othervise = null
     public $parameterError = null;
     /*     * **************************************************** */
-    protected $_responseXML = '';
-    protected $_response    = '';
+    protected $responseXML = '';
+    protected $response    = '';
 
     public function __construct($data = null)
     {
@@ -80,22 +80,22 @@ abstract class Response extends BuckarooAbstract
             }
         }
 
-        $this->_isPost   = $this->isHttpRequest();
-        $this->_received = false;
+        $this->isPost   = $this->isHttpRequest();
+        $this->received = false;
 
-        if ($this->_isPost) {
+        if ($this->isPost) {
             //HTTP
-            $this->_parsePostResponse();
+            $this->parsePostResponse();
             $this->parsePostResponseChild();
-            $this->_received = true;
+            $this->received = true;
         } else {
             if (!is_null($data) && $data[0] != false) {
                 //if valid SOAP response
                 $this->setResponse($data[0]);
                 $this->setResponseXML($data[1]);
-                $this->_parseSoapResponse();
+                $this->parseSoapResponse();
                 $this->parseSoapResponseChild();
-                $this->_received = true;
+                $this->received = true;
             } else {
                 $this->status = self::REQUEST_ERROR;
             }
@@ -113,24 +113,24 @@ abstract class Response extends BuckarooAbstract
 
     public function isTest()
     {
-        return $this->_test;
+        return $this->test;
     }
 
     public function isValid()
     {
-        if (!$this->_validated) {
-            if ($this->_isPost) {
-                $this->_validated = $this->_canProcessPush();
+        if (!$this->validated) {
+            if ($this->isPost) {
+                $this->validated = $this->canProcessPush();
             } else {
-                $this->_validated = $this->_verifyResponse();
+                $this->validated = $this->verifyResponse();
             }
         }
-        return $this->_validated;
+        return $this->validated;
     }
 
     public function isReceived()
     {
-        return $this->_received;
+        return $this->received;
     }
 
     public function hasSucceeded()
@@ -147,10 +147,10 @@ abstract class Response extends BuckarooAbstract
 
     public function isRedirectRequired()
     {
-        if (!empty($this->_response->RequiredAction->Name)
-            && isset($this->_response->RequiredAction->Type)) {
-            if ($this->_response->RequiredAction->Name == 'Redirect'
-                && $this->_response->RequiredAction->Type == 'Redirect') {
+        if (!empty($this->response->RequiredAction->Name)
+            && isset($this->response->RequiredAction->Type)) {
+            if ($this->response->RequiredAction->Name == 'Redirect'
+                && $this->response->RequiredAction->Type == 'Redirect') {
                 return true;
             }
         }
@@ -159,8 +159,8 @@ abstract class Response extends BuckarooAbstract
 
     public function getRedirectUrl()
     {
-        if (!empty($this->_response->RequiredAction->RedirectURL)) {
-            return $this->_response->RequiredAction->RedirectURL;
+        if (!empty($this->response->RequiredAction->RedirectURL)) {
+            return $this->response->RequiredAction->RedirectURL;
         } else {
             return false;
         }
@@ -168,60 +168,60 @@ abstract class Response extends BuckarooAbstract
 
     private function setResponseXML($xml)
     {
-        $this->_responseXML = $xml;
+        $this->responseXML = $xml;
     }
 
     private function getResponseXML()
     {
-        return $this->_responseXML;
+        return $this->responseXML;
     }
 
     private function setResponse($response)
     {
-        $this->_response = $response;
+        $this->response = $response;
     }
 
     public function getResponse()
     {
-        return $this->_response;
+        return $this->response;
     }
 
-    private function _parseSoapResponse()
+    private function parseSoapResponse()
     {
         $this->payment = '';
-        if (!empty($this->_response->ServiceCode)) {
-            $this->payment_method = $this->_response->ServiceCode;
+        if (!empty($this->response->ServiceCode)) {
+            $this->payment_method = $this->response->ServiceCode;
         }
-        $this->transactions = $this->_response->Key;
-        $this->statuscode   = $this->_response->Status->Code->Code;
-        if (!empty($this->_response->Status->SubCode->_)) {
-            $this->statusmessage = $this->_response->Status->SubCode->_;
+        $this->transactions = $this->response->Key;
+        $this->statuscode   = $this->response->Status->Code->Code;
+        if (!empty($this->response->Status->SubCode->_)) {
+            $this->statusmessage = $this->response->Status->SubCode->_;
         }
         $this->statuscode_detail = '';
-        if (!empty($this->_response->Invoice)) {
-            $this->invoice = $this->_response->Invoice;
+        if (!empty($this->response->Invoice)) {
+            $this->invoice = $this->response->Invoice;
         }
-        $this->order         = $this->_response->Order;
+        $this->order         = $this->response->Order;
         $this->invoicenumber = $this->invoice;
         $this->amount        = 0;
-        if (!empty($this->_response->AmountDebit)) {
-            $this->amount = $this->_response->AmountDebit;
+        if (!empty($this->response->AmountDebit)) {
+            $this->amount = $this->response->AmountDebit;
         }
         $this->amount_credit = 0;
-        if (!empty($this->_response->AmountCredit)) {
-            $this->amount        = $this->_response->AmountCredit;
-            $this->amount_credit = $this->_response->AmountCredit;
+        if (!empty($this->response->AmountCredit)) {
+            $this->amount        = $this->response->AmountCredit;
+            $this->amount_credit = $this->response->AmountCredit;
         }
-        $this->currency  = $this->_response->Currency;
-        $this->_test     = ($this->_response->IsTest == 1) ? true : false;
-        $this->timestamp = $this->_response->Status->DateTime;
-        if (!empty($this->_response->RequestErrors->ChannelError->_)) {
-            $this->ChannelError = $this->_response->RequestErrors->ChannelError->_;
+        $this->currency  = $this->response->Currency;
+        $this->test     = ($this->response->IsTest == 1) ? true : false;
+        $this->timestamp = $this->response->Status->DateTime;
+        if (!empty($this->response->RequestErrors->ChannelError->_)) {
+            $this->ChannelError = $this->response->RequestErrors->ChannelError->_;
         }
-        if (!empty($this->_response->Status->Code->_) && empty($this->ChannelError)) {
-            $this->ChannelError = $this->_response->Status->Code->_;
-            if (!empty($this->_response->Status->SubCode->_)) {
-                $this->ChannelError = $this->ChannelError . ': ' . $this->_response->Status->SubCode->_;
+        if (!empty($this->response->Status->Code->_) && empty($this->ChannelError)) {
+            $this->ChannelError = $this->response->Status->Code->_;
+            if (!empty($this->response->Status->SubCode->_)) {
+                $this->ChannelError = $this->ChannelError . ': ' . $this->response->Status->SubCode->_;
             }
         }
 
@@ -229,14 +229,14 @@ abstract class Response extends BuckarooAbstract
         $this->status  = $responseArray['status'];
         $this->message = $responseArray['message'];
 
-        if (!empty($this->_response->RequestErrors->ParameterError)) {
-            $this->ParameterError = $this->_response->RequestErrors->ParameterError;
+        if (!empty($this->response->RequestErrors->ParameterError)) {
+            $this->ParameterError = $this->response->RequestErrors->ParameterError;
         }
     }
 
     abstract protected function parseSoapResponseChild();
 
-    private function _setPostVariable($key)
+    private function setPostVariable($key)
     {
         if (Tools::getValue($key)) {
             return Tools::getValue($key);
@@ -245,33 +245,33 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    private function _parsePostResponse()
+    private function parsePostResponse()
     {
-        $this->payment = $this->_setPostVariable('brq_payment');
+        $this->payment = $this->setPostVariable('brq_payment');
         if (Tools::getValue('brq_payment_method')) {
             $this->payment_method = Tools::getValue('brq_payment_method');
         } elseif (Tools::getValue('brq_transaction_method')) {
             $this->payment_method = Tools::getValue('brq_transaction_method');
         }
 
-        $this->statuscode                            = $this->_setPostVariable('brq_statuscode');
-        $this->statusmessage                         = $this->_setPostVariable('brq_statusmessage');
-        $this->statuscode_detail                     = $this->_setPostVariable('brq_statuscode_detail');
-        $this->brq_relatedtransaction_partialpayment = $this->_setPostVariable('brq_relatedtransaction_partialpayment');
-        $this->brq_transaction_type                  = $this->_setPostVariable('brq_transaction_type');
-        $this->brq_relatedtransaction_refund         = $this->_setPostVariable('brq_relatedtransaction_refund');
-        $this->invoice                               = $this->_setPostVariable('brq_invoicenumber');
-        $this->invoicenumber                         = $this->_setPostVariable('brq_invoicenumber');
-        $this->amount                                = $this->_setPostVariable('brq_amount');
+        $this->statuscode                            = $this->setPostVariable('brq_statuscode');
+        $this->statusmessage                         = $this->setPostVariable('brq_statusmessage');
+        $this->statuscode_detail                     = $this->setPostVariable('brq_statuscode_detail');
+        $this->brq_relatedtransaction_partialpayment = $this->setPostVariable('brq_relatedtransaction_partialpayment');
+        $this->brq_transaction_type                  = $this->setPostVariable('brq_transaction_type');
+        $this->brq_relatedtransaction_refund         = $this->setPostVariable('brq_relatedtransaction_refund');
+        $this->invoice                               = $this->setPostVariable('brq_invoicenumber');
+        $this->invoicenumber                         = $this->setPostVariable('brq_invoicenumber');
+        $this->amount                                = $this->setPostVariable('brq_amount');
         if (Tools::getValue('brq_amount_credit')) {
             $this->amount_credit = Tools::getValue('brq_amount_credit');
         }
 
-        $this->currency     = $this->_setPostVariable('brq_currency');
-        $this->_test        = $this->_setPostVariable('brq_test');
-        $this->timestamp    = $this->_setPostVariable('brq_timestamp');
-        $this->transactions = $this->_setPostVariable('brq_transactions');
-        $this->_signature   = $this->_setPostVariable('brq_signature');
+        $this->currency     = $this->setPostVariable('brq_currency');
+        $this->test        = $this->setPostVariable('brq_test');
+        $this->timestamp    = $this->setPostVariable('brq_timestamp');
+        $this->transactions = $this->setPostVariable('brq_transactions');
+        $this->signature   = $this->setPostVariable('brq_signature');
 
         if (!empty($this->statuscode)) {
             $responseArray = $this->responseCodes[(int) $this->statuscode];
@@ -282,12 +282,12 @@ abstract class Response extends BuckarooAbstract
 
     abstract protected function parsePostResponseChild();
 
-    protected function _verifyResponse()
+    protected function verifyResponse()
     {
         $verified = false;
         if ($this->isReceived()) {
-            $verifiedSignature = $this->_verifySignature();
-            $verifiedDigest    = $this->_verifyDigest();
+            $verifiedSignature = $this->verifySignature();
+            $verifiedDigest    = $this->verifyDigest();
 
             if ($verifiedSignature === true && $verifiedDigest === true) {
                 $verified = true;
@@ -296,12 +296,12 @@ abstract class Response extends BuckarooAbstract
         return $verified;
     }
 
-    protected function _verifySignature()
+    protected function verifySignature()
     {
         $verified = false;
 
         //save response XML to string
-        $responseDomDoc = $this->_responseXML;
+        $responseDomDoc = $this->responseXML;
         $responseString = $responseDomDoc->saveXML();
 
         //retrieve the signature value
@@ -360,12 +360,12 @@ abstract class Response extends BuckarooAbstract
         return $verified;
     }
 
-    protected function _verifyDigest()
+    protected function verifyDigest()
     {
         $verified = false;
 
         //save response XML to string
-        $responseDomDoc = $this->_responseXML;
+        $responseDomDoc = $this->responseXML;
         $responseString = $responseDomDoc->saveXML();
 
         //retrieve the signature value
@@ -409,18 +409,18 @@ abstract class Response extends BuckarooAbstract
      * Also calls method that checks if an order is able to be updated further.
      * Canceled, completed, holded etc. orders are not able to be updated
      */
-    protected function _canProcessPush()
+    protected function canProcessPush()
     {
         $correctSignature = false;
         //   $canUpdate = false;
-        $signature = $this->_calculateSignature();
+        $signature = $this->calculateSignature();
         if ($signature === Tools::getValue('brq_signature')) {
             $correctSignature = true;
         }
         /*
         //check if the order can recieve further status updates
         if ($correctSignature === true) {
-        $canUpdate = $this->_canUpdate();
+        $canUpdate = $this->canUpdate();
         }
 
         $return = array(
@@ -438,7 +438,7 @@ abstract class Response extends BuckarooAbstract
      *
      * @return boolean $return
      */
-    protected function _canUpdate()
+    protected function canUpdate()
     {
         $return = false;
 
@@ -470,7 +470,7 @@ abstract class Response extends BuckarooAbstract
      *
      * @return string $signature
      */
-    protected function _calculateSignature()
+    protected function calculateSignature()
     {
         $origArray = $_POST;
         unset($origArray['brq_signature']);

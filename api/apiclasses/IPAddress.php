@@ -19,6 +19,8 @@
 
 class IPAddress
 {
+    // @codingStandardsIgnoreStart
     public $_;
+    // @codingStandardsIgnoreEnd
     public $Type;
 }

@@ -19,7 +19,9 @@
 
 class RequestParameter
 {
+    // @codingStandardsIgnoreStart
     public $_;
+    // @codingStandardsIgnoreEnd
     public $Name;
     public $Group;
     public $GroupID;
