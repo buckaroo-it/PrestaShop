@@ -34,7 +34,7 @@ class IDeal extends PaymentMethod
 
     public function pay($customVars = array())
     {
-        $this->data['customVars'][$this->type]['issuer'] = $this->_getIssuer($this->issuer);
+        $this->data['customVars'][$this->type]['issuer'] = $this->getIssuer($this->issuer);
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action']                = 'ExtraInfo';
@@ -114,7 +114,7 @@ class IDeal extends PaymentMethod
         return $issuerArray;
     }
 
-    protected function _getIssuer($issuer)
+    protected function getIssuer($issuer)
     {
 
         $issuerCode = '';

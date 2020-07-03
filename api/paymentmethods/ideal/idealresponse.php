@@ -26,12 +26,12 @@ class IDealResponse extends Response
     public $consumerAccountNumber;
     public $consumerCity;
 
-    protected function _parseSoapResponseChild()
+    protected function parseSoapResponseChild()
     {
         return null;
     }
 
-    protected function _parsePostResponseChild()
+    protected function parsePostResponseChild()
     {
         if (Tools::getValue('brq_service_ideal_consumerIssuer')) {
             $this->consumerIssuer = Tools::getValue('brq_service_ideal_consumerIssuer');

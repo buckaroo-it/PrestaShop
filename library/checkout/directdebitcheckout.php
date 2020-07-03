@@ -87,7 +87,7 @@ class DirectdebitCheckout extends Checkout
                 }
             }
 
-            $address_components = $this->_getAddressComponents($this->invoice_address->address1);
+            $address_components = $this->getAddressComponents($this->invoice_address->address1);
             //customer address
             $this->customVars['ADDRESS']['ZipCode'] = $this->invoice_address->postcode;
             $this->customVars['ADDRESS']['City'] = $this->invoice_address->city;

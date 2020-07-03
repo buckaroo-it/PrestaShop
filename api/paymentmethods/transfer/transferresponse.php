@@ -34,13 +34,14 @@ class TransferResponse extends Response
         'HtmlText' => ''
     );
 
-    protected function _parseSoapResponseChild()
+    protected function parseSoapResponseChild()
     {
         if (!empty(
             $this->_response->Services->Service->ResponseParameter
         ) && !empty($this->_response->Services->Service->Name)
         ) {
-            if ($this->_response->Services->Service->Name == 'transfer' && $this->_response->Services->Service->ResponseParameter[5]->Name == 'PaymentReference') {
+            if ($this->_response->Services->Service->Name == 'transfer'
+                && $this->_response->Services->Service->ResponseParameter[5]->Name == 'PaymentReference') {
                 $this->BIC = $this->_response->Services->Service->ResponseParameter[0]->_;
                 $this->IBAN = $this->_response->Services->Service->ResponseParameter[1]->_;
                 $this->accountHolderName = $this->_response->Services->Service->ResponseParameter[2]->_;
@@ -68,7 +69,7 @@ class TransferResponse extends Response
         }
     }
 
-    protected function _parsePostResponseChild()
+    protected function parsePostResponseChild()
     {
         return null;
     }

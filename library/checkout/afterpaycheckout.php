@@ -65,7 +65,7 @@ class AfterPayCheckout extends Checkout
             )
         );
 
-        $address_components                              = $this->_getAddressComponents($this->invoice_address->address1);
+        $address_components = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
         $this->payment_request->BillingStreet            = $address_components['street'];
         $this->payment_request->BillingHouseNumber       = $address_components['house_number'];
         $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
@@ -114,7 +114,7 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
             $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;
             $this->payment_request->ShippingBirthDate         = $ShippingBirthDate;
-            $address_components                               = $this->_getAddressComponents($this->shipping_address->address1);
+            $address_components = $this->getAddressComponents($this->shipping_address->address1);//phpcs:ignore
             $this->payment_request->ShippingStreet            = $address_components['street'];
             $this->payment_request->ShippingHouseNumber       = $address_components['house_number'];
             $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
@@ -152,7 +152,7 @@ class AfterPayCheckout extends Checkout
         $this->payment_request->Accept            = 'TRUE';
 
         if ((int) Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION')) {
-            $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
+            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
             $gender_type = Db::getInstance()->getValue($sql);
 
             $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;

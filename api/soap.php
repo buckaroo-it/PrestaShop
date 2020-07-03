@@ -20,7 +20,7 @@
 if (!class_exists('SoapClient')) {
     $logger = new Logger(1);
     $logger->logForUser(
-        'SoapClient is not installed. Please ask your hosting provider to install SoapClient <a style="text-decoration: underline; color: #0000FF" href="http://<?php.net/manual/en/soap.installation.php">http://<?php.net/manual/en/soap.installation.php</a>'
+        'SoapClient is not installed. Please ask your hosting provider to install SoapClient <a style="text-decoration: underline; color: #0000FF" href="http://<?php.net/manual/en/soap.installation.php">http://<?php.net/manual/en/soap.installation.php</a>'//phpcs:ignore
     );
 }
 
@@ -166,9 +166,9 @@ final class Soap extends BuckarooAbstract
 
         $Header->Security->Signature->SignedInfo                                    = new SignedInfoType();
         $Header->Security->Signature->SignedInfo->CanonicalizationMethod            = new CanonicalizationMethodType();
-        $Header->Security->Signature->SignedInfo->CanonicalizationMethod->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+        $Header->Security->Signature->SignedInfo->CanonicalizationMethod->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';//phpcs:ignore
         $Header->Security->Signature->SignedInfo->SignatureMethod                   = new SignatureMethodType();
-        $Header->Security->Signature->SignedInfo->SignatureMethod->Algorithm        = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1';
+        $Header->Security->Signature->SignedInfo->SignatureMethod->Algorithm        = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1';//phpcs:ignore
 
         $Reference             = new ReferenceType();
         $Reference->URI        = '#_body';
@@ -193,8 +193,8 @@ final class Soap extends BuckarooAbstract
         $Header->Security->Signature->SignatureValue        = '';
 
         $soapHeaders   = array();
-        $soapHeaders[] = new SOAPHeader('https://checkout.buckaroo.nl/PaymentEngine/', 'MessageControlBlock', $Header->MessageControlBlock);
-        $soapHeaders[] = new SOAPHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $Header->Security);
+        $soapHeaders[] = new SOAPHeader('https://checkout.buckaroo.nl/PaymentEngine/', 'MessageControlBlock', $Header->MessageControlBlock);//phpcs:ignore
+        $soapHeaders[] = new SOAPHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $Header->Security);//phpcs:ignore
         $client->__setSoapHeaders($soapHeaders);
 
         if ($this->_vars['mode'] == 'test') {
@@ -268,7 +268,10 @@ final class Soap extends BuckarooAbstract
 
         $requestParameters = array();
         foreach ($this->_vars['customVars'][$name] as $fieldName => $value) {
-            if ((is_null($value) || $value === '') || (is_array($value) && (!empty($value['value']) && (is_null($value['value']) || $value['value'] === '')))) {
+            if ((is_null($value) || $value === '')
+                || (is_array($value) && (!empty($value['value'])
+                    && (is_null($value['value'])
+                        || $value['value'] === '')))) {
                 continue;
             }
 
@@ -309,7 +312,9 @@ final class Soap extends BuckarooAbstract
     {
         $requestParameters = array();
         foreach ($this->_vars['customParameters'] as $fieldName => $value) {
-            if ((is_null($value) || $value === '') || (is_array($value) && (is_null($value['value']) || $value['value'] === ''))) {
+            if ((is_null($value) || $value === '')
+                || (is_array($value) && (is_null($value['value'])
+                    || $value['value'] === ''))) {
                 continue;
             }
 

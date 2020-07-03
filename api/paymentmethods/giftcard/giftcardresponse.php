@@ -21,12 +21,12 @@ require_once dirname(__FILE__) . '/../response.php';
 
 class GiftCardResponse extends Response
 {
-    protected function _parseSoapResponseChild()
+    protected function parseSoapResponseChild()
     {
         return null;
     }
 
-    protected function _parsePostResponseChild()
+    protected function parsePostResponseChild()
     {
         return null;
     }

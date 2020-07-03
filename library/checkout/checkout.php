@@ -193,7 +193,7 @@ abstract class Checkout
      * @param string $address
      * @return array
      */
-    protected function _getAddressComponents($address)
+    protected function getAddressComponents($address)
     {
         $result                    = array();
         $result['house_number']    = '';

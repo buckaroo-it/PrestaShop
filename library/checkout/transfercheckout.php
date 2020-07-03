@@ -30,7 +30,7 @@ class TransferCheckout extends Checkout
         $this->customVars['CustomerEmail']     = $this->customer->email;
         $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
         $this->customVars['CustomerLastName']  = $this->invoice_address->lastname;
-        $this->customVars['SendMail']          = ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE');
+        $this->customVars['SendMail'] = ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE');//phpcs:ignore
         $this->customVars['DateDue']           = date(
             'Y-m-d',
             strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')
@@ -39,7 +39,7 @@ class TransferCheckout extends Checkout
         $this->customVars['CustomerCountry'] = Tools::strtoupper($country->iso_code);
 
         if ((int) Configuration::get('BUCKAROO_TRANSFER_USENOTIFICATION')) {
-            $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
+            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
             $gender_type = Db::getInstance()->getValue($sql);
 
             $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;

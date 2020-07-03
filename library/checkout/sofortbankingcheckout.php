@@ -27,7 +27,7 @@ class SofortbankingCheckout extends Checkout
         parent::setCheckout();
 
         if ((int) Configuration::get('BUCKAROO_SOFORTBANKING_USENOTIFICATION')) {
-            $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
+            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
             $gender_type = Db::getInstance()->getValue($sql);
 
             $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
@@ -40,7 +40,7 @@ class SofortbankingCheckout extends Checkout
             if ((int) (Configuration::get('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY')) > 0) {
                 $this->customVars['Notificationdelay'] = date(
                     'Y-m-d',
-                    strtotime('now + ' . (int) (Configuration::get('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY')) . ' day')
+                    strtotime('now + ' . (int) (Configuration::get('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY')) . ' day')//phpcs:ignore
                 );
             }
         }

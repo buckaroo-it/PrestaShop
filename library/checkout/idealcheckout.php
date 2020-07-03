@@ -29,10 +29,9 @@ class IDealCheckout extends Checkout
 
         parent::setCheckout();
 
-        // $this->payment_request->description = 'Pay with iDeal';
         $this->payment_request->issuer = Tools::getValue('BPE_Issuer');
 
-        $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
+        $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
         $gender_type = Db::getInstance()->getValue($sql);
 
         if ((int) Configuration::get('BUCKAROO_IDEAL_USENOTIFICATION')) {

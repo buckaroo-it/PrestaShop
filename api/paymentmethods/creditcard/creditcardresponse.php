@@ -23,12 +23,12 @@ class CreditCardResponse extends Response
 {
     public $cardNumberEnding = '';
 
-    protected function _parseSoapResponseChild()
+    protected function parseSoapResponseChild()
     {
         return null;
     }
 
-    protected function _parsePostResponseChild()
+    protected function parsePostResponseChild()
     {
         if (Tools::getValue('brq_service_' . $this->payment_method . '_CardNumberEnding')) {
             $this->cardNumberEnding = Tools::getValue('brq_service_' . $this->payment_method . '_CardNumberEnding');

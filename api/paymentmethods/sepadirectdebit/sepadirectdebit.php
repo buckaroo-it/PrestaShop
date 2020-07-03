@@ -63,7 +63,7 @@ class SepaDirectDebit extends PaymentMethod
             $this->data['customVars']['creditmanagement']['Customeremail'] = $customVars['Customeremail'];
 
             if (!empty($customVars['PaymentMethodsAllowed'])) {
-                $this->data['customVars']['creditmanagement']['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];
+                $this->data['customVars']['creditmanagement']['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];//phpcs:ignore
             }
 
             if (Tools::getIsset($customVars['MobilePhoneNumber'])) {

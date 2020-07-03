@@ -27,7 +27,7 @@ class PaySafeCardCheckout extends Checkout
         parent::setCheckout();
 
         if ((int) Configuration::get('BUCKAROO_PAYSAFECARD_USENOTIFICATION')) {
-            $sql         = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);
+            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
             $gender_type = Db::getInstance()->getValue($sql);
 
             $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;

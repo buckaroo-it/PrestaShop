@@ -28,7 +28,7 @@ class PayPalResponse extends Response
     public $payerLastname;
     public $paypalTransactionID;
 
-    protected function _parseSoapResponseChild()
+    protected function parseSoapResponseChild()
     {
         $this->payerEmail = '';
         $this->payerCountry = '';
@@ -38,7 +38,7 @@ class PayPalResponse extends Response
         $this->paypalTransactionID = '';
     }
 
-    protected function _parsePostResponseChild()
+    protected function parsePostResponseChild()
     {
         if (Tools::getValue('brq_service_paypal_payerEmail')) {
             $this->payerEmail = Tools::getValue('brq_service_paypal_payerEmail');

@@ -82,7 +82,7 @@ class AdminRefundController extends AdminControllerCore
             }
         }
         Tools::redirectAdmin(
-            $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int)$order->id."&token=" . Tools::getValue(
+            $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int)$order->id."&token=" . Tools::getValue(//phpcs:ignore
                 "admtoken"
             )
         );

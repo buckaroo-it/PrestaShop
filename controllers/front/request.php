@@ -40,7 +40,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $cart                       = $this->context->cart;
         $logger->logDebug("Get cart", $cart);
 
-        if ($cart->id_customer == 0 || $cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active) {
+        if ($cart->id_customer == 0
+            || $cart->id_address_delivery == 0
+            || $cart->id_address_invoice == 0
+            || !$this->module->active) {
             $debug = "Customer Id: " . $cart->id_customer . "\nDelivery Address ID: " .
             $cart->id_address_delivery . "Invoice Address ID: " .
             $cart->id_address_invoice . "\nModule Active: " . $this->module->active;
@@ -89,7 +92,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             Tools::redirect('index.php?controller=order&step=1');
             exit();
         }
-        if (Tools::getValue("service") && Tools::getValue("service") != 'digi' && Tools::getValue("service") != 'sepa') {
+        if (Tools::getValue("service")
+            && Tools::getValue("service") != 'digi'
+            && Tools::getValue("service") != 'sepa') {
             $logger->logError("Load a method", 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
             exit();
@@ -98,7 +103,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $logger->logInfo("Checkout info", $debug);
 
         $this->checkout = Checkout::getInstance($payment_method, $cart);
-        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
+        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';//phpcs:ignore
         $logger->logDebug("Get checkout class: ", $this->checkout);
         $pending           = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = $this->module->getPaymentTranslation($payment_method);
@@ -170,7 +175,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     $this->context->cookie->__set("HtmlText", $response->consumerMessage['HtmlText']);
                 }
                 Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&responce_received=' . $response->payment_method
+                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&responce_received=' . $response->payment_method//phpcs:ignore
                 );
             } else {
                 $logger->logInfo('Payment request failed/canceled');
@@ -187,7 +192,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $pending         = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
                         $error           = Configuration::get('PS_OS_CANCELED');
                         $canceled        = Configuration::get('PS_OS_ERROR');
-                        if ($new_status_code != $order->getCurrentState() && ($pending == $order->getCurrentState() || $error == $order->getCurrentState() || $canceled == $order->getCurrentState())
+                        if ($new_status_code != $order->getCurrentState()
+                            && ($pending == $order->getCurrentState()
+                                || $error == $order->getCurrentState()
+                                || $canceled == $order->getCurrentState())
                         ) {
                             $order_history           = new OrderHistory();
                             $order_history->id_order = $id_order;
@@ -203,12 +211,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
                     $oldCart     = new Cart($response->getCartId());
                     $duplication = $oldCart->duplicate();
-                    if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+                    if ($duplication
+                        && Validate::isLoadedObject($duplication['cart'])
+                        && $duplication['success']) {
                         $this->context->cookie->id_cart = $duplication['cart']->id;
                         $this->context->cookie->write();
                     }
                     $error = null;
-                    if (($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept') && $response->statusmessage) {
+                    if (($response->payment_method == 'afterpayacceptgiro'
+                        || $response->payment_method == 'afterpaydigiaccept')
+                        && $response->statusmessage) {
                         $error = $response->statusmessage;
                     }
                     $this->displayError($id_order, $error);
@@ -221,7 +233,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     }
                     $logger->logError('Payment request not valid', $response);
                     $error = null;
-                    if (($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept') && $response->statusmessage) {
+                    if (($response->payment_method == 'afterpayacceptgiro'
+                        || $response->payment_method == 'afterpaydigiaccept')
+                        && $response->statusmessage) {
                         $error = $response->statusmessage;
                     }
                     $this->displayError(null, error);
@@ -237,8 +251,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->context->cookie->write();
             }
             $error = null;
-            if (!empty($response) && !empty($response->payment_method) && !empty($response->payment_method)
-                && ($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept')
+            if (!empty($response) && !empty($response->payment_method)
+                && !empty($response->payment_method)
+                && ($response->payment_method == 'afterpayacceptgiro'
+                    || $response->payment_method == 'afterpaydigiaccept')
             ) {
                 $error = $response->statusmessage;
             }

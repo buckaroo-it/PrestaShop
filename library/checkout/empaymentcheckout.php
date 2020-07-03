@@ -27,12 +27,12 @@ class EmpaymentCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
-        $address_components = $this->_getAddressComponents($this->invoice_address->address1);
+        $address_components = $this->getAddressComponents($this->invoice_address->address1);
         $this->customVars['CustomerAccountNumber'] = (string)Tools::getValue('empayment_account_number');
         $this->customVars['emailAddress'] = $this->customer->email;
         $this->customVars['FirstName'] = $this->invoice_address->firstname;
         $this->customVars['LastName'] = $this->invoice_address->lastname;
-        $this->customVars['Initials'] = $this->invoice_address->firstname{0} . ". " . $this->invoice_address->lastname{0} . ".";
+        $this->customVars['Initials'] = $this->invoice_address->firstname{0} . ". " . $this->invoice_address->lastname{0} . ".";//phpcs:ignore
         $this->customVars['ADDRESS'][0]['AddressType'] = 'HOM';
         $this->customVars['ADDRESS'][0]['ZipCode'] = $this->invoice_address->postcode;
         $this->customVars['ADDRESS'][0]['City'] = $this->invoice_address->city;

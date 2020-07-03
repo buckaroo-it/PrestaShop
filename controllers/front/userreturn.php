@@ -49,11 +49,13 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     exit();
                 }
                 $this->context->cart->delete();
-                $redirectUrl = 'http' . ((Tools::getIsset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true';
+                $redirectUrl = 'http' . ((Tools::getIsset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true';//phpcs:ignore
                 Tools::redirect($redirectUrl);
             } else {
                 $cookie->statusMessage = '';
-                if (($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept') && $response->statusmessage) {
+                if (($response->payment_method == 'afterpayacceptgiro'
+                    || $response->payment_method == 'afterpaydigiaccept')
+                    && $response->statusmessage) {
                     $cookie->statusMessage = $response->statusmessage;
                 }
                 Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');

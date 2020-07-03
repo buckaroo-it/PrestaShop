@@ -84,7 +84,7 @@ class SoapClientWSSEC extends SoapClient
         $xPath = new DOMXPath($domDocument);
 
         //register namespaces to use in xpath query's
-        $xPath->registerNamespace('wsse', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd');
+        $xPath->registerNamespace('wsse', 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd');//phpcs:ignore
         $xPath->registerNamespace('sig', 'http://www.w3.org/2000/09/xmldsig#');
         $xPath->registerNamespace('soap', 'http://schemas.xmlsoap.org/soap/envelope/');
 
@@ -119,9 +119,6 @@ class SoapClientWSSEC extends SoapClient
         //Canonicalize nodeset
         $signedINFO = $this->GetCanonical($SignedInfoNodeSet);
 
-        //$certificateId = Mage::getStoreConfig('buckaroo/buckaroo3extended/certificate_selection', Mage::app()->getStore()->getId());
-        //$certificate = Mage::getModel('buckaroo3extended/certificate')->load($certificateId)->getCertificate();
-
         if (!file_exists($this->privateKey)) {
             $logger = new Logger(1);
             $logger->logForUser($this->privateKey.' do not exists');
@@ -129,7 +126,6 @@ class SoapClientWSSEC extends SoapClient
         $fp = fopen($this->privateKey, "r");
         $priv_key = fread($fp, 8192);
         fclose($fp);
-        //$priv_key = substr($certificate, 0, 8192);
 
         if ($priv_key === false) {
             throw new Exception('Unable to read certificate.');
@@ -157,10 +153,10 @@ class SoapClientWSSEC extends SoapClient
 
         //Create keyinfo element and Add public key to KeyIdentifier element
         $KeyTypeNode = $domDocument->createElementNS("http://www.w3.org/2000/09/xmldsig#", "KeyInfo");
-        $SecurityTokenReference = $domDocument->createElementNS('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'SecurityTokenReference');
+        $SecurityTokenReference = $domDocument->createElementNS('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'SecurityTokenReference');//phpcs:ignore
         $KeyIdentifier = $domDocument->createElement("KeyIdentifier");
         $KeyIdentifier->nodeValue = $this->thumbprint;
-        $KeyIdentifier->setAttribute('ValueType', 'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA1');
+        $KeyIdentifier->setAttribute('ValueType', 'http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#ThumbPrintSHA1');//phpcs:ignore
         $SecurityTokenReference->appendChild($KeyIdentifier);
         $KeyTypeNode->appendChild($SecurityTokenReference);
         $sigNodeSet->appendChild($KeyTypeNode);

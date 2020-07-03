@@ -86,7 +86,7 @@ abstract class Response extends BuckarooAbstract
         if ($this->_isPost) {
             //HTTP
             $this->_parsePostResponse();
-            $this->_parsePostResponseChild();
+            $this->parsePostResponseChild();
             $this->_received = true;
         } else {
             if (!is_null($data) && $data[0] != false) {
@@ -94,7 +94,7 @@ abstract class Response extends BuckarooAbstract
                 $this->setResponse($data[0]);
                 $this->setResponseXML($data[1]);
                 $this->_parseSoapResponse();
-                $this->_parseSoapResponseChild();
+                $this->parseSoapResponseChild();
                 $this->_received = true;
             } else {
                 $this->status = self::REQUEST_ERROR;
@@ -147,8 +147,10 @@ abstract class Response extends BuckarooAbstract
 
     public function isRedirectRequired()
     {
-        if (!empty($this->_response->RequiredAction->Name) && isset($this->_response->RequiredAction->Type)) {
-            if ($this->_response->RequiredAction->Name == 'Redirect' && $this->_response->RequiredAction->Type == 'Redirect') {
+        if (!empty($this->_response->RequiredAction->Name)
+            && isset($this->_response->RequiredAction->Type)) {
+            if ($this->_response->RequiredAction->Name == 'Redirect'
+                && $this->_response->RequiredAction->Type == 'Redirect') {
                 return true;
             }
         }
@@ -232,7 +234,7 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    abstract protected function _parseSoapResponseChild();
+    abstract protected function parseSoapResponseChild();
 
     private function _setPostVariable($key)
     {
@@ -278,7 +280,7 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    abstract protected function _parsePostResponseChild();
+    abstract protected function parsePostResponseChild();
 
     protected function _verifyResponse()
     {
@@ -449,7 +451,10 @@ abstract class Response extends BuckarooAbstract
         $currentStateAndStatus = array($this->_order->getState(), $this->_order->getStatus());
 
         //prevent completed orders from recieving further updates
-        if ($completedStateAndStatus != $currentStateAndStatus && $cancelledStateAndStatus != $currentStateAndStatus && $holdedStateAndStatus != $currentStateAndStatus && $closedStateAndStatus != $currentStateAndStatus
+        if ($completedStateAndStatus != $currentStateAndStatus
+            && $cancelledStateAndStatus != $currentStateAndStatus
+            && $holdedStateAndStatus != $currentStateAndStatus
+            && $closedStateAndStatus != $currentStateAndStatus
         ) {
             $return = true;
         } else {

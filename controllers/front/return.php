@@ -88,7 +88,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
                     $message           = new Message();
                     $message->id_order = $id_order;
-                    $message->message  = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
+                    $message->message  = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;//phpcs:ignore
                     $message->add();
                 }
                 exit();
@@ -126,14 +126,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $payment->save();
 
                     Db::getInstance()->execute(
-                        '
-                                            INSERT INTO `' . _DB_PREFIX_ . 'buckaroo_transactions` (transaction_id, original_transaction)
-                    VALUES(\'' . pSQL($response->transactions) . '\', \'' . pSQL($response->brq_relatedtransaction_refund) . '\')'
+                    'INSERT INTO `' . _DB_PREFIX_ . 'buckaroo_transactions` (transaction_id, original_transaction) VALUES(\'' . pSQL($response->transactions) . '\', \'' . pSQL($response->brq_relatedtransaction_refund) . '\')'//phpcs:ignore
                     );
 
                     $message           = new Message();
                     $message->id_order = $id_order;
-                    $message->message  = 'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage;
+                    $message->message  = 'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage;//phpcs:ignore
                     $message->add();
                 }
                 exit();
@@ -193,7 +191,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 }
                 $message           = new Message();
                 $message->id_order = $id_order;
-                $message->message  = 'Push message recieved. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
+                $message->message  = 'Push message recieved. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;//phpcs:ignore
                 $message->add();
                 if ($response->statusmessage) {
                     $message           = new Message();
