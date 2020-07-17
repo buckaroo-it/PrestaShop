@@ -189,37 +189,50 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', '');
         Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', '1');
+        Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', '');
         Configuration::updateValue('BUCKAROO_DD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_DD_TEST', '1');
+        Configuration::updateValue('BUCKAROO_DD_LABEL', '');
         Configuration::updateValue('BUCKAROO_DD_USECREDITMANAGMENT', 'No');
         Configuration::updateValue('BUCKAROO_DD_INVOICEDELAY', '0');
         Configuration::updateValue('BUCKAROO_DD_DATEDUE', '0');
         Configuration::updateValue('BUCKAROO_DD_MAXREMINDERLEVEL', '4');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
+        Configuration::updateValue('BUCKAROO_IDEAL_LABEL', '');
         Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_TEST', '1');
+        Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', '');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYSAFECARD_LABEL', '');
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
+        Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
         Configuration::updateValue('BUCKAROO_GIFTCARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_GIFTCARD_TEST', '1');
+        Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', '');
         Configuration::updateValue('BUCKAROO_CREDITCARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_CREDITCARD_TEST', '1');
+        Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', '');
         Configuration::updateValue('BUCKAROO_EMAESTRO_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EMAESTRO_TEST', '1');
+        Configuration::updateValue('BUCKAROO_EMAESTRO_LABEL', '');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_TEST', '1');
+        Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL', '');
         Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_TRANSFER_TEST', '1');
+        Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', '');
         Configuration::updateValue('BUCKAROO_TRANSFER_DATEDUE', '14');
         Configuration::updateValue('BUCKAROO_TRANSFER_SENDMAIL', '0');
 
         Configuration::updateValue('BUCKAROO_AFTERPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TEST', '1');
+        Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', '');
         Configuration::updateValue('BUCKAROO_AFTERPAY_SERVISS_NAME', 'afterpaydigiaccept');
         Configuration::updateValue('BUCKAROO_AFTERPAY_BTB', 'disable');
         Configuration::updateValue('BUCKAROO_AFTERPAY_DEFAULT_VAT', '2');
@@ -292,9 +305,11 @@ class Buckaroo3 extends PaymentModule
         //empayment
         Configuration::deleteByName('BUCKAROO_EMPAYMENT_ENABLED');
         Configuration::deleteByName('BUCKAROO_EMPAYMENT_TEST');
+        Configuration::deleteByName('BUCKAROO_EMPAYMENT_LABEL');
         //directdebit
         Configuration::deleteByName('BUCKAROO_DD_ENABLED');
         Configuration::deleteByName('BUCKAROO_DD_TEST');
+        Configuration::deleteByName('BUCKAROO_DD_LABEL');
         Configuration::deleteByName('BUCKAROO_DD_USECREDITMANAGMENT');
         Configuration::deleteByName('BUCKAROO_DD_INVOICEDELAY');
         Configuration::deleteByName('BUCKAROO_DD_DATEDUE');
@@ -302,33 +317,43 @@ class Buckaroo3 extends PaymentModule
         //sepadirectdebit
         Configuration::deleteByName('BUCKAROO_SDD_ENABLED');
         Configuration::deleteByName('BUCKAROO_SDD_TEST');
+        Configuration::deleteByName('BUCKAROO_SDD_LABEL');
 
         Configuration::deleteByName('BUCKAROO_IDEAL_ENABLED');
         Configuration::deleteByName('BUCKAROO_IDEAL_TEST');
+        Configuration::deleteByName('BUCKAROO_IDEAL_LABEL');
 
         Configuration::deleteByName('BUCKAROO_GIROPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIROPAY_TEST');
+        Configuration::deleteByName('BUCKAROO_GIROPAY_LABEL');
 
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_LABEL');
 
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
+        Configuration::deleteByName('BUCKAROO_MISTERCASH_LABEL');
 
         Configuration::deleteByName('BUCKAROO_GIFTCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_TEST');
+        Configuration::deleteByName('BUCKAROO_GIFTCARD_LABEL');
 
         Configuration::deleteByName('BUCKAROO_CREDITCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_TEST');
+        Configuration::deleteByName('BUCKAROO_CREDITCARD_LABEL');
 
         Configuration::deleteByName('BUCKAROO_EMAESTRO_ENABLED');
         Configuration::deleteByName('BUCKAROO_EMAESTRO_TEST');
+        Configuration::deleteByName('BUCKAROO_EMAESTRO_LABEL');
 
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_ENABLED');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
+        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_LABEL');
 
         Configuration::deleteByName('BUCKAROO_AFTERPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TEST');
+        Configuration::deleteByName('BUCKAROO_AFTERPAY_LABEL');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_SERVISS_NAME');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_BTB');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
@@ -434,7 +459,8 @@ class Buckaroo3 extends PaymentModule
         $payment_options = [];
         if (Config::get('BUCKAROO_IDEAL_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by iDeal'))
+            $label = Config::get('BUCKAROO_IDEAL_LABEL') ? Config::get('BUCKAROO_IDEAL_LABEL') : $this->l('Pay by iDeal');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/ideal.png');
@@ -442,14 +468,16 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_PAYPAL_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by PayPal'))
+            $label = Config::get('BUCKAROO_PAYPAL_LABEL') ? Config::get('BUCKAROO_PAYPAL_LABEL') : $this->l('Pay by PayPal');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/paypal.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_SDD_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by SEPA Direct Debit'))
+            $label = Config::get('BUCKAROO_SDD_LABEL') ? Config::get('BUCKAROO_SDD_LABEL') : $this->l('Pay by SEPA Direct Debit');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sepadirectdebit']))//phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_sepadirectdebit.tpl'))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/sepa_dd.png');//phpcs:ignore
@@ -457,7 +485,8 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_GIROPAY_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by GiroPay'))
+            $label = Config::get('BUCKAROO_GIROPAY_LABEL') ? Config::get('BUCKAROO_GIROPAY_LABEL') : $this->l('Pay by GiroPay');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/giropay.png');
@@ -465,49 +494,56 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_PAYSAFECARD_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Paysafecard'))
+            $label = Config::get('BUCKAROO_PAYSAFECARD_LABEL') ? Config::get('BUCKAROO_PAYSAFECARD_LABEL') : $this->l('Pay by Paysafecard');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paysafecard']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/paysafecard.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_MISTERCASH_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Bancontact / Mister Cash'))
+            $label = Config::get('BUCKAROO_MISTERCASH_LABEL') ? Config::get('BUCKAROO_MISTERCASH_LABEL') : $this->l('Pay by Bancontact / Mister Cash');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'bancontactmrcash']))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/mistercash.png');//phpcs:ignore
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_GIFTCARD_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Giftcards'))
+            $label = Config::get('BUCKAROO_GIFTCARD_LABEL') ? Config::get('BUCKAROO_GIFTCARD_LABEL') : $this->l('Pay by Giftcards');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/giftcard.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_CREDITCARD_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Creditcards'))
+            $label = Config::get('BUCKAROO_CREDITCARD_LABEL') ? Config::get('BUCKAROO_CREDITCARD_LABEL') : $this->l('Pay by Creditcards');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/cc.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_EMAESTRO_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by eMaestro'))
+            $label = Config::get('BUCKAROO_EMAESTRO_LABEL') ? Config::get('BUCKAROO_EMAESTRO_LABEL') : $this->l('Pay by eMaestro');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'maestro']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/emaestro.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_SOFORTBANKING_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Sofortbanking'))
+            $label = Config::get('BUCKAROO_SOFORTBANKING_LABEL') ? Config::get('BUCKAROO_SOFORTBANKING_LABEL') : $this->l('Pay by Sofortbanking');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung']))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/sofort.png');//phpcs:ignore
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_TRANSFER_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Pay by Bank Transfer'))
+            $label = Config::get('BUCKAROO_TRANSFER_LABEL') ? Config::get('BUCKAROO_TRANSFER_LABEL') : $this->l('Pay by Bank Transfer');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/transfer.png');
             $payment_options[] = $newOption;
@@ -516,7 +552,8 @@ class Buckaroo3 extends PaymentModule
             && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept'
                 || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Afterpay Digitale Factuur'))
+            $label = Config::get('BUCKAROO_AFTERPAY_LABEL') ? Config::get('BUCKAROO_AFTERPAY_LABEL') : $this->l('Afterpay Digitale Factuur');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi']))//phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_digi.tpl'))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');//phpcs:ignore
@@ -526,7 +563,8 @@ class Buckaroo3 extends PaymentModule
             && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept'
                 || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->l('Afterpay Eenmalige Machtiging'))
+            $label = Config::get('BUCKAROO_AFTERPAY_LABEL') ? Config::get('BUCKAROO_AFTERPAY_LABEL') : $this->l('Afterpay Eenmalige Machtiging');
+            $newOption->setCallToActionText($label)
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'sepa']))//phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_sepa.tpl'))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');//phpcs:ignore
