@@ -23,7 +23,6 @@ class IDeal extends PaymentMethod
 {
     public $issuer;
     protected $data;
-    public $usenotification;
 
     public function __construct()
     {
@@ -35,20 +34,6 @@ class IDeal extends PaymentMethod
     public function pay($customVars = array())
     {
         $this->data['customVars'][$this->type]['issuer'] = $this->getIssuer($this->issuer);
-
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action']                = 'ExtraInfo';
-            $this->data['services']['notification']['version']               = '1';
-            $this->data['customVars']['notification']['NotificationType']    = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail']      = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName']  = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName']   = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender']     = $customVars['Customergender'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
-        }
 
         return parent::pay();
     }

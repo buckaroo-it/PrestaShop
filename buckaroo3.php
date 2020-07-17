@@ -226,35 +226,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize(array()));
 
-        Configuration::updateValue('BUCKAROO_SDD_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_SDD_NOTIFICATIONDELAY', '0');
-
-        Configuration::updateValue('BUCKAROO_IDEAL_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_IDEAL_NOTIFICATIONDELAY', '0');
-
-        Configuration::updateValue('BUCKAROO_PAYPAL_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_GIROPAY_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY', '0');
-        Configuration::updateValue('BUCKAROO_TRANSFER_USENOTIFICATION', '0');
-        Configuration::updateValue('BUCKAROO_TRANSFER_NOTIFICATIONDELAY', '0');
-
-        //Configuration::updateValue('BUCKAROO_GATEWAY', 'https://payment.buckaroo.nl/gateway/payment.asp');
-
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
         $currentStates = array();
@@ -299,7 +270,6 @@ class Buckaroo3 extends PaymentModule
 //
     public function uninstall()
     {
-
         if (!parent::uninstall()) {
             return false;
         }
@@ -319,13 +289,9 @@ class Buckaroo3 extends PaymentModule
         //paypal
         Configuration::deleteByName('BUCKAROO_PAYPAL_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYPAL_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYPAL_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_PAYPAL_NOTIFICATIONDELAY');
         //empayment
         Configuration::deleteByName('BUCKAROO_EMPAYMENT_ENABLED');
         Configuration::deleteByName('BUCKAROO_EMPAYMENT_TEST');
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY');
         //directdebit
         Configuration::deleteByName('BUCKAROO_DD_ENABLED');
         Configuration::deleteByName('BUCKAROO_DD_TEST');
@@ -336,46 +302,30 @@ class Buckaroo3 extends PaymentModule
         //sepadirectdebit
         Configuration::deleteByName('BUCKAROO_SDD_ENABLED');
         Configuration::deleteByName('BUCKAROO_SDD_TEST');
-        Configuration::deleteByName('BUCKAROO_SDD_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_SDD_NOTIFICATIONDELAY');
 
-        Configuration::deleteByName('BUCKAROO_IDEAL_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
         Configuration::deleteByName('BUCKAROO_IDEAL_ENABLED');
         Configuration::deleteByName('BUCKAROO_IDEAL_TEST');
 
         Configuration::deleteByName('BUCKAROO_GIROPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIROPAY_TEST');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_GIFTCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_TEST');
 
         Configuration::deleteByName('BUCKAROO_CREDITCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_TEST');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_EMAESTRO_ENABLED');
         Configuration::deleteByName('BUCKAROO_EMAESTRO_TEST');
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_ENABLED');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY');
 
         Configuration::deleteByName('BUCKAROO_AFTERPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TEST');
@@ -384,9 +334,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_USENOTIFICATION');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY');
-
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
 
         return true;

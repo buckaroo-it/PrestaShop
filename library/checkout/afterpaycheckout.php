@@ -23,8 +23,6 @@ class AfterPayCheckout extends Checkout
 {
 
     protected $customVars = array();
-    /* @var $payment_request AfterPay */
-    //protected $payment_request;
 
     final public function setCheckout()
     {
@@ -150,25 +148,6 @@ class AfterPayCheckout extends Checkout
 
         $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
         $this->payment_request->Accept            = 'TRUE';
-
-        if ((int) Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION')) {
-            $sql = 'SELECT type FROM ' . _DB_PREFIX_ . 'gender where id_gender = ' . (int) ($this->customer->id_gender);//phpcs:ignore
-            $gender_type = Db::getInstance()->getValue($sql);
-
-            $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
-
-            $this->customVars['CustomerLastName']   = $this->invoice_address->lastname;
-            $this->customVars['Customeremail']      = !empty($this->customer->email) ? $this->customer->email : '';
-            $this->customVars['Customergender']     = ($gender_type == 0) ? '1' : ($gender_type == 1) ? '2' : '0';
-            $this->payment_request->usenotification = 1;
-            $this->customVars['Notificationtype']   = 'PaymentComplete';
-            if ((int) (Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) > 0) {
-                $this->customVars['Notificationdelay'] = date(
-                    'Y-m-d',
-                    strtotime('now + ' . (int) (Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY')) . ' day')
-                );
-            }
-        }
     }
 
     public function isRedirectRequired()

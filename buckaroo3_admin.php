@@ -114,22 +114,6 @@ class Buckaroo3Admin
                 );
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_SDD_TEST', Tools::getValue('BUCKAROO_SDD_TEST'));
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_USENOTIFICATION',
-                    Tools::getValue('BUCKAROO_SDD_USENOTIFICATION')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_NOTIFICATIONDELAY',
-                    Tools::getValue('BUCKAROO_SDD_NOTIFICATIONDELAY')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IDEAL_USENOTIFICATION',
-                    Tools::getValue('BUCKAROO_IDEAL_USENOTIFICATION')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IDEAL_NOTIFICATIONDELAY',
-                    Tools::getValue('BUCKAROO_IDEAL_NOTIFICATIONDELAY')
-                );
                 Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', Tools::getValue('BUCKAROO_IDEAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_IDEAL_TEST', Tools::getValue('BUCKAROO_IDEAL_TEST'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', Tools::getValue('BUCKAROO_GIROPAY_ENABLED'));
@@ -185,27 +169,6 @@ class Buckaroo3Admin
                     'BUCKAROO_AFTERPAY_TAXRATE',
                     serialize(Tools::getValue('BUCKAROO_AFTERPAY_TAXRATE'))
                 );
-
-                Configuration::updateValue('BUCKAROO_PAYPAL_USENOTIFICATION', Tools::getValue('BUCKAROO_PAYPAL_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_PAYPAL_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_USENOTIFICATION', Tools::getValue('BUCKAROO_EMPAYMENT_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_GIROPAY_USENOTIFICATION', Tools::getValue('BUCKAROO_GIROPAY_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_GIROPAY_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION', Tools::getValue('BUCKAROO_PAYSAFECARD_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_MISTERCASH_USENOTIFICATION', Tools::getValue('BUCKAROO_MISTERCASH_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_CREDITCARD_USENOTIFICATION', Tools::getValue('BUCKAROO_CREDITCARD_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_EMAESTRO_USENOTIFICATION', Tools::getValue('BUCKAROO_EMAESTRO_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_SOFORTBANKING_USENOTIFICATION', Tools::getValue('BUCKAROO_SOFORTBANKING_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_AFTERPAY_USENOTIFICATION', Tools::getValue('BUCKAROO_AFTERPAY_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_TRANSFER_USENOTIFICATION', Tools::getValue('BUCKAROO_TRANSFER_USENOTIFICATION'));//phpcs:ignore
-                Configuration::updateValue('BUCKAROO_TRANSFER_NOTIFICATIONDELAY', Tools::getValue('BUCKAROO_TRANSFER_NOTIFICATIONDELAY'));//phpcs:ignore
             }
         }
         return null;
@@ -291,9 +254,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_DD_MAXREMINDERLEVEL']      = Configuration::get('BUCKAROO_DD_MAXREMINDERLEVEL');
         $fields_value['BUCKAROO_SDD_ENABLED']              = Configuration::get('BUCKAROO_SDD_ENABLED');
         $fields_value['BUCKAROO_SDD_TEST']                 = Configuration::get('BUCKAROO_SDD_TEST');
-        $fields_value['BUCKAROO_SDD_USENOTIFICATION']      = Configuration::get('BUCKAROO_SDD_USENOTIFICATION');
-        $fields_value['BUCKAROO_SDD_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_SDD_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_IDEAL_USENOTIFICATION']    = Configuration::get('BUCKAROO_IDEAL_USENOTIFICATION');
         $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY']  = Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_IDEAL_ENABLED']            = Configuration::get('BUCKAROO_IDEAL_ENABLED');
         $fields_value['BUCKAROO_IDEAL_TEST']               = Configuration::get('BUCKAROO_IDEAL_TEST');
@@ -325,27 +285,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
-
-        $fields_value['BUCKAROO_PAYPAL_USENOTIFICATION']          = Configuration::get('BUCKAROO_PAYPAL_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_PAYPAL_NOTIFICATIONDELAY']        = Configuration::get('BUCKAROO_PAYPAL_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_EMPAYMENT_USENOTIFICATION']       = Configuration::get('BUCKAROO_EMPAYMENT_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY']     = Configuration::get('BUCKAROO_EMPAYMENT_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_GIROPAY_USENOTIFICATION']         = Configuration::get('BUCKAROO_GIROPAY_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_GIROPAY_NOTIFICATIONDELAY']       = Configuration::get('BUCKAROO_GIROPAY_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_PAYSAFECARD_USENOTIFICATION']     = Configuration::get('BUCKAROO_PAYSAFECARD_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY']   = Configuration::get('BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_MISTERCASH_USENOTIFICATION']      = Configuration::get('BUCKAROO_MISTERCASH_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_MISTERCASH_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_MISTERCASH_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_CREDITCARD_USENOTIFICATION']      = Configuration::get('BUCKAROO_CREDITCARD_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_CREDITCARD_NOTIFICATIONDELAY']    = Configuration::get('BUCKAROO_CREDITCARD_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_EMAESTRO_USENOTIFICATION']        = Configuration::get('BUCKAROO_EMAESTRO_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_EMAESTRO_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_EMAESTRO_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_SOFORTBANKING_USENOTIFICATION']   = Configuration::get('BUCKAROO_SOFORTBANKING_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY'] = Configuration::get('BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_AFTERPAY_USENOTIFICATION']        = Configuration::get('BUCKAROO_AFTERPAY_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_AFTERPAY_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_AFTERPAY_NOTIFICATIONDELAY');//phpcs:ignore
-        $fields_value['BUCKAROO_TRANSFER_USENOTIFICATION']        = Configuration::get('BUCKAROO_TRANSFER_USENOTIFICATION');//phpcs:ignore
-        $fields_value['BUCKAROO_TRANSFER_NOTIFICATIONDELAY']      = Configuration::get('BUCKAROO_TRANSFER_NOTIFICATIONDELAY');//phpcs:ignore
 
         //Global Settings
         $i              = 0;
@@ -478,34 +417,6 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_PAYPAL_TEST',
                 ),
                 array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_PAYPAL_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_PAYPAL_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
-                ),
-                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
@@ -533,34 +444,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_SDD_TEST',
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_SDD_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PreNotification service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_SDD_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
@@ -594,35 +477,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'simpletext',
                     'name' => '<hr>',
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_IDEAL_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them.'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_IDEAL_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
-                ),
                 array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
@@ -633,6 +487,7 @@ class Buckaroo3Admin
                     'type' => 'hidearea_end',
                 ),
             ),
+            )
         );
 
         $fields_form[$i++] = array(
@@ -651,34 +506,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_GIROPAY_TEST',
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_GIROPAY_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_GIROPAY_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
@@ -710,34 +537,6 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_PAYSAFECARD_TEST',
                 ),
                 array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_PAYSAFECARD_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_PAYSAFECARD_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
-                ),
-                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
@@ -765,34 +564,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_MISTERCASH_TEST',
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_MISTERCASH_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_MISTERCASH_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
@@ -853,34 +624,6 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_CREDITCARD_TEST',
                 ),
                 array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_CREDITCARD_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_CREDITCARD_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
-                ),
-                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
@@ -910,34 +653,6 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_EMAESTRO_TEST',
                 ),
                 array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_EMAESTRO_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_EMAESTRO_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
-                ),
-                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
@@ -965,34 +680,6 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_SOFORTBANKING_TEST',
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_SOFORTBANKING_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_SOFORTBANKING_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
@@ -1050,34 +737,6 @@ class Buckaroo3Admin
                             'value' => '1',
                         ),
                     ),
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_TRANSFER_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_TRANSFER_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
@@ -1242,34 +901,6 @@ class Buckaroo3Admin
                         ),
                     ),
                     'required'   => true,
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_AFTERPAY_USENOTIFICATION',
-                    'label'     => $this->module->l('Use notification service'),
-                    'smalltext' => $this->module->l(
-                        'The notification service can be used to have the payment engine sent additional notifications at certain points. Different type of notifications can be sent and also using different methods to sent them. (PaymentComplete service)'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('No'),
-                            'value' => '0',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Yes'),
-                            'value' => '1',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'text',
-                    'name'      => 'BUCKAROO_AFTERPAY_NOTIFICATIONDELAY',
-                    'label'     => $this->module->l('Notification delay (in days)'),
-                    'smalltext' => $this->module->l(
-                        'The time at which the notification should be sent. If this is not specified, the notification is sent immediately.'//phpcs:ignore
-                    ),
-                    'size'      => 4,
-                    'required'  => true,
                 ),
                 array(
                     'type'     => 'submit',
