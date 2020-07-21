@@ -113,7 +113,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         );
                     }
                     $order->save();
-                    if ($order->total_paid_real == 0 && $oldRealpaid > 0) {
+                    // if ($order->total_paid_real == 0 && $oldRealpaid > 0) {
                         $new_status_code   = Configuration::get('PS_OS_REFUND');
                         $history           = new OrderHistory();
                         $history->id_order = $id_order;
@@ -121,7 +121,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         $history->date_upd = date('Y-m-d H:i:s');
                         $history->changeIdOrderState($new_status_code, $id_order);
                         $history->addWithemail(false);
-                    }
+                    // }
                     $payment->conversion_rate = 1;
                     $payment->save();
 
