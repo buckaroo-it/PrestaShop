@@ -113,8 +113,10 @@ paymentMethodValidation={
                 break;
             case 'afterpay&service=digi':
                 error = error + this.afterpayDigiTrigger();
+                break;
             case 'afterpay&service=sepa':
                 error = error + this.afterpaySepaDirectDebitTrigger();
+                break;
             default:
         }
         if (error == 0) {
