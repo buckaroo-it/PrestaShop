@@ -87,6 +87,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $currency       = $this->context->currency;
         $total          = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
+
+        if($buckarooFee = Config::get('BUCKAROO_'.strtoupper($payment_method).'_FEE')){
+            if($buckarooFee>0){
+                $total += (float) $buckarooFee;
+            }
+        }
+
         if (empty($payment_method)) {
             $logger->logError("Load a method", 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');

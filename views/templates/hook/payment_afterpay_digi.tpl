@@ -27,6 +27,7 @@
         {l s='Billing person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
     </div>
 
+    <input type="hidden" name="buckarooKey" value="AFTERPAY">
     <form name="booAfterPayForm_digi" id="booAfterPayForm_digi"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
           method="post">

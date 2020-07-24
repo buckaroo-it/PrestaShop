@@ -16,6 +16,7 @@
     <div id="booGiropayErr" class="booBlAnimError">
         {l s='Need to fill in Bic' mod='buckaroo3'}
     </div>
+        <input type="hidden" name="buckarooKey" value="GIROPAY">
         <form name="booGiropayForm" id="booGiropayForm"
               action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay'])|escape:'quotes':'UTF-8'}" method="post">
 

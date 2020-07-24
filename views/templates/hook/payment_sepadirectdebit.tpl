@@ -18,6 +18,7 @@
         {l s='You have to fill in all fields properly!' mod='buckaroo3'}
     </div>
 
+    <input type="hidden" name="buckarooKey" value="SDD">
     <form name="booSepaDirectdebitForm" id="booSepaDirectdebitForm"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'sepadirectdebit'])|escape:'quotes':'UTF-8'}"
           method="post">

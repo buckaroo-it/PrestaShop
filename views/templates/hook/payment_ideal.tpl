@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    
+    <input type="hidden" name="buckarooKey" value="IDEAL">
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Choose your bank' mod='buckaroo3'}<br/><br/>
 

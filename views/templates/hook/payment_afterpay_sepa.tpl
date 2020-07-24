@@ -26,7 +26,8 @@
     <div id="booAfterPayErr_ssd_phone_billing" class="alert alert-danger" style="display: none">
         {l s='Billing person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
     </div>
-
+    
+    <input type="hidden" name="buckarooKey" value="AFTERPAY">
     <form name="booAfterPayForm_ssd" id="booAfterPayForm_ssd"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'sepa'])|escape:'quotes':'UTF-8'}"
           method="post">

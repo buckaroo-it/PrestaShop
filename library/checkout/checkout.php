@@ -17,6 +17,8 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use PrestaShop\Decimal\Number;
+
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
 abstract class Checkout
@@ -102,9 +104,37 @@ abstract class Checkout
 
     protected function setCheckout()
     {
+        $currency = new Currency((int) $this->cart->id_currency);
+        $this->payment_request->amountDedit = $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
-        $this->payment_request->amountDedit = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $currency                           = new Currency((int) $this->cart->id_currency);
+        $payment_method = Tools::getValue('method');
+        if($buckarooFee = Config::get('BUCKAROO_'.strtoupper($payment_method).'_FEE')){
+            if($buckarooFee>0){
+                $this->payment_request->amountDedit = (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
+                Db::getInstance()->insert('buckaroo_fee', array(
+                    'reference' => $this->reference,
+                    'id_cart' => $this->cart->id,
+                    'buckaroo_fee' => (float) $buckarooFee,
+                    'currency' => $currency->iso_code,
+                ));
+
+                $orderFeeNumber = new Number((string) 0);
+                $totalPrice = new Number((string) ($originalAmount + $buckarooFee));
+                $orderFeeNumber->plus($totalPrice);
+
+                $orderid = Order::getOrderByCartId($this->cart->id);
+                $order = new Order($orderid);
+                $order->total_paid_tax_excl = $orderFeeNumber->plus( new Number((string) $order->total_paid_tax_excl));
+                $order->total_paid_tax_incl = $orderFeeNumber->plus( new Number((string) $order->total_paid_tax_incl));
+                $order->total_paid = $totalPrice->toPrecision(2);
+                $order->update();
+/*                $id_order   = Order::getOrderByCartId($this->cart->id);
+                $order = new Order($id_order);
+                $order->total_products = $order->total_products +  $buckarooFee;
+                $order->total_products_wt = $order->total_products_wt +  $buckarooFee;
+                $order->save();*/
+            }
+        }
         $this->payment_request->currency    = $currency->iso_code;
         $this->payment_request->description = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
         $reference                          = $this->reference . '_' . $this->cart->id;

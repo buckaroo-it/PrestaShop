@@ -189,3 +189,50 @@ function validateIBAN(iban) {
 
     return parseInt(modulo(newIban, 97), 10) === 1;
 }
+
+$(document).ready(function () {
+
+    $('input[name="payment-option"]').on('change', function () {
+        var $nextDiv = $(this).closest('.payment-option').parent().next();
+        var paymentFee,
+            paymentFeeDisplay;
+        if ($nextDiv.hasClass('js-payment-option-form')) {
+            paymentFee = $nextDiv.find('input[name="payment-fee-price"]').val();
+            paymentFeeDisplay = $nextDiv.find('input[name="payment-fee-price-display"]').val();
+            if(buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val()){
+                if(buckarooFees[buckarooKey] != undefined){
+                    paymentFee = buckarooFees[buckarooKey]['buckarooFee'];
+                    paymentFeeDisplay = buckarooFees[buckarooKey]['buckarooFeeDisplay'];
+                }
+            }
+        } else {
+            paymentFee = $nextDiv.next().find('input[name="payment-fee-price"]').val();
+            paymentFeeDisplay = $nextDiv.next().find('input[name="payment-fee-price-display"]').val();
+        }
+
+        $('#cart-subtotal-buckarooFee').html('');
+            $.ajax({
+                url: buckarooAjaxUrl,
+                method: 'GET',
+                data: {
+                    'paymentFee': paymentFee,
+                    ajax: 1,
+                    action: 'getTotalCartPrice'
+                },
+                success: function (response) {
+                    response = jQuery.parseJSON(response);
+                    $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
+                    var paymentFeeHtml = '';
+                    if(paymentFee != undefined && paymentFee >0){
+                        paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + paymentFeeDisplay + ' </span> </div>';
+                    }
+
+                    if($('#cart-subtotal-buckarooFee').length == 0){
+                        $('.cart-summary-subtotals-container').append($('<div id="cart-subtotal-buckarooFee">' + paymentFeeHtml + '</div>'));
+                    }else{
+                        $('#cart-subtotal-buckarooFee').html(paymentFeeHtml);
+                    }
+                }
+            })
+    })
+});
