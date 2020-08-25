@@ -214,6 +214,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_GIROPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', '');
         Configuration::updateValue('BUCKAROO_GIROPAY_FEE', '');
+        Configuration::updateValue('BUCKAROO_KBC_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_KBC_TEST', '1');
+        Configuration::updateValue('BUCKAROO_KBC_LABEL', '');
+        Configuration::updateValue('BUCKAROO_KBC_FEE', '');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYSAFECARD_LABEL', '');
@@ -358,6 +362,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_GIROPAY_TEST');
         Configuration::deleteByName('BUCKAROO_GIROPAY_LABEL');
         Configuration::deleteByName('BUCKAROO_GIROPAY_FEE');
+
+        Configuration::deleteByName('BUCKAROO_KBC_ENABLED');
+        Configuration::deleteByName('BUCKAROO_KBC_TEST');
+        Configuration::deleteByName('BUCKAROO_KBC_LABEL');
+        Configuration::deleteByName('BUCKAROO_KBC_FEE');
 
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYSAFECARD_TEST');
@@ -527,6 +536,13 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/giropay.png');
+            $payment_options[] = $newOption;
+        }
+        if (Config::get('BUCKAROO_KBC_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('KBC','Pay by KBC'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'kbc']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/kbc.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_PAYSAFECARD_ENABLED')) {
@@ -737,6 +753,9 @@ class Buckaroo3 extends PaymentModule
             case 'giropay':
                 $payment_method_tr = $this->l('Giro Pay');
                 break;
+            case 'kbc':
+                $payment_method_tr = $this->l('KBC Pay');
+                break;
             case 'paysafecard':
                 $payment_method_tr = $this->l('PaySafeCard');
                 break;
@@ -813,7 +832,7 @@ class Buckaroo3 extends PaymentModule
     }
 
     public function getBuckarooFees(){
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'PAYSAFECARD', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'EMAESTRO', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY'];
+        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'PAYSAFECARD', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'EMAESTRO', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY'];
         $result = [];
         foreach($methods as $method){
             if(Config::get('BUCKAROO_'.$method.'_FEE')){

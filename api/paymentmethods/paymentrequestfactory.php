@@ -27,6 +27,7 @@ class PaymentRequestFactory
     const REQUEST_TYPE_EMPAYMENT = 'empayment';
     const REQUEST_TYPE_IDEAL = 'ideal';
     const REQUEST_TYPE_GIROPAY = 'giropay';
+    const REQUEST_TYPE_KBC = 'kbc';
     const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const REQUEST_TYPE_PAYSAFECARD = 'paysafecard';
     const REQUEST_TYPE_MISTERCASH = 'bancontactmrcash';
@@ -44,6 +45,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
+        PaymentRequestFactory::REQUEST_TYPE_KBC => 'Kbc',
         PaymentRequestFactory::REQUEST_TYPE_PAYSAFECARD => 'PaySafeCard',
         PaymentRequestFactory::REQUEST_TYPE_MISTERCASH => 'MisterCash',
         PaymentRequestFactory::REQUEST_TYPE_EMAESTRO => 'EMaestro',

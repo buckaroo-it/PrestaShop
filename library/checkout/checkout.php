@@ -30,6 +30,7 @@ abstract class Checkout
     const CHECKOUT_TYPE_DIRECTDEBIT     = 'directdebit';
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_GIROPAY         = 'giropay';
+    const CHECKOUT_TYPE_KBC             = 'kbc';
     const CHECKOUT_TYPE_PAYSAFECARD     = 'paysafecard';
     const CHECKOUT_TYPE_MISTERCASH      = 'bancontactmrcash';
     const CHECKOUT_TYPE_GIFTCARD        = 'giftcard';
@@ -47,6 +48,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_DIRECTDEBIT     => 'DirectDebit',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY         => 'Giropay',
+        Checkout::CHECKOUT_TYPE_KBC             => 'Kbc',
         Checkout::CHECKOUT_TYPE_PAYSAFECARD     => 'PaySafeCard',
         Checkout::CHECKOUT_TYPE_MISTERCASH      => 'MisterCash',
         Checkout::CHECKOUT_TYPE_GIFTCARD        => 'GiftCard',

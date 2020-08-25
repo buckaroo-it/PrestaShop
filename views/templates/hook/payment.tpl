@@ -543,6 +543,43 @@
     </div>
 {/if}
 
+
+{***********KBC************}
+{if $kbc_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id="kbc_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/kbc.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
+                   href="#"
+                   title="{l s='Pay by KBC' mod='buckaroo3'}">
+                    {l s='Pay by KBC' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+    <div rel="booAnimBl" class="booBlAnimCont row" style="display: none;">
+        <div id="booKbcErr" class="booBlAnimError">
+            {l s='Need to fill in Bic' mod='buckaroo3'}
+        </div>
+        <div class="col-xs-12 col-md-6">
+            <form name="booKbcForm" id="booKbcForm"
+                  action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'kbc'])|escape:'quotes':'UTF-8'}" method="post">
+
+                <div class="row row-padding">
+                    <button id="booKbcSendBtn" type="button" name="processCarrier"
+                            class="button btn btn-default standard-checkout button-medium pull-right padding-right-button">
+                <span>
+                    {l s='I confirm my order' mod='buckaroo3'}
+                    <i class="icon-chevron-right right"></i>
+                </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
+
 {***********PaySafeCard*************}
 {if $paysafecard_enabled}
     <div class="row">
