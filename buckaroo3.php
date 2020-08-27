@@ -254,8 +254,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', '');
         Configuration::updateValue('BUCKAROO_AFTERPAY_FEE', '');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_SERVISS_NAME', 'afterpaydigiaccept');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_BTB', 'disable');
         Configuration::updateValue('BUCKAROO_AFTERPAY_DEFAULT_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize(array()));
@@ -402,8 +400,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TEST');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_LABEL');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_FEE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_SERVISS_NAME');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_BTB');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
@@ -500,8 +496,7 @@ class Buckaroo3 extends PaymentModule
                 'phone_afterpay_shipping' => $phone_afterpay_shipping,
                 'phone_afterpay_billing'  => $phone_afterpay_billing,
                 'total'                   => $cart->getOrderTotal(true, 3),
-                'afterpay_serviss'        => Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME'),
-                'afterpay_btb'            => Config::get('BUCKAROO_AFTERPAY_BTB'),
+                'country'                 => Country::getIsoById(Tools::getCountry()),
             )
         );
         
@@ -601,23 +596,11 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/transfer.png');
             $payment_options[] = $newOption;
         }
-        if (Config::get('BUCKAROO_AFTERPAY_ENABLED')
-            && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept'
-                || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
+        if (Config::get('BUCKAROO_AFTERPAY_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY','Afterpay Digitale Factuur'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi']))//phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_digi.tpl'))//phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');//phpcs:ignore
-            $payment_options[] = $newOption;
-        }
-        if (Config::get('BUCKAROO_AFTERPAY_ENABLED')
-            && (Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'afterpaydigiaccept'
-                || Config::get('BUCKAROO_AFTERPAY_SERVISS_NAME') == 'both')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY','Afterpay Eenmalige Machtiging'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'sepa']))//phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay_sepa.tpl'))//phpcs:ignore
+            $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY','Afterpay'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay']))//phpcs:ignore
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay.tpl'))//phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');//phpcs:ignore
             $payment_options[] = $newOption;
         }

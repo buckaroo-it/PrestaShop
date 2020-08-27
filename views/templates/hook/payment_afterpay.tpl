@@ -33,7 +33,7 @@
           method="post">
         <input type="hidden" id="phone_afterpay_billing_digi" name="phone_afterpay_billing"
                value="{$phone_afterpay_billing|escape:'quotes':'UTF-8'}"/>
-        {if $afterpay_btb != 'enable'}
+
             {l s='Please provide additional data for AfterPay.' mod='buckaroo3'}<br/><br/>
             <div class="row row-padding">
                 <div class="col-xs-5"><label class="required">{l s='Invoice person gender' mod='buckaroo3'}
@@ -66,7 +66,7 @@
                 {l s='YYYY' mod='buckaroo3'}
             </div>
         </div>
-        {/if}
+
         {if $address_differ == 1}
             <input type="hidden" id="phone_afterpay_shipping_digi" name="phone_afterpay_shipping"
                    value="{$phone_afterpay_shipping|escape:'html':'UTF-8'}"/>
@@ -102,25 +102,16 @@
                 </div>
             </div>
         {/if}
-        <br/><br/>
-        {if $afterpay_btb == 'enable' && $customer_company != ''}
-            {l s='Please provide additional data if for company' mod='buckaroo3'}
-            <br/>
-            <br/>
+        
+        {if $country == 'FI'}
             <div class="row row-padding">
-                <div class="col-xs-6"><label
-                            class="required">{l s='COC (KvK) number' mod='buckaroo3'}:</label></div>
-                <div class="col-xs-6"><input name="buckaroo-afterpay-CompanyCOCRegistration"
-                                              id="buckaroo-afterpay-CompanyCOCRegistration_digi"
-                                              value="" type="text" class="form-control"/>
+                <div class="col-xs-5"><label class="required">{l s='Identification Number' mod='buckaroo3'}
+                        :</label></div>
+                <div class="col-xs-4">
+                    <input title="IdentificationNumber" name="customerIdentificationNumber"
+                           id="customerIdentificationNumber" type="text" value=""
+                           class="form-control" autocomplete="off"/>
                 </div>
-            </div>
-            <div class="row row-padding">
-                <div class="col-xs-6"><label
-                            class="required">{l s='Name of the organization' mod='buckaroo3'}:</label></div>
-                <div class="col-xs-6"><input name="buckaroo-afterpay-CompanyName"
-                                              id="buckaroo-afterpay-CompanyName_digi" value="{$customer_company|escape:'html':'UTF-8'}"
-                                              type="text" class="form-control"/></div>
             </div>
         {/if}
 

@@ -190,11 +190,6 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', Tools::getValue('BUCKAROO_AFTERPAY_LABEL'));
                 Configuration::updateValue('BUCKAROO_AFTERPAY_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_FEE')));
                 Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_SERVISS_NAME',
-                    Tools::getValue('BUCKAROO_AFTERPAY_SERVISS_NAME')
-                );
-                Configuration::updateValue('BUCKAROO_AFTERPAY_BTB', Tools::getValue('BUCKAROO_AFTERPAY_BTB'));
-                Configuration::updateValue(
                     'BUCKAROO_AFTERPAY_DEFAULT_VAT',
                     Tools::getValue('BUCKAROO_AFTERPAY_DEFAULT_VAT')
                 );
@@ -352,8 +347,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_TEST']         = Configuration::get('BUCKAROO_AFTERPAY_TEST');
         $fields_value['BUCKAROO_AFTERPAY_LABEL']         = Configuration::get('BUCKAROO_AFTERPAY_LABEL');
         $fields_value['BUCKAROO_AFTERPAY_FEE']         = Configuration::get('BUCKAROO_AFTERPAY_FEE');
-        $fields_value['BUCKAROO_AFTERPAY_SERVISS_NAME'] = Configuration::get('BUCKAROO_AFTERPAY_SERVISS_NAME');
-        $fields_value['BUCKAROO_AFTERPAY_BTB']          = Configuration::get('BUCKAROO_AFTERPAY_BTB');
         $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
@@ -1030,44 +1023,6 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_AFTERPAY_FEE',
                     'size'     => 80,
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_AFTERPAY_SERVISS_NAME',
-                    'label'     => $this->module->l('Select afterpay service'),
-                    'smalltext' => $this->module->l('Please select the service'),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('Offer customer to pay afterwards by SEPA Direct Debit.'),
-                            'value' => 'afterpayacceptgiro',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Offer customer to pay afterwards by digital invoice.'),
-                            'value' => 'afterpaydigiaccept',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Both are enabled'),
-                            'value' => 'both',
-                        ),
-                    ),
-                ),
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_AFTERPAY_BTB',
-                    'label'     => $this->module->l('Enable AfterPay B2B'),
-                    'smalltext' => $this->module->l(
-                        'Digital invoice service may provide B2B payment. If you have subscription for it you can enable B2B'//phpcs:ignore
-                    ),
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('Disable'),
-                            'value' => 'disable',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Enable'),
-                            'value' => 'enable',
-                        ),
-                    ),
                 ),
                 array(
                     'type'      => 'select',

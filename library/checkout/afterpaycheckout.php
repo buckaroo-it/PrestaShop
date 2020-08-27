@@ -40,19 +40,9 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
         $language = Language::getIsoById((int) $this->cart->id_lang);
-        $service  = '';
-        if (Tools::getValue("service") == 'digi') {
-            $service = 'afterpaydigiaccept';
-        }
-        if (Tools::getValue("service") == 'sepa') {
-            $service = 'afterpayacceptgiro';
-        }
-        if (empty($service)) {
-            return false;
-        }
-        $this->payment_request->type             = $service;
+
         $this->payment_request->BillingGender    = Tools::getValue("bpe_afterpay_invoice_person_gender");
-        $this->payment_request->BillingInitials  = initials($this->invoice_address->firstname);
+        $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
         $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
         $this->payment_request->BillingBirthDate = date(
             'Y-m-d',
@@ -62,7 +52,6 @@ class AfterPayCheckout extends Checkout
                 ) . "-" . Tools::getValue("customerbirthdate_d_billing")
             )
         );
-
         $address_components = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
         $this->payment_request->BillingStreet            = $address_components['street'];
         $this->payment_request->BillingHouseNumber       = $address_components['house_number'];
@@ -77,10 +66,6 @@ class AfterPayCheckout extends Checkout
         $Discount                                        = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
         if ($Discount > 0) {
             $this->payment_request->Discount = round($Discount, 2);
-        }
-
-        if ($this->payment_request->type == 'afterpayacceptgiro') {
-            $this->payment_request->CustomerAccountNumber = Tools::getValue("bpe_afterpay_iban");
         }
 
         $this->payment_request->AddressesDiffer = 'FALSE';
@@ -107,9 +92,11 @@ class AfterPayCheckout extends Checkout
                     )
                 );
             }
+
             $this->payment_request->AddressesDiffer           = 'TRUE';
             $this->payment_request->ShippingGender            = $shippingGender;
             $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
+            $this->payment_request->ShippingFirstName          = $this->shipping_address->firstname;
             $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;
             $this->payment_request->ShippingBirthDate         = $ShippingBirthDate;
             $address_components = $this->getAddressComponents($this->shipping_address->address1);//phpcs:ignore
@@ -133,6 +120,33 @@ class AfterPayCheckout extends Checkout
             }
             $this->payment_request->ShippingPhoneNumber = $phone;
         }
+
+        $delivery_option_list = $this->cart->getDeliveryOptionList();
+        foreach ($delivery_option_list as $id_address) {
+            foreach ($id_address as $key) {
+                foreach ($key['carrier_list'] as $id_carrier) {
+                    if($id_carrier['instance']->external_module_name == 'sendcloud'){
+                        $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
+                        $point = $service_point->getDetails();
+
+                        $this->payment_request->ShippingStreet            = $point->street;
+                        $this->payment_request->ShippingHouseNumber       = $point->house_number;
+                        $this->payment_request->ShippingHouseNumberSuffix = '';
+                        $this->payment_request->ShippingPostalCode        = $point->postal_code;
+                        $this->payment_request->ShippingCity              = $point->city;
+                        $country                                          = $point->country;
+                        $this->payment_request->ShippingCountryCode       = Tools::strtoupper($point->country);
+
+                    }
+                }
+            }
+        }
+
+        $customerIdentificationNumber = Tools::getValue("customerIdentificationNumber");
+        if (!empty($customerIdentificationNumber)) {
+            $this->payment_request->IdentificationNumber = $customerIdentificationNumber;
+        }
+
         $buckarooafterpayCompanyCOCRegistration = Tools::getValue("buckaroo-afterpay-CompanyCOCRegistration");
         $buckarooafterpayCompanyName            = Tools::getValue("buckaroo-afterpay-CompanyName");
         $buckarooafterpayCostCentre             = Tools::getValue("buckaroo-afterpay-CostCentre");

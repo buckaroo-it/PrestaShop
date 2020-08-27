@@ -278,11 +278,11 @@ final class Soap extends BuckarooAbstract
 
             if (is_array($value)) {
                 if (isset($value[0]) && is_array($value[0])) {
-                    foreach ($value as $val) {
+                    foreach ($value as $k => $val) {
                         $requestParameter          = new RequestParameter();
                         $requestParameter->Name    = $fieldName;
                         $requestParameter->Group   = $val['group'];
-                        $requestParameter->GroupID = $val['group'];
+                        $requestParameter->GroupID = $k + 1;
                         $requestParameter->_       = $val['value'];
                         $requestParameters[]       = $requestParameter;
                     }
