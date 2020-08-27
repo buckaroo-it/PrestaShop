@@ -135,8 +135,6 @@ class AfterPayCheckout extends Checkout
                         $this->payment_request->ShippingPostalCode        = $point->postal_code;
                         $this->payment_request->ShippingCity              = $point->city;
                         $country                                          = $point->country;
-                        $this->payment_request->ShippingCountryCode       = Tools::strtoupper($point->country);
-
                     }
                 }
             }
@@ -145,19 +143,6 @@ class AfterPayCheckout extends Checkout
         $customerIdentificationNumber = Tools::getValue("customerIdentificationNumber");
         if (!empty($customerIdentificationNumber)) {
             $this->payment_request->IdentificationNumber = $customerIdentificationNumber;
-        }
-
-        $buckarooafterpayCompanyCOCRegistration = Tools::getValue("buckaroo-afterpay-CompanyCOCRegistration");
-        $buckarooafterpayCompanyName            = Tools::getValue("buckaroo-afterpay-CompanyName");
-        $buckarooafterpayCostCentre             = Tools::getValue("buckaroo-afterpay-CostCentre");
-        $buckarooafterpayVatNumber              = Tools::getValue("buckaroo-afterpay-VatNumber");
-
-        if (!empty($buckarooafterpayCompanyCOCRegistration)) {
-            $this->payment_request->B2B                    = 'TRUE';
-            $this->payment_request->CompanyCOCRegistration = $buckarooafterpayCompanyCOCRegistration;
-            $this->payment_request->CompanyName            = $buckarooafterpayCompanyName;
-            $this->payment_request->CostCentre             = $buckarooafterpayCostCentre;
-            $this->payment_request->VatNumber              = $buckarooafterpayVatNumber;
         }
 
         $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
