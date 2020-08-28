@@ -35,7 +35,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name                   = 'buckaroo3';
         $this->tab                    = 'payments_gateways';
-        $this->version                = '3.3.2';
+        $this->version                = '3.3.3';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
@@ -60,7 +60,7 @@ class Buckaroo3 extends PaymentModule
                     if (isset($response->status) && $response->status > 0) {
                         $this->displayName = $this->getPaymentTranslation($response->payment_method);
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.2)');
+                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.3)');
                     }
                 }
             }
@@ -142,6 +142,36 @@ class Buckaroo3 extends PaymentModule
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 
+    public function hookDisplayOrderConfirmation(array $params)
+    {
+        $order = isset($params['objOrder']) ? $params['objOrder'] : null;
+        $order = isset($params['order']) ? $params['order'] : $order;
+        if (!$order) {
+            return '';
+        }
+        $cart = new Cart($order->id_cart);
+        if (!$cart) {
+            return '';
+        }
+
+        $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
+        if (!$buckarooFee) {
+            return '';
+        }
+        $sql = "UPDATE `" . _DB_PREFIX_ . "orders` SET total_paid_tax_incl = '".($order->total_paid)."' WHERE id_cart = '".$cart->id."'";
+        Db::getInstance()->execute($sql);
+
+        $currency = new Currency((int)$order->id_currency);
+        $buckarooFee = Tools::displayPrice($buckarooFee, $currency, false);
+
+        $return = '<script>
+        document.addEventListener("DOMContentLoaded", function(){
+            $(".total-value").before($("<tr><td>Buckaroo Fee</td><td>'.$buckarooFee.'</td></tr>"))
+            });
+        </script>';
+         return $return;
+    }
+
     public function hookDisplayBackOfficeHeader()
     {
         $this->context->controller->addCss($this->_path . 'views/css/tab.css');
@@ -169,6 +199,7 @@ class Buckaroo3 extends PaymentModule
             || !$this->registerHook('paymentOptions')
             || !$this->registerHook('displayBackOfficeTop')
             || !$this->registerHook('displayAdminOrderLeft')
+            || !$this->registerHook('displayOrderConfirmation')
             || !$this->installModuleTab('AdminBuckaroolog', array(1 => 'Buckaroo error log'), 0)
             || !$this->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1)
             || !$this->createTransactionTable()
@@ -316,6 +347,7 @@ class Buckaroo3 extends PaymentModule
         $this->uninstallModuleTab('AdminRefund');
         $this->unregisterHook('displayBackOfficeHeader');
         $this->unregisterHook('displayAdminOrderLeft');
+        $this->unregisterHook('displayOrderConfirmation');
         $this->unregisterHook('actionEmailSendBefore');
         $this->unregisterHook('displayPDFInvoice');
 

@@ -110,6 +110,10 @@ abstract class Checkout
         $this->payment_request->amountDedit = $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         $payment_method = Tools::getValue('method');
+        if($payment_method=='bancontactmrcash'){
+            $payment_method='MISTERCASH';
+        }
+
         if($buckarooFee = Config::get('BUCKAROO_'.strtoupper($payment_method).'_FEE')){
             if($buckarooFee>0){
                 $this->payment_request->amountDedit = (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
@@ -130,11 +134,6 @@ abstract class Checkout
                 $order->total_paid_tax_incl = $orderFeeNumber->plus( new Number((string) $order->total_paid_tax_incl));
                 $order->total_paid = $totalPrice->toPrecision(2);
                 $order->update();
-/*                $id_order   = Order::getOrderByCartId($this->cart->id);
-                $order = new Order($id_order);
-                $order->total_products = $order->total_products +  $buckarooFee;
-                $order->total_products_wt = $order->total_products_wt +  $buckarooFee;
-                $order->save();*/
             }
         }
         $this->payment_request->currency    = $currency->iso_code;

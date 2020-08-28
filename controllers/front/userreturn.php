@@ -48,6 +48,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     Tools::redirect('index.php?controller=order&step=1');
                     exit();
                 }
+
+                $payment_method = $response->payment_method;
+                if($payment_method=='bancontactmrcash'){
+                    $payment_method='MISTERCASH';
+                }
+
                 $this->context->cart->delete();
                 $redirectUrl = 'http' . ((Tools::getIsset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true';//phpcs:ignore
                 Tools::redirect($redirectUrl);

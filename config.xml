@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
     <name>buckaroo3</name>
-    <displayName><![CDATA[Buckaroo Payments (v 3.3.2)]]></displayName>
-    <version><![CDATA[3.3.2]]></version>
+    <displayName><![CDATA[Buckaroo Payments (v 3.3.3)]]></displayName>
+    <version><![CDATA[3.3.3]]></version>
     <description><![CDATA[Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x]]></description>
     <author><![CDATA[Buckaroo]]></author>
     <tab><![CDATA[payments_gateways]]></tab>

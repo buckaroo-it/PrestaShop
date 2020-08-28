@@ -900,7 +900,7 @@ class Buckaroo3Admin
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
-                    'name'     => 'BUCKAROO_SOFORTBANKIN_FEE',
+                    'name'     => 'BUCKAROO_SOFORTBANKING_FEE',
                     'size'     => 80,
                 ),
                 array(

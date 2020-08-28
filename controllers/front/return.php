@@ -202,6 +202,22 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         } else {
             $logger->logError('Payment response not valid', $response);
         }
+
+        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int)($response->getCartId());
+        $buckarooFee = Db::getInstance()->getValue($sql);
+
+        if($buckarooFee){
+            $jj=0;
+            foreach ($payments as $payment) {
+                if($jj>0){continue;}
+                if ($payment->amount != $response->amount && $payment->transaction_id == '') {
+                    $payment->amount = $response->amount;
+                    $payment->transaction_id = $response->transactions;
+                    $payment->update();$jj++;
+                }
+            }
+        }
+
         exit();
     }
 }
