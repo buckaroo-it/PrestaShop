@@ -76,6 +76,8 @@ class AfterPay extends PaymentMethod
 
     public function payAfterpay($products = array(), $customVars = array())
     {
+        $itemsTotalAmount = 0;
+
         $this->data['customVars'][$this->type]["Category"][0]["value"] = 'Person';
         $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
         $this->data['customVars'][$this->type]["Category"][1]["value"] = 'Person';
@@ -83,7 +85,7 @@ class AfterPay extends PaymentMethod
 
         $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingFirstNam : $this->BillingFirstName;
+        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingFirstName : $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
@@ -166,7 +168,7 @@ class AfterPay extends PaymentMethod
             $this->data['customVars'][$this->type]["IdentificationNumber"][1]["group"] = 'ShippingCustomer';
         }
 
-        $itemsTotalAmount = 0;
+
         // Merge products with same SKU 
 
         $mergedProducts = array();
@@ -203,6 +205,7 @@ class AfterPay extends PaymentMethod
         $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
         $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
+        $itemsTotalAmount += $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"];
         $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
         $itemsTotalAmount += $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"];
@@ -225,7 +228,7 @@ class AfterPay extends PaymentMethod
         if($this->amountDedit != $itemsTotalAmount){
             $diff = $this->amountDedit - $itemsTotalAmount;
 
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = 'Discount/Price diff';
+            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = 'Discount/Fee';
             $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = '1';
             $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
