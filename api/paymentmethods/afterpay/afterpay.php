@@ -85,12 +85,12 @@ class AfterPay extends PaymentMethod
 
         $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingFirstName : $this->BillingFirstName;
+        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = !empty($this->ShippingFirstName) ? $this->ShippingFirstName : $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['LastName'][1]["value"] = ($this->AddressesDiffer == 'TRUE') ? $this->ShippingLastName : $this->BillingLastName;
+        $this->data['customVars'][$this->type]['LastName'][1]["value"] = !empty($this->ShippingLastName) ? $this->ShippingLastName : $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Street"][0]["value"] = $this->BillingStreet;

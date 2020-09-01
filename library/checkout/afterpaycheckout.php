@@ -121,23 +121,16 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingPhoneNumber = $phone;
         }
 
-        $delivery_option_list = $this->cart->getDeliveryOptionList();
-        foreach ($delivery_option_list as $id_address) {
-            foreach ($id_address as $key) {
-                foreach ($key['carrier_list'] as $id_carrier) {
-                    if($id_carrier['instance']->external_module_name == 'sendcloud'){
-                        $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
-                        $point = $service_point->getDetails();
-
-                        $this->payment_request->ShippingStreet            = $point->street;
-                        $this->payment_request->ShippingHouseNumber       = $point->house_number;
-                        $this->payment_request->ShippingHouseNumberSuffix = '';
-                        $this->payment_request->ShippingPostalCode        = $point->postal_code;
-                        $this->payment_request->ShippingCity              = $point->city;
-                        $country                                          = $point->country;
-                    }
-                }
-            }
+        $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+        if($carrier->external_module_name == 'sendcloud'){
+            $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
+            $point = $service_point->getDetails();
+            $this->payment_request->ShippingStreet            = $point->street;
+            $this->payment_request->ShippingHouseNumber       = $point->house_number;
+            $this->payment_request->ShippingHouseNumberSuffix = '';
+            $this->payment_request->ShippingPostalCode        = $point->postal_code;
+            $this->payment_request->ShippingCity              = $point->city;
+            $country                                          = $point->country;
         }
 
         $customerIdentificationNumber = Tools::getValue("customerIdentificationNumber");
