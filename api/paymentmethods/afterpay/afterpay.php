@@ -145,17 +145,17 @@ class AfterPay extends PaymentMethod
 
             $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] = $this->BillingBirthDate;
+            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] = !empty($this->ShippingBirthDate) ? $this->ShippingBirthDate :  $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] = $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["MobilePhone"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Phone"][1]["value"] = $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["Phone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
         }
 
@@ -208,7 +208,6 @@ class AfterPay extends PaymentMethod
         $itemsTotalAmount += $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"];
         $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
-        $itemsTotalAmount += $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"];
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
 
         if ($this->usenotification && !empty($customVars['Customeremail'])) {

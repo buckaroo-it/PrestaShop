@@ -35,10 +35,12 @@ class AfterPayCheckout extends Checkout
         if (empty($phone) && !empty($this->invoice_address->phone)) {
             $phone = $this->invoice_address->phone;
         }
+
         $ShippingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
         if ($ShippingCost > 0) {
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
+
         $language = Language::getIsoById((int) $this->cart->id_lang);
 
         $this->payment_request->BillingGender    = Tools::getValue("bpe_afterpay_invoice_person_gender");
@@ -122,6 +124,9 @@ class AfterPayCheckout extends Checkout
         }
 
         $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+
+        $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
+
         if($carrier->external_module_name == 'sendcloud'){
             $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
             $point = $service_point->getDetails();
@@ -164,11 +169,12 @@ class AfterPayCheckout extends Checkout
             $tmp["ArticleUnitprice"]   = round($item["price_wt"], 2);
             $taxId                     = TaxCore::getTaxIdByName($item["tax_name"]);
 
-            if (Tools::getIsset($taxvalues[$taxId])) {
+            $tmp["ArticleVatcategory"] = $item["rate"];
+/*            if (Tools::getIsset($taxvalues[$taxId])) {
                 $tmp["ArticleVatcategory"] = $taxvalues[$taxId];
             } else {
                 $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
-            }
+            }*/
             $products[] = $tmp;
         }
 
