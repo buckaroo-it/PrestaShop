@@ -49,7 +49,9 @@
                     <td>{$payment->transaction_id|escape:'html':'UTF-8'}</td>
                     <td><input class="buckaroo_part_refund_amount" type="number" step="0.01" max="{$payment->amount}" value="{$payment->amount}"></td>
                     <td class="actions">
-                        {if $payment->amount > 0 && $paymentInfo[$payment->id]["refunded"] == 0}
+                        {if $payment->payment_method == 'Group transaction'}
+                            Group transaction
+                        {elseif $payment->amount > 0 && $paymentInfo[$payment->id]["refunded"] == 0}
                             <button class="btn btn-default open_payment_information">
                                 <i class="icon-search"></i>
                                 {l s='Details' mod='buckaroo3'}
