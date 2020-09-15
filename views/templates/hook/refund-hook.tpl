@@ -47,7 +47,7 @@
                     <td>{dateFormat date=$payment->date_add full=true}</td>
                     <td>{$payment->payment_method|escape:'html':'UTF-8'}</td>
                     <td>{$payment->transaction_id|escape:'html':'UTF-8'}</td>
-                    <td>{displayPrice price=$payment->amount currency=$payment->id_currency}</td>
+                    <td><input class="buckaroo_part_refund_amount" type="number" step="0.01" max="{$payment->amount}" value="{$payment->amount}"></td>
                     <td class="actions">
                         {if $payment->amount > 0 && $paymentInfo[$payment->id]["refunded"] == 0}
                             <button class="btn btn-default open_payment_information">
@@ -57,7 +57,9 @@
                         {elseif $paymentInfo[$payment->id]["refunded"] * (-1) == $payment->amount}
                             Fully refunded
                         {elseif $paymentInfo[$payment->id]["refunded"] * (-1) < $payment->amount}
-                            Partially refunded
+                            <button class="btn btn-default open_payment_information">
+                                {l s='Partially refunded' mod='buckaroo3'}
+                            </button>
                         {else}
                             Refund transaction
                         {/if}
@@ -68,8 +70,8 @@
                         {if $payment->amount > 0 && $payment->transaction_id}
                             <a style="width: 190px"
                                onclick="return confirm('Are you sure want to refund {$payment->amount|escape:'htmlall':'UTF-8'} ?')"
-                               class="btn btn-primary btn-block"
-                               href="?controller=AdminRefund&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&token={getAdminToken tab='AdminRefund'}&admtoken={getAdminToken tab='AdminOrders'}">Refund</a>
+                               class="btn btn-primary btn-block buckaroo_part_refund_link"
+                               href="?controller=AdminRefund&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&token={getAdminToken tab='AdminRefund'}&refund_amount={$payment->amount}&admtoken={getAdminToken tab='AdminOrders'}">Refund</a>
                         {else}
                             Transaction can't be refunded
                         {/if}
@@ -89,3 +91,13 @@
         </table>
     </div>
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.buckaroo_part_refund_amount').on('change',function(){
+            var refund_link = $(this).closest('table').find('.buckaroo_part_refund_link');
+            refund_link.attr('href', refund_link.attr('href').replace(/(refund_amount=).*?(&)/,'$1' + $(this).val() + '$2'))
+            refund_link.attr("onclick", "return confirm('Are you sure want to refund "+ $(this).val() +" ?')")
+        });
+    });
+</script> 
