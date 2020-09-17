@@ -176,6 +176,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     // $payments = OrderPayment::getByOrderId($id_order);
                     $payments = OrderPayment::getByOrderReference($order->reference);
                     foreach ($payments as $payment) {
+                        if($payment->payment_method == 'Group transaction'){
+                            $payment->amount = 0;
+                            $payment->update();
+                        }
                         /* @var $payment OrderPaymentCore */
                         if ($payment->amount == $response->amount && $payment->transaction_id == '') {
                             $payment->transaction_id = $response->transactions;
