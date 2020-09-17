@@ -211,7 +211,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int)($response->getCartId());
         $buckarooFee = Db::getInstance()->getValue($sql);
 
-        if($buckarooFee){
+        if($buckarooFee && ($payment->payment_method != 'Group transaction')){
             $jj=0;
             foreach ($payments as $payment) {
                 if($jj>0){continue;}
