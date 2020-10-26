@@ -289,6 +289,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize(array()));
 
+        Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', '1');
+        Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', '');
+        Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', '');
+
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
         $currentStates = array();
@@ -436,6 +441,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
+
+        Configuration::deleteByName('BUCKAROO_APPLEPAY_ENABLED');
+        Configuration::deleteByName('BUCKAROO_APPLEPAY_TEST');
+        Configuration::deleteByName('BUCKAROO_APPLEPAY_LABEL');
+        Configuration::deleteByName('BUCKAROO_APPLEPAY_FEE');
 
         return true;
     }
@@ -636,6 +646,14 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/afterpay.png');//phpcs:ignore
             $payment_options[] = $newOption;
         }
+        if (Config::get('BUCKAROO_APPLEPAY_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('APPLEPAY','Apple Pay'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'applepay']))//phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('APPLEPAY'))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/applepay.png');//phpcs:ignore
+            $payment_options[] = $newOption;
+        }
         return $payment_options;
     }
 
@@ -798,6 +816,9 @@ class Buckaroo3 extends PaymentModule
             case 'creditcard':
                 $payment_method_tr = $this->l('CreditCard');
                 break;
+            case 'applepay':
+                $payment_method_tr = $this->l('Apple Pay');
+                break;
             default:
                 $payment_method_tr = $this->l($payment_method);
                 break;
@@ -847,7 +868,8 @@ class Buckaroo3 extends PaymentModule
     }
 
     public function getBuckarooFees(){
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'PAYSAFECARD', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'EMAESTRO', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY'];
+        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'PAYSAFECARD', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD',
+            'EMAESTRO', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'APPLEPAY'];
         $result = [];
         foreach($methods as $method){
             if(Config::get('BUCKAROO_'.$method.'_FEE')){

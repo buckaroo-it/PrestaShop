@@ -125,6 +125,7 @@ final class Soap extends BuckarooAbstract
         ) {
             $TransactionRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
             $TransactionRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
+            $TransactionRequest->ServicesExcludedForClient  = null;
         }
         /*
         if (array_key_exists('OriginalTransactionKey', $this->_vars)) {

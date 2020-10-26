@@ -201,6 +201,11 @@ class Buckaroo3Admin
                     'BUCKAROO_AFTERPAY_TAXRATE',
                     serialize(Tools::getValue('BUCKAROO_AFTERPAY_TAXRATE'))
                 );
+
+                Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', Tools::getValue('BUCKAROO_APPLEPAY_ENABLED'));
+                Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', Tools::getValue('BUCKAROO_APPLEPAY_TEST'));
+                Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', Tools::getValue('BUCKAROO_APPLEPAY_LABEL'));
+                Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE')));
             }
         }
         return null;
@@ -351,6 +356,10 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
 
+        $fields_value['BUCKAROO_APPLEPAY_ENABLED']    = Configuration::get('BUCKAROO_APPLEPAY_ENABLED');
+        $fields_value['BUCKAROO_APPLEPAY_TEST']       = Configuration::get('BUCKAROO_APPLEPAY_TEST');
+        $fields_value['BUCKAROO_APPLEPAY_LABEL']       = Configuration::get('BUCKAROO_APPLEPAY_LABEL');
+        $fields_value['BUCKAROO_APPLEPAY_FEE']       = Configuration::get('BUCKAROO_APPLEPAY_FEE');
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
@@ -1109,6 +1118,47 @@ class Buckaroo3Admin
                         ),
                     ),
                     'required'   => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('ApplePay settings'),
+            'name'    => 'APPLEPAY',
+            'test'    => Configuration::get('BUCKAROO_APPLEPAY_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_APPLEPAY_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_APPLEPAY_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_APPLEPAY_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_APPLEPAY_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_APPLEPAY_FEE',
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'submit',

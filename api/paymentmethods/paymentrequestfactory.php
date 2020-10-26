@@ -37,6 +37,7 @@ class PaymentRequestFactory
     const REQUEST_TYPE_CREDITCARD = 'creditcard';
     const REQUEST_TYPE_TRANSFER = 'transfer';
     const REQUEST_TYPE_AFTERPAY = 'afterpay';
+    const REQUEST_TYPE_APPLEPAY = 'applepay';
 
     // Request types (Payment Methods).
     static public $valid_request_types = array(
@@ -54,6 +55,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_CREDITCARD => 'CreditCard',
         PaymentRequestFactory::REQUEST_TYPE_TRANSFER => 'Transfer',
         PaymentRequestFactory::REQUEST_TYPE_AFTERPAY => 'AfterPay',
+        PaymentRequestFactory::REQUEST_TYPE_APPLEPAY => 'ApplePay',
     );
 
     final public static function create($request_type_id, $data = array())

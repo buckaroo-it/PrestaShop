@@ -531,3 +531,20 @@
         </div>
     </div>
 {/if}
+
+{***********ApplePay*************}
+{if $applepay_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id="applepay_enabled"
+                   style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/applepay.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
+                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'applepay'])|escape:'quotes':'UTF-8'}"
+                   title="{l s='Apple Pay' mod='buckaroo3'}">
+                    {l s='Apple Pay' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+{/if}
