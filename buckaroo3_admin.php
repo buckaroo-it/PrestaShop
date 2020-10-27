@@ -357,11 +357,12 @@ class Buckaroo3Admin
         $orderStatesPending = [];
         $orderStatesSuccess = [];
         $orderStatesFailed = [];
+
         foreach ($orderStatesGet as $o) {
             if(in_array($o["name"],['Awaiting for Remote payment','Awaiting check payment'])){
                 $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
-            if(in_array($o["name"],['On backorder (not paid)','Payment accepted'])){
+            if(in_array($o["name"],['On backorder (paid)','Payment accepted'])){
                 $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
             if(in_array($o["name"],['Canceled','Payment error'])){
