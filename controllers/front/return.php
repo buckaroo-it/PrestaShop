@@ -159,11 +159,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     ) . "; new order status code: " . $new_status_code
                 );
                 $pending  = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                $error    = Configuration::get('PS_OS_CANCELED');
-                $canceled = Configuration::get('PS_OS_ERROR');
+                $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
+                $error = Configuration::get('PS_OS_ERROR');
                 if ($new_status_code != $order->getCurrentState() &&
-                    ($pending == $order->getCurrentState() || $error == $order->getCurrentState(
-                    ) || $canceled == $order->getCurrentState())
+                    ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState(
+                    ) || $error == $order->getCurrentState())
                 ) {
                     $logger->logInfo("Update order status");
                     $history           = new OrderHistory();

@@ -71,6 +71,14 @@ class Buckaroo3Admin
                     'BUCKAROO_ORDER_STATE_DEFAULT',
                     Tools::getValue('BUCKAROO_ORDER_STATE_DEFAULT')
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_ORDER_STATE_SUCCESS',
+                    Tools::getValue('BUCKAROO_ORDER_STATE_SUCCESS')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_ORDER_STATE_FAILED',
+                    Tools::getValue('BUCKAROO_ORDER_STATE_FAILED')
+                );
                 Configuration::updateValue('BUCKAROO_MERCHANT_KEY', Tools::getValue('BUCKAROO_MERCHANT_KEY'));
                 Configuration::updateValue('BUCKAROO_SECRET_KEY', Tools::getValue('BUCKAROO_SECRET_KEY'));
                 Configuration::updateValue(
@@ -236,6 +244,8 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_TEST']                   = Configuration::get('BUCKAROO_TEST');
         $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+        $fields_value['BUCKAROO_ORDER_STATE_SUCCESS']    = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ? Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS'):Configuration::get('PS_OS_PAYMENT');
+        $fields_value['BUCKAROO_ORDER_STATE_FAILED']    = Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
         $fields_value['BUCKAROO_MERCHANT_KEY']           = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $fields_value['BUCKAROO_SECRET_KEY']             = Configuration::get('BUCKAROO_SECRET_KEY');
         $fields_value['BUCKAROO_CERTIFICATE_THUMBPRINT'] = Configuration::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -344,10 +354,21 @@ class Buckaroo3Admin
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
-        $orderStates    = array();
+        $orderStatesPending = [];
+        $orderStatesSuccess = [];
+        $orderStatesFailed = [];
         foreach ($orderStatesGet as $o) {
-            $orderStates[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            if(in_array($o["name"],['Awaiting for Remote payment','Awaiting check payment'])){
+                $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
+            if(in_array($o["name"],['On backorder (not paid)','Payment accepted'])){
+                $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
+            if(in_array($o["name"],['Canceled','Payment error'])){
+                $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
         }
+
         $fields_form       = array();
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Global settings'),
@@ -434,10 +455,37 @@ class Buckaroo3Admin
                     ),
                 ),
                 array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
+                    'label'    => $this->module->l('Advanced Configuration'),
+                    'smalltext' => $this->module->l('Advanced settings for the payment plugin'),
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_DEFAULT',
-                    'label'   => $this->module->l('Default order status after order is created'),
-                    'options' => $orderStates,
+                    'label'   => $this->module->l('Pending payment status'),
+                    'options' => $orderStatesPending,
+                    'smalltext' => $this->module->l('This status will be given to orders pending payment.'),
+                ),
+                array(
+                    'type'    => 'select',
+                    'name'    => 'BUCKAROO_ORDER_STATE_SUCCESS',
+                    'label'   => $this->module->l('Payment success status'),
+                    'options' => $orderStatesSuccess,
+                    'smalltext' => $this->module->l('This status will be given to orders paid.'),
+                ),
+                array(
+                    'type'    => 'select',
+                    'name'    => 'BUCKAROO_ORDER_STATE_FAILED',
+                    'label'   => $this->module->l('Payment failed status'),
+                    'options' => $orderStatesFailed,
+                    'smalltext' => $this->module->l('This status will be given to unsuccessful orders.'),
+                ),
+                array(
+                    'type' => 'hidearea_end',
                 ),
                 array(
                     'type'     => 'submit',

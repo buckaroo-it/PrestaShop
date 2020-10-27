@@ -21,7 +21,7 @@
         </select>
     </div>
 {elseif $input.type == 'enabled'}
-    <label>Enabled</label>
+    <label>{if $input.label} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0"
@@ -29,6 +29,8 @@
             <option value="1"
                     {if $fields_value[$input.name] == 1}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
         </select>
+        {if isset($input.smalltext)}
+            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
     </div>
 {elseif $input.type == 'submit'}
     <label>&nbsp;</label>

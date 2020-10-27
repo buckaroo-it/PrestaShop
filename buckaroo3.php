@@ -35,7 +35,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name                   = 'buckaroo3';
         $this->tab                    = 'payments_gateways';
-        $this->version                = '3.3.3';
+        $this->version                = '3.3.4';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
@@ -60,14 +60,16 @@ class Buckaroo3 extends PaymentModule
                     if (isset($response->status) && $response->status > 0) {
                         $this->displayName = $this->getPaymentTranslation($response->payment_method);
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.3)');
+                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.4)');
                     }
                 }
             }
         }
 
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY') ||
-            !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')
+            !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ||
+            !Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ||
+            !Configuration::get('BUCKAROO_ORDER_STATE_FAILED')
         ) {
             $this->warning = $this->l('You should configurate Buckaroo module before use!');
         }
@@ -322,6 +324,8 @@ class Buckaroo3 extends PaymentModule
         }
 
         Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
         $this->addBuckarooFeeTable();
         return true;
     }
@@ -422,6 +426,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
+        Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
+        Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
 
         Configuration::deleteByName('BUCKAROO_APPLEPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_TEST');
@@ -722,11 +728,11 @@ class Buckaroo3 extends PaymentModule
 
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return Configuration::get('PS_OS_PAYMENT');
+                return Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ? Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
                 return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
-                return Configuration::get('PS_OS_CANCELED');
+                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
