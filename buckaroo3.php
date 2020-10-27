@@ -249,11 +249,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_KBC_TEST', '1');
         Configuration::updateValue('BUCKAROO_KBC_LABEL', '');
         Configuration::updateValue('BUCKAROO_KBC_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_TEST', '1');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYSAFECARD_FEE', '');
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
         Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
@@ -266,10 +261,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_CREDITCARD_TEST', '1');
         Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', '');
         Configuration::updateValue('BUCKAROO_CREDITCARD_FEE', '');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_TEST', '1');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_LABEL', '');
-        Configuration::updateValue('BUCKAROO_EMAESTRO_FEE', '');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_TEST', '1');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL', '');
@@ -403,11 +394,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_KBC_LABEL');
         Configuration::deleteByName('BUCKAROO_KBC_FEE');
 
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYSAFECARD_FEE');
-
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_LABEL');
@@ -422,11 +408,6 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_CREDITCARD_TEST');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_LABEL');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_FEE');
-
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_ENABLED');
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_TEST');
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_LABEL');
-        Configuration::deleteByName('BUCKAROO_EMAESTRO_FEE');
 
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_ENABLED');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
@@ -582,14 +563,6 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/kbc.png');
             $payment_options[] = $newOption;
         }
-        if (Config::get('BUCKAROO_PAYSAFECARD_ENABLED')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('PAYSAFECARD','Pay by Paysafecard'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paysafecard']))
-                ->setInputs($this->getBuckarooFeeInputs('PAYSAFECARD'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/paysafecard.png');
-            $payment_options[] = $newOption;
-        }
         if (Config::get('BUCKAROO_MISTERCASH_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('MISTERCASH','Pay by  Bancontact / Mister Cash'))
@@ -612,14 +585,6 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
                 ->setInputs($this->getBuckarooFeeInputs('CREDITCARD'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/cc.png');
-            $payment_options[] = $newOption;
-        }
-        if (Config::get('BUCKAROO_EMAESTRO_ENABLED')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('EMAESTRO','Pay by eMaestro'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'maestro']))
-                ->setInputs($this->getBuckarooFeeInputs('EMAESTRO'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/emaestro.png');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_SOFORTBANKING_ENABLED')) {
@@ -789,9 +754,6 @@ class Buckaroo3 extends PaymentModule
             case 'kbc':
                 $payment_method_tr = $this->l('KBC Pay');
                 break;
-            case 'paysafecard':
-                $payment_method_tr = $this->l('PaySafeCard');
-                break;
             case 'bancontactmrcash':
                 $payment_method_tr = $this->l('Bancontact / MisterCash');
                 break;
@@ -868,8 +830,7 @@ class Buckaroo3 extends PaymentModule
     }
 
     public function getBuckarooFees(){
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'PAYSAFECARD', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD',
-            'EMAESTRO', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'APPLEPAY'];
+        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'APPLEPAY'];
         $result = [];
         foreach($methods as $method){
             if(Config::get('BUCKAROO_'.$method.'_FEE')){

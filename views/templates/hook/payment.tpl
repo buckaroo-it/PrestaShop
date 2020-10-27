@@ -414,23 +414,6 @@
     </div>
 {/if}
 
-{***********PaySafeCard*************}
-{if $paysafecard_enabled}
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
-            <p class="payment_module">
-                <a id="paysafecard_enabled"
-                   style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paysafecard.png)"
-                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
-                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'paysafecard'])|escape:'quotes':'UTF-8'}"
-                   title="{l s='Pay by Paysafecard' mod='buckaroo3'}">
-                    {l s='Pay by Paysafecard' mod='buckaroo3'}
-                </a>
-            </p>
-        </div>
-    </div>
-{/if}
-
 {***********MisterCash*************}
 {if $mistercash_enabled}
     <div class="row">
@@ -475,23 +458,6 @@
                    href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}"
                    title="{l s='Pay by Buckaroo Creditcards' mod='buckaroo3'}">
                     {l s='Pay by Creditcards' mod='buckaroo3'}
-                </a>
-            </p>
-        </div>
-    </div>
-{/if}
-
-{***********EMaestro*************}
-{if $emaestro_enabled}
-    <div class="row">
-        <div class="col-xs-12 col-md-6">
-            <p class="payment_module">
-                <a id="emaestro_enabled"
-                   style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/emaestro.png)"
-                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
-                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'maestro'])|escape:'quotes':'UTF-8'}"
-                   title="{l s='Pay by eMaestro' mod='buckaroo3'}">
-                    {l s='Pay by eMaestro' mod='buckaroo3'}
                 </a>
             </p>
         </div>

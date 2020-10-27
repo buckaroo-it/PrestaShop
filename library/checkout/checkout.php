@@ -31,11 +31,9 @@ abstract class Checkout
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_GIROPAY         = 'giropay';
     const CHECKOUT_TYPE_KBC             = 'kbc';
-    const CHECKOUT_TYPE_PAYSAFECARD     = 'paysafecard';
     const CHECKOUT_TYPE_MISTERCASH      = 'bancontactmrcash';
     const CHECKOUT_TYPE_GIFTCARD        = 'giftcard';
     const CHECKOUT_TYPE_CREDITCARD      = 'creditcard';
-    const CHECKOUT_TYPE_EMAESTRO        = 'maestro';
     const CHECKOUT_TYPE_SOFORTBANKING   = 'sofortueberweisung';
     const CHECKOUT_TYPE_TRANSFER        = 'transfer';
     const CHECKOUT_TYPE_AFTERPAY        = 'afterpay';
@@ -50,11 +48,9 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY         => 'Giropay',
         Checkout::CHECKOUT_TYPE_KBC             => 'Kbc',
-        Checkout::CHECKOUT_TYPE_PAYSAFECARD     => 'PaySafeCard',
         Checkout::CHECKOUT_TYPE_MISTERCASH      => 'MisterCash',
         Checkout::CHECKOUT_TYPE_GIFTCARD        => 'GiftCard',
         Checkout::CHECKOUT_TYPE_CREDITCARD      => 'CreditCard',
-        Checkout::CHECKOUT_TYPE_EMAESTRO        => 'EMaestro',
         Checkout::CHECKOUT_TYPE_SOFORTBANKING   => 'Sofortbanking',
         Checkout::CHECKOUT_TYPE_TRANSFER        => 'Transfer',
         Checkout::CHECKOUT_TYPE_AFTERPAY        => 'AfterPay',
