@@ -101,5 +101,8 @@
             refund_link.attr('href', refund_link.attr('href').replace(/(refund_amount=).*?(&)/,'$1' + $(this).val() + '$2'))
             refund_link.attr("onclick", "return confirm('Are you sure want to refund "+ $(this).val() +" ?')")
         });
+        {if $buckarooFee != ''}
+            $('#total_order').before('<tr><td class=text-right>Buckaroo Fee</td><td class="amount text-right nowrap">{$buckarooFee}</td></tr>');
+        {/if}
     });
 </script> 

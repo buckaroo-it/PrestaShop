@@ -132,6 +132,11 @@ class Buckaroo3 extends PaymentModule
             );
         }
 
+        $cart = new Cart($order->id_cart);
+        $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
+        $currency = new Currency((int)$order->id_currency);
+        $buckarooFee = Tools::displayPrice($buckarooFee, $currency, false);
+
         $this->smarty->assign(
             array(
                 'order'         => $order,
@@ -139,6 +144,7 @@ class Buckaroo3 extends PaymentModule
                 'messages'      => $messages,
                 'paymentInfo'   => $paymentInfo,
                 'messageStatus' => $messageStatus,
+                'buckarooFee'   => $buckarooFee,
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
