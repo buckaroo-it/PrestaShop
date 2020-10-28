@@ -738,10 +738,10 @@ class Buckaroo3 extends PaymentModule
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
                 return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
-                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
+                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
             default:
                 return Configuration::get('PS_OS_ERROR');
         }
