@@ -35,7 +35,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name                   = 'buckaroo3';
         $this->tab                    = 'payments_gateways';
-        $this->version                = '3.3.4';
+        $this->version                = '3.3.5';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
@@ -60,7 +60,7 @@ class Buckaroo3 extends PaymentModule
                     if (isset($response->status) && $response->status > 0) {
                         $this->displayName = $this->getPaymentTranslation($response->payment_method);
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.4)');
+                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.5)');
                     }
                 }
             }
@@ -333,7 +333,16 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
         Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
         $this->addBuckarooFeeTable();
+
+        //override
+        $this->overrideClasses();
+
         return true;
+    }
+
+    protected function overrideClasses()
+    {
+        copy(_PS_ROOT_DIR_."/modules/buckaroo3/classes/Mail.php",_PS_ROOT_DIR_."/override/classes/Mail.php");
     }
 
     protected function addBuckarooFeeTable()
