@@ -482,6 +482,8 @@ class Buckaroo3 extends PaymentModule
         $firstNameShipping = '';
         $lastNameBilling   = '';
         $lastNameShipping  = '';
+        $phone             = '';
+        $phone_mobile      = '';
         foreach ($addresses as $address) {
             if ($address['id_address'] == $cart->id_address_delivery) {
                 $phone             = $address['phone'];
