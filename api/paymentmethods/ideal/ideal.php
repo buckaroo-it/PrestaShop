@@ -94,6 +94,10 @@ class IDeal extends PaymentMethod
                 'name' => 'Handelsbanken',
                 'logo' => 'HANDNL2A.png',
             ),
+            'REVOLT21' => array(
+                'name' => 'Revolut',
+                'logo' => 'REVOLT21.png',
+            ),
         );
 
         return $issuerArray;
@@ -139,6 +143,9 @@ class IDeal extends PaymentMethod
                 break;
             case 'HANDNL2A':
                 $issuerCode = 'HANDNL2A';
+                break;
+            case 'REVOLT21':
+                $issuerCode = 'REVOLT21';
                 break;
         }
 
