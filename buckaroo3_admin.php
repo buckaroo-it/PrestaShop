@@ -370,6 +370,24 @@ class Buckaroo3Admin
             }
         }
 
+        $orderStatesPending2 = [];
+        $orderStatesSuccess2 = [];
+        $orderStatesFailed2 = [];
+        foreach ($orderStatesGet as $o) {
+            if(in_array($o["id_order_state"],[14,1])){
+                $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
+            if(in_array($o["id_order_state"],[9,2])){
+                $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
+            if(in_array($o["id_order_state"],[6,8])){
+                $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            }
+        }
+        $orderStatesPending = empty($orderStatesPending) ? $orderStatesPending2 : $orderStatesPending;
+        $orderStatesSuccess = empty($orderStatesSuccess) ? $orderStatesSuccess2 : $orderStatesSuccess;
+        $orderStatesFailed = empty($orderStatesFailed) ? $orderStatesFailed2 : $orderStatesFailed;
+
         $fields_form       = array();
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Global settings'),
