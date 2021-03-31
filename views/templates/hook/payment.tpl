@@ -36,7 +36,7 @@
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <p class="payment_module">
-                <a id="paypal_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paypal.png)"
+                <a id="paypal_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_paypal.png)"
                    class="buckaroo_paylink buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
                    href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal'])|escape:'quotes':'UTF-8'}"
                    title="{l s='Pay by PayPal' mod='buckaroo3'}">
@@ -124,7 +124,7 @@
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <p class="payment_module">
-                <a id="ideal_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal.png)"
+                <a id="ideal_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_ideal.png)"
                    class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
                    href="#"
                    title="{l s='Pay by iDEAL' mod='buckaroo3'}">
@@ -342,7 +342,7 @@
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <p class="payment_module">
-                <a id="giropay_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/giropay.png)"
+                <a id="giropay_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_giropay.png)"
                    class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
                    href="#"
                    title="{l s='Pay by GiroPay' mod='buckaroo3'}">
