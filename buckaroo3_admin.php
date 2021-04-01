@@ -199,6 +199,27 @@ class Buckaroo3Admin
                     serialize(Tools::getValue('BUCKAROO_AFTERPAY_TAXRATE'))
                 );
 
+                Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', Tools::getValue('BUCKAROO_KLARNA_ENABLED'));
+                Configuration::updateValue('BUCKAROO_KLARNA_TEST', Tools::getValue('BUCKAROO_KLARNA_TEST'));
+                Configuration::updateValue('BUCKAROO_KLARNA_LABEL', Tools::getValue('BUCKAROO_KLARNA_LABEL'));
+                Configuration::updateValue('BUCKAROO_KLARNA_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_DEFAULT_VAT',
+                    Tools::getValue('BUCKAROO_KLARNA_DEFAULT_VAT')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_WRAPPING_VAT',
+                    Tools::getValue('BUCKAROO_KLARNA_WRAPPING_VAT')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_TAXRATE',
+                    serialize(Tools::getValue('BUCKAROO_KLARNA_TAXRATE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_BUSINESS',
+                    serialize(Tools::getValue('BUCKAROO_KLARNA_BUSINESS'))
+                );
+
                 Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', Tools::getValue('BUCKAROO_APPLEPAY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', Tools::getValue('BUCKAROO_APPLEPAY_TEST'));
                 Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', Tools::getValue('BUCKAROO_APPLEPAY_LABEL'));
@@ -346,6 +367,16 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
+        $fields_value['BUCKAROO_AFTERPAY_BUSINESS'] = Configuration::get('BUCKAROO_AFTERPAY_BUSINESS');
+
+        $fields_value['BUCKAROO_KLARNA_ENABLED']      = Configuration::get('BUCKAROO_KLARNA_ENABLED');
+        $fields_value['BUCKAROO_KLARNA_TEST']         = Configuration::get('BUCKAROO_KLARNA_TEST');
+        $fields_value['BUCKAROO_KLARNA_LABEL']         = Configuration::get('BUCKAROO_KLARNA_LABEL');
+        $fields_value['BUCKAROO_KLARNA_FEE']         = Configuration::get('BUCKAROO_KLARNA_FEE');
+        $fields_value['BUCKAROO_KLARNA_DEFAULT_VAT']  = Configuration::get('BUCKAROO_KLARNA_DEFAULT_VAT');
+        $fields_value['BUCKAROO_KLARNA_WRAPPING_VAT'] = Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT');
+        $fields_value['BUCKAROO_KLARNA_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_KLARNA_TAXRATE'));
+        $fields_value['BUCKAROO_KLARNA_BUSINESS']      = unserialize(Configuration::get('BUCKAROO_KLARNA_BUSINESS'));
 
         $fields_value['BUCKAROO_APPLEPAY_ENABLED']    = Configuration::get('BUCKAROO_APPLEPAY_ENABLED');
         $fields_value['BUCKAROO_APPLEPAY_TEST']       = Configuration::get('BUCKAROO_APPLEPAY_TEST');
@@ -1125,6 +1156,155 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_APPLEPAY_FEE',
                     'size'     => 80,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+            ),
+        );
+
+        $taxvalues = Configuration::get('BUCKAROO_KLARNA_TAXRATE');
+        if (empty($taxvalues)) {
+            $taxvalues = array();
+        } else {
+            $taxvalues = unserialize($taxvalues);
+        }
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Klarna Pay later (pay) Settings'),
+            'name'    => 'KLARNA',
+            'test'    => Configuration::get('BUCKAROO_KLARNA_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_KLARNA_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_KLARNA_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_KLARNA_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_KLARNA_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_KLARNA_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_KLARNA_DEFAULT_VAT',
+                    'label'     => $this->module->l('Default product Vat type'),
+                    'smalltext' => $this->module->l('Please select default vat type for your products'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_KLARNA_WRAPPING_VAT',
+                    'label'     => $this->module->l('Vat type for wrapping'),
+                    'smalltext' => $this->module->l('Please select  vat type for wrapping'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                ),
+                array(
+                    'type'       => 'taxrate',
+                    'name'       => 'BUCKAROO_KLARNA_TAXRATE',
+                    'label'      => $this->module->l('Select tax rates'),
+                    'taxarray'   => $taxes,
+                    'taxvalues'  => $taxvalues,
+                    'taxoptions' => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                    'required'   => true,
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_KLARNA_BUSINESS',
+                    'label'     => $this->module->l('Klarna payment method'),
+                    'smalltext' => $this->module->l('Select which paymethod must be used at Klarna.'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('B2C'),
+                            'value' => 'B2C',
+                        ),
+                        array(
+                            'text'  => $this->module->l('B2B'),
+                            'value' => 'B2B',
+                        ),
+                    ),
                 ),
                 array(
                     'type'     => 'submit',

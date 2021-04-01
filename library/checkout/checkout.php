@@ -37,6 +37,7 @@ abstract class Checkout
     const CHECKOUT_TYPE_SOFORTBANKING   = 'sofortueberweisung';
     const CHECKOUT_TYPE_TRANSFER        = 'transfer';
     const CHECKOUT_TYPE_AFTERPAY        = 'afterpay';
+    const CHECKOUT_TYPE_KLARNA          = 'klarna';
     const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
 
     // Request types (Payment Methods).
@@ -54,6 +55,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_SOFORTBANKING   => 'Sofortbanking',
         Checkout::CHECKOUT_TYPE_TRANSFER        => 'Transfer',
         Checkout::CHECKOUT_TYPE_AFTERPAY        => 'AfterPay',
+        Checkout::CHECKOUT_TYPE_KLARNA          => 'Klarna',
         Checkout::CHECKOUT_TYPE_APPLEPAY        => 'ApplePay',
     );
 

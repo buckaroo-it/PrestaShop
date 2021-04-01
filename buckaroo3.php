@@ -35,7 +35,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name                   = 'buckaroo3';
         $this->tab                    = 'payments_gateways';
-        $this->version                = '3.3.5';
+        $this->version                = '3.3.6';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
@@ -60,7 +60,7 @@ class Buckaroo3 extends PaymentModule
                     if (isset($response->status) && $response->status > 0) {
                         $this->displayName = $this->getPaymentTranslation($response->payment_method);
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.5)');
+                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.6)');
                     }
                 }
             }
@@ -287,6 +287,15 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_DEFAULT_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize(array()));
+        Configuration::updateValue('BUCKAROO_AFTERPAY_BUSINESS', 'B2C');
+
+        Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_KLARNA_TEST', '1');
+        Configuration::updateValue('BUCKAROO_KLARNA_LABEL', '');
+        Configuration::updateValue('BUCKAROO_KLARNA_FEE', '');
+        Configuration::updateValue('BUCKAROO_KLARNA_DEFAULT_VAT', '2');
+        Configuration::updateValue('BUCKAROO_KLARNA_WRAPPING_VAT', '2');
+        Configuration::updateValue('BUCKAROO_KLARNA_TAXRATE', serialize(array()));
 
         Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', '1');
@@ -440,6 +449,16 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
+        Configuration::deleteByName('BUCKAROO_AFTERPAY_BUSINESS');
+
+        Configuration::deleteByName('BUCKAROO_KLARNA_ENABLED');
+        Configuration::deleteByName('BUCKAROO_KLARNA_TEST');
+        Configuration::deleteByName('BUCKAROO_KLARNA_LABEL');
+        Configuration::deleteByName('BUCKAROO_KLARNA_FEE');
+        Configuration::deleteByName('BUCKAROO_KLARNA_DEFAULT_VAT');
+        Configuration::deleteByName('BUCKAROO_KLARNA_WRAPPING_VAT');
+        Configuration::deleteByName('BUCKAROO_KLARNA_TAXRATE');
+        
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
         Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
@@ -634,6 +653,13 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_afterpay.png');//phpcs:ignore
             $payment_options[] = $newOption;
         }
+        if (Config::get('BUCKAROO_KLARNA_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA','Klarna: Pay later'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna']))//phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_klarna.png');//phpcs:ignore
+            $payment_options[] = $newOption;
+        }
         if (Config::get('BUCKAROO_APPLEPAY_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('APPLEPAY','Apple Pay'))
@@ -795,6 +821,9 @@ class Buckaroo3 extends PaymentModule
             case 'afterpay':
                 $payment_method_tr = $this->l('AfterPay');
                 break;
+            case 'klarna':
+                $payment_method_tr = $this->l('Klarna');
+                break;
             case 'giftcard':
                 $payment_method_tr = $this->l('GiftCard');
                 break;
@@ -853,7 +882,7 @@ class Buckaroo3 extends PaymentModule
     }
 
     public function getBuckarooFees(){
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'APPLEPAY'];
+        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
         $result = [];
         foreach($methods as $method){
             if(Config::get('BUCKAROO_'.$method.'_FEE')){
