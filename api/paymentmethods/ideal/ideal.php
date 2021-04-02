@@ -48,55 +48,55 @@ class IDeal extends PaymentMethod
         $issuerArray = array(
             'ABNAMRO'  => array(
                 'name' => 'ABN AMRO',
-                'logo' => 'logo_abn_s.gif',
+                'logo' => 'ABNAMRO.png',
             ),
             'ASNBANK'  => array(
                 'name' => 'ASN Bank',
-                'logo' => 'icon_asn.gif',
+                'logo' => 'ASNBANK.png',
             ),
             'INGBANK'  => array(
                 'name' => 'ING',
-                'logo' => 'logo_ing_s.gif',
+                'logo' => 'ING.png',
             ),
             'RABOBANK' => array(
                 'name' => 'Rabobank',
-                'logo' => 'logo_rabo_s.gif',
+                'logo' => 'Rabobank.png',
             ),
             'SNSBANK'  => array(
                 'name' => 'SNS Bank',
-                'logo' => 'logo_sns_s.gif',
+                'logo' => 'SNS.png',
             ),
             'SNSREGIO' => array(
                 'name' => 'RegioBank',
-                'logo' => 'logo_sns_s.gif',
+                'logo' => 'Regiobank.png',
             ),
             'TRIODOS'  => array(
                 'name' => 'Triodos Bank',
-                'logo' => 'logo_triodos.gif',
+                'logo' => 'Triodos.png',
             ),
             'LANSCHOT' => array(
                 'name' => 'Van Lanschot',
-                'logo' => 'logo_lanschot_s.gif',
+                'logo' => 'vanLanschot.png',
             ),
             'KNAB'     => array(
                 'name' => 'Knab',
-                'logo' => 'logo_knab_s.gif',
+                'logo' => 'KNAB.png',
             ),
             'BUNQ'     => array(
                 'name' => 'Bunq',
-                'logo' => 'logo_bunq.png',
+                'logo' => 'Bunq.png',
             ),
             'MOYONL21' => array(
                 'name' => 'Moneyou',
-                'logo' => 'MOYONL21.png',
+                'logo' => 'Moneyou.png',
             ),
             'HANDNL2A' => array(
                 'name' => 'Handelsbanken',
-                'logo' => 'HANDNL2A.png',
+                'logo' => 'Handelsbank.png',
             ),
             'REVOLT21' => array(
                 'name' => 'Revolut',
-                'logo' => 'REVOLT21.png',
+                'logo' => 'Revolut.png',
             ),
         );
 

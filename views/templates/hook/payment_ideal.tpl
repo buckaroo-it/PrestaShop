@@ -19,56 +19,56 @@
 
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="ABNAMRO" type="radio"
                                                               class="middle" checked/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_abn_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='ABN AMRO' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/ABNAMRO.png" class="middle"
+                    style="width:16px;"/> {l s='ABN AMRO' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="ASNBANK" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_asn.gif" class="middle"
-                    style="height: 15px;"/> {l s='ASN Bank' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/ASNBANK.png" class="middle"
+                    style="width: 16px;"/> {l s='ASN Bank' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="INGBANK" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_ing_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='ING' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/ING.png" class="middle"
+                    style="width: 16px;"/> {l s='ING' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="RABOBANK" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_rabo_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='Rabobank' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Rabobank.png" class="middle"
+                    style="width: 16px;"/> {l s='Rabobank' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="SNSBANK" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_sns_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='SNS Bank' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/SNS.png" class="middle"
+                    style="width: 16px;"/> {l s='SNS Bank' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="SNSREGIO" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_sns_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='RegioBank' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Regiobank.png" class="middle"
+                    style="width: 16px;"/> {l s='RegioBank' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="TRIODOS" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_triodos.gif" class="middle"
-                    style="height: 15px;"/> {l s='Triodos Bank' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Triodos.png" class="middle"
+                    style="width: 16px;"/> {l s='Triodos Bank' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="LANSCHOT" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_lanschot.gif" class="middle"
-                    style="height: 15px;"/> {l s='Van Lanschot' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/vanLanschot.png" class="middle"
+                    style="width: 16px;"/> {l s='Van Lanschot' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="KNAB" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_knab_s.gif" class="middle"
-                    style="height: 15px;"/> {l s='Knab' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/KNAB.png" class="middle"
+                    style="width: 16px;"/> {l s='Knab' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="BUNQ" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/logo_bunq.png" class="middle"
-                    style="height: 15px;"/> {l s='Bunq' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Bunq.png" class="middle"
+                    style="width: 16px;"/> {l s='Bunq' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="MOYONL21" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/MOYONL21.png" class="middle"
-                    style="height: 15px;"/> {l s='Moneyou' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Moneyou.png" class="middle"
+                    style="width: 16px;"/> {l s='Moneyou' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="HANDNL2A" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/HANDNL2A.png" class="middle"
-                    style="height: 15px;"/> {l s='Handelsbanken' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Handelsbank.png" class="middle"
+                    style="width: 16px;"/> {l s='Handelsbanken' mod='buckaroo3'}</div>
         <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="REVOLT21" type="radio"
                                                               class="middle"/> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/REVOLT21.png" class="middle"
-                    style="height: 18px;"/> {l s='Revolut' mod='buckaroo3'}</div>
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Revolut.png" class="middle"
+                    style="width: 16px;"/> {l s='Revolut' mod='buckaroo3'}</div>
         <br/>
     </form>
 </section>
