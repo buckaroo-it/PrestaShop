@@ -55,6 +55,9 @@ class KlarnaCheckout extends Checkout
             )
         );
         $address_components = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
+        if(empty($address_components['house_number'])){
+            $address_components['house_number'] = $this->invoice_address->address2;
+        }
         $this->payment_request->BillingStreet            = $address_components['street'];
         $this->payment_request->BillingHouseNumber       = $address_components['house_number'];
         $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
