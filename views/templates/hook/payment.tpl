@@ -183,10 +183,6 @@
                                                                       class="middle"/> <img
                             src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Bunq.png" class="middle"
                             style="width: 16px;"/> {l s='Bunq' mod='buckaroo3'}</div>
-                <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="MOYONL21" type="radio"
-                                                                      class="middle"/> <img
-                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Moneyou.png" class="middle"
-                            style="width: 16px;"/> {l s='Moneyou' mod='buckaroo3'}</div>
                 <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="HANDNL2A" type="radio"
                                                                       class="middle"/> <img
                             src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Handelsbank.png" class="middle"

@@ -86,10 +86,6 @@ class IDeal extends PaymentMethod
                 'name' => 'Bunq',
                 'logo' => 'Bunq.png',
             ),
-            'MOYONL21' => array(
-                'name' => 'Moneyou',
-                'logo' => 'Moneyou.png',
-            ),
             'HANDNL2A' => array(
                 'name' => 'Handelsbanken',
                 'logo' => 'Handelsbank.png',
