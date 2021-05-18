@@ -514,3 +514,20 @@
         </div>
     </div>
 {/if}
+
+{***********Belfius*************}
+{if $belfius_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id=belfius_enabled"
+                   style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/belfius.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
+                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'belfius'])|escape:'quotes':'UTF-8'}"
+                   title="{l s='Pay by Belfius' mod='buckaroo3'}">
+                    {l s='Pay by Belfius' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+{/if}

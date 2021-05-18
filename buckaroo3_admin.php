@@ -175,6 +175,20 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_SOFORTBANKING_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_ENABLED',
+                    Tools::getValue('BUCKAROO_BELFIUS_ENABLED')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_TEST',
+                    Tools::getValue('BUCKAROO_BELFIUS_TEST')
+                );
+                Configuration::updateValue('BUCKAROO_BELFIUS_LABEL',
+                    Tools::getValue('BUCKAROO_BELFIUS_LABEL')
+                );
+                Configuration::updateValue('BUCKAROO_BELFIUS_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', Tools::getValue('BUCKAROO_TRANSFER_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_TEST', Tools::getValue('BUCKAROO_TRANSFER_TEST'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', Tools::getValue('BUCKAROO_TRANSFER_LABEL'));
@@ -353,6 +367,10 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_SOFORTBANKING_TEST']       = Configuration::get('BUCKAROO_SOFORTBANKING_TEST');
         $fields_value['BUCKAROO_SOFORTBANKING_LABEL']       = Configuration::get('BUCKAROO_SOFORTBANKING_LABEL');
         $fields_value['BUCKAROO_SOFORTBANKING_FEE']       = Configuration::get('BUCKAROO_SOFORTBANKING_FEE');
+        $fields_value['BUCKAROO_BELFIUS_ENABLED']    = Configuration::get('BUCKAROO_BELFIUS_ENABLED');
+        $fields_value['BUCKAROO_BELFIUS_TEST']       = Configuration::get('BUCKAROO_BELFIUS_TEST');
+        $fields_value['BUCKAROO_BELFIUS_LABEL']       = Configuration::get('BUCKAROO_BELFIUS_LABEL');
+        $fields_value['BUCKAROO_BELFIUS_FEE']       = Configuration::get('BUCKAROO_BELFIUS_FEE');
         $fields_value['BUCKAROO_TRANSFER_ENABLED']         = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
         $fields_value['BUCKAROO_TRANSFER_TEST']            = Configuration::get('BUCKAROO_TRANSFER_TEST');
         $fields_value['BUCKAROO_TRANSFER_LABEL']            = Configuration::get('BUCKAROO_TRANSFER_LABEL');
@@ -900,7 +918,7 @@ class Buckaroo3Admin
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Frontend label'),
-                    'name'     => 'BUCKAROO_SOFORTBANKIN_LABEL',
+                    'name'     => 'BUCKAROO_SOFORTBANKING_LABEL',
                     'size'     => 80,
                 ),
                 array(
@@ -1305,6 +1323,47 @@ class Buckaroo3Admin
                             'value' => 'B2B',
                         ),
                     ),
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Belfius settings'),
+            'name'    => 'BELFIUS',
+            'test'    => Configuration::get('BUCKAROO_BELFIUS_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_BELFIUS_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_BELFIUS_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_BELFIUS_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_BELFIUS_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_BELFIUS_FEE',
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'submit',

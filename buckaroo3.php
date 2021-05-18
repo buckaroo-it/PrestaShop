@@ -273,6 +273,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_TEST', '1');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL', '');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_FEE', '');
+        Configuration::updateValue('BUCKAROO_BELFIUS_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_BELFIUS_TEST', '1');
+        Configuration::updateValue('BUCKAROO_BELFIUS_LABEL', '');
+        Configuration::updateValue('BUCKAROO_BELFIUS_FEE', '');
         Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_TRANSFER_TEST', '1');
         Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', '');
@@ -441,6 +445,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_LABEL');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_FEE');
+
+        Configuration::deleteByName('BUCKAROO_BELFIUS_ENABLED');
+        Configuration::deleteByName('BUCKAROO_BELFIUS_TEST');
+        Configuration::deleteByName('BUCKAROO_BELFIUS_LABEL');
+        Configuration::deleteByName('BUCKAROO_BELFIUS_FEE');
 
         Configuration::deleteByName('BUCKAROO_AFTERPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TEST');
@@ -637,6 +646,14 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_sofort.png?');//phpcs:ignore
             $payment_options[] = $newOption;
         }
+        if (Config::get('BUCKAROO_BELFIUS_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('BELFIUS','Pay by Belfius'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'belfius']))//phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('BELFIUS'))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_belfius.png');//phpcs:ignore
+            $payment_options[] = $newOption;
+        }
         if (Config::get('BUCKAROO_TRANSFER_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('TRANSFER','Pay by Bank Transfer'))
@@ -812,6 +829,9 @@ class Buckaroo3 extends PaymentModule
             case 'sofortueberweisung':
                 $payment_method_tr = $this->l('Sofort banking');
                 break;
+            case 'belfius':
+                $payment_method_tr = $this->l('Belfius');
+                break;
             case 'cashticket':
                 $payment_method_tr = $this->l('Cash Ticket');
                 break;
@@ -882,7 +902,7 @@ class Buckaroo3 extends PaymentModule
     }
 
     public function getBuckarooFees(){
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
+        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'BELFIUS', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
         $result = [];
         foreach($methods as $method){
             if(Config::get('BUCKAROO_'.$method.'_FEE')){

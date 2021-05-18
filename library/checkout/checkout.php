@@ -39,6 +39,7 @@ abstract class Checkout
     const CHECKOUT_TYPE_AFTERPAY        = 'afterpay';
     const CHECKOUT_TYPE_KLARNA          = 'klarna';
     const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
+    const CHECKOUT_TYPE_BELFIUS         = 'belfius';
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
@@ -57,6 +58,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_AFTERPAY        => 'AfterPay',
         Checkout::CHECKOUT_TYPE_KLARNA          => 'Klarna',
         Checkout::CHECKOUT_TYPE_APPLEPAY        => 'ApplePay',
+        Checkout::CHECKOUT_TYPE_BELFIUS         => 'Belfius',
     );
 
     //protected $current_order;

@@ -37,6 +37,7 @@ class PaymentRequestFactory
     const REQUEST_TYPE_AFTERPAY = 'afterpay';
     const REQUEST_TYPE_KLARNA = 'klarna';
     const REQUEST_TYPE_APPLEPAY = 'applepay';
+    const REQUEST_TYPE_BELFIUS = 'belfius';
 
     // Request types (Payment Methods).
     static public $valid_request_types = array(
@@ -54,6 +55,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_AFTERPAY => 'AfterPay',
         PaymentRequestFactory::REQUEST_TYPE_KLARNA => 'Klarna',
         PaymentRequestFactory::REQUEST_TYPE_APPLEPAY => 'ApplePay',
+        PaymentRequestFactory::REQUEST_TYPE_BELFIUS => 'Belfius',
     );
 
     final public static function create($request_type_id, $data = array())
