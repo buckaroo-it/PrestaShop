@@ -35,6 +35,11 @@ class CashTicketCheckout extends Checkout
         return true;
     }
 
+    public function isVerifyRequired()
+    {
+        return false;
+    }
+
     protected function initialize()
     {
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_CASHTICKET);

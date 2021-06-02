@@ -19,20 +19,27 @@
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-class BuckarooPayPalCheckout extends Checkout
+class IdinCheckout extends Checkout
 {
-
     protected $customVars = array();
+
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->payment_request->issuer = Tools::getValue('BPE_Issuer');
+    }
+
+    public function startVerify($customVars = array())
+    {
+        $this->payment_response = $this->payment_request->verify($customVars);
     }
 
     public function startPayment()
     {
         $this->payment_response = $this->payment_request->pay($this->customVars);
     }
-    
+
     public function isRedirectRequired()
     {
         return true;
@@ -40,11 +47,11 @@ class BuckarooPayPalCheckout extends Checkout
 
     public function isVerifyRequired()
     {
-        return false;
+        return true;
     }
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_PAYPAL);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_IDIN);
     }
 }

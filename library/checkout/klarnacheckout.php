@@ -150,6 +150,11 @@ class KlarnaCheckout extends Checkout
         return true;
     }
 
+    public function isVerifyRequired()
+    {
+        return false;
+    }
+
     public function startPayment()
     {
         $products  = array();

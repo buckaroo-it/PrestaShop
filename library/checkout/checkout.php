@@ -40,6 +40,7 @@ abstract class Checkout
     const CHECKOUT_TYPE_KLARNA          = 'klarna';
     const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
     const CHECKOUT_TYPE_BELFIUS         = 'belfius';
+    const CHECKOUT_TYPE_IDIN            = 'idin';
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
@@ -59,6 +60,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_KLARNA          => 'Klarna',
         Checkout::CHECKOUT_TYPE_APPLEPAY        => 'ApplePay',
         Checkout::CHECKOUT_TYPE_BELFIUS         => 'Belfius',
+        Checkout::CHECKOUT_TYPE_IDIN            => 'Idin',
     );
 
     //protected $current_order;
@@ -160,6 +162,8 @@ abstract class Checkout
     }
 
     abstract public function isRedirectRequired();
+    
+    abstract public function isVerifyRequired();
 
     public function doRedirect($redirect_url = null)
     {

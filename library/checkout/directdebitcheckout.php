@@ -133,6 +133,11 @@ class DirectdebitCheckout extends Checkout
         return false;
     }
 
+    public function isVerifyRequired()
+    {
+        return false;
+    }
+
     public function startPayment()
     {
         $this->payment_response = $this->payment_request->payDirectDebit($this->customVars);

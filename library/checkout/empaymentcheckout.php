@@ -53,6 +53,11 @@ class EmpaymentCheckout extends Checkout
         return true;
     }
 
+    public function isVerifyRequired()
+    {
+        return false;
+    }
+
     public function startPayment()
     {
         $this->payment_response = $this->payment_request->emPay($this->customVars);

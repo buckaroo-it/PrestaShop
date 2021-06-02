@@ -331,3 +331,9 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 
 /* end */
 
+#booIdinForm{
+    padding: 10px;
+    background: #d4eded;
+    display: inline-block;
+    width: 100%;
+}

@@ -151,4 +151,15 @@ abstract class PaymentMethod extends BuckarooAbstract
             return false;
         }
     }
+
+    public function verify($customVars = array())
+    {
+        $this->data['services'][$this->type]['action']  = 'verify';
+        $this->data['services'][$this->type]['version'] = $this->version;
+
+        $this->data['returnUrl']    = $this->returnUrl;
+        $this->data['mode']         = $this->mode;
+        $soap                       = new Soap($this->data);
+        return ResponseFactory::getResponse($soap->dataRequest());
+    }
 }

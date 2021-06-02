@@ -242,6 +242,164 @@ final class Soap extends BuckarooAbstract
         return array($response, $responseDomDOC, $requestDomDOC);
     }
 
+    public function dataRequest()
+    {
+        try {
+            //first attempt: use the cached WSDL
+            $client = new SoapClientWSSEC(
+                Config::WSDL_URL,
+                array(
+                    'trace'      => 1,
+                    'cache_wsdl' => WSDL_CACHE_DISK,
+                )
+            );
+        } catch (Exception $e) {
+            //(SoapFault $e) {
+            try {
+                //second attempt: use an uncached WSDL
+                ini_set('soap.wsdl_cache_ttl', 1);
+                $client = new SoapClientWSSEC(
+                    Config::WSDL_URL,
+                    array(
+                        'trace'      => 1,
+                        'cache_wsdl' => WSDL_CACHE_NONE,
+                    )
+                );
+            } catch (Exception $e) {
+                //(SoapFault $e) {
+                try {
+                    //third and final attempt: use the supplied wsdl found in the lib folder
+                    $client = new SoapClientWSSEC(
+                        dirname(__FILE__) . Config::WSDL_FILE,
+                        array(
+                            'trace'      => 1,
+                            'cache_wsdl' => WSDL_CACHE_NONE,
+                        )
+                    );
+                } catch (Exception $e) {
+                    //(SoapFault $e) {
+                    return $this->error($e);
+                }
+            }
+        }
+
+        $client->thumbprint = Config::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
+        $client->privateKey = Config::get('BUCKAROO_CERTIFICATE_PATH');
+
+        $search                       = array(",", " ");
+        $replace                      = array(".", "");
+        $DataRequest                  = new Body();
+        $DataRequest->ReturnURL    = $this->_vars['returnUrl'];
+        $DataRequest->StartRecurrent = false;
+
+        if (!empty($this->_vars['customVars']['servicesSelectableByClient']) && !empty(
+            $this->_vars['customVars']['continueOnIncomplete']
+        )
+        ) {
+            $DataRequest->ServicesSelectableByClient = $this->_vars['customVars']['servicesSelectableByClient'];
+            $DataRequest->ContinueOnIncomplete       = $this->_vars['customVars']['continueOnIncomplete'];
+            $DataRequest->ServicesExcludedForClient  = null;
+        }
+
+        if (!empty($this->_vars['customParameters'])) {
+            $DataRequest = $this->addCustomParameters($DataRequest);
+        }
+
+        $DataRequest->Services = new Services();
+        $this->addServices($DataRequest);
+
+        $DataRequest->ClientIP       = new IPAddress();
+        $DataRequest->ClientIP->Type = 'IPv4';
+        $DataRequest->ClientIP->_    = $_SERVER['REMOTE_ADDR'];
+
+        foreach ($DataRequest->Services->Service as $key => $service) {
+            $this->addCustomFields($DataRequest, $key, $service->Name);
+        }
+
+        $Header                                  = new Header();
+        $Header->MessageControlBlock             = new MessageControlBlock();
+        $Header->MessageControlBlock->Id         = '_control';
+        $Header->MessageControlBlock->WebsiteKey = Config::get('BUCKAROO_MERCHANT_KEY');
+        $Header->MessageControlBlock->Culture    = Config::get('CULTURE');
+        $Header->MessageControlBlock->TimeStamp  = time();
+        $Header->MessageControlBlock->Channel    = Config::CHANNEL;
+        $Header->MessageControlBlock->Software   = Config::getSoftware();
+        $Header->Security                        = new SecurityType();
+        $Header->Security->Signature             = new SignatureType();
+
+        $Header->Security->Signature->SignedInfo                                    = new SignedInfoType();
+        $Header->Security->Signature->SignedInfo->CanonicalizationMethod            = new CanonicalizationMethodType();
+        $Header->Security->Signature->SignedInfo->CanonicalizationMethod->Algorithm = 'http://www.w3.org/2001/10/xml-exc-c14n#';//phpcs:ignore
+        $Header->Security->Signature->SignedInfo->SignatureMethod                   = new SignatureMethodType();
+        $Header->Security->Signature->SignedInfo->SignatureMethod->Algorithm        = 'http://www.w3.org/2000/09/xmldsig#rsa-sha1';//phpcs:ignore
+
+        $Reference             = new ReferenceType();
+        $Reference->URI        = '#_body';
+        $Transform             = new TransformType();
+        $Transform->Algorithm  = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+        $Reference->Transforms = array($Transform);
+
+        $Reference->DigestMethod            = new DigestMethodType();
+        $Reference->DigestMethod->Algorithm = 'http://www.w3.org/2000/09/xmldsig#sha1';
+        $Reference->DigestValue             = '';
+
+        $Transform2                                = new TransformType();
+        $Transform2->Algorithm                     = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+        $ReferenceControl                          = new ReferenceType();
+        $ReferenceControl->URI                     = '#_control';
+        $ReferenceControl->DigestMethod            = new DigestMethodType();
+        $ReferenceControl->DigestMethod->Algorithm = 'http://www.w3.org/2000/09/xmldsig#sha1';
+        $ReferenceControl->DigestValue             = '';
+        $ReferenceControl->Transforms              = array($Transform2);
+
+        $Header->Security->Signature->SignedInfo->Reference = array($Reference, $ReferenceControl);
+        $Header->Security->Signature->SignatureValue        = '';
+
+        $soapHeaders   = array();
+        $soapHeaders[] = new SOAPHeader('https://checkout.buckaroo.nl/PaymentEngine/', 'MessageControlBlock', $Header->MessageControlBlock);//phpcs:ignore
+        $soapHeaders[] = new SOAPHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $Header->Security);//phpcs:ignore
+        $client->__setSoapHeaders($soapHeaders);
+
+        if ($this->_vars['mode'] == 'test') {
+            $location = Config::LOCATION_TEST;
+        } else {
+            $location = Config::LOCATION;
+        }
+
+        $client->__SetLocation($location);
+
+        try {
+            $response = $client->DataRequest($DataRequest);
+        } catch (SoapFault $e) {
+            $logger = new Logger(1);
+            $logger->logForUser($e->getMessage());
+            return $this->error($client);
+        } catch (Exception $e) {
+            $logger = new Logger(1);
+            $logger->logForUser($e->getMessage());
+            return $this->error($client);
+        }
+
+        if (is_null($response)) {
+            $response = false;
+        }
+
+        $responseXML = $client->__getLastResponse();
+        $requestXML  = $client->__getLastRequest();
+
+        $responseDomDOC = new DOMDocument();
+        $responseDomDOC->loadXML($responseXML);
+        $responseDomDOC->preserveWhiteSpace = false;
+        $responseDomDOC->formatOutput       = true;
+
+        $requestDomDOC = new DOMDocument();
+        $requestDomDOC->loadXML($requestXML);
+        $requestDomDOC->preserveWhiteSpace = false;
+        $requestDomDOC->formatOutput       = true;
+
+        return array($response, $responseDomDOC, $requestDomDOC);
+    }
+
     protected function addServices(&$TransactionRequest)
     {
         $services = array();

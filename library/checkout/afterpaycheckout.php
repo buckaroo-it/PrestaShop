@@ -155,6 +155,11 @@ class AfterPayCheckout extends Checkout
         return false;
     }
 
+    public function isVerifyRequired()
+    {
+        return false;
+    }
+
     public function startPayment()
     {
         $products  = array();

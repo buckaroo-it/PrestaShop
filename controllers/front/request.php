@@ -114,25 +114,32 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $logger->logDebug("Get checkout class: ", $this->checkout);
         $pending           = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = $this->module->getPaymentTranslation($payment_method);
-        $this->module->validateOrder(
-            $cart->id,
-            $pending,
-            $total,
-            $payment_method_tr,
-            null,
-            null,
-            (int) $currency->id,
-            false,
-            $customer->secure_key
-        );
+        if (!$this->checkout->isVerifyRequired()) {
+            $this->module->validateOrder(
+                $cart->id,
+                $pending,
+                $total,
+                $payment_method_tr,
+                null,
+                null,
+                (int) $currency->id,
+                false,
+                $customer->secure_key
+            );
+        }
         $id_order_cart = Order::getOrderByCartId($cart->id);
         $order         = new Order($id_order_cart);
         $this->checkout->setReference($order->reference);
         $this->checkout->setCheckout();
         $logger->logDebug("Set checkout info: ", $this->checkout);
 
-        $logger->logInfo('Start the payment process');
-        $this->checkout->startPayment();
+        if ($this->checkout->isVerifyRequired()) {
+            $logger->logInfo('Start verify process');
+            $this->checkout->startVerify(['cid'=>$cart->id_customer]);
+        }else{
+            $logger->logInfo('Start the payment process');
+            $this->checkout->startPayment();
+        }
 
         if ($this->checkout->isRequestSucceeded()) {
             $response = $this->checkout->getResponse();

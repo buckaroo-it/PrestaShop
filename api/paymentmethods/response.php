@@ -59,7 +59,6 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct($data = null)
     {
-
         $logger = new Logger(Logger::INFO, 'response');
         $logger->logInfo("\n\n\n\n***************** Response ***********************");
         if ($this->isHttpRequest()) {
@@ -201,7 +200,9 @@ abstract class Response extends BuckarooAbstract
         if (!empty($this->response->Invoice)) {
             $this->invoice = $this->response->Invoice;
         }
-        $this->order         = $this->response->Order;
+        if (!empty($this->response->Order)) {
+            $this->order         = $this->response->Order;
+        }
         $this->invoicenumber = $this->invoice;
         $this->amount        = 0;
         if (!empty($this->response->AmountDebit)) {
@@ -212,7 +213,9 @@ abstract class Response extends BuckarooAbstract
             $this->amount        = $this->response->AmountCredit;
             $this->amount_credit = $this->response->AmountCredit;
         }
-        $this->currency  = $this->response->Currency;
+        if (!empty($this->response->Currency)) {
+            $this->currency  = $this->response->Currency;
+        }
         $this->test     = ($this->response->IsTest == 1) ? true : false;
         $this->timestamp = $this->response->Status->DateTime;
         if (!empty($this->response->RequestErrors->ChannelError->_)) {

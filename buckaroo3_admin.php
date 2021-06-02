@@ -100,11 +100,20 @@ class Buckaroo3Admin
                     'BUCKAROO_PGST_PAYMENT',
                     serialize(Tools::getValue('BUCKAROO_PGST_PAYMENT'))
                 );
+                
                 Configuration::updateValue(
                     'BUCKAROO_PGBY_PAYMENT',
                     serialize(Tools::getValue('BUCKAROO_PGBY_PAYMENT'))
                 );
 
+                Configuration::updateValue(
+                    'BUCKAROO_IDIN_CATEGORY',
+                    serialize(Tools::getValue('BUCKAROO_IDIN_CATEGORY'))
+                );
+
+                Configuration::updateValue('BUCKAROO_IDIN_ENABLED', Tools::getValue('BUCKAROO_IDIN_ENABLED'));
+                Configuration::updateValue('BUCKAROO_IDIN_TEST', Tools::getValue('BUCKAROO_IDIN_TEST'));
+                Configuration::updateValue('BUCKAROO_IDIN_MODE', Tools::getValue('BUCKAROO_IDIN_MODE'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
@@ -297,6 +306,7 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_PGST_PAYMENT'] = array();
         $fields_value['BUCKAROO_PGBY_PAYMENT'] = array();
+        $fields_value['BUCKAROO_IDIN_CATEGORY'] = array();
 
         $tmp_arr = Configuration::get('BUCKAROO_PGST_PAYMENT');
         if (!empty($tmp_arr)) {
@@ -314,6 +324,17 @@ class Buckaroo3Admin
             }
         }
 
+        $tmp_arr = Configuration::get('BUCKAROO_IDIN_CATEGORY');
+        if (!empty($tmp_arr)) {
+            $c = unserialize($tmp_arr);
+            if (is_array($c)) {
+                $fields_value['BUCKAROO_IDIN_CATEGORY'] = array_flip($c);
+            }
+        }
+
+        $fields_value['BUCKAROO_IDIN_ENABLED']           = Configuration::get('BUCKAROO_IDIN_ENABLED');
+        $fields_value['BUCKAROO_IDIN_TEST']              = Configuration::get('BUCKAROO_IDIN_TEST');
+        $fields_value['BUCKAROO_IDIN_MODE']              = Configuration::get('BUCKAROO_IDIN_MODE');
         $fields_value['BUCKAROO_PAYPAL_ENABLED']           = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_PAYPAL_LABEL']              = Configuration::get('BUCKAROO_PAYPAL_LABEL');
@@ -523,6 +544,34 @@ class Buckaroo3Admin
                     ),
                 ),
                 array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_IDIN',
+                    'label'     => $this->module->l('Language'),
+                    'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',//phpcs:ignore
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Use webshop culture'),
+                            'value' => 'A',
+                        ),
+                        array(
+                            'text'  => $this->module->l('English'),
+                            'value' => 'en',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Dutch'),
+                            'value' => 'nl',
+                        ),
+                        array(
+                            'text'  => $this->module->l('French'),
+                            'value' => 'fr',
+                        ),
+                        array(
+                            'text'  => $this->module->l('German'),
+                            'value' => 'de',
+                        ),
+                    ),
+                ),
+                array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
                     'label'    => $this->module->l('Advanced Configuration'),
@@ -566,6 +615,74 @@ class Buckaroo3Admin
                     'name'     => 'refresh_module',
                     'label'    => $this->module->l('Refresh module'),
                     'required' => true,
+                ),
+            ),
+        );
+
+        $cats = Category::getCategories( (int)($cookie->id_lang), true, false);
+        foreach ($cats as $key => $value) {
+            $categories[] = array(
+                'text' => $value['name'],
+                'value' => $value['id_category'],
+            );
+        }
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('iDIN verification Settings'),
+            'name'    => 'PAYPAL',
+            'test'    => Configuration::get('BUCKAROO_IDIN_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_IDIN_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_IDIN_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_IDIN_TEST',
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_IDIN_MODE',
+                    'label'     => $this->module->l('iDIN verification mode'),
+                    'smalltext' => $this->module->l(
+                        'iDIN verification mode'
+                    ),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Global'),
+                            'value' => '0',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Per product'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Per category'),
+                            'value' => '2',
+                        ),
+                    ),
+                ),
+                array(
+                    'type'      => 'multiselect',
+                    'name'      => 'BUCKAROO_IDIN_CATEGORY',
+                    'label'     => $this->module->l('iDIN verification categorys'),
+                    'smalltext' => $this->module->l(
+                        'iDIN verification categorys'
+                    ),
+                    'options'   => $categories
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+                array(
+                    'type' => 'hidearea_end',
                 ),
             ),
         );
