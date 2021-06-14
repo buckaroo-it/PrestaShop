@@ -12,11 +12,11 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
-<div id="formAddPaymentPanel" class="panel">
-    <div class="panel-heading">
-        <i class="icon-money"></i>
-        {l s='Buckaroo payments & refunds' mod='buckaroo3'} <span
-                class="badge">{$order->getOrderPayments()|@count|escape:'quotes':'UTF-8'}</span>
+<div id="formAddPaymentPanel" class="card mt-2">
+    <div class="card-header">
+        <h3 class="card-header-title">
+            {l s='Buckaroo payments & refunds' mod='buckaroo3'} {$order->getOrderPayments()|@count|escape:'quotes':'UTF-8'}
+        </h3>
     </div>
     {if $messages != ''}
         <script>
@@ -30,7 +30,7 @@
 
         </script>
     {/if}
-    <div class="table-responsive">
+    <div class="card-body">
         <table class="table">
             <thead>
             <tr>
@@ -52,14 +52,13 @@
                         {if $payment->payment_method == 'Group transaction'}
                             Group transaction
                         {elseif $payment->amount > 0 && $paymentInfo[$payment->id]["refunded"] == 0}
-                            <button class="btn btn-default open_payment_information">
-                                <i class="icon-search"></i>
+                            <button class="btn btn-sm btn-outline-secondary open_payment_information">
                                 {l s='Details' mod='buckaroo3'}
                             </button>
                         {elseif $paymentInfo[$payment->id]["refunded"] * (-1) == $payment->amount}
                             Fully refunded
                         {elseif $paymentInfo[$payment->id]["refunded"] * (-1) < $payment->amount}
-                            <button class="btn btn-default open_payment_information">
+                            <button class="btn btn-sm btn-outline-secondary open_payment_information">
                                 {l s='Partially refunded' mod='buckaroo3'}
                             </button>
                         {else}
@@ -73,7 +72,7 @@
                             <a style="width: 190px"
                                onclick="return confirm('Are you sure want to refund {$payment->amount|escape:'htmlall':'UTF-8'} ?')"
                                class="btn btn-primary btn-block buckaroo_part_refund_link"
-                               href="?controller=AdminRefund&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&token={getAdminToken tab='AdminRefund'}&refund_amount={$payment->amount}&admtoken={getAdminToken tab='AdminOrders'}">Refund</a>
+                               href="{$refundLink}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount={$payment->amount}">Refund</a>
                         {else}
                             Transaction can't be refunded
                         {/if}
@@ -96,6 +95,9 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+        $('#formAddPaymentPanel .open_payment_information').on('click',function(){
+            $('#formAddPaymentPanel .payment_information').toggle();
+        });
         $('.buckaroo_part_refund_amount').on('change',function(){
             var refund_link = $(this).closest('table').find('.buckaroo_part_refund_link');
             refund_link.attr('href', refund_link.attr('href').replace(/(refund_amount=).*?(&)/,'$1' + $(this).val() + '$2'))

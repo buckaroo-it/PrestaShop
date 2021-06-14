@@ -145,6 +145,7 @@ class Buckaroo3 extends PaymentModule
                 'paymentInfo'   => $paymentInfo,
                 'messageStatus' => $messageStatus,
                 'buckarooFee'   => $buckarooFee,
+                'refundLink'    => $this->context->link->getAdminLink('AdminRefund',true)
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
@@ -588,6 +589,7 @@ class Buckaroo3 extends PaymentModule
         );
 
         $payment_options = [];
+        libxml_use_internal_errors(true);
         if (Config::get('BUCKAROO_IDEAL_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('IDEAL', 'Pay by iDeal'))
