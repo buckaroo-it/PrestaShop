@@ -21,13 +21,13 @@
         </select>
     </div>
 {elseif $input.type == 'enabled'}
-    <label>{if $input.label} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
+    <label>{if !empty($input.label)} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0"
-                    {if $fields_value[$input.name] == 0}selected="selected"{/if}>{l s='No' mod='buckaroo3'}</option>
+                    {if empty($fields_value[$input.name])}selected="selected"{/if}>{l s='No' mod='buckaroo3'}</option>
             <option value="1"
-                    {if $fields_value[$input.name] == 1}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
+                    {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
         </select>
         {if isset($input.smalltext)}
             <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
@@ -42,7 +42,7 @@
     <label>{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'html':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}[]" multiple="multiple"
-                style="height:{$input.height|escape:'quotes':'UTF-8'}px; width:200px">
+                style="{if isset($input.height)}height:{$input.height|escape:'quotes':'UTF-8'}px;{/if} width:200px">
             {foreach from=$input.options item=option}
                 <option value="{$option.value|escape:'quotes':'UTF-8'}"
                         {if isset($fields_value[$input.name][$option.value])}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
@@ -57,7 +57,7 @@
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}">
             {foreach from=$input.options item=option}
                 <option value="{$option.value|escape:'quotes':'UTF-8'}"
-                        {if $fields_value[$input.name] == $option.value}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
+                        {if isset($fields_value[$input.name]) && ($fields_value[$input.name] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
             {/foreach}
         </select>
         {if isset($input.smalltext)}
@@ -100,11 +100,11 @@
         {$input.name|escape:'html':'UTF-8'}
     </div>
 {elseif $input.type == 'hidearea_start'}
-    <div class='hidable {if !$enabled}disabled{/if}'>
+    <div class='hidable {if empty($enabled)}disabled{/if}'>
         {elseif $input.type == 'hidearea_end'}
     </div>
 {/if}
 
-{if !in_array($input.type,array('hidearea_start','hidearea_end'))}
+{if !isset($input.type) || !in_array($input.type,array('hidearea_start','hidearea_end'))}
     <div class="clear"></div>
 {/if}
