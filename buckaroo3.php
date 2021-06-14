@@ -98,7 +98,7 @@ class Buckaroo3 extends PaymentModule
         return $this->display(__FILE__, 'views/templates/hook/buckaroolog-quicklinks.tpl');
     }
 
-    public function hookDisplayAdminOrderLeft($params)
+    public function hookDisplayAdminOrderMainBottom($params)
     {
         $cookie        = new Cookie('ps');
         $order         = new Order($params["id_order"]);
@@ -213,7 +213,7 @@ class Buckaroo3 extends PaymentModule
         ) || !$this->registerHook('paymentReturn') || !$this->registerHook('backOfficeHeader')
             || !$this->registerHook('paymentOptions')
             || !$this->registerHook('displayBackOfficeTop')
-            || !$this->registerHook('displayAdminOrderLeft')
+            || !$this->registerHook('displayAdminOrderMainBottom')
             || !$this->registerHook('displayOrderConfirmation')
             || !$this->installModuleTab('AdminBuckaroolog', array(1 => 'Buckaroo error log'), 0)
             || !$this->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1)
@@ -387,7 +387,7 @@ class Buckaroo3 extends PaymentModule
         $this->uninstallModuleTab('AdminBuckaroolog');
         $this->uninstallModuleTab('AdminRefund');
         $this->unregisterHook('displayBackOfficeHeader');
-        $this->unregisterHook('displayAdminOrderLeft');
+        $this->unregisterHook('displayAdminOrderMainBottom');
         $this->unregisterHook('displayOrderConfirmation');
         $this->unregisterHook('actionEmailSendBefore');
         $this->unregisterHook('displayPDFInvoice');
