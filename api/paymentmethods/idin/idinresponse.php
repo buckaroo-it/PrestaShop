@@ -33,7 +33,11 @@ class IdinResponse extends Response
     protected function parsePostResponseChild()
     {
         if ($customerId = Tools::getValue('add_cid')) {
-            Db::getInstance()->execute('UPDATE '._DB_PREFIX_.'customer SET buckaroo_idin_consumerbin="'.pSQL(Tools::getValue('brq_service_idin_consumerbin')).'", buckaroo_idin_iseighteenorolder="'.pSQL(Tools::getValue('brq_service_idin_iseighteenorolder')).'" WHERE id_customer='.(int) $customerId);
+            if($consumerbin = pSQL(Tools::getValue('brq_service_idin_consumerbin'))){
+                if($iseighteenorolder = pSQL(Tools::getValue('brq_service_idin_iseighteenorolder'))){
+                    Db::getInstance()->execute('UPDATE '._DB_PREFIX_.'customer SET buckaroo_idin_consumerbin="'.$consumerbin.'", buckaroo_idin_iseighteenorolder="'.$iseighteenorolder.'" WHERE id_customer='.(int) $customerId);
+                }
+            }
         }
     }
 }
