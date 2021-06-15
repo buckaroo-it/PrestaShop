@@ -100,7 +100,7 @@
         });
         $('.buckaroo_part_refund_amount').on('change',function(){
             var refund_link = $(this).closest('table').find('.buckaroo_part_refund_link');
-            refund_link.attr('href', refund_link.attr('href').replace(/(refund_amount=).*?(&)/,'$1' + $(this).val() + '$2'))
+            refund_link.attr('href', "{$refundLink}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + $(this).val());
             refund_link.attr("onclick", "return confirm('Are you sure want to refund "+ $(this).val() +" ?')")
         });
         {if $buckarooFee != ''}
