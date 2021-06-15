@@ -15,7 +15,7 @@
 <div id="formAddPaymentPanel" class="card mt-2">
     <div class="card-header">
         <h3 class="card-header-title">
-            {l s='Buckaroo payments & refunds' mod='buckaroo3'} {$order->getOrderPayments()|@count|escape:'quotes':'UTF-8'}
+            {l s='Buckaroo payments & refunds' mod='buckaroo3'} ({$order->getOrderPayments()|@count|escape:'quotes':'UTF-8'})
         </h3>
     </div>
     {if $messages != ''}
