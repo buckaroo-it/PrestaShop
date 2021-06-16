@@ -210,7 +210,7 @@ class AfterPay extends PaymentMethod
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
 
-        if ($this->usenotification && !empty($customVars['Customeremail'])) {
+        if (!empty($this->usenotification) && !empty($customVars['Customeremail'])) {
             $this->data['services']['notification']['action'] = 'ExtraInfo';
             $this->data['services']['notification']['version'] = '1';
             $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
