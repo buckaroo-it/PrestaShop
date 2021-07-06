@@ -109,6 +109,9 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
                 if ($response->hasSucceeded()) {
                     $order                    = new Order($id_order);
+                    if (isset(OrderPayment::$definition['fields']['amount']['validate'])) {
+                        OrderPayment::$definition['fields']['amount']['validate'] = 'isAnything';
+                    }
                     $payment                  = new OrderPayment();
                     $payment->order_reference = $order->reference;
                     $payment->id_currency     = $order->id_currency;
