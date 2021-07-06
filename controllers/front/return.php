@@ -45,10 +45,22 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             $statuses[$stat["id_order_state"]] = $stat["name"];
         }
         $response = ResponseFactory::getResponse();
-        $logger->logDebug('Parse response', $response);
+        $logger->logInfo('Parse response', $response);
 
         if ($response->isValid()) {
             $logger->logInfo('Response valid');
+            if (
+                !empty($response->payment_method)
+                &&
+                ($response->payment_method == 'paypal')
+                &&
+                !empty($response->statuscode)
+                &&
+                ($response->statuscode == 791)
+            ) {
+                $response->statuscode == 890;
+                $response->status = $response::BUCKAROO_CANCELED;
+            }
 
             $id_order   = Order::getOrderByCartId($response->getCartId());
             $orders     = Order::getByReference($response->getReferenceId());

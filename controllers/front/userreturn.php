@@ -38,6 +38,19 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         if ($response->isValid()) {
             $logger->logInfo('Payment request succeeded');
 
+            if (
+                !empty($response->payment_method)
+                &&
+                ($response->payment_method == 'paypal')
+                &&
+                !empty($response->statuscode)
+                &&
+                ($response->statuscode == 791)
+            ) {
+                $response->statuscode == 890;
+                $response->status = $response::BUCKAROO_CANCELED;
+            }
+
             $id_order = Order::getOrderByCartId($response->getCartId());
             $logger->logInfo('Update the order', "Order ID: " . $id_order);
             if ($response->hasSucceeded()) {
