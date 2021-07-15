@@ -52,10 +52,10 @@ abstract class ConfigCore
                 $value = 'en-US';
                 break;
             case 'BUCKAROO_CREDITCARD_CARDS':
-                $value = 'amex,mastercard,visa,vpay';
+                $value = 'amex,mastercard,visa,vpay,postepay';
                 break;
             case 'BUCKAROO_CREDITCARD_ALLOWED_CARDS':
-                $value = 'amex,mastercard,visa,vpay';
+                $value = 'amex,mastercard,visa,vpay,postepay';
                 break;
             case 'BUCKAROO_GIFTCARDS_CARDS':
                 $value = 'ideal,ippies,babygiftcard,babyparkgiftcard,beautywellness,boekenbon,boekenvoordeel,designshopsgiftcard,fashioncheque,fashionucadeaukaart,fijncadeau,koffiecadeau,kokenzo,kookcadeau,nationaleentertainmentcard,naturesgift,podiumcadeaukaart,shoesaccessories,webshopgiftcard,wijncadeau,wonenzo,yourgift,vvvgiftcard,customgiftcard,customgiftcard2,customgiftcard3';
