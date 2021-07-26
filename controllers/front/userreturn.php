@@ -80,6 +80,9 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
                 exit();
             }
+        }else{
+            $cookie->statusMessage = 'Not valid response';
+            Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
         }
         exit();
     }

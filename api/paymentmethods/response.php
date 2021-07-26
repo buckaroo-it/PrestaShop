@@ -487,7 +487,7 @@ abstract class Response extends BuckarooAbstract
             $value = $this->decodePushValue($key, $value);
             $signatureString .= $key . '=' . $value;
         }
-
+        $signatureString .= Config::get('BUCKAROO_SECRET_KEY');
         //return the SHA1 encoded string for comparison
         $signature = SHA1($signatureString);
 
