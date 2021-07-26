@@ -484,14 +484,10 @@ abstract class Response extends BuckarooAbstract
         //turn into string and add the secret key to the end
         $signatureString = '';
         foreach ($sortableArray as $key => $value) {
-            if ($key == 'brq_service_paypal_payeremail') {
-                $value = rawurldecode($value);
-            } else {
-                $value = urldecode($value);
-            }
+            $value = $this->decodePushValue($key, $value);
             $signatureString .= $key . '=' . $value;
         }
-        $signatureString .= Config::get('BUCKAROO_SECRET_KEY');
+
         //return the SHA1 encoded string for comparison
         $signature = SHA1($signatureString);
 
@@ -521,5 +517,40 @@ abstract class Response extends BuckarooAbstract
     public function getReferenceId()
     {
         return $this->getCartIdAndReferenceId('reference');
+    }
+
+    /**
+     * @param string $brq_key
+     * @param string $brq_value
+     *
+     * @return string
+     */
+    private function decodePushValue($brq_key, $brq_value)
+    {
+        switch (strtolower($brq_key)) {
+            case 'brq_customer_name':
+            case 'brq_service_ideal_consumername':
+            case 'brq_service_transfer_consumername':
+            case 'brq_service_payconiq_payconiqandroidurl':
+            case 'brq_service_paypal_payeremail':
+            case 'brq_service_paypal_payerfirstname':
+            case 'brq_service_paypal_payerlastname':
+            case 'brq_service_payconiq_payconiqiosurl':
+            case 'brq_service_payconiq_payconiqurl':
+            case 'brq_service_payconiq_qrurl':
+            case 'brq_service_masterpass_customerphonenumber':
+            case 'brq_service_masterpass_shippingrecipientphonenumber':
+            case 'brq_invoicedate':
+            case 'brq_duedate':
+            case 'brq_previousstepdatetime':
+            case 'brq_eventdatetime':
+            case 'brq_service_transfer_accountholdername':
+                $decodedValue = $brq_value;
+                break;
+            default:
+                $decodedValue = urldecode($brq_value);
+        }
+
+        return $decodedValue;
     }
 }

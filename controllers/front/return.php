@@ -220,7 +220,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 }
             }
         } else {
+            header("HTTP/1.1 503 Service Unavailable");
             $logger->logError('Payment response not valid', $response);
+            echo 'Payment response not valid';
+                    exit();
         }
 
         $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int)($response->getCartId());
