@@ -658,7 +658,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('SOFORTBANKING', 'Pay by Sofortbanking'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung'])) //phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('SOFORTBANKING'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_sofort?v.png?'); //phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_sofort.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_BELFIUS_ENABLED')) {
