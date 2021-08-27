@@ -128,7 +128,12 @@ class KlarnaCheckout extends Checkout
 
         $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
 
-        $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
+        if (version_compare(_PS_VERSION_, '1.7.6.0', '<=') === true) {
+            $address = Address::initialize();
+            $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate($address);
+        } else {
+            $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
+        }
 
         if($carrier->external_module_name == 'sendcloud'){
             $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
