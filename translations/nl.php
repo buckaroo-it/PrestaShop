@@ -245,3 +245,7 @@ $_MODULE['<{buckaroo3}prestashop>refund-hook_88427ec035734b45aae9f7d8859a5008'] 
 $_MODULE['<{buckaroo3}prestashop>refund-hook_b2f40690858b404ed10e62bdf422c704'] = 'Bedrag';
 $_MODULE['<{buckaroo3}prestashop>refund-hook_3ec365dd533ddb7ef3d1c111186ce872'] = 'Details';
 $_MODULE['<{buckaroo3}prestashop>refund-hook_de78da3154b793d64d302db27e65baec'] = 'Er zijn geen betaalmethoden beschikbaar';
+$_MODULE['<{buckaroo3}prestashop>idin_5f00203a42c0023434af555f62336eb4'] = 'leeftijd verificatie';
+$_MODULE['<{buckaroo3}prestashop>idin_2b280c61b74991789dcf1404da3bcd65'] = 'verifiëren uw leeftijd via iDIN';
+$_MODULE['<{buckaroo3}prestashop>idin_box_69e32388ae7c2d8fd30631a74759db11'] = 'Om dit product te bestellen dien je 18 jaar of ouder te zijn';
+$_MODULE['<{buckaroo3}prestashop>idin_cd74b1d3f18e4b9ba54b984e9bbd5f3e'] = 'om door te gaan moet u uw leeftijd middels iDIN verifieren';
