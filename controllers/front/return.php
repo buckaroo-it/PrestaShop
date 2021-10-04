@@ -176,9 +176,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $pending  = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
                 $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
                 $error = Configuration::get('PS_OS_ERROR');
+                $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
                 if ($new_status_code != $order->getCurrentState() &&
                     ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState(
-                    ) || $error == $order->getCurrentState())
+                    ) || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
                 ) {
                     $logger->logInfo("Update order status");
                     $history           = new OrderHistory();
@@ -229,7 +230,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int)($response->getCartId());
         $buckarooFee = Db::getInstance()->getValue($sql);
 
-        if($buckarooFee && ($payment->payment_method != 'Group transaction')){
+        if($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')){
             $jj=0;
             foreach ($payments as $payment) {
                 if($jj>0){continue;}
