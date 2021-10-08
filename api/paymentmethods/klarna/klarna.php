@@ -98,6 +98,7 @@ class Klarna extends PaymentMethod
         $this->data['customVars'][$this->type]['Street'][1]["value"] = !empty($this->ShippingStreet) ? $this->ShippingStreet : $this->BillingStreet;
         $this->data['customVars'][$this->type]["Street"][1]["group"] = 'ShippingCustomer';
 
+        $this->BillingHouseNumber = $this->BillingHouseNumber ? $this->BillingHouseNumber : 1;
         $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber . ' ';
         $this->data['customVars'][$this->type]["StreetNumber"][0]["group"] = 'BillingCustomer';
         $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] = !empty($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
@@ -138,10 +139,15 @@ class Klarna extends PaymentMethod
         $this->data['customVars'][$this->type]["Gender"][1]["value"] = ($this->ShippingGender) == '1' ? 'male' : 'female';
         $this->data['customVars'][$this->type]["Gender"][1]["group"] = 'ShippingCustomer';
 
-        $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
-        $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Phone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
-        $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
+        if(!empty($this->BillingPhoneNumber)){
+            $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
+        }
+
+        if(!empty($this->ShippingPhoneNumber) || !empty($this->BillingPhoneNumber)){
+            $this->data['customVars'][$this->type]["Phone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
+        }
 
         // Merge products with same SKU 
 
