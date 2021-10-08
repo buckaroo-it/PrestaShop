@@ -246,7 +246,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_FEE', '');
+        Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', '');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', '1');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', '');
@@ -600,9 +600,9 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_PAYPAL_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('PAYPAL', 'Pay by PayPal'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('BUCKAROOPAYPAL', 'Pay by PayPal'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
-                ->setInputs($this->getBuckarooFeeInputs('PAYPAL'))
+                ->setInputs($this->getBuckarooFeeInputs('BUCKAROOPAYPAL'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_paypal.png?v');
             $payment_options[] = $newOption;
         }
@@ -689,6 +689,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA', 'Klarna: Pay later'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])) //phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('KLARNA'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_klarna.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }
@@ -820,6 +821,7 @@ class Buckaroo3 extends PaymentModule
     {
         switch ($payment_method) {
             case 'paypal':
+            case 'buckaroopaypal':
                 $payment_method_tr = $this->l('PayPal');
                 break;
             case 'SepaDirectDebit':
@@ -919,7 +921,7 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFees()
     {
-        $methods = ['IDEAL', 'PAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'BELFIUS', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
+        $methods = ['IDEAL', 'BUCKAROOPAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'BELFIUS', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
         $result  = [];
         foreach ($methods as $method) {
             if (Config::get('BUCKAROO_' . $method . '_FEE')) {

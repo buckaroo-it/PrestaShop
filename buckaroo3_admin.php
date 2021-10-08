@@ -117,7 +117,7 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
-                Configuration::updateValue('BUCKAROO_PAYPAL_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_FEE')));
+                Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_BUCKAROOPAYPAL_FEE')));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', Tools::getValue('BUCKAROO_EMPAYMENT_ENABLED'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', Tools::getValue('BUCKAROO_EMPAYMENT_TEST'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', Tools::getValue('BUCKAROO_EMPAYMENT_LABEL'));
@@ -338,7 +338,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPAL_ENABLED']           = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_PAYPAL_LABEL']              = Configuration::get('BUCKAROO_PAYPAL_LABEL');
-        $fields_value['BUCKAROO_PAYPAL_FEE']              = Configuration::get('BUCKAROO_PAYPAL_FEE');
+        $fields_value['BUCKAROO_BUCKAROOPAYPAL_FEE']       = Configuration::get('BUCKAROO_BUCKAROOPAYPAL_FEE');
         $fields_value['BUCKAROO_EMPAYMENT_ENABLED']        = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
         $fields_value['BUCKAROO_EMPAYMENT_TEST']           = Configuration::get('BUCKAROO_EMPAYMENT_TEST');
         $fields_value['BUCKAROO_EMPAYMENT_LABEL']           = Configuration::get('BUCKAROO_EMPAYMENT_LABEL');
@@ -714,7 +714,7 @@ class Buckaroo3Admin
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
-                    'name'     => 'BUCKAROO_PAYPAL_FEE',
+                    'name'     => 'BUCKAROO_BUCKAROOPAYPAL_FEE',
                     'size'     => 80,
                 ),
                 array(
