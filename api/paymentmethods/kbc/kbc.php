@@ -28,8 +28,10 @@ class Kbc extends PaymentMethod
         $this->mode = Config::getMode($this->type);
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         return parent::pay();
     }
 }

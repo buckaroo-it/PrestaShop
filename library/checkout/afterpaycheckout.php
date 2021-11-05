@@ -131,7 +131,8 @@ class AfterPayCheckout extends Checkout
         $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
 
         if($carrier->external_module_name == 'sendcloud'){
-            $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
+            $sendCloudClassName = 'SendcloudServicePoint';
+            $service_point = $sendCloudClassName::getFromCart($this->cart->id);
             $point = $service_point->getDetails();
             $this->payment_request->ShippingStreet            = $point->street;
             $this->payment_request->ShippingHouseNumber       = $point->house_number;
@@ -175,14 +176,7 @@ class AfterPayCheckout extends Checkout
             $tmp["ArticleId"]          = $item['id_product'];
             $tmp["ArticleQuantity"]    = $item["quantity"];
             $tmp["ArticleUnitprice"]   = round($item["price_wt"], 2);
-            $taxId                     = TaxCore::getTaxIdByName($item["tax_name"]);
-
             $tmp["ArticleVatcategory"] = $item["rate"];
-/*            if (Tools::getIsset($taxvalues[$taxId])) {
-                $tmp["ArticleVatcategory"] = $taxvalues[$taxId];
-            } else {
-                $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
-            }*/
             $products[] = $tmp;
         }
 

@@ -41,8 +41,10 @@ class Idin extends PaymentMethod
         return parent::verify();
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         return null;
     }
 

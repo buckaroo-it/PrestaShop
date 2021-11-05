@@ -29,8 +29,10 @@ class GiftCard extends PaymentMethod
         $this->mode = Config::getMode('GIFTCARD');
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $this->data['customVars']['servicesSelectableByClient'] = Config::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
         $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
         $this->data['services'] = array();

@@ -73,8 +73,10 @@ class Klarna extends PaymentMethod
         return null;
     }
 
+    // @codingStandardsIgnoreStart
     public function payKlarna($products = array(), $customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $itemsTotalAmount = 0;
         $business = unserialize(Configuration::get('BUCKAROO_KLARNA_BUSINESS'));
         $this->data['customVars'][$this->type]["Category"][0]["value"] = $business;

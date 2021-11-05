@@ -31,8 +31,10 @@ class Giropay extends PaymentMethod
         $this->mode = Config::getMode($this->type);
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $this->data['customVars'][$this->type]['bic'] = $this->bic;
 
         return parent::pay();

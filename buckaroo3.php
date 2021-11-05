@@ -1109,7 +1109,7 @@ class Buckaroo3 extends PaymentModule
         if (Configuration::get('BUCKAROO_IDIN_ENABLED') == '1') {
             switch (Configuration::get('BUCKAROO_IDIN_MODE')) {
                 case 1:
-                    foreach ($cart_products as $key => $value) {
+                    foreach ($cart_products as $value) {
                         $product   = new Product($value['id_product']);
                         if (isset($product->buckaroo_idin) && $product->buckaroo_idin == 1) {
                             return true;
@@ -1117,7 +1117,7 @@ class Buckaroo3 extends PaymentModule
                     }
                     break;
                 case 2:
-                    foreach ($cart_products as $key => $product) {
+                    foreach ($cart_products as $product) {
                         if(isset($product['id_category_default']) && isset($buckaroo_idin_category[$product['id_category_default']])){
                             return true;
                         }
@@ -1159,6 +1159,7 @@ class Buckaroo3 extends PaymentModule
                 'this_path' => _MODULE_DIR_ . $this->tpl_folder . '/',
             ));
 
+            $array = [];
             $array[] = (new PrestaShop\PrestaShop\Core\Product\ProductExtraContent())
                 ->setTitle('iDIN Info')
                 ->setContent($content);

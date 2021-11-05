@@ -537,7 +537,7 @@ abstract class Response extends BuckarooAbstract
      */
     private function decodePushValue($brq_key, $brq_value)
     {
-        switch (strtolower($brq_key)) {
+        switch (Tools::strtolower($brq_key)) {
             case 'brq_customer_name':
             case 'brq_service_ideal_consumername':
             case 'brq_service_transfer_consumername':

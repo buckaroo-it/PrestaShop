@@ -136,7 +136,8 @@ class KlarnaCheckout extends Checkout
         }
 
         if($carrier->external_module_name == 'sendcloud'){
-            $service_point = SendcloudServicePoint::getFromCart($this->cart->id);
+            $sendCloudClassName = 'SendcloudServicePoint';
+            $service_point = $sendCloudClassName::getFromCart($this->cart->id);
             $point = $service_point->getDetails();
             $this->payment_request->ShippingStreet            = $point->street;
             $this->payment_request->ShippingHouseNumber       = $point->house_number;
@@ -175,8 +176,6 @@ class KlarnaCheckout extends Checkout
             $tmp["ArticleId"]          = $item['id_product'];
             $tmp["ArticleQuantity"]    = $item["quantity"];
             $tmp["ArticleUnitprice"]   = round($item["price_wt"], 2);
-            $taxId                     = TaxCore::getTaxIdByName($item["tax_name"]);
-
             $tmp["ArticleVatcategory"] = $item["rate"];
             $products[] = $tmp;
         }

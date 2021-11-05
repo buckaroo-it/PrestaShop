@@ -32,8 +32,10 @@ class CreditCard extends PaymentMethod
         return parent::refund();
     }
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $this->data['customVars']['servicesSelectableByClient'] = Config::get('BUCKAROO_CREDITCARD_ALLOWED_CARDS');
         $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
         $this->data['services'] = array();

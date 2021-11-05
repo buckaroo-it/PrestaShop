@@ -56,8 +56,10 @@ abstract class PaymentMethod extends BuckarooAbstract
     public $usecreditmanagment = 0;
     protected $data            = array();
 
+    // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $this->data['services'][$this->type]['action']  = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
@@ -152,8 +154,10 @@ abstract class PaymentMethod extends BuckarooAbstract
         }
     }
 
+    // @codingStandardsIgnoreStart
     public function verify($customVars = array())
     {
+        // @codingStandardsIgnoreEnd
         $this->data['services'][$this->type]['action']  = 'verify';
         $this->data['services'][$this->type]['version'] = $this->version;
 

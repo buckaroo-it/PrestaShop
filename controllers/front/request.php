@@ -88,7 +88,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total          = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        if($buckarooFee = Config::get('BUCKAROO_'.strtoupper($payment_method).'_FEE')){
+        if($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')){
             if($buckarooFee>0){
                 $total += (float) $buckarooFee;
             }

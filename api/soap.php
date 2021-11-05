@@ -286,8 +286,6 @@ final class Soap extends BuckarooAbstract
         $client->thumbprint = Config::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
         $client->privateKey = Config::get('BUCKAROO_CERTIFICATE_PATH');
 
-        $search                       = array(",", " ");
-        $replace                      = array(".", "");
         $DataRequest                  = new Body();
         $DataRequest->ReturnURL    = $this->_vars['returnUrl'];
         $DataRequest->StartRecurrent = false;

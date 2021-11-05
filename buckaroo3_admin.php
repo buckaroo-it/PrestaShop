@@ -621,7 +621,8 @@ class Buckaroo3Admin
 
         $cookie = new Cookie('ps');
         $cats = Category::getCategories( (int)($cookie->id_lang), true, false);
-        foreach ($cats as $key => $value) {
+        $categories = [];
+        foreach ($cats as $value) {
             $categories[] = array(
                 'text' => $value['name'],
                 'value' => $value['id_category'],

@@ -118,7 +118,7 @@ abstract class Checkout
             $payment_method='MISTERCASH';
         }
 
-        if($buckarooFee = Config::get('BUCKAROO_'.strtoupper($payment_method).'_FEE')){
+        if($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')){
             if($buckarooFee>0){
                 $this->payment_request->amountDedit = (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
                 Db::getInstance()->insert('buckaroo_fee', array(
