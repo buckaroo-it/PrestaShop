@@ -47,7 +47,7 @@
                     <td>{dateFormat date=$payment->date_add full=true}</td>
                     <td>{$payment->payment_method|escape:'html':'UTF-8'}</td>
                     <td>{$payment->transaction_id|escape:'html':'UTF-8'}</td>
-                    <td><input class="buckaroo_part_refund_amount" type="number" step="0.01" max="{$payment->amount}" value="{$payment->amount}"></td>
+                    <td><input class="buckaroo_part_refund_amount" type="number" step="0.01" max="{$payment->amount|escape:'html':'UTF-8'}" value="{$payment->amount|escape:'html':'UTF-8'}"></td>
                     <td class="actions">
                         {if $payment->payment_method == 'Group transaction'}
                             Group transaction
@@ -72,7 +72,7 @@
                             <a style="width: 190px"
                                onclick="return confirm('Are you sure want to refund {$payment->amount|escape:'htmlall':'UTF-8'} ?')"
                                class="btn btn-primary btn-block buckaroo_part_refund_link"
-                               href="{$refundLink}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount={$payment->amount}">Refund</a>
+                               href="{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount={$payment->amount|escape:'html':'UTF-8'}">Refund</a>
                         {else}
                             Transaction can't be refunded
                         {/if}
@@ -100,11 +100,11 @@
         });
         $('.buckaroo_part_refund_amount').on('change',function(){
             var refund_link = $(this).closest('table').find('.buckaroo_part_refund_link');
-            refund_link.attr('href', "{$refundLink}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + $(this).val());
+            refund_link.attr('href', "{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + $(this).val());
             refund_link.attr("onclick", "return confirm('Are you sure want to refund "+ $(this).val() +" ?')")
         });
         {if $buckarooFee != ''}
-            $('#total_order').before('<tr><td class=text-right>Buckaroo Fee</td><td class="amount text-right nowrap">{$buckarooFee}</td></tr>');
+            $('#total_order').before('<tr><td class=text-right>Buckaroo Fee</td><td class="amount text-right nowrap">{$buckarooFee|escape:'html':'UTF-8'}</td></tr>');
         {/if}
     });
 </script> 

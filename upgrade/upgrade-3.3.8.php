@@ -41,7 +41,10 @@ function upgrade_module_3_3_8($object)
 
     Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "product` 
         ADD buckaroo_idin TINYINT(1) NULL;");
-    copy(_PS_ROOT_DIR_."/modules/buckaroo3/classes/Product.php",_PS_ROOT_DIR_."/override/classes/Product.php");
+    copy(
+        _PS_ROOT_DIR_."/modules/buckaroo3/classes/Product.php",
+        _PS_ROOT_DIR_."/override/classes/Product.php"
+    );
 
     return true;
 }

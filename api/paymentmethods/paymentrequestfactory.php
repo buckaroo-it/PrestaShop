@@ -41,7 +41,7 @@ class PaymentRequestFactory
     const REQUEST_TYPE_IDIN = 'idin';
 
     // Request types (Payment Methods).
-    static public $valid_request_types = array(
+    public static $valid_request_types = array(
         PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'BuckarooPayPal',
         PaymentRequestFactory::REQUEST_TYPE_EMPAYMENT => 'Empayment',
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',

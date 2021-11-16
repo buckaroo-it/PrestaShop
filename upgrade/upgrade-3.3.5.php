@@ -27,6 +27,6 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_3_3_5()
 {
-    copy(_PS_ROOT_DIR_."/modules/buckaroo3/classes/Mail.php",_PS_ROOT_DIR_."/override/classes/Mail.php");
+    copy(_PS_ROOT_DIR_."/modules/buckaroo3/classes/Mail.php", _PS_ROOT_DIR_."/override/classes/Mail.php");
     return true;
 }

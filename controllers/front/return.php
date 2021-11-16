@@ -49,8 +49,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         if ($response->isValid()) {
             $logger->logInfo('Response valid');
-            if (
-                !empty($response->payment_method)
+            if (!empty($response->payment_method)
                 &&
                 ($response->payment_method == 'paypal')
                 &&
@@ -192,7 +191,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     // $payments = OrderPayment::getByOrderId($id_order);
                     $payments = OrderPayment::getByOrderReference($order->reference);
                     foreach ($payments as $payment) {
-                        if($payment->payment_method == 'Group transaction'){
+                        if ($payment->payment_method == 'Group transaction') {
                             $payment->amount = 0;
                             $payment->update();
                         }
@@ -227,17 +226,21 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     exit();
         }
 
-        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int)($response->getCartId());
+        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' .
+            (int)($response->getCartId());
         $buckarooFee = Db::getInstance()->getValue($sql);
 
-        if($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')){
+        if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
             $jj=0;
             foreach ($payments as $payment) {
-                if($jj>0){continue;}
+                if ($jj>0) {
+                    continue;
+                }
                 if ($payment->amount != $response->amount && $payment->transaction_id == '') {
                     $payment->amount = $response->amount;
                     $payment->transaction_id = $response->transactions;
-                    $payment->update();$jj++;
+                    $payment->update();
+                    $jj++;
                 }
             }
         }

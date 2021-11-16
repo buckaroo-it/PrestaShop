@@ -38,8 +38,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         if ($response->isValid()) {
             $logger->logInfo('Payment request succeeded');
 
-            if (
-                !empty($response->payment_method)
+            if (!empty($response->payment_method)
                 &&
                 ($response->payment_method == 'paypal')
                 &&
@@ -63,7 +62,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 }
 
                 $payment_method = $response->payment_method;
-                if($payment_method=='bancontactmrcash'){
+                if ($payment_method=='bancontactmrcash') {
                     $payment_method='MISTERCASH';
                 }
 
@@ -80,7 +79,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
                 exit();
             }
-        }else{
+        } else {
             $cookie->statusMessage = 'Not valid response';
             Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
         }

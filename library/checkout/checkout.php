@@ -111,16 +111,18 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDedit = $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
+        $this->payment_request->amountDedit = $originalAmount =
+            (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         $payment_method = Tools::getValue('method');
-        if($payment_method=='bancontactmrcash'){
+        if ($payment_method=='bancontactmrcash') {
             $payment_method='MISTERCASH';
         }
 
-        if($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')){
-            if($buckarooFee>0){
-                $this->payment_request->amountDedit = (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
+        if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
+            if ($buckarooFee>0) {
+                $this->payment_request->amountDedit =
+                    (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
                 Db::getInstance()->insert('buckaroo_fee', array(
                     'reference' => $this->reference,
                     'id_cart' => $this->cart->id,
@@ -134,8 +136,8 @@ abstract class Checkout
 
                 $orderid = Order::getOrderByCartId($this->cart->id);
                 $order = new Order($orderid);
-                $order->total_paid_tax_excl = $orderFeeNumber->plus( new Number((string) $order->total_paid_tax_excl));
-                $order->total_paid_tax_incl = $orderFeeNumber->plus( new Number((string) $order->total_paid_tax_incl));
+                $order->total_paid_tax_excl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_excl));
+                $order->total_paid_tax_incl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_incl));
                 $order->total_paid = $totalPrice->toPrecision(2);
                 $order->update();
             }

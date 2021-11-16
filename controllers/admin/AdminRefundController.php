@@ -46,7 +46,8 @@ class AdminRefundController extends AdminControllerCore
             if ($transaction->transaction_id == Tools::getValue("transaction_id")) {
                 //refund this transaction
                 autoload('refunds');
-                $transaction_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $transaction->amount;
+                $transaction_amount =
+                    Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $transaction->amount;
                 $Refunds = new Refunds($transaction->payment_method);
                 $currency = new Currency((int)$transaction->id_currency);
                 $Refunds->amountDedit = 0;

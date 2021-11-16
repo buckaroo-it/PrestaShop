@@ -55,7 +55,7 @@ class AfterPayCheckout extends Checkout
             )
         );
         $address_components = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
-        if(empty($address_components['house_number'])){
+        if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->invoice_address->address2;
         }
         $this->payment_request->BillingStreet            = $address_components['street'];
@@ -130,7 +130,7 @@ class AfterPayCheckout extends Checkout
 
         $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
 
-        if($carrier->external_module_name == 'sendcloud'){
+        if ($carrier->external_module_name == 'sendcloud') {
             $sendCloudClassName = 'SendcloudServicePoint';
             $service_point = $sendCloudClassName::getFromCart($this->cart->id);
             $point = $service_point->getDetails();

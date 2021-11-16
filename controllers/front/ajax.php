@@ -98,6 +98,5 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 break;
             default:
         }
-
     }
 }

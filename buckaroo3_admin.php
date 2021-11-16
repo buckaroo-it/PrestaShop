@@ -117,15 +117,24 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
-                Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_BUCKAROOPAYPAL_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_BUCKAROOPAYPAL_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BUCKAROOPAYPAL_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', Tools::getValue('BUCKAROO_EMPAYMENT_ENABLED'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', Tools::getValue('BUCKAROO_EMPAYMENT_TEST'));
                 Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', Tools::getValue('BUCKAROO_EMPAYMENT_LABEL'));
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_EMPAYMENT_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_EMPAYMENT_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EMPAYMENT_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_DD_ENABLED', Tools::getValue('BUCKAROO_DD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_DD_TEST', Tools::getValue('BUCKAROO_DD_TEST'));
                 Configuration::updateValue('BUCKAROO_DD_LABEL', Tools::getValue('BUCKAROO_DD_LABEL'));
-                Configuration::updateValue('BUCKAROO_DD_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_DD_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_DD_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_DD_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_DD_USECREDITMANAGMENT',
                     Tools::getValue('BUCKAROO_DD_USECREDITMANAGMENT')
@@ -139,37 +148,58 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_SDD_TEST', Tools::getValue('BUCKAROO_SDD_TEST'));
                 Configuration::updateValue('BUCKAROO_SDD_LABEl', Tools::getValue('BUCKAROO_SDD_LABEL'));
-                Configuration::updateValue('BUCKAROO_SDD_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_SDD_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', Tools::getValue('BUCKAROO_IDEAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_IDEAL_TEST', Tools::getValue('BUCKAROO_IDEAL_TEST'));
                 Configuration::updateValue('BUCKAROO_IDEAL_LABEL', Tools::getValue('BUCKAROO_IDEAL_LABEL'));
-                Configuration::updateValue('BUCKAROO_IDEAL_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_IDEAL_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', Tools::getValue('BUCKAROO_GIROPAY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_TEST', Tools::getValue('BUCKAROO_GIROPAY_TEST'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', Tools::getValue('BUCKAROO_GIROPAY_LABEL'));
-                Configuration::updateValue('BUCKAROO_GIROPAY_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_GIROPAY_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_KBC_ENABLED', Tools::getValue('BUCKAROO_KBC_ENABLED'));
                 Configuration::updateValue('BUCKAROO_KBC_TEST', Tools::getValue('BUCKAROO_KBC_TEST'));
                 Configuration::updateValue('BUCKAROO_KBC_LABEL', Tools::getValue('BUCKAROO_KBC_LABEL'));
-                Configuration::updateValue('BUCKAROO_KBC_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_KBC_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_MISTERCASH_ENABLED',
                     Tools::getValue('BUCKAROO_MISTERCASH_ENABLED')
                 );
                 Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', Tools::getValue('BUCKAROO_MISTERCASH_TEST'));
                 Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', Tools::getValue('BUCKAROO_MISTERCASH_LABEL'));
-                Configuration::updateValue('BUCKAROO_MISTERCASH_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_MISTERCASH_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_GIFTCARD_ENABLED', Tools::getValue('BUCKAROO_GIFTCARD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_GIFTCARD_TEST', Tools::getValue('BUCKAROO_GIFTCARD_TEST'));
                 Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', Tools::getValue('BUCKAROO_GIFTCARD_LABEL'));
-                Configuration::updateValue('BUCKAROO_GIFTCARD_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_GIFTCARD_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_CREDITCARD_ENABLED',
                     Tools::getValue('BUCKAROO_CREDITCARD_ENABLED')
                 );
                 Configuration::updateValue('BUCKAROO_CREDITCARD_TEST', Tools::getValue('BUCKAROO_CREDITCARD_TEST'));
                 Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', Tools::getValue('BUCKAROO_CREDITCARD_LABEL'));
-                Configuration::updateValue('BUCKAROO_CREDITCARD_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_CREDITCARD_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_SOFORTBANKING_ENABLED',
                     Tools::getValue('BUCKAROO_SOFORTBANKING_ENABLED')
@@ -178,10 +208,12 @@ class Buckaroo3Admin
                     'BUCKAROO_SOFORTBANKING_TEST',
                     Tools::getValue('BUCKAROO_SOFORTBANKING_TEST')
                 );
-                Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL',
+                Configuration::updateValue(
+                    'BUCKAROO_SOFORTBANKING_LABEL',
                     Tools::getValue('BUCKAROO_SOFORTBANKING_LABEL')
                 );
-                Configuration::updateValue('BUCKAROO_SOFORTBANKING_FEE',
+                Configuration::updateValue(
+                    'BUCKAROO_SOFORTBANKING_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_FEE'))
                 );
                 Configuration::updateValue(
@@ -192,23 +224,31 @@ class Buckaroo3Admin
                     'BUCKAROO_BELFIUS_TEST',
                     Tools::getValue('BUCKAROO_BELFIUS_TEST')
                 );
-                Configuration::updateValue('BUCKAROO_BELFIUS_LABEL',
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_LABEL',
                     Tools::getValue('BUCKAROO_BELFIUS_LABEL')
                 );
-                Configuration::updateValue('BUCKAROO_BELFIUS_FEE',
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_FEE'))
                 );
                 Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', Tools::getValue('BUCKAROO_TRANSFER_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_TEST', Tools::getValue('BUCKAROO_TRANSFER_TEST'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', Tools::getValue('BUCKAROO_TRANSFER_LABEL'));
-                Configuration::updateValue('BUCKAROO_TRANSFER_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_TRANSFER_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_FEE'))
+                );
                 Configuration::updateValue('BUCKAROO_TRANSFER_DATEDUE', Tools::getValue('BUCKAROO_TRANSFER_DATEDUE'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_SENDMAIL', Tools::getValue('BUCKAROO_TRANSFER_SENDMAIL'));
 
                 Configuration::updateValue('BUCKAROO_AFTERPAY_ENABLED', Tools::getValue('BUCKAROO_AFTERPAY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_AFTERPAY_TEST', Tools::getValue('BUCKAROO_AFTERPAY_TEST'));
                 Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', Tools::getValue('BUCKAROO_AFTERPAY_LABEL'));
-                Configuration::updateValue('BUCKAROO_AFTERPAY_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_AFTERPAY_DEFAULT_VAT',
                     Tools::getValue('BUCKAROO_AFTERPAY_DEFAULT_VAT')
@@ -225,7 +265,10 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', Tools::getValue('BUCKAROO_KLARNA_ENABLED'));
                 Configuration::updateValue('BUCKAROO_KLARNA_TEST', Tools::getValue('BUCKAROO_KLARNA_TEST'));
                 Configuration::updateValue('BUCKAROO_KLARNA_LABEL', Tools::getValue('BUCKAROO_KLARNA_LABEL'));
-                Configuration::updateValue('BUCKAROO_KLARNA_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_FEE'))
+                );
                 Configuration::updateValue(
                     'BUCKAROO_KLARNA_DEFAULT_VAT',
                     Tools::getValue('BUCKAROO_KLARNA_DEFAULT_VAT')
@@ -246,7 +289,10 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', Tools::getValue('BUCKAROO_APPLEPAY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', Tools::getValue('BUCKAROO_APPLEPAY_TEST'));
                 Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', Tools::getValue('BUCKAROO_APPLEPAY_LABEL'));
-                Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE')));
+                Configuration::updateValue(
+                    'BUCKAROO_APPLEPAY_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE'))
+                );
             }
         }
         return null;
@@ -265,7 +311,8 @@ class Buckaroo3Admin
         $helper_head->token           = Tools::getAdminTokenLite(
             'AdminModules'
         ); //$helper_fields->token = Tools::getAdminTokenLite('AdminModules');
-        $helper_head->currentIndex = AdminController::$currentIndex . '&configure=' . $this->module->name; //$helper_fields->currentIndex = AdminController::$currentIndex.'&configure='.$this->module->name;
+        $helper_head->currentIndex =
+            AdminController::$currentIndex . '&configure=' . $this->module->name;
         // Language
         $helper_head->default_form_language    = $default_lang; //$helper_fields->default_form_language = $default_lang;
         $helper_head->allow_employee_form_lang = $default_lang;
@@ -288,8 +335,10 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_TEST']                   = Configuration::get('BUCKAROO_TEST');
         $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $fields_value['BUCKAROO_ORDER_STATE_SUCCESS']    = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ? Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS'):Configuration::get('PS_OS_PAYMENT');
-        $fields_value['BUCKAROO_ORDER_STATE_FAILED']    = Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
+        $fields_value['BUCKAROO_ORDER_STATE_SUCCESS']    = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
+            Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS'):Configuration::get('PS_OS_PAYMENT');
+        $fields_value['BUCKAROO_ORDER_STATE_FAILED']    = Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
+            Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
         $fields_value['BUCKAROO_MERCHANT_KEY']           = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $fields_value['BUCKAROO_SECRET_KEY']             = Configuration::get('BUCKAROO_SECRET_KEY');
         $fields_value['BUCKAROO_CERTIFICATE_THUMBPRINT'] = Configuration::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
@@ -429,13 +478,13 @@ class Buckaroo3Admin
         $orderStatesFailed = [];
 
         foreach ($orderStatesGet as $o) {
-            if(in_array($o["name"],['Awaiting for Remote payment','Awaiting check payment'])){
+            if (in_array($o["name"], ['Awaiting for Remote payment', 'Awaiting check payment'])) {
                 $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
-            if(in_array($o["name"],['On backorder (paid)','Payment accepted'])){
+            if (in_array($o["name"], ['On backorder (paid)', 'Payment accepted'])) {
                 $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
-            if(in_array($o["name"],['Canceled','Payment error'])){
+            if (in_array($o["name"], ['Canceled', 'Payment error'])) {
                 $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
         }
@@ -444,13 +493,13 @@ class Buckaroo3Admin
         $orderStatesSuccess2 = [];
         $orderStatesFailed2 = [];
         foreach ($orderStatesGet as $o) {
-            if(in_array($o["id_order_state"],[14,1])){
+            if (in_array($o["id_order_state"], [14,1])) {
                 $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
-            if(in_array($o["id_order_state"],[9,2])){
+            if (in_array($o["id_order_state"], [9,2])) {
                 $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
-            if(in_array($o["id_order_state"],[6,8])){
+            if (in_array($o["id_order_state"], [6,8])) {
                 $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
             }
         }
@@ -620,7 +669,7 @@ class Buckaroo3Admin
         );
 
         $cookie = new Cookie('ps');
-        $cats = Category::getCategories( (int)($cookie->id_lang), true, false);
+        $cats = Category::getCategories((int)($cookie->id_lang), true, false);
         $categories = [];
         foreach ($cats as $value) {
             $categories[] = array(

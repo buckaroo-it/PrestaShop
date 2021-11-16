@@ -93,7 +93,7 @@
     <label>{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
         <input type="file" class="" value="" name="{$input.name|escape:'html':'UTF-8'}"
-               id="{$input.name|escape:'html':'UTF-8'}"/> {if !empty($fields_value[$input.name])}{$fields_value[$input.name]}{else}{l s='No file uploaded.' mod='buckaroo3'}{/if}
+               id="{$input.name|escape:'html':'UTF-8'}"/> {if !empty($fields_value[$input.name])}{$fields_value[$input.name]|escape:'html':'UTF-8'}{else}{l s='No file uploaded.' mod='buckaroo3'}{/if}
     </div>
 {elseif $input.type == 'simpletext'}
     <div class="margin-form">

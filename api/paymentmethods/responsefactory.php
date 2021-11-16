@@ -38,7 +38,7 @@ class ResponseFactory
         } else {
             if (Tools::getValue('brq_payment_method')) {
                 $paymentMethod = Tools::getValue('brq_payment_method');
-            }elseif (Tools::getValue('brq_primary_service')) {
+            } elseif (Tools::getValue('brq_primary_service')) {
                 $paymentMethod = Tools::getValue('brq_primary_service');
             } else {
                 if (Tools::getValue('brq_transaction_method')) {

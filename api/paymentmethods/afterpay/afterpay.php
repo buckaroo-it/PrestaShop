@@ -85,48 +85,58 @@ class AfterPay extends PaymentMethod
 
         $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] = !empty($this->ShippingFirstName) ? $this->ShippingFirstName : $this->BillingFirstName;
+        $this->data['customVars'][$this->type]['FirstName'][1]["value"] =
+            !empty($this->ShippingFirstName) ? $this->ShippingFirstName : $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['LastName'][1]["value"] = !empty($this->ShippingLastName) ? $this->ShippingLastName : $this->BillingLastName;
+        $this->data['customVars'][$this->type]['LastName'][1]["value"] =
+            !empty($this->ShippingLastName) ? $this->ShippingLastName : $this->BillingLastName;
         $this->data['customVars'][$this->type]["LastName"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Street"][0]["value"] = $this->BillingStreet;
         $this->data['customVars'][$this->type]["Street"][0]["group"] = 'BillingCustomer';
 
-        $this->data['customVars'][$this->type]['Street'][1]["value"] = !empty($this->ShippingStreet) ? $this->ShippingStreet : $this->BillingStreet;
+        $this->data['customVars'][$this->type]['Street'][1]["value"] =
+            !empty($this->ShippingStreet) ? $this->ShippingStreet : $this->BillingStreet;
         $this->data['customVars'][$this->type]["Street"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber . ' ';
         $this->data['customVars'][$this->type]["StreetNumber"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] = !empty($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
+        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] =
+            !empty($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
         $this->data['customVars'][$this->type]["StreetNumber"][1]["group"] = 'ShippingCustomer';
 
-        if(!empty($this->BillingHouseNumberSuffix)){
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["value"] = $this->BillingHouseNumberSuffix;
+        if (!empty($this->BillingHouseNumberSuffix)) {
+            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["value"] =
+                $this->BillingHouseNumberSuffix;
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["group"] = 'BillingCustomer';
         }
 
-        if(!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)){
-            $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] = !empty($this->ShippingHouseNumberSuffix) ? $this->ShippingHouseNumberSuffix : $this->BillingHouseNumberSuffix;
+        if (!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)) {
+            $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] =
+                !empty($this->ShippingHouseNumberSuffix) ?
+                    $this->ShippingHouseNumberSuffix : $this->BillingHouseNumberSuffix;
             $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
         }
 
         $this->data['customVars'][$this->type]["PostalCode"][0]["value"] = $this->BillingPostalCode;
         $this->data['customVars'][$this->type]["PostalCode"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['PostalCode'][1]["value"] = !empty($this->ShippingPostalCode) ? $this->ShippingPostalCode : $this->BillingPostalCode;
+        $this->data['customVars'][$this->type]['PostalCode'][1]["value"] =
+            !empty($this->ShippingPostalCode) ? $this->ShippingPostalCode : $this->BillingPostalCode;
         $this->data['customVars'][$this->type]["PostalCode"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["City"][0]["value"] = $this->BillingCity;
         $this->data['customVars'][$this->type]["City"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['City'][1]["value"] = !empty($this->ShippingCity) ? $this->ShippingCity : $this->BillingCity;
+        $this->data['customVars'][$this->type]['City'][1]["value"] =
+            !empty($this->ShippingCity) ? $this->ShippingCity : $this->BillingCity;
         $this->data['customVars'][$this->type]["City"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Country"][0]["value"] = $this->BillingCountry;
         $this->data['customVars'][$this->type]["Country"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['Country'][1]["value"] = !empty($this->ShippingCountryCode) ? $this->ShippingCountryCode : $this->BillingCountry;
+        $this->data['customVars'][$this->type]['Country'][1]["value"] =
+            !empty($this->ShippingCountryCode) ? $this->ShippingCountryCode : $this->BillingCountry;
         $this->data['customVars'][$this->type]["Country"][1]["group"] = 'ShippingCustomer';
 
         $this->data['customVars'][$this->type]["Email"][0]["value"] = $this->BillingEmail;
@@ -135,31 +145,41 @@ class AfterPay extends PaymentMethod
         $this->data['customVars'][$this->type]["Email"][1]["group"] = 'ShippingCustomer';
 
 
-        if( (isset($this->ShippingCountryCode) && in_array($this->ShippingCountryCode, ['NL', 'BE'])) || ( !isset($this->ShippingCountryCode) && in_array($this->BillingCountry, ['NL', 'BE'])) ){
-
+        if ((isset($this->ShippingCountryCode) && in_array($this->ShippingCountryCode, ['NL', 'BE']))
+            || (!isset($this->ShippingCountryCode)
+            && in_array($this->BillingCountry, ['NL', 'BE']))
+        ) {
             // Send parameters (Salutation, BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
-            $this->data['customVars'][$this->type]["Salutation"][0]["value"] = ($this->BillingGender) == '1' ? 'Mr' : 'Mrs';
+            $this->data['customVars'][$this->type]["Salutation"][0]["value"] =
+                ($this->BillingGender) == '1' ? 'Mr' : 'Mrs';
             $this->data['customVars'][$this->type]["Salutation"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Salutation"][1]["value"] = ($this->ShippingGender) == '1' ? 'Mr' : 'Mrs';
+            $this->data['customVars'][$this->type]["Salutation"][1]["value"] =
+                ($this->ShippingGender) == '1' ? 'Mr' : 'Mrs';
             $this->data['customVars'][$this->type]["Salutation"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] = !empty($this->ShippingBirthDate) ? $this->ShippingBirthDate :  $this->BillingBirthDate;
+            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] =
+                !empty($this->ShippingBirthDate) ? $this->ShippingBirthDate :  $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] =
+                !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["MobilePhone"][1]["group"] = 'ShippingCustomer';
 
             $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Phone"][1]["value"] = !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
+            $this->data['customVars'][$this->type]["Phone"][1]["value"] =
+                !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
             $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
         }
 
-        if( (isset($this->ShippingCountryCode) && ($this->ShippingCountryCode == "FI")) || (!isset($this->ShippingCountryCode) && ($this->BillingCountry == "FI"))) {
+        if ((isset($this->ShippingCountryCode) && ($this->ShippingCountryCode == "FI"))
+            || (!isset($this->ShippingCountryCode)
+            && ($this->BillingCountry == "FI"))
+        ) {
             // Send parameter IdentificationNumber if country equals FI.
             $this->data['customVars'][$this->type]["IdentificationNumber"][0]["value"] = $this->IdentificationNumber;
             $this->data['customVars'][$this->type]["IdentificationNumber"][0]["group"] = 'BillingCustomer';
@@ -168,8 +188,7 @@ class AfterPay extends PaymentMethod
             $this->data['customVars'][$this->type]["IdentificationNumber"][1]["group"] = 'ShippingCustomer';
         }
 
-
-        // Merge products with same SKU 
+        // Merge products with same SKU
 
         $mergedProducts = array();
         foreach ($products as $product) {
@@ -183,7 +202,7 @@ class AfterPay extends PaymentMethod
         $products = $mergedProducts;
 
         $i = 1;
-        foreach($products as $p) {
+        foreach ($products as $p) {
             $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
             $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = $p["ArticleId"];
@@ -192,9 +211,11 @@ class AfterPay extends PaymentMethod
             $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
+            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] =
+                isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
-            $itemsTotalAmount += $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] * $p["ArticleQuantity"];
+            $itemsTotalAmount +=
+                $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] * $p["ArticleQuantity"];
             $i++;
         }
 
@@ -204,10 +225,12 @@ class AfterPay extends PaymentMethod
         $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
         $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
         $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] = (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
+        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] =
+            (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
         $itemsTotalAmount += $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"];
         $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] = (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
+        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] =
+            (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
         $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
 
         if (!empty($this->usenotification) && !empty($customVars['Customeremail'])) {
@@ -224,7 +247,7 @@ class AfterPay extends PaymentMethod
             }
         }
 
-        if($this->amountDedit != $itemsTotalAmount){
+        if ($this->amountDedit != $itemsTotalAmount) {
             $diff = $this->amountDedit - $itemsTotalAmount;
 
             $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = 'Discount/Fee';
@@ -237,9 +260,7 @@ class AfterPay extends PaymentMethod
             $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = 0;
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
-
         }
         return parent::pay();
     }
-
 }

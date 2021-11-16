@@ -90,10 +90,10 @@ abstract class PaymentMethod extends BuckarooAbstract
 
     public function refundGlobal()
     {
-        if($this->type == "afterpay"){
-            if($refund_amount = Tools::getValue('refund_amount')){
+        if ($this->type == "afterpay") {
+            if ($refund_amount = Tools::getValue('refund_amount')) {
                 $this->data['customVars'][$this->type]["RefundType"][0]["value"] = 'Return';
-                $this->data['customVars'][$this->type]["RefundType"][0]["group"] = 'Article';    
+                $this->data['customVars'][$this->type]["RefundType"][0]["group"] = 'Article';
                 $this->data['customVars'][$this->type]["Description"][0]["value"] = 'Refund';
                 $this->data['customVars'][$this->type]["Description"][0]["group"] = 'Article';
                 $this->data['customVars'][$this->type]["Identifier"][0]["value"] = '1';
@@ -105,12 +105,12 @@ abstract class PaymentMethod extends BuckarooAbstract
                 $this->data['customVars'][$this->type]["VatPercentage"][0]["value"] = 0;
                 $this->data['customVars'][$this->type]["VatPercentage"][0]["group"] = 'Article';
             }
-
         }
 
         $this->data['currency']               = $this->currency;
         $this->data['amountDebit']            = $this->amountDedit;
-        $this->data['amountCredit']           = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
+        $this->data['amountCredit']           =
+            Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
         $this->data['invoice']                = $this->invoiceId;
         $this->data['order']                  = $this->orderId;
         $this->data['description']            = $this->description;
@@ -123,7 +123,6 @@ abstract class PaymentMethod extends BuckarooAbstract
 
     public static function isIBAN($iban)
     {
-
         // Normalize input (remove spaces and make upcase)
         $iban = Tools::strtoupper(str_replace(' ', '', $iban));
 

@@ -34,7 +34,7 @@ class Idin extends PaymentMethod
     public function verify($customVars = array())
     {
         $this->data['customVars'][$this->type]['issuerId'] = $this->getIssuer($this->issuer);
-        if(isset($customVars['cid'])){
+        if (isset($customVars['cid'])) {
             $this->data['customParameters']['cid'] = $customVars['cid'];
         }
 

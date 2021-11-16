@@ -88,8 +88,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total          = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        if($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')){
-            if($buckarooFee>0){
+        if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
+            if ($buckarooFee>0) {
                 $total += (float) $buckarooFee;
             }
         }
@@ -136,7 +136,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($this->checkout->isVerifyRequired()) {
             $logger->logInfo('Start verify process');
             $this->checkout->startVerify(['cid'=>$cart->id_customer]);
-        }else{
+        } else {
             $logger->logInfo('Start the payment process');
             $this->checkout->startPayment();
         }

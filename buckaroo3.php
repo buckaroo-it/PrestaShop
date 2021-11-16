@@ -145,7 +145,7 @@ class Buckaroo3 extends PaymentModule
                 'paymentInfo'   => $paymentInfo,
                 'messageStatus' => $messageStatus,
                 'buckarooFee'   => $buckarooFee,
-                'refundLink'    => $this->context->link->getAdminLink('AdminRefund',true)
+                'refundLink'    => $this->context->link->getAdminLink('AdminRefund', true)
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
@@ -167,7 +167,8 @@ class Buckaroo3 extends PaymentModule
         if (!$buckarooFee) {
             return '';
         }
-        $sql = "UPDATE `" . _DB_PREFIX_ . "orders` SET total_paid_tax_incl = '" . ($order->total_paid) . "' WHERE id_cart = '" . $cart->id . "'";
+        $sql = "UPDATE `" . _DB_PREFIX_ . "orders` SET total_paid_tax_incl = '" . ($order->total_paid) .
+            "' WHERE id_cart = '" . $cart->id . "'";
         Db::getInstance()->execute($sql);
 
         $currency    = new Currency((int) $order->id_currency);
@@ -375,7 +376,8 @@ class Buckaroo3 extends PaymentModule
     protected function addBuckarooFeeTable()
     {
         $sql = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "buckaroo_fee`
-        ( `id` INT NOT NULL AUTO_INCREMENT , `reference` TEXT NOT NULL , `id_cart` TEXT NOT NULL , `buckaroo_fee` FLOAT, `currency` TEXT NOT NULL ,  PRIMARY KEY (id) )";
+        ( `id` INT NOT NULL AUTO_INCREMENT , `reference` TEXT NOT NULL , `id_cart` TEXT NOT NULL , `buckaroo_fee` FLOAT,
+         `currency` TEXT NOT NULL ,  PRIMARY KEY (id) )";
 
         Db::getInstance()->execute($sql);
     }
@@ -801,17 +803,18 @@ class Buckaroo3 extends PaymentModule
 
     public static function resolveStatusCode($status_code)
     {
-
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ? Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
+                return Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
+                    Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
                 return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ? Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
+                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
+                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
             default:
                 return Configuration::get('PS_OS_ERROR');
         }
@@ -921,7 +924,22 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFees()
     {
-        $methods = ['IDEAL', 'BUCKAROOPAYPAL', 'SDD', 'GIROPAY', 'KBC', 'MISTERCASH', 'GIFTCARD', 'CREDITCARD', 'SOFORTBANKING', 'BELFIUS', 'TRANSFER', 'AFTERPAY', 'KLARNA', 'APPLEPAY'];
+        $methods = [
+            'IDEAL',
+            'BUCKAROOPAYPAL',
+            'SDD',
+            'GIROPAY',
+            'KBC',
+            'MISTERCASH',
+            'GIFTCARD',
+            'CREDITCARD',
+            'SOFORTBANKING',
+            'BELFIUS',
+            'TRANSFER',
+            'AFTERPAY',
+            'KLARNA',
+            'APPLEPAY'
+        ];
         $result  = [];
         foreach ($methods as $method) {
             if (Config::get('BUCKAROO_' . $method . '_FEE')) {
@@ -1024,7 +1042,6 @@ class Buckaroo3 extends PaymentModule
                 $this->getLocalPath() . 'views/templates/admin/invoice_fee.tpl'
             );
         }
-
     }
 
     public function hookDisplayBeforeCarrier(array $params)
@@ -1082,7 +1099,9 @@ class Buckaroo3 extends PaymentModule
                     }
                     break;
                 case 2:
-                    if (isset($params['product']->id_category_default) && isset($buckaroo_idin_category[$params['product']->id_category_default])) {
+                    if (isset($params['product']->id_category_default)
+                        && isset($buckaroo_idin_category[$params['product']->id_category_default])
+                    ) {
                         return true;
                     }
                     break;
@@ -1118,7 +1137,9 @@ class Buckaroo3 extends PaymentModule
                     break;
                 case 2:
                     foreach ($cart_products as $product) {
-                        if(isset($product['id_category_default']) && isset($buckaroo_idin_category[$product['id_category_default']])){
+                        if (isset($product['id_category_default'])
+                            && isset($buckaroo_idin_category[$product['id_category_default']])
+                        ) {
                             return true;
                         }
                     }

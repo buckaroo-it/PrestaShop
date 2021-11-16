@@ -60,7 +60,7 @@ class Empayment extends PaymentMethod
         $this->data['customVars'][$this->type]['DomesticBankIdentifier']['value'] = $customVars['BankIdentifier'];
         $this->data['customVars'][$this->type]['DomesticBankIdentifier']['group'] = 'bankaccount';
         $this->data['customVars'][$this->type]['DomesticAccountNumber']['value'] = $customVars['AccountNumber'];
-        $this->data['customVars'][$this->type]['DomesticAccountNumber']['group'] = 'bankaccount';            
+        $this->data['customVars'][$this->type]['DomesticAccountNumber']['group'] = 'bankaccount';
          */
         $this->data['customVars'][$this->type]['Collect']['value'] = '1';
         $this->data['customVars'][$this->type]['Collect']['group'] = 'bankaccount';
