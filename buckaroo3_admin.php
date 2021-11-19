@@ -593,34 +593,6 @@ class Buckaroo3Admin
                     ),
                 ),
                 array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_IDIN',
-                    'label'     => $this->module->l('Language'),
-                    'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',//phpcs:ignore
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('Use webshop culture'),
-                            'value' => 'A',
-                        ),
-                        array(
-                            'text'  => $this->module->l('English'),
-                            'value' => 'en',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Dutch'),
-                            'value' => 'nl',
-                        ),
-                        array(
-                            'text'  => $this->module->l('French'),
-                            'value' => 'fr',
-                        ),
-                        array(
-                            'text'  => $this->module->l('German'),
-                            'value' => 'de',
-                        ),
-                    ),
-                ),
-                array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
                     'label'    => $this->module->l('Advanced Configuration'),
