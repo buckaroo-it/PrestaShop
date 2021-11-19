@@ -4,7 +4,7 @@ on:
     types:
       - created
 jobs:
-  svn_sync:
+  pack_on_release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
