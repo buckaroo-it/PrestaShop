@@ -1,0 +1,26 @@
+name: Pack on release
+on:
+  release:
+    types:
+      - created
+jobs:
+  svn_sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Pack on release
+        run: |
+          mkdir -p ~/tmp/buckaroo3
+          rsync -r --exclude='.git' --exclude='.git' --exclude='.idea' ${{ github.workspace }}/ ~/tmp/buckaroo3/
+          cd ~/tmp
+          zip -r buckaroo3.zip buckaroo3
+          unzip -l buckaroo3.zip
+          mv buckaroo3.zip ${{ github.workspace }}/buckaroo3.zip
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/buckaroo3.zip
+          asset_name: buckaroo3.zip
+          tag: ${{ github.ref }}
+          overwrite: true
