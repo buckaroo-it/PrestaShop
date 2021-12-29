@@ -72,6 +72,7 @@
                             <a style="width: 190px"
                                onclick="return confirm('Are you sure want to refund {$payment->amount|escape:'htmlall':'UTF-8'} ?')"
                                class="btn btn-primary btn-block buckaroo_part_refund_link"
+                               data-trxid = "{$payment->transaction_id|escape:'html':'UTF-8'}"
                                href="{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount={$payment->amount|escape:'html':'UTF-8'}">Refund</a>
                         {else}
                             Transaction can't be refunded
@@ -100,7 +101,7 @@
         });
         $('.buckaroo_part_refund_amount').on('change',function(){
             var refund_link = $(this).closest('table').find('.buckaroo_part_refund_link');
-            refund_link.attr('href', "{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id={$payment->transaction_id|escape:'html':'UTF-8'}&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + $(this).val());
+            refund_link.attr('href', "{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id=" + refund_link.data('trxid') + "&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + $(this).val());
             refund_link.attr("onclick", "return confirm('Are you sure want to refund "+ $(this).val() +" ?')")
         });
         {if $buckarooFee != ''}
