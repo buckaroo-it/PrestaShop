@@ -189,10 +189,17 @@ class Buckaroo3 extends PaymentModule
 
     public function addBuckarooIdin()
     {
-        Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "customer` 
+        Db::getInstance()->query('SHOW COLUMNS FROM `'._DB_PREFIX_.'customer` LIKE "buckaroo_idin_%"');
+        if (Db::getInstance()->NumRows() == 0) {
+            Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "customer` 
             ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;");
-        return Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "product` 
+        }
+
+        Db::getInstance()->query('SHOW COLUMNS FROM `'._DB_PREFIX_.'product` LIKE "buckaroo_idin"');
+        if (Db::getInstance()->NumRows() == 0) {
+            Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "product` 
             ADD buckaroo_idin TINYINT(1) NULL;");
+        }
     }
 
     public function createTransactionTable()
