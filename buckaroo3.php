@@ -111,32 +111,32 @@ class Buckaroo3 extends PaymentModule
             $cookie->refundMessage = '';
         }
         $paymentInfo = array();
-        $refunded    = array();
+        $transactionIds = array();
+
         foreach ($payments as $payment) {
-            /* @var $payment OrderPaymentCore */
-            $sql_order = 'SELECT `original_transaction`
-                FROM `' . _DB_PREFIX_ . 'buckaroo_transactions`
-                WHERE `transaction_id` = \'' . pSQL($payment->transaction_id) . '\'';
-            $result_order = Db::getInstance()->getRow($sql_order);
-            if (!empty($result_order["original_transaction"])) {
-                if (empty($refunded[$result_order["original_transaction"]])) {
-                    $refunded[$result_order["original_transaction"]] = 0;
-                }
-                $refunded[$result_order["original_transaction"]] += $payment->amount;
-            }
+            $transactionIds[] = "'".$payment->transaction_id."'";
         }
+        $transactionList = $this->getAllRefundedTransactions($transactionIds);
+
+        $payments = iterator_to_array($payments);
         foreach ($payments as $payment) {
+            $availableAmount = $payment->amount;
+
+            if((float)$payment->amount > 0) {
+                $availableAmount = (float)$payment->amount - $this->getRefundedAmountForTransaction(
+                    $payment->transaction_id,
+                    $payments,
+                    $transactionList
+                );
+            }
             /* @var $payment OrderPaymentCore */
             $paymentInfo[$payment->id] = array(
-                "refunded" => (!empty($refunded[$payment->transaction_id])) ? $refunded[$payment->transaction_id] : 0,
+                "available_amount" =>  number_format($availableAmount, 2)
             );
         }
-
-        $cart        = new Cart($order->id_cart);
-        $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
+        $buckarooFee = $this->getBuckarooFeeByCartId($order->id_cart);
         $currency    = new Currency((int) $order->id_currency);
         $buckarooFee = Tools::displayPrice($buckarooFee, $currency, false);
-
         $this->smarty->assign(
             array(
                 'order'         => $order,
@@ -149,6 +149,66 @@ class Buckaroo3 extends PaymentModule
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
+    }
+    /**
+     * Get all transaction_id grouped by original transaction 
+     *
+     * @param array $transactionIds
+     *
+     * @return array
+     */
+    protected function getAllRefundedTransactions(array $transactionIds)
+    {
+        $transactionIds = implode(",",$transactionIds);
+        $transactions = Db::getInstance()->query(
+            'SELECT `transaction_id`, `original_transaction`
+            FROM `' . _DB_PREFIX_ . 'buckaroo_transactions`
+            WHERE `original_transaction` IN (' . $transactionIds . ')'
+        );
+        
+        $refunds = [];
+        foreach ($transactions as $transaction) {
+            if (!isset($refunds[$transaction['original_transaction']])) {
+                $refunds[$transaction['original_transaction']] = array();
+            }
+            $refunds[$transaction['original_transaction']][] = $transaction['transaction_id'];
+        }
+        return $refunds;
+    }
+    /**
+     * Get refund done for transaction
+     *
+     * @param string $transactionId
+     * @param array $payments
+     * @param array $transactionList
+     *
+     * @return float
+     */
+    public function getRefundedAmountForTransaction(
+        string $transactionId,
+        $payments,
+        array $transactionList
+    )
+    {
+        if (!isset($transactionList[$transactionId])) {
+            return 0;
+        }
+        $refundsDone = [];
+
+        foreach ($payments as $payment) {
+            if (in_array($payment->transaction_id, $transactionList[$transactionId])) {
+                $refundsDone[] = $payment;
+            }
+        }
+
+        return (-1) * array_reduce(
+            $refundsDone,
+            function($carry, $payment) {
+                /** @var OrderPaymentCore $payment */
+                return $carry + (float)$payment->amount;
+            },
+            0
+        );
     }
 
     public function hookDisplayOrderConfirmation(array $params)
