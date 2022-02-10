@@ -107,7 +107,6 @@ class Buckaroo3 extends PaymentModule
         if (!empty($this->context->cookie->refundMessage)) {
             $messages              = $this->context->cookie->refundMessage;
             $messageStatus         = $this->context->cookie->refundStatus;
-            $this->context->$cookie->refundMessage = '';
             $this->context->cookie->__set('refundMessage', null);
             $this->context->cookie->__set('refundStatus', null);
             $this->context->cookie->write();
