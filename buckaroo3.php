@@ -100,15 +100,17 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayAdminOrderMainBottom($params)
     {
-        $cookie        = new Cookie('ps');
         $order         = new Order($params["id_order"]);
         $payments      = $order->getOrderPaymentCollection();
         $messages      = '';
         $messageStatus = 0;
-        if (!empty($cookie->refundMessage)) {
-            $messages              = $cookie->refundMessage;
-            $messageStatus         = $cookie->refundStatus;
-            $cookie->refundMessage = '';
+        if (!empty($this->context->cookie->refundMessage)) {
+            $messages              = $this->context->cookie->refundMessage;
+            $messageStatus         = $this->context->cookie->refundStatus;
+            $this->context->$cookie->refundMessage = '';
+            $this->context->cookie->__set('refundMessage', null);
+            $this->context->cookie->__set('refundStatus', null);
+            $this->context->cookie->write();
         }
         $paymentInfo = array();
         $refunded    = array();
