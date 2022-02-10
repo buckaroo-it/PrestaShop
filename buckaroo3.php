@@ -362,6 +362,9 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
         $this->addBuckarooFeeTable();
 
+        //Cookie SameSite fix
+        Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
+        
         //override
         $this->overrideClasses();
 
