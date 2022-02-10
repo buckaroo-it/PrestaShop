@@ -50,10 +50,16 @@ class Buckaroo3Admin
                             $this->error .= $this->module->l('<b>Wrong file type!</b><br />' . $error);
                         } else {
                             $file_name = $_FILES['BUCKAROO_CERTIFICATE']['name'];
-                            if (move_uploaded_file(
-                                $_FILES['BUCKAROO_CERTIFICATE']['tmp_name'],
-                                _PS_MODULE_DIR_ . $this->module->name . '/certificate/' . $file_name
-                            )
+                            $path = _PS_MODULE_DIR_ . $this->module->name . '/certificate/';
+
+                            if (!is_writable($path)) {
+                                $this->error .= $this->module->l('Cannot save certificate in location '.$path);
+                            } else
+                            if (
+                                move_uploaded_file(
+                                    $_FILES['BUCKAROO_CERTIFICATE']['tmp_name'],
+                                    $path.$file_name
+                                )
                             ) {
                                 Configuration::updateValue('BUCKAROO_CERTIFICATE_FILE', $file_name);
                                 Configuration::updateValue(
@@ -1150,14 +1156,19 @@ class Buckaroo3Admin
         $tx      = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
         $taxes   = array();
         $taxes[] = "No tax";
+        $defaultTaxvalues = [];
+        $defaultTaxvalues[0] = 1;
         foreach ($tx as $t) {
             $taxes[$t["id_tax"]] = $t["name"];
+            $defaultTaxvalues[$t["id_tax"]] = 1;
         }
-        $taxvalues = Configuration::get('BUCKAROO_AFTERPAY_TAXRATE');
-        if (empty($taxvalues)) {
-            $taxvalues = array();
-        } else {
-            $taxvalues = unserialize($taxvalues);
+        $taxvalues = $defaultTaxvalues;
+        $savedtaxvalues = Configuration::get('BUCKAROO_AFTERPAY_TAXRATE');
+        if (!empty($savedtaxvalues)) {
+            $savedtaxvalues = unserialize($savedtaxvalues);
+            if(count($savedtaxvalues)) {
+                $taxvalues = $savedtaxvalues;
+            }
         }
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('AfterPay Settings'),
@@ -1327,11 +1338,13 @@ class Buckaroo3Admin
             ),
         );
 
-        $taxvalues = Configuration::get('BUCKAROO_KLARNA_TAXRATE');
-        if (empty($taxvalues)) {
-            $taxvalues = array();
-        } else {
-            $taxvalues = unserialize($taxvalues);
+        $taxvalues = $defaultTaxvalues;
+        $savedtaxvalues = Configuration::get('BUCKAROO_KLARNA_TAXRATE');
+        if (!empty($savedtaxvalues)) {
+            $savedtaxvalues = unserialize($savedtaxvalues);
+            if(count($savedtaxvalues)) {
+                $taxvalues = $savedtaxvalues;
+            }
         }
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Klarna Pay later (pay) Settings'),

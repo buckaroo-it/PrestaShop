@@ -30,7 +30,7 @@ class Empayment extends PaymentMethod
         //$this->returnUrl = 'http://localhost/trunk/buckarooTest/response.php';
     }
 
-    public function pay()
+    public function pay($customVars = array())
     {
         return null;
     }

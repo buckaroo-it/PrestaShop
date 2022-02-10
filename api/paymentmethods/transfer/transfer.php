@@ -29,7 +29,7 @@ class Transfer extends PaymentMethod
         $this->mode = Config::getMode($this->type);
     }
 
-    public function pay()
+    public function pay($customVars = array())
     {
         return null;
     }

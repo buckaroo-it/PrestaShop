@@ -31,7 +31,7 @@ class DirectDebit extends PaymentMethod
         $this->mode    = Config::getMode('DD');
     }
 
-    public function pay()
+    public function pay($customVars = array())
     {
         return null;
     }

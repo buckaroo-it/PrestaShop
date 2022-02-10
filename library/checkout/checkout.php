@@ -24,6 +24,8 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfacto
 abstract class Checkout
 {
 
+    protected $customVars = array();
+    
     const CHECKOUT_TYPE_PAYPAL          = 'buckaroopaypal';
     const CHECKOUT_TYPE_EMPAYMENT       = 'empayment';
     const CHECKOUT_TYPE_IDEAL           = 'ideal';
