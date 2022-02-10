@@ -19,16 +19,13 @@
         </h3>
     </div>
     {if $messages != ''}
-        <script>
-            $(".bootstrap").after(function () {
+    <div class="card-body">
                 {if $messageStatus == 0}
-                return "<div class='alert alert-danger'>{$messages|escape:'html':'UTF-8'}</div>";
+                <div class='alert alert-danger mb-0'><p class="alert-text">{$messages|escape:'html':'UTF-8'}</p></div>
                 {else}
-                return "<div class='alert alert-success'>{$messages|escape:'html':'UTF-8'}</div>";
+                <div class='alert alert-success mb-0'><p class="alert-text">{$messages|escape:'html':'UTF-8'}</p></div>
                 {/if}
-            });
-
-        </script>
+    </div>
     {/if}
     <div class="card-body">
         <table class="table">
