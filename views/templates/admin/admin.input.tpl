@@ -29,8 +29,8 @@
             <option value="1"
                     {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            {$input.description}{/if}
     </div>
 {elseif $input.type == 'submit'}
     <label>&nbsp;</label>
@@ -48,8 +48,8 @@
                         {if isset($fields_value[$input.name][$option.value])}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
             {/foreach}
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            {$input.description}{/if}
     </div>
 {elseif $input.type == 'select'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>
@@ -60,8 +60,8 @@
                         {if isset($fields_value[$input.name]) && ($fields_value[$input.name] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
             {/foreach}
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            {$input.description}{/if}
     </div>
 {elseif $input.type == 'text'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>
@@ -69,8 +69,8 @@
         <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="text"
                size="{if $input.size}{$input.size|escape:'quotes':'UTF-8'}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
         {if isset($input.required)}<sup>*</sup>{/if}
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            {$input.description}{/if}
     </div>
 {elseif $input.type == 'taxrate'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>

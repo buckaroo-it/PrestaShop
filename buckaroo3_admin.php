@@ -47,13 +47,13 @@ class Buckaroo3Admin
                     } else {
                         if (stripos($_FILES['BUCKAROO_CERTIFICATE']["name"], '.pem', 1) === false) {
                             $error = 'Expected file extension: .pem<br />Get file type: ' . $_FILES['BUCKAROO_CERTIFICATE']["type"] . '<br />Get file name: ' . $_FILES['BUCKAROO_CERTIFICATE']["name"];//phpcs:ignore
-                            $this->error .= $this->module->l('<b>Wrong file type!</b><br />' . $error);
+                            $this->error .= $this->module->l('<b>Wrong file type!</b><br />') . $error;
                         } else {
                             $file_name = $_FILES['BUCKAROO_CERTIFICATE']['name'];
                             $path = _PS_MODULE_DIR_ . $this->module->name . '/certificate/';
 
                             if (!is_writable($path)) {
-                                $this->error .= $this->module->l('Cannot save certificate in location '.$path);
+                                $this->error .= $this->module->l('Cannot save certificate in location ') . $path;
                             } else
                             if (
                                 move_uploaded_file(
@@ -564,17 +564,18 @@ class Buckaroo3Admin
                 ,
                 array(
                     'type'     => 'text',
-                    'label'    => $this->module->l('Return url'),
+                    'label'    => $this->module->l('Push URL'),
                     'name'     => 'BUCKAROO_TRANSACTION_RETURNURL',
                     'size'     => 100,
                     'required' => true,
+                    'description' => $this->module->l('Push URL must be filled in Buckaroo Plaza > My Buckaroo > Websites > Push Settings > Add link to Success/Failure URL.'),
                 )
                 ,
                 array(
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_TRANSACTION_CULTURE',
                     'label'     => $this->module->l('Language'),
-                    'smalltext' => 'Payment engine language. Can be used only English, Dutch, French and German languege.',//phpcs:ignore
+                    'description' => $this->module->l('Payment engine language. Can be used only English, Dutch, French and German language.'),//phpcs:ignore
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('Use webshop culture'),
@@ -602,7 +603,7 @@ class Buckaroo3Admin
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
                     'label'    => $this->module->l('Advanced Configuration'),
-                    'smalltext' => $this->module->l('Advanced settings for the payment plugin'),
+                    'description' => $this->module->l('Advanced settings for the payment plugin'),
                 ),
                 array(
                     'type' => 'hidearea_start',
@@ -612,21 +613,21 @@ class Buckaroo3Admin
                     'name'    => 'BUCKAROO_ORDER_STATE_DEFAULT',
                     'label'   => $this->module->l('Pending payment status'),
                     'options' => $orderStatesPending,
-                    'smalltext' => $this->module->l('This status will be given to orders pending payment.'),
+                    'description' => $this->module->l('This status will be given to orders pending payment.'),
                 ),
                 array(
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_SUCCESS',
                     'label'   => $this->module->l('Payment success status'),
                     'options' => $orderStatesSuccess,
-                    'smalltext' => $this->module->l('This status will be given to orders paid.'),
+                    'description' => $this->module->l('This status will be given to orders paid.'),
                 ),
                 array(
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_FAILED',
                     'label'   => $this->module->l('Payment failed status'),
                     'options' => $orderStatesFailed,
-                    'smalltext' => $this->module->l('This status will be given to unsuccessful orders.'),
+                    'description' => $this->module->l('This status will be given to unsuccessful orders.'),
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -677,7 +678,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_IDIN_MODE',
                     'label'     => $this->module->l('iDIN verification mode'),
-                    'smalltext' => $this->module->l(
+                    'description' => $this->module->l(
                         'iDIN verification mode'
                     ),
                     'options'   => array(
@@ -699,19 +700,19 @@ class Buckaroo3Admin
                     'type'      => 'multiselect',
                     'name'      => 'BUCKAROO_IDIN_CATEGORY',
                     'label'     => $this->module->l('iDIN verification categorys'),
-                    'smalltext' => $this->module->l(
+                    'description' => $this->module->l(
                         'iDIN verification categorys'
                     ),
                     'options'   => $categories
+                ),
+                array(
+                    'type' => 'hidearea_end',
                 ),
                 array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -746,13 +747,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -787,13 +788,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -828,13 +829,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             )
         );
@@ -869,13 +870,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -910,13 +911,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -951,13 +952,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -992,13 +993,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1033,13 +1034,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1074,13 +1075,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1118,7 +1119,7 @@ class Buckaroo3Admin
                     'type'      => 'text',
                     'name'      => 'BUCKAROO_TRANSFER_DATEDUE',
                     'label'     => $this->module->l('Number of days to the date that the order should be payed.'),
-                    'smalltext' => $this->module->l(
+                    'description' => $this->module->l(
                         'This is only for display purposes, to be able to use it in email templates.'
                     ),
                     'size'      => 4,
@@ -1128,7 +1129,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_TRANSFER_SENDMAIL',
                     'label'     => $this->module->l('Send payment email'),
-                    'smalltext' => $this->module->l(
+                    'description' => $this->module->l(
                         'Buckaroo sends an email to the customer with the payment procedures.'
                     ),
                     'options'   => array(
@@ -1143,13 +1144,13 @@ class Buckaroo3Admin
                     ),
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1203,7 +1204,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_AFTERPAY_DEFAULT_VAT',
                     'label'     => $this->module->l('Default product Vat type'),
-                    'smalltext' => $this->module->l('Please select default vat type for your products'),
+                    'description' => $this->module->l('Please select default vat type for your products'),
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('1 = High rate'),
@@ -1231,7 +1232,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_AFTERPAY_WRAPPING_VAT',
                     'label'     => $this->module->l('Vat type for wrapping'),
-                    'smalltext' => $this->module->l('Please select  vat type for wrapping'),
+                    'description' => $this->module->l('Please select  vat type for wrapping'),
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('1 = High rate'),
@@ -1286,13 +1287,13 @@ class Buckaroo3Admin
                     'required'   => true,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1327,13 +1328,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1379,7 +1380,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_KLARNA_DEFAULT_VAT',
                     'label'     => $this->module->l('Default product Vat type'),
-                    'smalltext' => $this->module->l('Please select default vat type for your products'),
+                    'description' => $this->module->l('Please select default vat type for your products'),
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('1 = High rate'),
@@ -1407,7 +1408,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_KLARNA_WRAPPING_VAT',
                     'label'     => $this->module->l('Vat type for wrapping'),
-                    'smalltext' => $this->module->l('Please select  vat type for wrapping'),
+                    'description' => $this->module->l('Please select  vat type for wrapping'),
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('1 = High rate'),
@@ -1465,7 +1466,7 @@ class Buckaroo3Admin
                     'type'      => 'select',
                     'name'      => 'BUCKAROO_KLARNA_BUSINESS',
                     'label'     => $this->module->l('Klarna payment method'),
-                    'smalltext' => $this->module->l('Select which paymethod must be used at Klarna.'),
+                    'description' => $this->module->l('Select which paymethod must be used at Klarna.'),
                     'options'   => array(
                         array(
                             'text'  => $this->module->l('B2C'),
@@ -1478,13 +1479,13 @@ class Buckaroo3Admin
                     ),
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
@@ -1519,13 +1520,13 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
                     'type'     => 'submit',
                     'name'     => 'save_data',
                     'label'    => $this->module->l('Save configuration'),
                     'required' => true,
-                ),
-                array(
-                    'type' => 'hidearea_end',
                 ),
             ),
         );
