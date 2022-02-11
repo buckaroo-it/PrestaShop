@@ -22,124 +22,109 @@ var $bkjq = jQuery.noConflict(true);
 
 $bkjq(function($) {
     $(document).on('click','input[name="payment-option"]', function() {
-        paymentMethodValidation.formPointer = $('#pay-with-' + $(this).attr('id') + '-form form');
-        paymentMethodValidation.methodSelector = $('#pay-with-' + $(this).attr('id') + '-form form').attr('action').split('method=')[1];
-
-        console.log('paymentMethodValidation.methodSelector: ' + paymentMethodValidation.methodSelector);
-
-        $(document).on('submit','pay-with-' + $(this).attr('id') + '-form form',function() {
-            return false;
-        });
+        buckaroo_set_method($(this).attr('id'));
     });
     $('#payment-confirmation button').on('click', function(event){
-
-         paymentMethodValidation.init();
+         paymentMethodValidation.init(event);
     });
+    $(document).on('submit','[id^="pay-with-"] form',function(e) {
+        e.preventDefault;
+        return false;
+    });
+    function buckaroo_set_method(id) {
+        paymentMethodValidation.formPointer = $('#pay-with-' + id + '-form form');
+        paymentMethodValidation.methodSelector = $('#pay-with-' + id + '-form form').attr('action').split('method=')[1];
+    }
+
 });
 var paymentMethodValidation;
 paymentMethodValidation={
     methodSelector: null, // selected method notation from from 'action' attribute
     formPointer:    null, // JS form object pointer
-    requiredAll: function(){
-        var error=0;
-        this.formPointer.find('label.required').parent().nextAll().children().each(function(){
-            if (!validateRequired($(this).val())){
-                $(this).addClass("error");
-                error=1;
-            } else { $(this).removeClass("error"); }
-        });
-        return error;
-    },
+    valid: true,
+    requiredAll: function() {
+        that = this;
+        this.formPointer.find('label.required').parent().nextAll().children().not('.buckaroo-validation-message').each(function() {
 
-    afterpaySepaDirectDebitTrigger: function () {
-        console.log(" In afterpaySepaDirectDebitTrigger.");
-        var error=0;
-        // we validate the inputted date as a whole
-        if ($("#customerbirthdate_d_billing_ssd").val()) {
-            console.log('in date validation');
-            if (!isValidDate($("#customerbirthdate_d_billing_ssd").val() + $("#customerbirthdate_m_billing_ssd").val() + $("#customerbirthdate_y_billing_ssd").val())) {
-                error = 1;
-                $("#afterpay_ssd_date").addClass('error');
-            } else {
-                $("#afterpay_ssd_date").removeClass('error');
+            let invalid = !validateRequired($(this).val());
+            if(invalid === true) {
+                that.valid = false;
             }
+            that.displayMessage($(this), buckarooMessages.validation.required, !invalid);
+        });
+    },
+    displayMessage(element, message, valid) {
+        element.toggleClass("error", !valid);
+        let parent = element.parent();
+        let messageDiv = parent.find('> .buckaroo-validation-message');
+        if(!valid) {
+            if(messageDiv.length) {
+                messageDiv.text(message);
+                return;
+            }
+            parent.append(`<div class="buckaroo-validation-message">${message}</div>`);
         }
-
-        // we check if the agreement checkbox is checked
-        if (!$("#bpe_afterpay_accept_ssd").is(':checked') ){
-            error = 1;
-            $("#bpe_afterpay_accept_ssd").closest('.row').addClass('error');
-        } else { $("#bpe_afterpay_accept_ssd").closest('.row').removeClass('error'); }
-
-        return error;
-
     },
     afterpayDigiTrigger: function () {
-        var error = 0
         // we check the date as whole
         if ($("#customerbirthdate_d_billing_digi").val()) {
-            if (!isValidDate($("#customerbirthdate_d_billing_digi").val() + $("#customerbirthdate_m_billing_digi").val() + $("#customerbirthdate_y_billing_digi").val())) {
-                error = 1;
-                $("#afterpay_digi_date").addClass('error');
-            } else {
-                $("#afterpay_digi_date").removeClass('error');
+            let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_digi").val() + $("#customerbirthdate_m_billing_digi").val() + $("#customerbirthdate_y_billing_digi").val());
+            this.displayMessage($("#customerbirthdate_d_billing_digi"), buckarooMessages.validation.date, !dateInvalid);
+
+            if(dateInvalid === true) {
+                this.valid = false;
+            }
+        }
+        if ($("#customerbirthdate_d_shipping_digi").val()) {
+            let dateInvalidShipping = !isValidDate($("#customerbirthdate_d_shipping_digi").val() + $("#customerbirthdate_m_shipping_digi").val() + $("#customerbirthdate_y_shipping_digi").val());
+            this.displayMessage($("#customerbirthdate_d_shipping_digi"), buckarooMessages.validation.date, !dateInvalidShipping);
+
+            if(dateInvalidShipping === true) {
+                this.valid = false;
             }
         }
         // we check is the agreement checkbox is checked
-        if (!$("#bpe_afterpay_accept_digi").is(':checked') ){
-            error = 1;
-            $("#bpe_afterpay_accept_digi").closest('.row').addClass('error');
-        } else { $("#bpe_afterpay_accept_digi").closest('.row').removeClass('error'); }
+        let invalid = !$("#bpe_afterpay_accept_digi").is(':checked');
+        this.displayMessage($("#bpe_afterpay_accept_digi").closest('.row'), buckarooMessages.validation.agreement, !invalid);
 
-        return error;
+        if(invalid) {
+            this.valid = false;
+        }
     },
     sepaDirectdebitTrigger: function () {
-        var error = 0;
-        if (!validateIBAN($("#bpe_sepadirectdebit_iban").val())) {
-            $("#bpe_sepadirectdebit_iban").addClass("error");
-            error = 1;
-        } else { $("#bpe_sepadirectdebit_iban").removeClass("error"); }
-        return error;
+        let invalid = !validateIBAN($("#bpe_sepadirectdebit_iban").val());
+        this.displayMessage($("#bpe_sepadirectdebit_iban"), buckarooMessages.validation.iban, !invalid);
+        if(invalid) {
+            this.valid = false;
+        }
     },
-    init: function (e) {
-        var error = 0;
+    init: function (e) {  
+        this.valid = true;
+        $('.buckaroo-validation-message').remove();
         // we validate all at the required fields pertaining to a selected method/form
-        error = this.requiredAll();
+       this.requiredAll();
 
         // we validate based on the selected method
         switch (this.methodSelector){
             case 'sepadirectdebit':
-                error = error + this.sepaDirectdebitTrigger();
+               this.sepaDirectdebitTrigger();
+               console.log('sepa', this.valid);
                 break;
             case 'afterpay&service=digi':
-                error = error + this.afterpayDigiTrigger();
-                break;
-            case 'afterpay&service=sepa':
-                error = error + this.afterpaySepaDirectDebitTrigger();
+               this.afterpayDigiTrigger();
                 break;
             default:
         }
-        if (error == 0) {
+        if (this.valid) {
             console.log(this.methodSelector +' is validated!');
             return false;
         } else {
             console.log(this.methodSelector +' is NOT validated!');
-            event.stopPropagation();
+            e.stopPropagation();
             return false;
         }
     }
 };
-
-function showError(id) {
-    if ($("#" + id).css("display") == "none") {
-        $("#" + id).show();
-    }
-}
-function hideError(id) {
-    if ($("#" + id).css("display") == "block") {
-        $("#" + id).hide();
-    }
-}
 
 function validateRequired(value){
     return value.trim().length;

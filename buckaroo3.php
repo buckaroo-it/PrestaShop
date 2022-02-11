@@ -795,6 +795,14 @@ class Buckaroo3 extends PaymentModule
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
             'buckarooFees'    => $this->getBuckarooFees(),
+            'buckarooMessages'=> [
+                "validation" => [
+                    "date"=>$this->l('Please enter correct birthdate date'),
+                    "required"=>$this->l('Field is required'),
+                    "agreement" => $this->l('Please accept licence agreements'),
+                    "iban" => $this->l('A valid IBAN is required'),
+                ]
+            ]
         ]);
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
