@@ -160,6 +160,10 @@ class Buckaroo3 extends PaymentModule
      */
     protected function getAllRefundedTransactions(array $transactionIds)
     {
+        if(empty($transactionIds)){
+            return 0;
+        }
+        
         $transactionIds = implode(",",$transactionIds);
         $transactions = Db::getInstance()->query(
             'SELECT `transaction_id`, `original_transaction`
