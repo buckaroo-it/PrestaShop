@@ -7,3 +7,7 @@ legend.active {
     background-color: #97C600;
     color: white;
 }
+.buckaroo-field-description {
+    font-size: 12px;
+    margin-top: 3px;
+}

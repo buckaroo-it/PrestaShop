@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 {if $input.type == 'mode'}
-    <label>{l s='Mode' mod='buckaroo3'}</label>
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{l s='Mode' mod='buckaroo3'}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="mode" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0" {if $fields_value[$input.name] == 0}selected{/if}>{l s='Live' mod='buckaroo3'}</option>
@@ -21,7 +21,7 @@
         </select>
     </div>
 {elseif $input.type == 'enabled'}
-    <label>{if !empty($input.label)} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{if !empty($input.label)} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="enabledisable" name="{$input.name|escape:'quotes':'UTF-8'}">
             <option value="0"
@@ -29,8 +29,9 @@
             <option value="1"
                     {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
     </div>
 {elseif $input.type == 'submit'}
     <label>&nbsp;</label>
@@ -39,7 +40,7 @@
                value=" {$input.label|escape:'html':'UTF-8'} "/>
     </div>
 {elseif $input.type == 'multiselect'}
-    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <label for="{$input.name|escape:'html':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'html':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}[]" multiple="multiple"
                 style="{if isset($input.height)}height:{$input.height|escape:'quotes':'UTF-8'}px;{/if} width:200px">
@@ -48,11 +49,12 @@
                         {if isset($fields_value[$input.name][$option.value])}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
             {/foreach}
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+           <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
     </div>
 {elseif $input.type == 'select'}
-    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
         <select id="{$input.name|escape:'quotes':'UTF-8'}" class="" name="{$input.name|escape:'quotes':'UTF-8'}">
             {foreach from=$input.options item=option}
@@ -60,17 +62,19 @@
                         {if isset($fields_value[$input.name]) && ($fields_value[$input.name] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
             {/foreach}
         </select>
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        {if isset($input.description)}
+            <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
     </div>
 {elseif $input.type == 'text'}
-    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}{if isset($input.required)} <sup style="color:red">*</sup>{/if}</label>
     <div class="margin-form">
         <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="text"
                size="{if $input.size}{$input.size|escape:'quotes':'UTF-8'}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
-        {if isset($input.required)}<sup>*</sup>{/if}
-        {if isset($input.smalltext)}
-            <small>{$input.smalltext|escape:'html':'UTF-8'}</small>{/if}
+        
+        {if isset($input.description)}
+            <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
     </div>
 {elseif $input.type == 'taxrate'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>
@@ -90,10 +94,17 @@
         </table>
     </div>
 {elseif $input.type == 'certificate'}
-    <label>{$input.label|escape:'html':'UTF-8'}</label>
+    <label for="{$input.name|escape:'html':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
         <input type="file" class="" value="" name="{$input.name|escape:'html':'UTF-8'}"
-               id="{$input.name|escape:'html':'UTF-8'}"/> {if !empty($fields_value[$input.name])}{$fields_value[$input.name]|escape:'html':'UTF-8'}{else}{l s='No file uploaded.' mod='buckaroo3'}{/if}
+               id="{$input.name|escape:'html':'UTF-8'}"/> 
+        <div class="buckaroo-field-description">
+        {if !empty($fields_value[$input.name])}
+            {$fields_value[$input.name]|escape:'html':'UTF-8'}
+        {else}
+            {l s='No file uploaded.' mod='buckaroo3'}
+        {/if}
+        </div>
     </div>
 {elseif $input.type == 'simpletext'}
     <div class="margin-form">
