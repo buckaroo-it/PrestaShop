@@ -337,3 +337,7 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     display: inline-block;
     width: 100%;
 }
+.buckaroo-validation-message {
+    color:#FF0000;
+    margin-top:5px;
+}

@@ -13,22 +13,9 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    
-    <div id="booAfterPayErr_digi" class="alert alert-danger" style="display: none">
-        {l s='You have to fill in all fields properly!' mod='buckaroo3'}
-    </div>
-    <div id="booAfterPayErrTerms_digi" class="alert alert-danger" style="display: none">
-        {l s='Pleace accept AfterPay Terms of Payment' mod='buckaroo3'}
-    </div>
-    <div id="booAfterPayErr_digi_phone_shipping" class="alert alert-danger" style="display: none">
-        {l s='Shippping person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
-    </div>
-    <div id="booAfterPayErr_digi_phone_billing" class="alert alert-danger" style="display: none">
-        {l s='Billing person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
-    </div>
 
     <input type="hidden" name="buckarooKey" value="AFTERPAY">
-    <form name="booAfterPayForm_digi" id="booAfterPayForm_digi"
+    <form class="mb-1" name="booAfterPayForm_digi" id="booAfterPayForm_digi"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
           method="post">
         <input type="hidden" id="phone_afterpay_billing_digi" name="phone_afterpay_billing"
@@ -66,7 +53,6 @@
                 {l s='YYYY' mod='buckaroo3'}
             </div>
         </div>
-
         {if $address_differ == 1}
             <input type="hidden" id="phone_afterpay_shipping_digi" name="phone_afterpay_shipping"
                    value="{$phone_afterpay_shipping|escape:'html':'UTF-8'}"/>
@@ -115,7 +101,7 @@
             </div>
         {/if}
 
-        <div class="row row-padding" style="padding: 25px 0 0 0">
+        <div class="row row-padding" style="margin: 25px 0 0 0">
 
             <!--div class="col-xs-12 hidden"><label class="required"></label></div-->
             <div class="col-xs-1">
@@ -131,7 +117,5 @@
             </div>
         </div>
 
-
-        <br/>
     </form>
 </section>

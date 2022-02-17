@@ -223,19 +223,6 @@
     </div>
     <div rel="booAnimBl" class="booBlAnimCont row" style="display: none;">
         <div class="col-xs-12 col-md-6">
-            <div id="booAfterPayErr_digi" class="alert alert-danger" style="display: none">
-                {l s='You have to fill in all fields properly!' mod='buckaroo3'}
-            </div>
-            <div id="booAfterPayErrTerms_digi" class="alert alert-danger" style="display: none">
-                {l s='Pleace accept AfterPay Terms of Payment' mod='buckaroo3'}
-            </div>
-            <div id="booAfterPayErr_digi_phone_shipping" class="alert alert-danger" style="display: none">
-                {l s='Shippping person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
-            </div>
-            <div id="booAfterPayErr_digi_phone_billing" class="alert alert-danger" style="display: none">
-                {l s='Billing person phone number is incorrect. Please provide 10 digit phone number in your account' mod='buckaroo3'}
-            </div>
-
             <form name="booAfterPayForm_digi" id="booAfterPayForm_digi"
                   action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
                   method="post">
@@ -305,7 +292,7 @@
                 {/if}
                 <br/><br/>
 
-                <div class="row row-padding" style="padding: 25px 0 0 0">
+                <div class="row row-padding" style="margin: 25px 0 0 0">
                     <div class="col-xs-1" style="width: 1%"><input name="bpe_afterpay_accept"
                                                                    id="bpe_afterpay_accept_digi" value="ON"
                                                                    type="checkbox" class="form-control"/></div>
@@ -315,9 +302,6 @@
                                     style="text-decoration: underline">{l s='Ik accepteer de algemene voorwaarden van AfterPay.' mod='buckaroo3'}</a></label>
                     </div>
                 </div>
-
-
-                <br/>
 
                 <div class="row row-padding">
                     <button id="booAfterPaySendBtn_digi" type="button" name="processCarrier"
