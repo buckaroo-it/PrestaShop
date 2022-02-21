@@ -23,7 +23,7 @@ class Config extends ConfigCore
 {
     const NAME        = 'buckaroo3';
     const PLUGIN_NAME = 'Buckaroo Payments';
-    const VERSION     = '3.3.11';
+    const VERSION     = '3.4.0';
     //ATTENTION: If log is enabled it can be potential vulnerability
     const LOG = false;
 
