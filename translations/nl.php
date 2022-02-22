@@ -42,7 +42,8 @@ $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_952bf87c967660b7bbd4e1eb08cefc9
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_eb0f48a107df1a0f343d4cd513b555e6'] = 'Certificaat';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_138aeb4b71aa7abf6ac74286e40dc5e8'] = 'Certificaat thumbprint';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_5644cf961fcd2ff531f9f85edbaba144'] = 'Transactie label';
-$_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_06dc3f24f73027164d2b19556118624e'] = 'Return URL';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_ef7deec1ecefcf540d2adddde6cafddb'] = 'Push URL';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_7798d76858bb8660f348e3c159cc690f'] = 'Push URL moet worden ingevuld in Buckaroo Plaza > Mijn Buckaroo > Websites > Push instellingen > Link toevoegen aan Succes/Failure URL.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_4994a8ffeba4ac3140beb89e8d41f174'] = 'Taal';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_2fece2f1d9bd5f36f843ac92546198bf'] = 'Gebruik taal van de webshop';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_78463a384a5aa4fad5fa73e2f506ecfc'] = 'Engels';

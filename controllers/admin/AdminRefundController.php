@@ -33,12 +33,11 @@ class AdminRefundController extends AdminControllerCore
 
     public function display()
     {
-        return false;
+        return true;
     }
 
     public function refundAction()
     {
-        $cookie = new Cookie('ps');
         $order = new Order(Tools::getValue("id_order"));
         $transactions = $order->getOrderPayments();
         foreach ($transactions as $transaction) {
@@ -60,34 +59,31 @@ class AdminRefundController extends AdminControllerCore
                 $Refunds->returnUrl = '';
                 $response = $Refunds->refund();
                 if ($response && $response->isValid() && $response->hasSucceeded()) {
-                    $cookie->refundStatus = 1;
-                    $cookie->refundMessage = sprintf(
+                    $this->context->cookie->__set('refundStatus', '1');
+                    $this->context->cookie->__set('refundMessage', sprintf(
                         'Refunded %s - Refund transaction ID: %s',
                         $transaction_amount . ' ' . $currency->iso_code,
                         $response->transactions
-                    );
+                    ));
                 } else {
                     if (!empty($response->ChannelError)) {
-                        $cookie->refundStatus = 0;
-                        $cookie->refundMessage = sprintf(
+                        $this->context->cookie->__set('refundStatus', '0');
+                        $this->context->cookie->__set('refundMessage', sprintf(
                             'Refund failed for transaction ID: %s ' . $response->ChannelError,
                             $transaction->transaction_id
-                        );
+                        ));
                     } else {
-                        $cookie->refundStatus = 0;
-                        $cookie->refundMessage = sprintf(
+                        $this->context->cookie->__set('refundStatus', '0');
+                        $this->context->cookie->__set('refundMessage', sprintf(
                             'Refund failed for transaction ID: %s. See error in Buckaroo Payment Plaza',
                             $transaction->transaction_id
-                        );
+                        ));
                     }
                 }
+                $this->context->cookie->write();
             }
         }
-        Tools::redirectAdmin(
-            $this->context->link->getAdminLink('AdminOrders').'&vieworder&id_order='.(int)$order->id."&token=" . Tools::getValue(//phpcs:ignore
-                "admtoken"
-            )
-        );
+        Tools::redirectAdmin('index.php?tab=AdminOrders&id_order=' . (int) $order->id . '&vieworder' . '&token=' . Tools::getAdminTokenLite('AdminOrders').'#formAddPaymentPanel');
         exit();
     }
 }

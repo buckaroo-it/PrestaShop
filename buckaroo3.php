@@ -35,7 +35,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name                   = 'buckaroo3';
         $this->tab                    = 'payments_gateways';
-        $this->version                = '3.3.11';
+        $this->version                = '3.4.0';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
@@ -60,7 +60,7 @@ class Buckaroo3 extends PaymentModule
                     if (isset($response->status) && $response->status > 0) {
                         $this->displayName = $this->getPaymentTranslation($response->payment_method);
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.3.11)');
+                        $this->displayName = $this->l('Buckaroo Payments (v 3.4.0)');
                     }
                 }
             }
@@ -100,43 +100,44 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayAdminOrderMainBottom($params)
     {
-        $cookie        = new Cookie('ps');
         $order         = new Order($params["id_order"]);
         $payments      = $order->getOrderPaymentCollection();
         $messages      = '';
         $messageStatus = 0;
-        if (!empty($cookie->refundMessage)) {
-            $messages              = $cookie->refundMessage;
-            $messageStatus         = $cookie->refundStatus;
-            $cookie->refundMessage = '';
+        if (!empty($this->context->cookie->refundMessage)) {
+            $messages              = $this->context->cookie->refundMessage;
+            $messageStatus         = $this->context->cookie->refundStatus;
+            $this->context->cookie->__set('refundMessage', null);
+            $this->context->cookie->__set('refundStatus', null);
+            $this->context->cookie->write();
         }
         $paymentInfo = array();
-        $refunded    = array();
+        $transactionIds = array();
+
         foreach ($payments as $payment) {
-            /* @var $payment OrderPaymentCore */
-            $sql_order = 'SELECT `original_transaction`
-                FROM `' . _DB_PREFIX_ . 'buckaroo_transactions`
-                WHERE `transaction_id` = \'' . pSQL($payment->transaction_id) . '\'';
-            $result_order = Db::getInstance()->getRow($sql_order);
-            if (!empty($result_order["original_transaction"])) {
-                if (empty($refunded[$result_order["original_transaction"]])) {
-                    $refunded[$result_order["original_transaction"]] = 0;
-                }
-                $refunded[$result_order["original_transaction"]] += $payment->amount;
-            }
+            $transactionIds[] = "'".$payment->transaction_id."'";
         }
+        $transactionList = $this->getAllRefundedTransactions($transactionIds);
+
+        $payments = iterator_to_array($payments);
         foreach ($payments as $payment) {
+            $availableAmount = $payment->amount;
+
+            if((float)$payment->amount > 0) {
+                $availableAmount = (float)$payment->amount - $this->getRefundedAmountForTransaction(
+                    $payment->transaction_id,
+                    $payments,
+                    $transactionList
+                );
+            }
             /* @var $payment OrderPaymentCore */
             $paymentInfo[$payment->id] = array(
-                "refunded" => (!empty($refunded[$payment->transaction_id])) ? $refunded[$payment->transaction_id] : 0,
+                "available_amount" =>  number_format($availableAmount, 2)
             );
         }
-
-        $cart        = new Cart($order->id_cart);
-        $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
+        $buckarooFee = $this->getBuckarooFeeByCartId($order->id_cart);
         $currency    = new Currency((int) $order->id_currency);
         $buckarooFee = Tools::displayPrice($buckarooFee, $currency, false);
-
         $this->smarty->assign(
             array(
                 'order'         => $order,
@@ -149,6 +150,70 @@ class Buckaroo3 extends PaymentModule
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
+    }
+    /**
+     * Get all transaction_id grouped by original transaction 
+     *
+     * @param array $transactionIds
+     *
+     * @return array
+     */
+    protected function getAllRefundedTransactions(array $transactionIds)
+    {
+        if(empty($transactionIds)){
+            return 0;
+        }
+        
+        $transactionIds = implode(",",$transactionIds);
+        $transactions = Db::getInstance()->query(
+            'SELECT `transaction_id`, `original_transaction`
+            FROM `' . _DB_PREFIX_ . 'buckaroo_transactions`
+            WHERE `original_transaction` IN (' . $transactionIds . ')'
+        );
+        
+        $refunds = [];
+        foreach ($transactions as $transaction) {
+            if (!isset($refunds[$transaction['original_transaction']])) {
+                $refunds[$transaction['original_transaction']] = array();
+            }
+            $refunds[$transaction['original_transaction']][] = $transaction['transaction_id'];
+        }
+        return $refunds;
+    }
+    /**
+     * Get refund done for transaction
+     *
+     * @param string $transactionId
+     * @param array $payments
+     * @param array $transactionList
+     *
+     * @return float
+     */
+    public function getRefundedAmountForTransaction(
+        string $transactionId,
+        $payments,
+        array $transactionList
+    )
+    {
+        if (!isset($transactionList[$transactionId])) {
+            return 0;
+        }
+        $refundsDone = [];
+
+        foreach ($payments as $payment) {
+            if (in_array($payment->transaction_id, $transactionList[$transactionId])) {
+                $refundsDone[] = $payment;
+            }
+        }
+
+        return (-1) * array_reduce(
+            $refundsDone,
+            function($carry, $payment) {
+                /** @var OrderPaymentCore $payment */
+                return $carry + (float)$payment->amount;
+            },
+            0
+        );
     }
 
     public function hookDisplayOrderConfirmation(array $params)
@@ -189,10 +254,17 @@ class Buckaroo3 extends PaymentModule
 
     public function addBuckarooIdin()
     {
-        Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "customer` 
+        Db::getInstance()->query('SHOW COLUMNS FROM `'._DB_PREFIX_.'customer` LIKE "buckaroo_idin_%"');
+        if (Db::getInstance()->NumRows() == 0) {
+            Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "customer` 
             ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;");
-        return Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "product` 
+        }
+
+        Db::getInstance()->query('SHOW COLUMNS FROM `'._DB_PREFIX_.'product` LIKE "buckaroo_idin"');
+        if (Db::getInstance()->NumRows() == 0) {
+            Db::getInstance()->execute("ALTER TABLE `" . _DB_PREFIX_ . "product` 
             ADD buckaroo_idin TINYINT(1) NULL;");
+        }
     }
 
     public function createTransactionTable()
@@ -362,6 +434,9 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
         $this->addBuckarooFeeTable();
 
+        //Cookie SameSite fix
+        Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
+        
         //override
         $this->overrideClasses();
 
@@ -795,6 +870,14 @@ class Buckaroo3 extends PaymentModule
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
             'buckarooFees'    => $this->getBuckarooFees(),
+            'buckarooMessages'=> [
+                "validation" => [
+                    "date"=>$this->l('Please enter correct birthdate date'),
+                    "required"=>$this->l('Field is required'),
+                    "agreement" => $this->l('Please accept licence agreements'),
+                    "iban" => $this->l('A valid IBAN is required'),
+                ]
+            ]
         ]);
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
