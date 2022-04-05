@@ -340,7 +340,8 @@ class Buckaroo3Admin
         );
 
         $fields_value['BUCKAROO_TEST']                   = Configuration::get('BUCKAROO_TEST');
-        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ?  
+            Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') : 1;
         $fields_value['BUCKAROO_ORDER_STATE_SUCCESS']    = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
             Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS'):Configuration::get('PS_OS_PAYMENT');
         $fields_value['BUCKAROO_ORDER_STATE_FAILED']    = Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
@@ -479,39 +480,11 @@ class Buckaroo3Admin
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
-        $orderStatesPending = [];
-        $orderStatesSuccess = [];
-        $orderStatesFailed = [];
+        $orderStates = [];
 
         foreach ($orderStatesGet as $o) {
-            if (in_array($o["name"], ['Awaiting for Remote payment', 'Awaiting check payment'])) {
-                $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
-            if (in_array($o["name"], ['On backorder (paid)', 'Payment accepted'])) {
-                $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
-            if (in_array($o["name"], ['Canceled', 'Payment error'])) {
-                $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
+            $orderStates[] = array("text" => $o["name"], "value" => $o["id_order_state"]);;
         }
-
-        $orderStatesPending2 = [];
-        $orderStatesSuccess2 = [];
-        $orderStatesFailed2 = [];
-        foreach ($orderStatesGet as $o) {
-            if (in_array($o["id_order_state"], [14,1])) {
-                $orderStatesPending[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
-            if (in_array($o["id_order_state"], [9,2])) {
-                $orderStatesSuccess[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
-            if (in_array($o["id_order_state"], [6,8])) {
-                $orderStatesFailed[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
-            }
-        }
-        $orderStatesPending = empty($orderStatesPending) ? $orderStatesPending2 : $orderStatesPending;
-        $orderStatesSuccess = empty($orderStatesSuccess) ? $orderStatesSuccess2 : $orderStatesSuccess;
-        $orderStatesFailed = empty($orderStatesFailed) ? $orderStatesFailed2 : $orderStatesFailed;
 
         $fields_form       = array();
         $fields_form[$i++] = array(
@@ -612,21 +585,21 @@ class Buckaroo3Admin
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_DEFAULT',
                     'label'   => $this->module->l('Pending payment status'),
-                    'options' => $orderStatesPending,
+                    'options' => $orderStates,
                     'description' => $this->module->l('This status will be given to orders pending payment.'),
                 ),
                 array(
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_SUCCESS',
                     'label'   => $this->module->l('Payment success status'),
-                    'options' => $orderStatesSuccess,
+                    'options' => $orderStates,
                     'description' => $this->module->l('This status will be given to orders paid.'),
                 ),
                 array(
                     'type'    => 'select',
                     'name'    => 'BUCKAROO_ORDER_STATE_FAILED',
                     'label'   => $this->module->l('Payment failed status'),
-                    'options' => $orderStatesFailed,
+                    'options' => $orderStates,
                     'description' => $this->module->l('This status will be given to unsuccessful orders.'),
                 ),
                 array(
