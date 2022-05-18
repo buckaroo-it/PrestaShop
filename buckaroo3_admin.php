@@ -672,9 +672,9 @@ class Buckaroo3Admin
                 array(
                     'type'      => 'multiselect',
                     'name'      => 'BUCKAROO_IDIN_CATEGORY',
-                    'label'     => $this->module->l('iDIN verification categorys'),
+                    'label'     => $this->module->l('iDIN verification categories'),
                     'description' => $this->module->l(
-                        'iDIN verification categorys'
+                        'iDIN verification categories'
                     ),
                     'options'   => $categories
                 ),
