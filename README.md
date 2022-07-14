@@ -4,6 +4,16 @@
 
 # Buckaroo PrestaShop Payments Plugin
 
+### Index
+- [About](#about)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Contribute](#contribute)
+- [Versioning](#versioning)
+- [Additional information](#additional-information)
+---
+
 ### About
 
 PrestaShop started in 2005 as a student project. It was originally named phpOpenStore.
