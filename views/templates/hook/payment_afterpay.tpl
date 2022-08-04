@@ -100,7 +100,19 @@
                 </div>
             </div>
         {/if}
-
+        {if $afterpay_show_coc}
+            <div class="row row-padding">
+                <div class="col-xs-5">
+                    <label class="required">{l s='CoC-number' mod='buckaroo3'}:</label>
+                </div>
+                <div class="col-xs-4">
+                    <input title="afterpaynew-coc" name="customerafterpaynew-coc"
+                           id="customerafterpaynew-coc" type="text" value="" required
+                           class="form-control" autocomplete="off"/>
+                </div>
+            </div>
+        {/if}
+    
         <div class="row row-padding" style="margin: 25px 0 0 0">
 
             <!--div class="col-xs-12 hidden"><label class="required"></label></div-->

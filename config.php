@@ -25,7 +25,7 @@ class Config extends ConfigCore
     const PLUGIN_NAME = 'Buckaroo Payments';
     const VERSION     = '3.4.0';
     //ATTENTION: If log is enabled it can be potential vulnerability
-    const LOG = false;
+    const LOG = true;
 
     public static function get($key)
     {
