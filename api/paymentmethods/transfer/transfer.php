@@ -39,9 +39,6 @@ class Transfer extends PaymentMethod
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        if (!empty($customVars['CustomerGender'])) {
-            $this->data['customVars'][$this->type]['customergender'] = $customVars['CustomerGender'];
-        }
         if (!empty($customVars['CustomerFirstName'])) {
             $this->data['customVars'][$this->type]['customerFirstName'] = $customVars['CustomerFirstName'];
         }
