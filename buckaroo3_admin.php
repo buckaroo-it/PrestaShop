@@ -268,6 +268,21 @@ class Buckaroo3Admin
                     serialize(Tools::getValue('BUCKAROO_AFTERPAY_TAXRATE'))
                 );
 
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_CUSTOMER_TYPE',
+                    Tools::getValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')
+                );
+
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_B2B_MIN_VALUE',
+                    Tools::getValue('BUCKAROO_AFTERPAY_B2B_MIN_VALUE')
+                );
+
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_B2B_MAX_VALUE',
+                    Tools::getValue('BUCKAROO_AFTERPAY_B2B_MAX_VALUE')
+                );
+
                 Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', Tools::getValue('BUCKAROO_KLARNA_ENABLED'));
                 Configuration::updateValue('BUCKAROO_KLARNA_TEST', Tools::getValue('BUCKAROO_KLARNA_TEST'));
                 Configuration::updateValue('BUCKAROO_KLARNA_LABEL', Tools::getValue('BUCKAROO_KLARNA_LABEL'));
@@ -462,7 +477,11 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
-        $fields_value['BUCKAROO_AFTERPAY_BUSINESS'] = Configuration::get('BUCKAROO_AFTERPAY_BUSINESS');
+        $afterpayCustomerType = Configuration::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+        $fields_value['BUCKAROO_AFTERPAY_CUSTOMER_TYPE'] = strlen($afterpayCustomerType) === 0 ? AfterPay::CUSTOMER_TYPE_BOTH : $afterpayCustomerType;
+
+        $fields_value['BUCKAROO_AFTERPAY_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_AFTERPAY_B2B_MIN_VALUE');
+        $fields_value['BUCKAROO_AFTERPAY_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_AFTERPAY_B2B_MAX_VALUE');
 
         $fields_value['BUCKAROO_KLARNA_ENABLED']      = Configuration::get('BUCKAROO_KLARNA_ENABLED');
         $fields_value['BUCKAROO_KLARNA_TEST']         = Configuration::get('BUCKAROO_KLARNA_TEST');
@@ -1172,6 +1191,42 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_AFTERPAY_FEE',
                     'size'     => 80,
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_AFTERPAY_CUSTOMER_TYPE',
+                    'label'     => $this->module->l('Customer type'),
+                    'description' => $this->module->l('This setting determines whether you accept AfterPay payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Both'),
+                            'value' => 'both',
+                        ),
+                        array(
+                            'text'  => $this->module->l('B2B (Business-to-Business)'),
+                            'value' => 'b2b',
+                        ),
+                        array(
+                            'text'  => $this->module->l('B2C (Business-to-consumer)'),
+                            'value' => 'b2c',
+                        ),
+                    )
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount for B2B'),
+                    'name'     => 'BUCKAROO_AFTERPAY_B2B_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount for B2B'),
+                    'name'     => 'BUCKAROO_AFTERPAY_B2B_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type'      => 'select',

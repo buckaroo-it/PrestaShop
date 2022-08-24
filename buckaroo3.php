@@ -25,6 +25,7 @@ require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.php';
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
@@ -378,7 +379,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_DEFAULT_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize(array()));
-        Configuration::updateValue('BUCKAROO_AFTERPAY_BUSINESS', 'B2C');
+        Configuration::updateValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE', 'both');
 
         Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_KLARNA_TEST', '1');
@@ -549,7 +550,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_BUSINESS');
+        Configuration::deleteByName('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
 
         Configuration::deleteByName('BUCKAROO_KLARNA_ENABLED');
         Configuration::deleteByName('BUCKAROO_KLARNA_TEST');
@@ -662,6 +663,7 @@ class Buckaroo3 extends PaymentModule
                 'phone_afterpay_billing'  => $phone_afterpay_billing,
                 'total'                   => $cart->getOrderTotal(true, 3),
                 'country'                 => Country::getIsoById(Tools::getCountry()),
+                'afterpay_show_coc'  => $this->showAfterpayCoc($cart)
             )
         );
 
@@ -754,7 +756,7 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_transfer.png?vv1');
             $payment_options[] = $newOption;
         }
-        if (Config::get('BUCKAROO_AFTERPAY_ENABLED')) {
+        if (Config::get('BUCKAROO_AFTERPAY_ENABLED') && $this->isAfterpayAvailable($cart)) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY', 'Afterpay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay'])) //phpcs:ignore
@@ -1283,5 +1285,109 @@ class Buckaroo3 extends PaymentModule
         ));
 
         return $this->display(__FILE__, 'views/templates/hook/product_fileds.tpl');
+    }
+
+    /**
+     * Get address by id
+     *
+     * @param mixed $id
+     *
+     * @return Address|null
+     */
+    protected function getAddressById($id)
+    {
+        if (is_int($id)) {
+            return;
+        }
+
+        return new Address($id);
+    }
+    /**
+     * Check if company exists
+     *
+     * @param Address|null $address
+     *
+     * @return bool
+     */
+    protected function companyExists($address)
+    {
+        if ($address === null) {
+            return false;
+        }
+        return strlen(trim($address->company)) !== 0;
+    }
+    public function showAfterpayCoc($cart)
+    {
+        $afterpay_customer_type = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+
+        
+        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
+
+        $billingAddress = $this->getAddressById($idAddressInvoice);
+        $billingCountry = Country::getIsoById($billingAddress->id_country);
+
+        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
+        $shippingCountry = Country::getIsoById($shippingAddress->id_country);
+
+
+        return AfterPay::CUSTOMER_TYPE_B2B ===  $afterpay_customer_type ||
+        (
+            AfterPay::CUSTOMER_TYPE_B2C !==  $afterpay_customer_type &&
+            (
+                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL') ||
+                ($this->companyExists($billingAddress) && $billingCountry === 'NL')
+            )
+        );
+    }
+
+    /**
+     * Check if afterpay available 
+     * 
+     * @param Cart $cart
+     * @return bool
+     */
+    protected function isAfterpayAvailable($cart)
+    {
+        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
+        $billingAddress = $this->getAddressById($idAddressInvoice);
+        $billingCountry = Country::getIsoById($billingAddress->id_country);
+
+        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
+        $shippingCountry = Country::getIsoById($shippingAddress->id_country);
+
+        $customerType = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+        if (AfterPay::CUSTOMER_TYPE_B2C !== $customerType) {
+            $nlCompanyExists = 
+                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL') ||
+                ($this->companyExists($billingAddress) && $billingCountry === 'NL');
+            if (AfterPay::CUSTOMER_TYPE_B2B === $customerType) {
+                return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3)) && $nlCompanyExists;
+            }
+            
+            // both customer types & a company is filled show if available b2b by amount 
+            if ($nlCompanyExists) {
+                return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3));
+            }
+        }
+
+        return true;
+    }
+    /**
+     * Check if payment is available for b2b
+     *
+     * @param float $cartTotal
+     *
+     * @return boolean
+     */
+    public function isAvailableByAmountB2B(float $cartTotal)
+    {
+        $b2bMin = (float)Config::get('BUCKAROO_AFTERPAY_B2B_MIN_VALUE');
+        $b2bMax = (float)Config::get('BUCKAROO_AFTERPAY_B2B_MAX_VALUE');
+
+        if ($b2bMin == 0 && $b2bMax == 0) {
+            return true;
+        }
+        
+        return ($b2bMin > 0 && $cartTotal > $b2bMin) || ($b2bMax > 0 && $cartTotal < $b2bMax);
     }
 }

@@ -59,6 +59,13 @@ class AfterPay extends PaymentMethod
     public $CompanyName;
     public $CostCentre;
     public $VatNumber;
+    public $ShippingCompanyName;
+    public $BillingCompanyName;
+    public $CustomerType;
+
+    public const CUSTOMER_TYPE_B2C = 'b2c';
+    public const CUSTOMER_TYPE_B2B = 'b2b';
+    public const CUSTOMER_TYPE_BOTH = 'both';
 
     public function __construct()
     {
@@ -82,6 +89,8 @@ class AfterPay extends PaymentMethod
         $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
         $this->data['customVars'][$this->type]["Category"][1]["value"] = 'Person';
         $this->data['customVars'][$this->type]["Category"][1]["group"] = 'ShippingCustomer';
+
+        $this->addB2b();
 
         $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingFirstName;
         $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
@@ -262,5 +271,44 @@ class AfterPay extends PaymentMethod
             $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
         }
         return parent::pay();
+    }
+    protected function addB2b()
+    {
+        if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
+            $index = 0;
+            if ($this->BillingCompanyName !== null && $this->BillingCountry === 'NL') {
+
+                $this->data['customVars'][$this->type]["Category"][$index]["value"] = 'Company';
+                $this->data['customVars'][$this->type]["Category"][$index]["group"] = 'BillingCustomer';
+                
+                $this->data['customVars'][$this->type]["CompanyName"][$index]["value"] =  $this->BillingCompanyName;
+                $this->data['customVars'][$this->type]["CompanyName"][$index]["group"] = 'BillingCustomer';
+
+                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["value"] = $this->IdentificationNumber;
+                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["group"] = 'BillingCustomer';
+               $index = 1;
+            }
+    
+            $shippingCompanyName = $this->diffAddress($this->ShippingCompanyName, $this->BillingCompanyName);
+            if ($shippingCompanyName !== null && $this->ShippingCountryCode === 'NL') {
+
+                $this->data['customVars'][$this->type]["Category"][$index]["value"] = 'Company';
+                $this->data['customVars'][$this->type]["Category"][$index]["group"] = 'ShippingCustomer';
+
+                $this->data['customVars'][$this->type]["CompanyName"][$index]["value"] = $shippingCompanyName;
+                $this->data['customVars'][$this->type]["CompanyName"][$index]["group"] = 'ShippingCustomer';
+
+                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["value"] = $this->IdentificationNumber;
+                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["group"] = 'ShippingCustomer';
+
+            }
+        }
+    }
+    private function diffAddress($shippingField, $billingField)
+    {
+        if ($this->AddressesDiffer == 'TRUE') {
+            return $shippingField;
+        }
+        return $billingField;
     }
 }
