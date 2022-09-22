@@ -135,9 +135,6 @@ class IDeal extends PaymentMethod
             case 'MOYONL21':
                 $issuerCode = 'MOYONL21';
                 break;
-            case 'HANDNL2A':
-                $issuerCode = 'HANDNL2A';
-                break;
             case 'REVOLT21':
                 $issuerCode = 'REVOLT21';
                 break;
