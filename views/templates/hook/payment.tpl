@@ -211,8 +211,8 @@
                 <a id="afterpay_enabled_digi"
                    style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/logo_afterpay.jpg)"
                    class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
-                   href="#" title="{l s='Afterpay' mod='buckaroo3'}">
-                    {l s='Afterpay' mod='buckaroo3'}
+                   href="#" title="{l s='Riverty | AfterPay' mod='buckaroo3'}">
+                    {l s='Riverty | AfterPay' mod='buckaroo3'}
                 </a>
             </p>
         </div>

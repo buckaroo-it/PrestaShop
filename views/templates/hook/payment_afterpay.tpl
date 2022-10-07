@@ -21,7 +21,7 @@
         <input type="hidden" id="phone_afterpay_billing_digi" name="phone_afterpay_billing"
                value="{$phone_afterpay_billing|escape:'quotes':'UTF-8'}"/>
 
-            {l s='Please provide additional data for AfterPay.' mod='buckaroo3'}<br/><br/>
+            {l s='Please provide additional data for Riverty | AfterPay.' mod='buckaroo3'}<br/><br/>
             <div class="row row-padding">
                 <div class="col-xs-5"><label class="required">{l s='Invoice person gender' mod='buckaroo3'}
                         :</label></div>
@@ -125,7 +125,7 @@
             <div class="col-xs-11"><label class="required" for="bpe_afterpay_accept" style="display: inline"><a
                             href="https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/"
                             target="_blank"
-                            style="text-decoration: underline">{l s='Ik accepteer de algemene voorwaarden van AfterPay.' mod='buckaroo3'}</a></label>
+                            style="text-decoration: underline">{l s='Ik accepteer de algemene voorwaarden van Riverty | AfterPay.' mod='buckaroo3'}</a></label>
             </div>
         </div>
 
