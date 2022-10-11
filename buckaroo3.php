@@ -758,7 +758,7 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_AFTERPAY_ENABLED') && $this->isAfterpayAvailable($cart)) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY', 'Afterpay'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY', 'Riverty | AfterPay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay'])) //phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay.tpl')) //phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_afterpay.png?vv'); //phpcs:ignore
@@ -944,7 +944,7 @@ class Buckaroo3 extends PaymentModule
                 $payment_method_tr = $this->l('Transfer');
                 break;
             case 'afterpay':
-                $payment_method_tr = $this->l('AfterPay');
+                $payment_method_tr = $this->l('Riverty | AfterPay');
                 break;
             case 'klarna':
                 $payment_method_tr = $this->l('Klarna');

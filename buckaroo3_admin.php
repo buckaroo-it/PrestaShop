@@ -1164,7 +1164,7 @@ class Buckaroo3Admin
             }
         }
         $fields_form[$i++] = array(
-            'legend'  => $this->module->l('AfterPay Settings'),
+            'legend'  => $this->module->l('Riverty | AfterPay Settings'),
             'name'    => 'AFTERPAY',
             'test'    => Configuration::get('BUCKAROO_AFTERPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_AFTERPAY_ENABLED'),
