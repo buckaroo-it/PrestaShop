@@ -22,8 +22,6 @@
                                                class="required-entry form-control">
                         <option value="male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
                         <option value="female">{l s='She/her' mod='buckaroo3'}</option>
-                        <option value="unknown">{l s='They/them' mod='buckaroo3'}</option>
-                        <option value="unknown">{l s='I prefer not to say' mod='buckaroo3'}</option>
                     </select>
                 </div>
         <br/>
