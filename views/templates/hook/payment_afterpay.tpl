@@ -21,8 +21,8 @@
         <input type="hidden" id="phone_afterpay_billing_digi" name="phone_afterpay_billing"
                value="{$phone_afterpay_billing|escape:'quotes':'UTF-8'}"/>
 
-        {l s='Please provide additional data for AfterPay.' mod='buckaroo3'}<br/><br/>
-
+        {l s='Please provide additional data for Riverty | AfterPay.' mod='buckaroo3'}<br/><br/>
+        
         <div class="row row-padding">
             <div class="col-xs-5"><label
                         class="required">{l s='Invoice person date of birth' mod='buckaroo3'} :</label></div>
@@ -76,7 +76,19 @@
                 </div>
             </div>
         {/if}
-
+        {if $afterpay_show_coc}
+            <div class="row row-padding">
+                <div class="col-xs-5">
+                    <label class="required">{l s='CoC-number' mod='buckaroo3'}:</label>
+                </div>
+                <div class="col-xs-4">
+                    <input title="afterpaynew-coc" name="customerafterpaynew-coc"
+                           id="customerafterpaynew-coc" type="text" value="" required
+                           class="form-control" autocomplete="off"/>
+                </div>
+            </div>
+        {/if}
+    
         <div class="row row-padding" style="margin: 25px 0 0 0">
 
             <!--div class="col-xs-12 hidden"><label class="required"></label></div-->
@@ -89,7 +101,7 @@
             <div class="col-xs-11"><label class="required" for="bpe_afterpay_accept" style="display: inline"><a
                             href="https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/"
                             target="_blank"
-                            style="text-decoration: underline">{l s='Ik accepteer de algemene voorwaarden van AfterPay.' mod='buckaroo3'}</a></label>
+                            style="text-decoration: underline">{l s='Ik accepteer de algemene voorwaarden van Riverty | AfterPay.' mod='buckaroo3'}</a></label>
             </div>
         </div>
 

@@ -67,6 +67,8 @@ class AfterPayCheckout extends Checkout
         $this->payment_request->BillingEmail             = !empty($this->customer->email) ? $this->customer->email : '';
         $this->payment_request->BillingLanguage          = $language;
         $this->payment_request->BillingPhoneNumber       = $phone;
+        $this->payment_request->BillingCompanyName       = $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null;
+        $this->payment_request->CustomerType             = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
         $Discount                                        = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
         if ($Discount > 0) {
             $this->payment_request->Discount = round($Discount, 2);
@@ -97,6 +99,7 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
             $this->payment_request->ShippingFirstName          = $this->shipping_address->firstname;
             $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;
+            $this->payment_request->ShippingCompanyName       = $this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null;
             $this->payment_request->ShippingBirthDate         = $ShippingBirthDate;
             $address_components = $this->getAddressComponents($this->shipping_address->address1);//phpcs:ignore
             $this->payment_request->ShippingStreet            = $address_components['street'];
@@ -139,6 +142,12 @@ class AfterPayCheckout extends Checkout
         $customerIdentificationNumber = Tools::getValue("customerIdentificationNumber");
         if (!empty($customerIdentificationNumber)) {
             $this->payment_request->IdentificationNumber = $customerIdentificationNumber;
+        }
+
+        $cocNumber =  Tools::getValue("customerafterpaynew-coc");
+
+        if (!empty($cocNumber) && strlen(trim($cocNumber)) !== 0) {
+            $this->payment_request->IdentificationNumber = $cocNumber;
         }
 
         $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
@@ -190,5 +199,19 @@ class AfterPayCheckout extends Checkout
     protected function initialize()
     {
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_AFTERPAY);
+    }
+    /**
+     * Check if company exists
+     *
+     * @param mixed $company
+     *
+     * @return bool
+     */
+    protected function companyExists($company)
+    {
+        if (!is_string($company)) {
+            return false;
+        }
+        return strlen(trim($company)) !== 0;
     }
 }

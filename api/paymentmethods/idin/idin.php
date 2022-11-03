@@ -53,62 +53,6 @@ class Idin extends PaymentMethod
         return parent::refund();
     }
 
-/*    public static function getIssuerList()
-    {
-        $issuerArray = array(
-            'ABNAMRO'  => array(
-                'name' => 'ABN AMRO',
-                'logo' => 'ABNAMRO.png',
-            ),
-            'ASNBANK'  => array(
-                'name' => 'ASN Bank',
-                'logo' => 'ASNBANK.png',
-            ),
-            'INGBANK'  => array(
-                'name' => 'ING',
-                'logo' => 'ING.png',
-            ),
-            'RABOBANK' => array(
-                'name' => 'Rabobank',
-                'logo' => 'Rabobank.png',
-            ),
-            'SNSBANK'  => array(
-                'name' => 'SNS Bank',
-                'logo' => 'SNS.png',
-            ),
-            'SNSREGIO' => array(
-                'name' => 'RegioBank',
-                'logo' => 'Regiobank.png',
-            ),
-            'TRIODOS'  => array(
-                'name' => 'Triodos Bank',
-                'logo' => 'Triodos.png',
-            ),
-            'LANSCHOT' => array(
-                'name' => 'Van Lanschot',
-                'logo' => 'vanLanschot.png',
-            ),
-            'KNAB'     => array(
-                'name' => 'Knab',
-                'logo' => 'KNAB.png',
-            ),
-            'BUNQ'     => array(
-                'name' => 'Bunq',
-                'logo' => 'Bunq.png',
-            ),
-            'HANDNL2A' => array(
-                'name' => 'Handelsbanken',
-                'logo' => 'Handelsbank.png',
-            ),
-            'REVOLT21' => array(
-                'name' => 'Revolut',
-                'logo' => 'Revolut.png',
-            ),
-        );
-
-        return $issuerArray;
-    }*/
-
     protected function getIssuer($issuer)
     {
         $issuerCode = '';

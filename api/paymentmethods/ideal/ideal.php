@@ -88,10 +88,6 @@ class IDeal extends PaymentMethod
                 'name' => 'Bunq',
                 'logo' => 'Bunq.png',
             ),
-            'HANDNL2A' => array(
-                'name' => 'Handelsbanken',
-                'logo' => 'Handelsbank.png',
-            ),
             'REVOLT21' => array(
                 'name' => 'Revolut',
                 'logo' => 'Revolut.png',
@@ -138,9 +134,6 @@ class IDeal extends PaymentMethod
                 break;
             case 'MOYONL21':
                 $issuerCode = 'MOYONL21';
-                break;
-            case 'HANDNL2A':
-                $issuerCode = 'HANDNL2A';
                 break;
             case 'REVOLT21':
                 $issuerCode = 'REVOLT21';

@@ -76,6 +76,16 @@
             <div class="buckaroo-field-description">{$input.description}</div>
         {/if}
     </div>
+{elseif $input.type == 'number'}
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}{if isset($input.required)} <sup style="color:red">*</sup>{/if}</label>
+    <div class="margin-form">
+        <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'}"{/if} type="number"
+               {if isset($input.step)}step="{$input.step|escape:'html':'UTF-8'}"{/if} {if isset($input.min)}min="{$input.min|escape:'html':'UTF-8'}"{/if} {if isset($input.max)}max="{$input.max|escape:'html':'UTF-8'}"{/if} value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
+        
+        {if isset($input.description)}
+            <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
+    </div>
 {elseif $input.type == 'taxrate'}
     <label>{$input.label|escape:'html':'UTF-8'}</label>
     <div class="margin-form">
