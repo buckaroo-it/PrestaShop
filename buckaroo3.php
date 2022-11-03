@@ -768,7 +768,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA', 'Klarna: Pay later'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])) //phpcs:ignore
-                ->setInputs($this->getBuckarooFeeInputs('KLARNA'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_klarna.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_klarna.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }

@@ -227,16 +227,6 @@
                        value="{$phone_afterpay_billing|escape:'quotes':'UTF-8'}"/>
 
                 <div class="row row-padding">
-                    <div class="col-xs-12"><label class="required">{l s='Invoice person gender' mod='buckaroo3'}
-                            :</label></div>
-                    <div class="col-xs-12"><select name="bpe_afterpay_invoice_person_gender"
-                                                   id="bpe_afterpay_invoice_person_gender_digi"
-                                                   class="required-entry form-control">
-                            <option value="1">{l s='Mr.' mod='buckaroo3'}</option>
-                            <option value="2">{l s='Mrs.' mod='buckaroo3'}</option>
-                        </select></div>
-                </div>
-                <div class="row row-padding">
                     <div class="col-xs-12"><label
                                 class="required">{l s='Invoice person date of birth' mod='buckaroo3'}</label></div>
                     <div class="col-xs-12">
@@ -257,16 +247,6 @@
                 {if $address_differ == 1}
                     <input type="hidden" id="phone_afterpay_shipping_digi" name="phone_afterpay_shipping"
                            value="{$phone_afterpay_shipping|escape:'html':'UTF-8'}"/>
-                    <div class="row row-padding">
-                        <div class="col-xs-12"><label class="required">{l s='Shipping person gender' mod='buckaroo3'}
-                                :</label></div>
-                        <div class="col-xs-12"><select name="bpe_afterpay_shipping_person_gender"
-                                                       id="bpe_afterpay_shipping_person_gender_digi"
-                                                       class="required-entry form-control">
-                                <option value="1">{l s='Mr.' mod='buckaroo3'}</option>
-                                <option value="2">{l s='Mrs.' mod='buckaroo3'}</option>
-                            </select></div>
-                    </div>
                     <div class="row row-padding">
                         <div class="col-xs-12"><label
                                     class="required">{l s='Shipping person date of Birth' mod='buckaroo3'}</label></div>
@@ -510,4 +490,18 @@
             </p>
         </div>
     </div>
+{/if}
+
+{if $klarna_enabled }
+            <div class="row row-padding">
+                <div class="col-xs-12"><label class="required">{l s='Please select gender:' mod='buckaroo3'}
+                        :</label></div>
+                <div class="col-xs-12">                    
+                    <select name="bpe_klarna_person_gender"
+                                               id="bpe_klarna_person_gender"
+                                               class="required-entry form-control">
+                        <option value="male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
+                        <option value="female">{l s='She/her' mod='buckaroo3'}</option>
+                    </select></div>
+            </div>
 {/if}

@@ -43,7 +43,6 @@ class AfterPayCheckout extends Checkout
 
         $language = Language::getIsoById((int) $this->cart->id_lang);
 
-        $this->payment_request->BillingGender    = Tools::getValue("bpe_afterpay_invoice_person_gender");
         $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
         $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
         $this->payment_request->BillingBirthDate = date(
@@ -77,10 +76,6 @@ class AfterPayCheckout extends Checkout
 
         $this->payment_request->AddressesDiffer = 'FALSE';
         if (!empty($this->shipping_address)) {
-            $shippingGender = Tools::getValue("bpe_afterpay_shipping_person_gender");
-            if (!$shippingGender) {
-                $shippingGender = Tools::getValue("bpe_afterpay_invoice_person_gender");
-            }
             $ShippingBirthDate = date(
                 'Y-m-d',
                 strtotime(
@@ -101,7 +96,6 @@ class AfterPayCheckout extends Checkout
             }
 
             $this->payment_request->AddressesDiffer           = 'TRUE';
-            $this->payment_request->ShippingGender            = $shippingGender;
             $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
             $this->payment_request->ShippingFirstName          = $this->shipping_address->firstname;
             $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;

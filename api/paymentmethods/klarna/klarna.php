@@ -146,11 +146,9 @@ class Klarna extends PaymentMethod
         $this->data['customVars'][$this->type]["Email"][1]["value"] = $this->BillingEmail;
         $this->data['customVars'][$this->type]["Email"][1]["group"] = 'ShippingCustomer';
 
-        $this->data['customVars'][$this->type]["Gender"][0]["value"] =
-            ($this->BillingGender) == '1' ? 'male' : 'female';
+        $this->data['customVars'][$this->type]["Gender"][0]["value"] = $this->BillingGender;
         $this->data['customVars'][$this->type]["Gender"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Gender"][1]["value"] =
-            ($this->ShippingGender) == '1' ? 'male' : 'female';
+        $this->data['customVars'][$this->type]["Gender"][1]["value"] = $this->ShippingGender;
         $this->data['customVars'][$this->type]["Gender"][1]["group"] = 'ShippingCustomer';
 
         if (!empty($this->BillingPhoneNumber)) {

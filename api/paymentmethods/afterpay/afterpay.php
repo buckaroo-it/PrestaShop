@@ -21,7 +21,6 @@ require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
 class AfterPay extends PaymentMethod
 {
-    public $BillingGender;
     public $BillingInitials;
     public $BillingFirstName;
     public $BillingLastName;
@@ -37,7 +36,6 @@ class AfterPay extends PaymentMethod
     public $BillingLanguage;
     public $IdentificationNumber;
     public $AddressesDiffer;
-    public $ShippingGender;
     public $ShippingInitials;
     public $ShippingFirstName;
     public $ShippingLastName;
@@ -158,14 +156,7 @@ class AfterPay extends PaymentMethod
             || (!isset($this->ShippingCountryCode)
             && in_array($this->BillingCountry, ['NL', 'BE']))
         ) {
-            // Send parameters (Salutation, BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
-            $this->data['customVars'][$this->type]["Salutation"][0]["value"] =
-                ($this->BillingGender) == '1' ? 'Mr' : 'Mrs';
-            $this->data['customVars'][$this->type]["Salutation"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Salutation"][1]["value"] =
-                ($this->ShippingGender) == '1' ? 'Mr' : 'Mrs';
-            $this->data['customVars'][$this->type]["Salutation"][1]["group"] = 'ShippingCustomer';
-
+            // Send parameters (BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
             $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
             $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
             $this->data['customVars'][$this->type]["BirthDate"][1]["value"] =
@@ -250,7 +241,6 @@ class AfterPay extends PaymentMethod
             $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
             $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
             $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            $this->data['customVars']['notification']['RecipientGender'] = $customVars['Customergender'];
             if (!empty($customVars['Notificationdelay'])) {
                 $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
             }
