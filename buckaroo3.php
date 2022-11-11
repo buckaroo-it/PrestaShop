@@ -295,6 +295,7 @@ class Buckaroo3 extends PaymentModule
             || !$this->createTransactionTable()
             || !$this->registerHook('actionEmailSendBefore')
             || !$this->registerHook('displayPDFInvoice')
+            || !$this->registerHook('displayAdminOrderTop')
         ) {
             return false;
         }
@@ -305,6 +306,9 @@ class Buckaroo3 extends PaymentModule
         $this->registerHook('displayAdminProductsMainStepLeftColumnMiddle');
         $this->registerHook('displayProductExtraContent');
         $this->addBuckarooIdin();
+
+        $this->registerHook('displayAdminOrderTop');
+
 
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
@@ -434,6 +438,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
         Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
         $this->addBuckarooFeeTable();
+        $this->addOrderDataTable();
 
         //Cookie SameSite fix
         Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
@@ -442,6 +447,22 @@ class Buckaroo3 extends PaymentModule
         $this->overrideClasses();
 
         return true;
+    }
+
+    public function hookDisplayAdminOrderTop($params)
+    {
+        if(!isset($params['id_order'])) {
+            return;
+        }
+
+        $this->smarty->assign(array(
+            'orderInTestMode' => $this->getOrderData(
+                (int)$params['id_order'],
+                'order_in_test_mode'
+            ) === "1",
+        ));
+
+        return $this->display(__FILE__, 'views/templates/admin/order_in_test_mode.tpl');
     }
 
     protected function overrideClasses()
@@ -457,6 +478,20 @@ class Buckaroo3 extends PaymentModule
 
         Db::getInstance()->execute($sql);
     }
+
+    /**
+     * Create table to store additional order info
+     *
+     * @return void
+     */
+    protected function addOrderDataTable()
+    {
+        $sql = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "buckaroo_order_data`
+        ( `id` INT NOT NULL AUTO_INCREMENT , `id_order` INT NOT NULL , `key` VARCHAR(255), `value` TEXT,  PRIMARY KEY (id), INDEX (id_order), INDEX (`key`) )";
+
+        Db::getInstance()->execute($sql);
+    }
+
 
     public function uninstall()
     {
@@ -1389,5 +1424,25 @@ class Buckaroo3 extends PaymentModule
         }
         
         return ($b2bMin > 0 && $cartTotal > $b2bMin) || ($b2bMax > 0 && $cartTotal < $b2bMax);
+    }
+
+    /**
+     * Get saved order data
+     *
+     * @param integer $orderId
+     * @param string $key
+     *
+     * @return mixed|null
+     */
+    protected function getOrderData(int $orderId, string $key)
+    {
+        $sql = "SELECT `value` from `" . _DB_PREFIX_
+            . "buckaroo_order_data` WHERE `id_order` = {$orderId} AND `key` = '{$key}'";
+
+        $result = Db::getInstance()->getValue($sql);
+        
+        if($result !== false) {
+            return $result;
+        }
     }
 }
