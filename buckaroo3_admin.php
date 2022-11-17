@@ -1587,7 +1587,7 @@ class Buckaroo3Admin
         );
 
         $fields_form[$i++] = array(
-            'legend'  => $this->module->l('Capayable settings'),
+            'legend'  => $this->module->l('In3 settings'),
             'name'    => 'CAPAYABLE',
             'test'    => Configuration::get('BUCKAROO_CAPAYABLE_TEST'),
             'enabled' => Configuration::get('BUCKAROO_CAPAYABLE_ENABLED'),
