@@ -56,6 +56,15 @@ abstract class PaymentMethod extends BuckarooAbstract
     public $usecreditmanagment = 0;
     protected $data            = array();
 
+
+    public function executeAction($action)
+    {
+        $this->data['services'][$this->type]['action']  = $action;
+        $this->data['services'][$this->type]['version'] = $this->version;
+
+        return $this->payGlobal();
+    }
+
     // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
