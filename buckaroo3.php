@@ -1094,10 +1094,6 @@ class Buckaroo3 extends PaymentModule
             $params['template'] === 'outofstock' ||
             $params['template'] === 'bankwire' ||
             $params['template'] === 'refund') {
-            $order = Order::getByCartId($cart->id);
-            if (!$order) {
-                return true;
-            }
 
             $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
             if ($buckarooFee) {
