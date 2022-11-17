@@ -1070,7 +1070,9 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        if (Order::getByCartId($cart->id)->module !== $this->name) {
+
+        $order = Order::getByCartId($cart->id);
+        if ($order === null || $order->module !== $this->name) {
             return true;
         }
 
