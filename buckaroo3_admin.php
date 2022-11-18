@@ -238,6 +238,26 @@ class Buckaroo3Admin
                     'BUCKAROO_BELFIUS_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_FEE'))
                 );
+
+
+                Configuration::updateValue(
+                    'BUCKAROO_CAPAYABLE_ENABLED',
+                    Tools::getValue('BUCKAROO_CAPAYABLE_ENABLED')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_CAPAYABLE_TEST',
+                    Tools::getValue('BUCKAROO_CAPAYABLE_TEST')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_CAPAYABLE_LABEL',
+                    Tools::getValue('BUCKAROO_CAPAYABLE_LABEL')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_CAPAYABLE_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CAPAYABLE_FEE'))
+                );
+
+
                 Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', Tools::getValue('BUCKAROO_TRANSFER_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_TEST', Tools::getValue('BUCKAROO_TRANSFER_TEST'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', Tools::getValue('BUCKAROO_TRANSFER_LABEL'));
@@ -463,6 +483,13 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BELFIUS_TEST']       = Configuration::get('BUCKAROO_BELFIUS_TEST');
         $fields_value['BUCKAROO_BELFIUS_LABEL']       = Configuration::get('BUCKAROO_BELFIUS_LABEL');
         $fields_value['BUCKAROO_BELFIUS_FEE']       = Configuration::get('BUCKAROO_BELFIUS_FEE');
+
+        $fields_value['BUCKAROO_CAPAYABLE_ENABLED']    = Configuration::get('BUCKAROO_CAPAYABLE_ENABLED');
+        $fields_value['BUCKAROO_CAPAYABLE_TEST']       = Configuration::get('BUCKAROO_CAPAYABLE_TEST');
+        $fields_value['BUCKAROO_CAPAYABLE_LABEL']       = Configuration::get('BUCKAROO_CAPAYABLE_LABEL');
+        $fields_value['BUCKAROO_CAPAYABLE_FEE']       = Configuration::get('BUCKAROO_CAPAYABLE_FEE');
+
+
         $fields_value['BUCKAROO_TRANSFER_ENABLED']         = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
         $fields_value['BUCKAROO_TRANSFER_TEST']            = Configuration::get('BUCKAROO_TRANSFER_TEST');
         $fields_value['BUCKAROO_TRANSFER_LABEL']            = Configuration::get('BUCKAROO_TRANSFER_LABEL');
@@ -1545,6 +1572,47 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BELFIUS_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('In3 settings'),
+            'name'    => 'CAPAYABLE',
+            'test'    => Configuration::get('BUCKAROO_CAPAYABLE_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_CAPAYABLE_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_CAPAYABLE_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_CAPAYABLE_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_CAPAYABLE_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_CAPAYABLE_FEE',
                     'size'     => 80,
                 ),
                 array(
