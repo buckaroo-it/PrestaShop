@@ -16,17 +16,11 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
+//TODO - considering to remove this
 abstract class ConfigCore
 {
-    const WSDL_URL         = 'https://checkout.buckaroo.nl/soap/soap.svc?wsdl';
-    const WSDL_FILE        = '/wsdl/Buckaroo.wsdl';
-    const CHANNEL          = 'Web';
-    const LOCATION         = 'https://checkout.buckaroo.nl/soap/';
-    const LOCATION_TEST    = 'https://testcheckout.buckaroo.nl/soap/';
     const LOG              = false;
     const LOG_DIR          = '/log/';
-    const CERTIFICATE_PATH = 'certificate/';
 
     // @codingStandardsIgnoreStart
     public static function get($key)
@@ -41,12 +35,6 @@ abstract class ConfigCore
                 break;
             case 'BUCKAROO_SECRET_KEY':
                 $value = '';
-                break;
-            case 'BUCKAROO_CERTIFICATE_THUMBPRINT':
-                $value = '';
-                break;
-            case 'BUCKAROO_CERTIFICATE_PATH':
-                $value = "";
                 break;
             case 'CULTURE':
                 $value = 'en-US';
@@ -65,17 +53,5 @@ abstract class ConfigCore
                 break;
         }
         return $value;
-    }
-    // @codingStandardsIgnoreEnd
-
-    public static function getSoftware()
-    {
-        $Software                  = new Software();
-        $Software->PlatformName    = 'API';
-        $Software->PlatformVersion = '1';
-        $Software->ModuleSupplier  = 'Buckaroo';
-        $Software->ModuleName      = 'Plugin';
-        $Software->ModuleVersion   = '0.8';
-        return $Software;
     }
 }

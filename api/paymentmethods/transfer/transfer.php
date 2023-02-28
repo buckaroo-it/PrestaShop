@@ -34,28 +34,27 @@ class Transfer extends PaymentMethod
         return null;
     }
 
+    public function getPayload($customVars)
+    {
+
+        $payload = array(
+                'customer' => [
+                    'firstName' => $customVars['CustomerFirstName'],
+                    'lastName' => $customVars['CustomerLastName']
+                ],
+                'email' => $customVars['CustomerEmail'],
+                'country' => $customVars['CustomerCountry'],
+                'dateDue' =>  $customVars['DateDue'],
+                'sendMail' => $customVars['SendMail']
+        );
+
+        return $payload;
+        
+    }
+
     public function payTransfer($customVars)
     {
-        $this->data['services'][$this->type]['action'] = 'Pay';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        if (!empty($customVars['CustomerFirstName'])) {
-            $this->data['customVars'][$this->type]['customerFirstName'] = $customVars['CustomerFirstName'];
-        }
-        if (!empty($customVars['CustomerLastName'])) {
-            $this->data['customVars'][$this->type]['customerLastName'] = $customVars['CustomerLastName'];
-        }
-        if (!empty($customVars['CustomerEmail'])) {
-            $this->data['customVars'][$this->type]['customeremail'] = $customVars['CustomerEmail'];
-        }
-        if (!empty($customVars['DateDue'])) {
-            $this->data['customVars'][$this->type]['DateDue'] = $customVars['DateDue'];
-        }
-        if (!empty($customVars['CustomerCountry'])) {
-            $this->data['customVars'][$this->type]['customercountry'] = $customVars['CustomerCountry'];
-        }
-        $this->data['customVars'][$this->type]['SendMail'] = $customVars['SendMail'];
-
-        return parent::pay($customVars);
+        $this->payload = $this->getPayload($customVars);
+        return parent::pay();
     }
 }

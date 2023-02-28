@@ -23,6 +23,7 @@ class IDeal extends PaymentMethod
 {
     public $issuer;
     protected $data;
+    protected $payload;
 
     public function __construct()
     {
@@ -36,6 +37,7 @@ class IDeal extends PaymentMethod
     {
         // @codingStandardsIgnoreEnd
         $this->data['customVars'][$this->type]['issuer'] = $this->getIssuer($this->issuer);
+        $this->payload['issuer'] = $this->getIssuer($this->issuer);
 
         return parent::pay();
     }

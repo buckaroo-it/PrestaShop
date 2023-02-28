@@ -1,2 +1,3 @@
-certificate/BuckarooPrivateKey.pem
 /api/log
+/vendor
+composer.lock

@@ -103,19 +103,6 @@
             {/foreach}
         </table>
     </div>
-{elseif $input.type == 'certificate'}
-    <label for="{$input.name|escape:'html':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
-    <div class="margin-form">
-        <input type="file" class="" value="" name="{$input.name|escape:'html':'UTF-8'}"
-               id="{$input.name|escape:'html':'UTF-8'}"/> 
-        <div class="buckaroo-field-description">
-        {if !empty($fields_value[$input.name])}
-            {$fields_value[$input.name]|escape:'html':'UTF-8'}
-        {else}
-            {l s='No file uploaded.' mod='buckaroo3'}
-        {/if}
-        </div>
-    </div>
 {elseif $input.type == 'simpletext'}
     <div class="margin-form">
         {$input.name|escape:'html':'UTF-8'}

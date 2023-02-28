@@ -9,8 +9,6 @@ $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_630f6dc397fe74e52d5189e2c80f282
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_108490afa8365531d5eade07c3cc38f4'] = 'Algemene instellingen';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_929ad41c082b66a221eb5db08b0aa0d0'] = 'Merchant key';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_952bf87c967660b7bbd4e1eb08cefc92'] = 'Secret key';
-$_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_eb0f48a107df1a0f343d4cd513b555e6'] = 'Certificaat';
-$_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_138aeb4b71aa7abf6ac74286e40dc5e8'] = 'Certificaat thumbprint';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_5644cf961fcd2ff531f9f85edbaba144'] = 'Transactie label';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_ef7deec1ecefcf540d2adddde6cafddb'] = 'Push URL';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_admin_7798d76858bb8660f348e3c159cc690f'] = 'Push URL moet worden ingevuld in Buckaroo Plaza > Mijn Buckaroo > Websites > Push instellingen > Link toevoegen aan Succes/Failure URL.';

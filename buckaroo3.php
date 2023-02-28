@@ -20,7 +20,7 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
+require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
@@ -40,7 +40,7 @@ class Buckaroo3 extends PaymentModule
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => '1.7');
+        $this->ps_versions_compliancy = array('min' => '1.', 'max' => '9.0');
 
         parent::__construct();
 
@@ -49,23 +49,27 @@ class Buckaroo3 extends PaymentModule
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder       = 'buckaroo3';
-
+        
         $response = ResponseFactory::getResponse();
-        if ($response->isValid()) {
-            if ($response->brq_transaction_type == 'I150') {
-                $this->displayName = 'Group transaction';
-            } else {
-                if ($response->hasSucceeded()) {
-                    $this->displayName = $response->payment_method;
+        if($response){
+            if ($response->isValid()) {
+                if ($response->brq_transaction_type == 'I150') {
+                    $this->displayName = 'Group transaction';
                 } else {
-                    if (isset($response->status) && $response->status > 0) {
-                        $this->displayName = $this->getPaymentTranslation($response->payment_method);
+                    if ($response->hasSucceeded()) {
+                        $this->displayName = $response->payment_method;
                     } else {
-                        $this->displayName = $this->l('Buckaroo Payments (v 3.4.0)');
+                        if (isset($response->status) && $response->status > 0) {
+                            $this->displayName = $this->getPaymentTranslation($response->payment_method);
+                        } else {
+                            $this->displayName = $this->l('Buckaroo Payments (v 3.4.0)');
+                        }
                     }
                 }
             }
         }
+        
+
 
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY') ||
             !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ||
@@ -280,7 +284,6 @@ class Buckaroo3 extends PaymentModule
         return Db::getInstance()->execute($sql);
     }
 
-// this also works, and is more future-proof
     public function install()
     {
         if (!parent::install() || !$this->registerHook('payment') || !$this->registerHook(
@@ -312,27 +315,13 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_TEST', '1');
         Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
         Configuration::updateValue('BUCKAROO_SECRET_KEY', '');
-        Configuration::updateValue('BUCKAROO_CERTIFICATE', '');
-        Configuration::updateValue('BUCKAROO_CERTIFICATE_FILE', '');
-        Configuration::updateValue('BUCKAROO_CERTIFICATE_THUMBPRINT', '');
         Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', '');
         Configuration::updateValue('BUCKAROO_TRANSACTION_FEE', '');
         Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
         Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', '');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', '1');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', '');
-        Configuration::updateValue('BUCKAROO_EMPAYMENT_FEE', '');
-        Configuration::updateValue('BUCKAROO_DD_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_DD_TEST', '1');
-        Configuration::updateValue('BUCKAROO_DD_LABEL', '');
-        Configuration::updateValue('BUCKAROO_DD_FEE', '');
-        Configuration::updateValue('BUCKAROO_DD_USECREDITMANAGMENT', 'No');
-        Configuration::updateValue('BUCKAROO_DD_INVOICEDELAY', '0');
-        Configuration::updateValue('BUCKAROO_DD_DATEDUE', '0');
-        Configuration::updateValue('BUCKAROO_DD_MAXREMINDERLEVEL', '4');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_IDEAL_LABEL', '');
@@ -395,10 +384,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', '');
 
 
-        Configuration::updateValue('BUCKAROO_CAPAYABLE_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_CAPAYABLE_TEST', '1');
-        Configuration::updateValue('BUCKAROO_CAPAYABLE_LABEL', '');
-        Configuration::updateValue('BUCKAROO_CAPAYABLE_FEE', '');
+        Configuration::updateValue('BUCKAROO_IN3_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_IN3_TEST', '1');
+        Configuration::updateValue('BUCKAROO_IN3_LABEL', '');
+        Configuration::updateValue('BUCKAROO_IN3_FEE', '');
 
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
@@ -482,28 +471,13 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_TEST');
         Configuration::deleteByName('BUCKAROO_MERCHANT_KEY');
         Configuration::deleteByName('BUCKAROO_SECRET_KEY');
-        Configuration::deleteByName('BUCKAROO_CERTIFICATE');
-        Configuration::deleteByName('BUCKAROO_CERTIFICATE_FILE');
-        Configuration::deleteByName('BUCKAROO_CERTIFICATE_THUMBPRINT');
         Configuration::deleteByName('BUCKAROO_TRANSACTION_LABEL');
         Configuration::deleteByName('BUCKAROO_TRANSACTION_FEE');
         //paypal
         Configuration::deleteByName('BUCKAROO_PAYPAL_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYPAL_TEST');
-        //empayment
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_ENABLED');
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_TEST');
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_LABEL');
-        Configuration::deleteByName('BUCKAROO_EMPAYMENT_FEE');
-        //directdebit
-        Configuration::deleteByName('BUCKAROO_DD_ENABLED');
-        Configuration::deleteByName('BUCKAROO_DD_TEST');
-        Configuration::deleteByName('BUCKAROO_DD_LABEL');
-        Configuration::deleteByName('BUCKAROO_DD_FEE');
-        Configuration::deleteByName('BUCKAROO_DD_USECREDITMANAGMENT');
-        Configuration::deleteByName('BUCKAROO_DD_INVOICEDELAY');
-        Configuration::deleteByName('BUCKAROO_DD_DATEDUE');
-        Configuration::deleteByName('BUCKAROO_DD_MAXREMINDERLEVEL');
+
         //sepadirectdebit
         Configuration::deleteByName('BUCKAROO_SDD_ENABLED');
         Configuration::deleteByName('BUCKAROO_SDD_TEST');
@@ -576,10 +550,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_APPLEPAY_LABEL');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_FEE');
 
-        Configuration::deleteByName('BUCKAROO_CAPAYABLE_ENABLED');
-        Configuration::deleteByName('BUCKAROO_CAPAYABLE_TEST');
-        Configuration::deleteByName('BUCKAROO_CAPAYABLE_LABEL');
-        Configuration::deleteByName('BUCKAROO_CAPAYABLE_FEE');
+        Configuration::deleteByName('BUCKAROO_IN3_ENABLED');
+        Configuration::deleteByName('BUCKAROO_IN3_TEST');
+        Configuration::deleteByName('BUCKAROO_IN3_LABEL');
+        Configuration::deleteByName('BUCKAROO_IN3_FEE');
 
         return true;
     }
@@ -741,6 +715,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('CREDITCARD', 'Pay by Creditcards'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
                 ->setInputs($this->getBuckarooFeeInputs('CREDITCARD'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_creditcard.tpl')) //phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_cc.png?v');
             $payment_options[] = $newOption;
         }
@@ -778,7 +753,7 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_KLARNA_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA', 'Klarna: Pay later'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA', 'KlarnaKP'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])) //phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_klarna.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_klarna.png?v'); //phpcs:ignore
@@ -794,13 +769,13 @@ class Buckaroo3 extends PaymentModule
         }
 
 
-        if (Config::get('BUCKAROO_CAPAYABLE_ENABLED') && $this->isCapayableAvailable($cart)) {
+        if (Config::get('BUCKAROO_IN3_ENABLED') && $this->isIn3Available($cart)) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('CAPAYABLE', 'In3'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'capayable'])) //phpcs:ignore
-                ->setInputs($this->getBuckarooFeeInputs('CAPAYABLE'))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_capayable.tpl')) //phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_capayable.png?v'); //phpcs:ignore
+            $newOption->setCallToActionText($this->getBuckarooLabel('IN3', 'In3'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'in3'])) //phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('IN3'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_in3.tpl')) //phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_in3.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }
         return $payment_options;
@@ -812,8 +787,8 @@ class Buckaroo3 extends PaymentModule
             return;
         }
 
-        if (Tools::getValue("responce_received")) {
-            switch (Tools::getValue("responce_received")) {
+        if (Tools::getValue("response_received")) {
+            switch (Tools::getValue("response_received")) {
                 case 'transfer':
                     $order   = new Order(Tools::getValue('id_order'));
                     $price   = $order->getOrdersTotalPaid();
@@ -981,7 +956,7 @@ class Buckaroo3 extends PaymentModule
             case 'applepay':
                 $payment_method_tr = $this->l('Apple Pay');
                 break;
-            case 'capayable':
+            case 'in3':
                 $payment_method_tr = $this->l('In3');
                 break;
             default:
@@ -989,27 +964,6 @@ class Buckaroo3 extends PaymentModule
                 break;
         }
         return $payment_method_tr;
-    }
-
-    public static function cleanUpPhone($phone)
-    {
-        $phone = preg_replace('/[^0-9]/', '', $phone);
-
-        if (Tools::substr($phone, 0, 3) == '316' || Tools::substr($phone, 0, 5) == '00316' || Tools::substr(
-            $phone,
-            0,
-            6
-        ) == '003106' || Tools::substr($phone, 0, 2) == '06'
-        ) {
-            if (Tools::substr($phone, 0, 6) == '003106') {
-                $phone = substr_replace($phone, '00316', 0, 6);
-            }
-            $response = array('type' => 'mobile', 'phone' => $phone);
-        } else {
-            $response = array('type' => 'landline', 'phone' => $phone);
-        }
-
-        return $response;
     }
 
     public function getBuckarooLabel($method, $label)
@@ -1434,13 +1388,13 @@ class Buckaroo3 extends PaymentModule
     }
 
     /**
-     * Is capayable available 
+     * Is in3 available 
      *
      * @param Cart $cart
      *
      * @return boolean
      */
-    protected function isCapayableAvailable($cart)
+    protected function isIn3Available($cart)
     {
         return $this->getBillingCountryIso($cart) === 'NL';
     }

@@ -27,4 +27,31 @@ class BuckarooPayPal extends PaymentMethod
         $this->version = 1;
         $this->mode = Config::getMode($this->type);
     }
+
+    public function getPayload($data)
+    {
+        $payload = [
+            'customer' => [
+                'name' => $data['customer_name'],
+            ],
+            'address' => [
+                'street' => $data['address']['street'],
+                'street2' => $data['address']['street2'],
+                'city' => $data['address']['city'],
+                'state' => $data['address']['state'],
+                'zipcode' => $data['address']['zipcode'],
+                'country' => $data['address']['country']
+            ],
+            'phone' => [
+                'mobile' => $data['phone']
+            ],
+        ];
+        return $payload;
+    }
+
+    public function pay($customVars = array())
+    {
+        $this->payload = $this->getPayload($customVars);
+        return parent::executeCustomPayAction('extraInfo');
+    }
 }

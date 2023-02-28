@@ -37,9 +37,29 @@ class SepaDirectDebit extends PaymentMethod
         return null;
     }
 
-    public function payDirectDebit($customVars)
+    public function getPayload($customVars)
     {
 
+        $payload = array(
+                        'iban'              => $this->CustomerIBAN,
+                        'bic'               => $this->CustomerBIC,
+                        'collectdate'       => date("d-m-Y"),
+                        //'mandateReference'  => '1DCtestreference',
+                        //'mandateDate'       => $customVars['DateDue'],
+                        'customer'      => [
+                            'name'          => $this->customeraccountname
+                        ]
+        );
+
+        return $payload;
+        
+    }
+    
+    public function payDirectDebit($customVars)
+    {
+        $this->payload = $this->getPayload($customVars);
+        return parent::pay();
+        /*
         $this->data['customVars'][$this->type]['customeraccountname'] = $this->customeraccountname;
         $this->data['customVars'][$this->type]['CustomerBIC'] = $this->CustomerBIC;
         $this->data['customVars'][$this->type]['CustomerIBAN'] = $this->CustomerIBAN;
@@ -87,5 +107,6 @@ class SepaDirectDebit extends PaymentMethod
         }
         
         return parent::pay();
+        */
     }
 }

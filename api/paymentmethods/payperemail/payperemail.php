@@ -54,7 +54,7 @@ class PayPerEmail extends PaymentMethod
         }
 
         $this->data['currency']     = $this->currency;
-        $this->data['amountDebit']  = $this->amountDedit;
+        $this->data['amountDebit']  = $this->amountDebit;
         $this->data['amountCredit'] = $this->amountCredit;
         $this->data['invoice']      = $this->invoiceId;
         $this->data['order']        = $this->orderId;
@@ -106,7 +106,7 @@ class PayPerEmail extends PaymentMethod
             }
         }
 
-        $soap = new Soap($this->data);
+        //$soap = new Soap($this->data);
 
         return ResponseFactory::getResponse($soap->transactionRequest());
     }

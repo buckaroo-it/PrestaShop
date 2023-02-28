@@ -19,50 +19,37 @@
 
 require_once dirname(__FILE__) . '/../../library/logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
-require_once dirname(__FILE__) . '/../soap.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
+require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
+use Buckaroo\BuckarooClient;
 
 abstract class PaymentMethod extends BuckarooAbstract
 {
-    //put your code here
     protected $type;
-
-    /**
-     * @param mixed $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
     public $currency;
-    public $amountDedit;
+    public $amountDebit;
     public $amountCredit = 0;
     public $orderId;
     public $invoiceId;
     public $description;
     public $OriginalTransactionKey;
     public $returnUrl;
+    public $pushUrl;
     public $mode;
     public $version;
     public $usecreditmanagment = 0;
     protected $data            = array();
+    protected $payload         = array();
 
 
-    public function executeAction($action)
+    public function getBuckarooClient()
     {
-        $this->data['services'][$this->type]['action']  = $action;
-        $this->data['services'][$this->type]['version'] = $this->version;
+      return new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'), $this->mode);
+    }
 
-        return $this->payGlobal();
+    public function executeCustomPayAction($action)
+    {
+        return $this->payGlobal($action);
     }
 
     // @codingStandardsIgnoreStart
@@ -83,18 +70,21 @@ abstract class PaymentMethod extends BuckarooAbstract
         return $this->refundGlobal();
     }
 
-    public function payGlobal()
+    public function payGlobal($customPayAction = null)
     {
-        $this->data['currency']     = $this->currency;
-        $this->data['amountDebit']  = $this->amountDedit;
-        $this->data['amountCredit'] = $this->amountCredit;
-        $this->data['invoice']      = $this->invoiceId;
-        $this->data['order']        = $this->orderId;
-        $this->data['description']  = $this->description;
-        $this->data['returnUrl']    = $this->returnUrl;
-        $this->data['mode']         = $this->mode;
-        $soap                       = new Soap($this->data);
-        return ResponseFactory::getResponse($soap->transactionRequest());
+        (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
+        $this->payload['currency']     = $this->currency;
+        $this->payload['amountDebit']  = $this->amountDebit;
+        $this->payload['invoice']      = $this->invoiceId;
+        $this->payload['order']        = $this->orderId;
+        $this->payload['returnURL']    = $this->returnUrl;
+        $this->payload['pushURL']      = $this->pushUrl;
+
+        $buckaroo = $this->getBuckarooClient();
+        //Pay
+        $response = $buckaroo->method($this->type)->$payAction($this->payload);
+
+       return ResponseFactory::getResponse($response);
     }
 
     public function refundGlobal()
@@ -117,49 +107,21 @@ abstract class PaymentMethod extends BuckarooAbstract
         }
 
         $this->data['currency']               = $this->currency;
-        $this->data['amountDebit']            = $this->amountDedit;
+        $this->data['amountDebit']            = $this->amountDebit;
         $this->data['amountCredit']           =
-            Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
+        Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
         $this->data['invoice']                = $this->invoiceId;
         $this->data['order']                  = $this->orderId;
         $this->data['description']            = $this->description;
-        $this->data['OriginalTransactionKey'] = $this->OriginalTransactionKey;
-        $this->data['returnUrl']              = $this->returnUrl;
+        $this->data['originalTransactionKey'] = $this->OriginalTransactionKey;
+        $this->data['returnURL']              = $this->returnUrl;
+        //$this->data['pushURL']                = $this->pushUrl;
         $this->data['mode']                   = $this->mode;
-        $soap                                 = new Soap($this->data);
-        return ResponseFactory::getResponse($soap->transactionRequest());
-    }
+        $buckaroo = $this->getBuckarooClient();
+        //Refund
+        $response = $buckaroo->method($this->type)->refund($this->data);
 
-    public static function isIBAN($iban)
-    {
-        // Normalize input (remove spaces and make upcase)
-        $iban = Tools::strtoupper(str_replace(' ', '', $iban));
-
-        if (preg_match('/^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$/', $iban)) {
-            $country = Tools::substr($iban, 0, 2);
-            $check   = (int) (Tools::substr($iban, 2, 2));
-            $account = Tools::substr($iban, 4);
-
-            // To numeric representation
-            $search  = range('A', 'Z');
-            $replace = array();
-            foreach (range(10, 35) as $tmp) {
-                $replace[] = (string) ($tmp);
-            }
-            $numstr = str_replace($search, $replace, $account . $country . '00');
-
-            // Calculate checksum
-            $checksum = (int) (Tools::substr($numstr, 0, 1));
-            for ($pos = 1; $pos < Tools::strlen($numstr); $pos++) {
-                $checksum *= 10;
-                $checksum += (int) (Tools::substr($numstr, $pos, 1));
-                $checksum %= 97;
-            }
-
-            return ((98 - $checksum) == $check);
-        } else {
-            return false;
-        }
+        return ResponseFactory::getResponse($response);
     }
 
     // @codingStandardsIgnoreStart
@@ -171,7 +133,12 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $this->data['returnUrl']    = $this->returnUrl;
         $this->data['mode']         = $this->mode;
-        $soap                       = new Soap($this->data);
-        return ResponseFactory::getResponse($soap->dataRequest());
+
+        $buckaroo = $this->getBuckarooClient();
+        //Verify
+        $response = $buckaroo->method('idin')->identify([
+            'issuer' => $this->data['issuer']
+        ]);
+        return ResponseFactory::getResponse($response);
     }
 }

@@ -17,62 +17,43 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-require_once dirname(__FILE__) . '/buckaroopaypal/paypalresponse.php';
-require_once dirname(__FILE__) . '/ideal/idealresponse.php';
 require_once dirname(__FILE__) . '/idin/idinresponse.php';
-require_once dirname(__FILE__) . '/transfer/transferresponse.php';
-require_once dirname(__FILE__) . '/creditcard/creditcardresponse.php';
-require_once dirname(__FILE__) . '/giftcard/giftcardresponse.php';
 require_once dirname(__FILE__) . '/responsedefault.php';
+require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
+use Buckaroo\BuckarooClient;
+use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\Transaction\Response\TransactionResponse;
+
 
 class ResponseFactory
 {
-    final private static function getPaymentMethod($data = null)
+    final public static function getResponse($transactionResponse = null)
     {
-        $paymentMethod = 'default';
 
-        if (!is_null($data) && ($data[0] != false)) {
-            if (!empty($data[0]->ServiceCode)) {
-                $paymentMethod = $data[0]->ServiceCode;
+        if($transactionResponse != null) {
+            //print_r($transactionResponse);
+            //exit;
+            $data = $transactionResponse->data();
+
+            if(isset($data['Services'][0]['Name']))
+            {
+                $paymentmethod = $data['Services'][0]['Name'];
+            }elseif(!empty($data['ServiceCode'])) {
+                $paymentmethod = $data['ServiceCode'];
+            }else{
+                $paymentmethod = null;
             }
+        } elseif(isset($_POST['brq_payment_method'])) {
+            $paymentmethod = $_POST['brq_payment_method'];
         } else {
-            if (Tools::getValue('brq_payment_method')) {
-                $paymentMethod = Tools::getValue('brq_payment_method');
-            } elseif (Tools::getValue('brq_primary_service')) {
-                $paymentMethod = Tools::getValue('brq_primary_service');
-            } else {
-                if (Tools::getValue('brq_transaction_method')) {
-                    $paymentMethod = Tools::getValue('brq_transaction_method');
-                }
-            }
+            $paymentmethod = null;
         }
-        return $paymentMethod;
-    }
-
-    //If $data is not null - SOAP response, otherwise HTTP response
-    final public static function getResponse($data = null)
-    {
-        $paymentmethod = self::getPaymentMethod($data);
-
+        
         switch ($paymentmethod) {
-            case 'paypal':
-                return new PayPalResponse($data);
-            case 'ideal':
-                return new IdealResponse($data);
-            case 'transfer':
-                return new TransferResponse($data);
             case 'IDIN':
-                return new IdinResponse($data);
+                return new IdinResponse($transactionResponse);
             default:
-                if (stripos(Config::get('BUCKAROO_CREDITCARD_CARDS'), $paymentmethod) !== false) {
-                    return new CreditCardResponse($data);
-                } else {
-                    if (stripos(Config::get('BUCKAROO_GIFTCARD_CARDS'), $paymentmethod) !== false) {
-                        return new GiftCardResponse($data);
-                    } else {
-                        return new ResponseDefault($data);
-                    }
-                }
+                return new ResponseDefault($transactionResponse);
                 break;
         }
     }

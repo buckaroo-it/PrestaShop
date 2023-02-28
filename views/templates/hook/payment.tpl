@@ -500,8 +500,8 @@
                     <select name="bpe_klarna_person_gender"
                                                id="bpe_klarna_person_gender"
                                                class="required-entry form-control">
-                        <option value="male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
-                        <option value="female">{l s='She/her' mod='buckaroo3'}</option>
+                        <option value="1" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
+                        <option value="2">{l s='She/her' mod='buckaroo3'}</option>
                     </select></div>
             </div>
 {/if}

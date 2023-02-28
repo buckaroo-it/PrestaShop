@@ -25,15 +25,21 @@ class ApplePay extends PaymentMethod
     {
         $this->type    = "applepay";
         $this->version = 1;
-        $this->mode    = Config::getMode("applepay");
+        $this->mode    = Config::getMode($this->type);
+    }
+
+    public function getPayload()
+    {
+        $payload = [
+            'servicesSelectableByClient'=> $this->type,
+            'continueOnIncomplete'=> '1'
+        ];
+        return $payload;
     }
 
     public function pay($customVars = array())
     {
-        $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
-        $this->data['customVars']['servicesSelectableByClient'] = 'applepay';
-        $this->data['customVars']['ServicesExcludedForClient'] = null;
-
-        return parent::pay($customVars);
+        $this->payload = $this->getPayload();
+        return parent::executeCustomPayAction('payRedirect');
     }
 }

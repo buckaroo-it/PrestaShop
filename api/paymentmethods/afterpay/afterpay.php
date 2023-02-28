@@ -19,9 +19,10 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
+use Buckaroo\Resources\Constants\RecipientCategory;
+
 class AfterPay extends PaymentMethod
 {
-    public $BillingInitials;
     public $BillingFirstName;
     public $BillingLastName;
     public $BillingBirthDate;
@@ -33,7 +34,6 @@ class AfterPay extends PaymentMethod
     public $BillingCountry;
     public $BillingEmail;
     public $BillingPhoneNumber;
-    public $BillingLanguage;
     public $IdentificationNumber;
     public $AddressesDiffer;
     public $ShippingInitials;
@@ -48,14 +48,11 @@ class AfterPay extends PaymentMethod
     public $ShippingCountryCode;
     public $ShippingEmail;
     public $ShippingPhoneNumber;
-    public $ShippingLanguage;
     public $ShippingCosts;
     public $ShippingCostsTax;
     public $CustomerIPAddress;
-    public $Accept;
     public $CompanyCOCRegistration;
     public $CompanyName;
-    public $CostCentre;
     public $VatNumber;
     public $ShippingCompanyName;
     public $BillingCompanyName;
@@ -79,117 +76,63 @@ class AfterPay extends PaymentMethod
         return null;
     }
 
-    public function payAfterpay($products = array(), $customVars = array())
+    public function payAfterpay($products, $customVars = array())
     {
-        $itemsTotalAmount = 0;
+        $this->payload = $this->getPayload($products);
+        return parent::pay();
+    }
 
-        $this->data['customVars'][$this->type]["Category"][0]["value"] = 'Person';
-        $this->data['customVars'][$this->type]["Category"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Category"][1]["value"] = 'Person';
-        $this->data['customVars'][$this->type]["Category"][1]["group"] = 'ShippingCustomer';
+    public function getPayload($products)
+    {        
+        $payload = array(
+            'clientIP'      => $this->CustomerIPAddress,
+            'billing'       => [
+                'recipient'        => [
+                    'category'              => (self::CUSTOMER_TYPE_B2C != $this->CustomerType) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
+                    'conversationLanguage'  => $this->BillingCountry,
+                    'careOf'                => $this->BillingFirstName . ' ' . $this->BillingLastName,
+                    'firstName'             => $this->BillingFirstName,
+                    'lastName'              => $this->BillingLastName,
+                    'birthDate'             => ($this->BillingBirthDate) ? $this->BillingBirthDate : null,                    
+                ],
+                'address'       => [
+                    'street'                => $this->BillingStreet,
+                    'houseNumber'           => $this->BillingHouseNumber,
+                    //'houseNumberAdditional' => $this->BillingHouseNumberSuffix,
+                    'zipcode'               => $this->BillingPostalCode,
+                    'city'                  => $this->BillingCity,
+                    'country'               => $this->BillingCountry,
+                ],
+                'phone'         => [
+                    'mobile'        => ($this->BillingPhoneNumber) ? $this->BillingPhoneNumber : $this->ShippingPhoneNumber,
+                ],
+                'email'         => $this->BillingEmail,
+            ],
+            
+            'articles'          => $this->getArticles($products)
+        );
 
-        $this->addB2b();
-
-        $this->data['customVars'][$this->type]["FirstName"][0]["value"] = $this->BillingFirstName;
-        $this->data['customVars'][$this->type]["FirstName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['FirstName'][1]["value"] =
-            !empty($this->ShippingFirstName) ? $this->ShippingFirstName : $this->BillingFirstName;
-        $this->data['customVars'][$this->type]["FirstName"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["LastName"][0]["value"] = $this->BillingLastName;
-        $this->data['customVars'][$this->type]["LastName"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['LastName'][1]["value"] =
-            !empty($this->ShippingLastName) ? $this->ShippingLastName : $this->BillingLastName;
-        $this->data['customVars'][$this->type]["LastName"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Street"][0]["value"] = $this->BillingStreet;
-        $this->data['customVars'][$this->type]["Street"][0]["group"] = 'BillingCustomer';
-
-        $this->data['customVars'][$this->type]['Street'][1]["value"] =
-            !empty($this->ShippingStreet) ? $this->ShippingStreet : $this->BillingStreet;
-        $this->data['customVars'][$this->type]["Street"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["StreetNumber"][0]["value"] = $this->BillingHouseNumber . ' ';
-        $this->data['customVars'][$this->type]["StreetNumber"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['StreetNumber'][1]["value"] =
-            !empty($this->ShippingHouseNumber) ? $this->ShippingHouseNumber . ' ' : $this->BillingHouseNumber . ' ';
-        $this->data['customVars'][$this->type]["StreetNumber"][1]["group"] = 'ShippingCustomer';
-
-        if (!empty($this->BillingHouseNumberSuffix)) {
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["value"] =
-                $this->BillingHouseNumberSuffix;
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][0]["group"] = 'BillingCustomer';
+        //Add shipping address if is different
+        if ($this->addShippingIfDifferent()) {
+            $payload['shipping'] = $this->addShippingIfDifferent();
         }
 
-        if (!empty($this->BillingHouseNumberSuffix) || !empty($this->ShippingHouseNumberSuffix)) {
-            $this->data['customVars'][$this->type]['StreetNumberAdditional'][1]["value"] =
-                !empty($this->ShippingHouseNumberSuffix) ?
-                    $this->ShippingHouseNumberSuffix : $this->BillingHouseNumberSuffix;
-            $this->data['customVars'][$this->type]["StreetNumberAdditional"][1]["group"] = 'ShippingCustomer';
+        //Add company name if b2b enabled 
+        if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
+            $payload['billing']['recipient']['companyName'] = $this->BillingCompanyName;;
+            $payload['billing']['recipient']['chamberOfCommerce'] = $this->CompanyCOCRegistration;
+
+            if (isset($payload['shipping'])){
+                $payload['shipping']['recipient']['companyName'] = $this->ShippingCompanyName;
+                $payload['shipping']['recipient']['category'] = RecipientCategory::COMPANY;
+            }
         }
+        return $payload;        
+    }
 
-        $this->data['customVars'][$this->type]["PostalCode"][0]["value"] = $this->BillingPostalCode;
-        $this->data['customVars'][$this->type]["PostalCode"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['PostalCode'][1]["value"] =
-            !empty($this->ShippingPostalCode) ? $this->ShippingPostalCode : $this->BillingPostalCode;
-        $this->data['customVars'][$this->type]["PostalCode"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["City"][0]["value"] = $this->BillingCity;
-        $this->data['customVars'][$this->type]["City"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['City'][1]["value"] =
-            !empty($this->ShippingCity) ? $this->ShippingCity : $this->BillingCity;
-        $this->data['customVars'][$this->type]["City"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Country"][0]["value"] = $this->BillingCountry;
-        $this->data['customVars'][$this->type]["Country"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]['Country'][1]["value"] =
-            !empty($this->ShippingCountryCode) ? $this->ShippingCountryCode : $this->BillingCountry;
-        $this->data['customVars'][$this->type]["Country"][1]["group"] = 'ShippingCustomer';
-
-        $this->data['customVars'][$this->type]["Email"][0]["value"] = $this->BillingEmail;
-        $this->data['customVars'][$this->type]["Email"][0]["group"] = 'BillingCustomer';
-        $this->data['customVars'][$this->type]["Email"][1]["value"] = $this->BillingEmail;
-        $this->data['customVars'][$this->type]["Email"][1]["group"] = 'ShippingCustomer';
-
-
-        if ((isset($this->ShippingCountryCode) && in_array($this->ShippingCountryCode, ['NL', 'BE']))
-            || (!isset($this->ShippingCountryCode)
-            && in_array($this->BillingCountry, ['NL', 'BE']))
-        ) {
-            // Send parameters (BirthDate, MobilePhone and Phone) if shipping country is NL || BE.
-            $this->data['customVars'][$this->type]["BirthDate"][0]["value"] = $this->BillingBirthDate;
-            $this->data['customVars'][$this->type]["BirthDate"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["BirthDate"][1]["value"] =
-                !empty($this->ShippingBirthDate) ? $this->ShippingBirthDate :  $this->BillingBirthDate;
-            $this->data['customVars'][$this->type]["BirthDate"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["value"] =
-                !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["MobilePhone"][1]["group"] = 'ShippingCustomer';
-
-            $this->data['customVars'][$this->type]["Phone"][0]["value"] = $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["Phone"][0]["group"] = 'BillingCustomer';
-            $this->data['customVars'][$this->type]["Phone"][1]["value"] =
-                !empty($this->ShippingPhoneNumber) ? $this->ShippingPhoneNumber : $this->BillingPhoneNumber;
-            $this->data['customVars'][$this->type]["Phone"][1]["group"] = 'ShippingCustomer';
-        }
-
-        if ((isset($this->ShippingCountryCode) && ($this->ShippingCountryCode == "FI"))
-            || (!isset($this->ShippingCountryCode)
-            && ($this->BillingCountry == "FI"))
-        ) {
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][0]["group"] = 'BillingCustomer';
-            // Send parameter IdentificationNumber if country equals FI.
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["value"] = $this->IdentificationNumber;
-            $this->data['customVars'][$this->type]["IdentificationNumber"][1]["group"] = 'ShippingCustomer';
-        }
-
+    private function getArticles($products)
+    {
         // Merge products with same SKU
-
         $mergedProducts = array();
         foreach ($products as $product) {
             if (! isset($mergedProducts[$product['ArticleId']])) {
@@ -201,104 +144,59 @@ class AfterPay extends PaymentMethod
 
         $products = $mergedProducts;
 
-        $i = 1;
-        foreach ($products as $p) {
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = $p["ArticleDescription"];
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = $p["ArticleId"];
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = $p["ArticleQuantity"];
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $p["ArticleUnitprice"];
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] =
-                isset($p["ArticleVatcategory"]) ? $p["ArticleVatcategory"] : 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
-            $itemsTotalAmount +=
-                $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] * $p["ArticleQuantity"];
-            $i++;
+        foreach($products as $item)
+        {
+            $productsArr[] = [
+                'identifier'    => $item['ArticleId'],
+                'description'   => $item['ArticleDescription'],
+                'vatPercentage' => isset($item["ArticleVatcategory"]) ? $item["ArticleVatcategory"] : 0,
+                'quantity'      => $item['ArticleQuantity'],
+                'price'         => $item['ArticleUnitprice'],
+                //'imageUrl'      => $this->getProductPhoto($item['product_id'])
+            ];
         }
 
-        $this->data['customVars'][$this->type]["Description"][$i]["value"] = 'Shipping Cost';
-        $this->data['customVars'][$this->type]["Description"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["value"] = 'shipping';
-        $this->data['customVars'][$this->type]["Identifier"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["value"] = '1';
-        $this->data['customVars'][$this->type]["Quantity"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"] =
-            (!empty($this->ShippingCosts) ? $this->ShippingCosts : '0');
-        $itemsTotalAmount += $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["value"];
-        $this->data['customVars'][$this->type]["GrossUnitprice"][$i]["group"] = 'Article';
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["value"] =
-            (!empty($this->ShippingCostsTax) ? $this->ShippingCostsTax : '0');
-        $this->data['customVars'][$this->type]["VatPercentage"][$i]["group"] = 'Article';
 
-        if (!empty($this->usenotification) && !empty($customVars['Customeremail'])) {
-            $this->data['services']['notification']['action'] = 'ExtraInfo';
-            $this->data['services']['notification']['version'] = '1';
-            $this->data['customVars']['notification']['NotificationType'] = $customVars['Notificationtype'];
-            $this->data['customVars']['notification']['CommunicationMethod'] = 'email';
-            $this->data['customVars']['notification']['RecipientEmail'] = $customVars['Customeremail'];
-            $this->data['customVars']['notification']['RecipientFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['notification']['RecipientLastName'] = $customVars['CustomerLastName'];
-            if (!empty($customVars['Notificationdelay'])) {
-                $this->data['customVars']['notification']['SendDatetime'] = $customVars['Notificationdelay'];
-            }
+        //Add shipping costs
+        if ($this->ShippingCosts > 0) {
+            $productsArr[] = [                
+                'identifier'    => 'shipping',
+                'description'   => 'Shipping Costs',
+                'vatPercentage' => $this->ShippingCostsTax,
+                'quantity'      => 1,
+                'price'         => $this->ShippingCosts
+            ];
         }
 
-        if ($this->amountDedit != $itemsTotalAmount) {
-            $diff = $this->amountDedit - $itemsTotalAmount;
-
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["value"] = 'Discount/Fee';
-            $this->data['customVars'][$this->type]["Description"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["value"] = '1';
-            $this->data['customVars'][$this->type]["Identifier"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["value"] = 1;
-            $this->data['customVars'][$this->type]["Quantity"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["value"] = $diff;
-            $this->data['customVars'][$this->type]["GrossUnitprice"][$i - 1]["group"] = 'Article';
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["value"] = 0;
-            $this->data['customVars'][$this->type]["VatPercentage"][$i - 1]["group"] = 'Article';
-        }
-        return parent::pay();
+        return $productsArr;        
     }
-    protected function addB2b()
+
+    private function addShippingIfDifferent()
     {
-        if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
-            $index = 0;
-            if ($this->BillingCompanyName !== null && $this->BillingCountry === 'NL') {
-
-                $this->data['customVars'][$this->type]["Category"][$index]["value"] = 'Company';
-                $this->data['customVars'][$this->type]["Category"][$index]["group"] = 'BillingCustomer';
-                
-                $this->data['customVars'][$this->type]["CompanyName"][$index]["value"] =  $this->BillingCompanyName;
-                $this->data['customVars'][$this->type]["CompanyName"][$index]["group"] = 'BillingCustomer';
-
-                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["value"] = $this->IdentificationNumber;
-                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["group"] = 'BillingCustomer';
-               $index = 1;
-            }
-    
-            $shippingCompanyName = $this->diffAddress($this->ShippingCompanyName, $this->BillingCompanyName);
-            if ($shippingCompanyName !== null && $this->ShippingCountryCode === 'NL') {
-
-                $this->data['customVars'][$this->type]["Category"][$index]["value"] = 'Company';
-                $this->data['customVars'][$this->type]["Category"][$index]["group"] = 'ShippingCustomer';
-
-                $this->data['customVars'][$this->type]["CompanyName"][$index]["value"] = $shippingCompanyName;
-                $this->data['customVars'][$this->type]["CompanyName"][$index]["group"] = 'ShippingCustomer';
-
-                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["value"] = $this->IdentificationNumber;
-                $this->data['customVars'][$this->type]["IdentificationNumber"][$index]["group"] = 'ShippingCustomer';
-
-            }
+        if($this->AddressesDiffer == 'TRUE')
+        {
+            return [
+                'recipient'        => [
+                    'category'              => RecipientCategory::PERSON,
+                    'conversationLanguage'  => $this->ShippingCountryCode,
+                    'careOf'                => $this->ShippingFirstName . ' ' . $this->ShippingFirstName,
+                    'firstName'             => $this->ShippingFirstName,
+                    'lastName'              => $this->ShippingLastName,
+                    'birthDate'             => $this->ShippingBirthDate
+                ],
+                'address'       => [
+                    'street'                => $this->ShippingStreet,
+                    'houseNumber'           => $this->ShippingHouseNumber,
+                    'houseNumberAdditional' => $this->ShippingHouseNumberSuffix,
+                    'zipcode'               => $this->ShippingPostalCode,
+                    'city'                  => $this->ShippingCity,
+                    'country'               => $this->ShippingCountryCode
+                ],
+                'phone'         => [
+                    'mobile'        => $this->ShippingPhoneNumber
+                ],
+                'email'         => $this->ShippingEmail
+            ];
         }
-    }
-    private function diffAddress($shippingField, $billingField)
-    {
-        if ($this->AddressesDiffer == 'TRUE') {
-            return $shippingField;
-        }
-        return $billingField;
     }
 }

@@ -26,6 +26,8 @@ class CreditCardCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->payment_request->issuer = Tools::getValue('BPE_CreditCard');
     }
 
     public function startPayment()

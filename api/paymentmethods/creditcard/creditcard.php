@@ -23,6 +23,7 @@ class CreditCard extends PaymentMethod
 {
     public function __construct()
     {
+        $this->type = "creditcard";
         $this->version = 1;
         $this->mode = Config::getMode('CREDITCARD');
     }
@@ -35,11 +36,8 @@ class CreditCard extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
-        // @codingStandardsIgnoreEnd
-        $this->data['customVars']['servicesSelectableByClient'] = Config::get('BUCKAROO_CREDITCARD_ALLOWED_CARDS');
-        $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
-        $this->data['services'] = array();
+        $this->payload['name'] = $this->issuer;
 
-        return parent::payGlobal();
+        return parent::pay();
     }
 }

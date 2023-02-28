@@ -19,6 +19,7 @@
 
 function autoload($payment_method)
 {
+    require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
     $class_name = Tools::strtolower($payment_method);
     $path = dirname(__FILE__) . "/{$class_name}/{$class_name}.php";
     if (file_exists($path)) {

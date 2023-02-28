@@ -19,13 +19,5 @@
 
 class ResponseDefault extends Response
 {
-    protected function parseSoapResponseChild()
-    {
-        return null;
-    }
 
-    protected function parsePostResponseChild()
-    {
-        return null;
-    }
 }

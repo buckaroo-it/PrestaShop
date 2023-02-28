@@ -19,16 +19,12 @@
 
 require_once(dirname(__FILE__) . '/../response.php');
 
+//TODO - Fix IDIN
 class IdinResponse extends Response
 {
     public $idinConsumerbin;
     public $idinIseighteenorolder;
     public $buckarooCid;
-
-    protected function parseSoapResponseChild()
-    {
-        return null;
-    }
 
     protected function parsePostResponseChild()
     {

@@ -37,41 +37,6 @@ class Buckaroo3Admin
             }
         } else {
             if (Tools::isSubmit('BUCKAROO_TEST')) {
-                if (!empty(
-                    $_FILES['BUCKAROO_CERTIFICATE']
-                ) && !empty($_FILES['BUCKAROO_CERTIFICATE']['tmp_name'])
-                    && !empty($_FILES['BUCKAROO_CERTIFICATE']['tmp_name'])
-                ) {
-                    if ($_FILES['BUCKAROO_CERTIFICATE']["error"] > 0) {
-                        $this->error .= $this->module->l('Error uploading file');
-                    } else {
-                        if (stripos($_FILES['BUCKAROO_CERTIFICATE']["name"], '.pem', 1) === false) {
-                            $error = 'Expected file extension: .pem<br />Get file type: ' . $_FILES['BUCKAROO_CERTIFICATE']["type"] . '<br />Get file name: ' . $_FILES['BUCKAROO_CERTIFICATE']["name"];//phpcs:ignore
-                            $this->error .= $this->module->l('<b>Wrong file type!</b><br />') . $error;
-                        } else {
-                            $file_name = $_FILES['BUCKAROO_CERTIFICATE']['name'];
-                            $path = _PS_MODULE_DIR_ . $this->module->name . '/certificate/';
-
-                            if (!is_writable($path)) {
-                                $this->error .= $this->module->l('Cannot save certificate in location ') . $path;
-                            } else
-                            if (
-                                move_uploaded_file(
-                                    $_FILES['BUCKAROO_CERTIFICATE']['tmp_name'],
-                                    $path.$file_name
-                                )
-                            ) {
-                                Configuration::updateValue('BUCKAROO_CERTIFICATE_FILE', $file_name);
-                                Configuration::updateValue(
-                                    'BUCKAROO_CERTIFICATE',
-                                    $file_name . ' (' . date('Y.m.d H:i') . ')'
-                                );
-                            } else {
-                                $this->error .= $this->module->l('Error move uploaded file');
-                            }
-                        };
-                    }
-                }
                 Configuration::updateValue('BUCKAROO_TEST', Tools::getValue('BUCKAROO_TEST'));
                 Configuration::updateValue(
                     'BUCKAROO_ORDER_STATE_DEFAULT',
@@ -87,20 +52,8 @@ class Buckaroo3Admin
                 );
                 Configuration::updateValue('BUCKAROO_MERCHANT_KEY', Tools::getValue('BUCKAROO_MERCHANT_KEY'));
                 Configuration::updateValue('BUCKAROO_SECRET_KEY', Tools::getValue('BUCKAROO_SECRET_KEY'));
-                Configuration::updateValue(
-                    'BUCKAROO_CERTIFICATE_THUMBPRINT',
-                    Tools::getValue('BUCKAROO_CERTIFICATE_THUMBPRINT')
-                );
                 Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', Tools::getValue('BUCKAROO_TRANSACTION_LABEL'));
                 Configuration::updateValue('BUCKAROO_TRANSACTION_FEE', Tools::getValue('BUCKAROO_TRANSACTION_FEE'));
-                Configuration::updateValue(
-                    'BUCKAROO_TRANSACTION_RETURNURL',
-                    Tools::getValue('BUCKAROO_TRANSACTION_RETURNURL')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TRANSACTION_CULTURE',
-                    Tools::getValue('BUCKAROO_TRANSACTION_CULTURE')
-                );
 
                 Configuration::updateValue(
                     'BUCKAROO_PGST_PAYMENT',
@@ -121,36 +74,14 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_IDIN_TEST', Tools::getValue('BUCKAROO_IDIN_TEST'));
                 Configuration::updateValue('BUCKAROO_IDIN_MODE', Tools::getValue('BUCKAROO_IDIN_MODE'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
+                Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_BUCKAROOPAYPAL_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_BUCKAROOPAYPAL_FEE'))
                 );
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', Tools::getValue('BUCKAROO_EMPAYMENT_ENABLED'));
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', Tools::getValue('BUCKAROO_EMPAYMENT_TEST'));
-                Configuration::updateValue('BUCKAROO_EMPAYMENT_LABEL', Tools::getValue('BUCKAROO_EMPAYMENT_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_EMPAYMENT_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EMPAYMENT_FEE'))
-                );
-                Configuration::updateValue('BUCKAROO_DD_ENABLED', Tools::getValue('BUCKAROO_DD_ENABLED'));
-                Configuration::updateValue('BUCKAROO_DD_TEST', Tools::getValue('BUCKAROO_DD_TEST'));
-                Configuration::updateValue('BUCKAROO_DD_LABEL', Tools::getValue('BUCKAROO_DD_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_DD_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_DD_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_DD_USECREDITMANAGMENT',
-                    Tools::getValue('BUCKAROO_DD_USECREDITMANAGMENT')
-                );
-                Configuration::updateValue('BUCKAROO_DD_INVOICEDELAY', Tools::getValue('BUCKAROO_DD_INVOICEDELAY'));
-                Configuration::updateValue('BUCKAROO_DD_DATEDUE', Tools::getValue('BUCKAROO_DD_DATEDUE'));
-                Configuration::updateValue(
-                    'BUCKAROO_DD_MAXREMINDERLEVEL',
-                    Tools::getValue('BUCKAROO_DD_MAXREMINDERLEVEL')
-                );
+
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_SDD_TEST', Tools::getValue('BUCKAROO_SDD_TEST'));
                 Configuration::updateValue('BUCKAROO_SDD_LABEl', Tools::getValue('BUCKAROO_SDD_LABEL'));
@@ -241,20 +172,20 @@ class Buckaroo3Admin
 
 
                 Configuration::updateValue(
-                    'BUCKAROO_CAPAYABLE_ENABLED',
-                    Tools::getValue('BUCKAROO_CAPAYABLE_ENABLED')
+                    'BUCKAROO_IN3_ENABLED',
+                    Tools::getValue('BUCKAROO_IN3_ENABLED')
                 );
                 Configuration::updateValue(
-                    'BUCKAROO_CAPAYABLE_TEST',
-                    Tools::getValue('BUCKAROO_CAPAYABLE_TEST')
+                    'BUCKAROO_IN3_TEST',
+                    Tools::getValue('BUCKAROO_IN3_TEST')
                 );
                 Configuration::updateValue(
-                    'BUCKAROO_CAPAYABLE_LABEL',
-                    Tools::getValue('BUCKAROO_CAPAYABLE_LABEL')
+                    'BUCKAROO_IN3_LABEL',
+                    Tools::getValue('BUCKAROO_IN3_LABEL')
                 );
                 Configuration::updateValue(
-                    'BUCKAROO_CAPAYABLE_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CAPAYABLE_FEE'))
+                    'BUCKAROO_IN3_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_FEE'))
                 );
 
 
@@ -383,18 +314,8 @@ class Buckaroo3Admin
             Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
         $fields_value['BUCKAROO_MERCHANT_KEY']           = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $fields_value['BUCKAROO_SECRET_KEY']             = Configuration::get('BUCKAROO_SECRET_KEY');
-        $fields_value['BUCKAROO_CERTIFICATE_THUMBPRINT'] = Configuration::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        $fields_value['BUCKAROO_CERTIFICATE']            = Configuration::get('BUCKAROO_CERTIFICATE');
         $fields_value['BUCKAROO_TRANSACTION_LABEL']      = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
         $fields_value['BUCKAROO_TRANSACTION_FEE']      = Configuration::get('BUCKAROO_TRANSACTION_FEE');
-        $fields_value['BUCKAROO_TRANSACTION_RETURNURL']  = Configuration::get('BUCKAROO_TRANSACTION_RETURNURL');
-        if (empty($fields_value['BUCKAROO_TRANSACTION_RETURNURL'])) {
-            $fields_value['BUCKAROO_TRANSACTION_RETURNURL'] = 'http' . ((!empty(
-                $_SERVER["HTTPS"]
-            ) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';//phpcs:ignore
-        }
-        $fields_value['BUCKAROO_TRANSACTION_CULTURE'] = Configuration::get('BUCKAROO_TRANSACTION_CULTURE');
-
         $fields_value['BUCKAROO_PGST_PAYMENT'] = array();
         $fields_value['BUCKAROO_PGBY_PAYMENT'] = array();
         $fields_value['BUCKAROO_IDIN_CATEGORY'] = array();
@@ -427,21 +348,10 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_IDIN_TEST']              = Configuration::get('BUCKAROO_IDIN_TEST');
         $fields_value['BUCKAROO_IDIN_MODE']              = Configuration::get('BUCKAROO_IDIN_MODE');
         $fields_value['BUCKAROO_PAYPAL_ENABLED']           = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
+        $fields_value['BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_PAYPAL_LABEL']              = Configuration::get('BUCKAROO_PAYPAL_LABEL');
         $fields_value['BUCKAROO_BUCKAROOPAYPAL_FEE']       = Configuration::get('BUCKAROO_BUCKAROOPAYPAL_FEE');
-        $fields_value['BUCKAROO_EMPAYMENT_ENABLED']        = Configuration::get('BUCKAROO_EMPAYMENT_ENABLED');
-        $fields_value['BUCKAROO_EMPAYMENT_TEST']           = Configuration::get('BUCKAROO_EMPAYMENT_TEST');
-        $fields_value['BUCKAROO_EMPAYMENT_LABEL']           = Configuration::get('BUCKAROO_EMPAYMENT_LABEL');
-        $fields_value['BUCKAROO_EMPAYMENT_FEE']           = Configuration::get('BUCKAROO_EMPAYMENT_FEE');
-        $fields_value['BUCKAROO_DD_ENABLED']               = Configuration::get('BUCKAROO_DD_ENABLED');
-        $fields_value['BUCKAROO_DD_TEST']                  = Configuration::get('BUCKAROO_DD_TEST');
-        $fields_value['BUCKAROO_DD_LABEL']                 = Configuration::get('BUCKAROO_DD_LABEL');
-        $fields_value['BUCKAROO_DD_FEE']                 = Configuration::get('BUCKAROO_DD_FEE');
-        $fields_value['BUCKAROO_DD_USECREDITMANAGMENT']    = Configuration::get('BUCKAROO_DD_USECREDITMANAGMENT');
-        $fields_value['BUCKAROO_DD_INVOICEDELAY']          = Configuration::get('BUCKAROO_DD_INVOICEDELAY');
-        $fields_value['BUCKAROO_DD_DATEDUE']               = Configuration::get('BUCKAROO_DD_DATEDUE');
-        $fields_value['BUCKAROO_DD_MAXREMINDERLEVEL']      = Configuration::get('BUCKAROO_DD_MAXREMINDERLEVEL');
         $fields_value['BUCKAROO_SDD_ENABLED']              = Configuration::get('BUCKAROO_SDD_ENABLED');
         $fields_value['BUCKAROO_SDD_TEST']                 = Configuration::get('BUCKAROO_SDD_TEST');
         $fields_value['BUCKAROO_SDD_LABEL']                 = Configuration::get('BUCKAROO_SDD_LABEL');
@@ -484,10 +394,10 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BELFIUS_LABEL']       = Configuration::get('BUCKAROO_BELFIUS_LABEL');
         $fields_value['BUCKAROO_BELFIUS_FEE']       = Configuration::get('BUCKAROO_BELFIUS_FEE');
 
-        $fields_value['BUCKAROO_CAPAYABLE_ENABLED']    = Configuration::get('BUCKAROO_CAPAYABLE_ENABLED');
-        $fields_value['BUCKAROO_CAPAYABLE_TEST']       = Configuration::get('BUCKAROO_CAPAYABLE_TEST');
-        $fields_value['BUCKAROO_CAPAYABLE_LABEL']       = Configuration::get('BUCKAROO_CAPAYABLE_LABEL');
-        $fields_value['BUCKAROO_CAPAYABLE_FEE']       = Configuration::get('BUCKAROO_CAPAYABLE_FEE');
+        $fields_value['BUCKAROO_IN3_ENABLED']    = Configuration::get('BUCKAROO_IN3_ENABLED');
+        $fields_value['BUCKAROO_IN3_TEST']       = Configuration::get('BUCKAROO_IN3_TEST');
+        $fields_value['BUCKAROO_IN3_LABEL']       = Configuration::get('BUCKAROO_IN3_LABEL');
+        $fields_value['BUCKAROO_IN3_FEE']       = Configuration::get('BUCKAROO_IN3_FEE');
 
 
         $fields_value['BUCKAROO_TRANSFER_ENABLED']         = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
@@ -560,20 +470,6 @@ class Buckaroo3Admin
                 )
                 ,
                 array(
-                    'type'  => 'certificate',
-                    'label' => $this->module->l('Certificate'),
-                    'name'  => 'BUCKAROO_CERTIFICATE',
-                )
-                ,
-                array(
-                    'type'     => 'text',
-                    'label'    => $this->module->l('Certificate thumbprint'),
-                    'name'     => 'BUCKAROO_CERTIFICATE_THUMBPRINT',
-                    'size'     => 80,
-                    'required' => true,
-                )
-                ,
-                array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Transaction label'),
                     'name'     => 'BUCKAROO_TRANSACTION_LABEL',
@@ -581,43 +477,6 @@ class Buckaroo3Admin
                     'required' => true,
                 )
                 ,
-                array(
-                    'type'     => 'text',
-                    'label'    => $this->module->l('Push URL'),
-                    'name'     => 'BUCKAROO_TRANSACTION_RETURNURL',
-                    'size'     => 100,
-                    'required' => true,
-                    'description' => $this->module->l('Push URL must be filled in Buckaroo Plaza > My Buckaroo > Websites > Push Settings > Add link to Success/Failure URL.'),
-                )
-                ,
-                array(
-                    'type'      => 'select',
-                    'name'      => 'BUCKAROO_TRANSACTION_CULTURE',
-                    'label'     => $this->module->l('Language'),
-                    'description' => $this->module->l('Payment engine language. Can be used only English, Dutch, French and German language.'),//phpcs:ignore
-                    'options'   => array(
-                        array(
-                            'text'  => $this->module->l('Use webshop culture'),
-                            'value' => 'A',
-                        ),
-                        array(
-                            'text'  => $this->module->l('English'),
-                            'value' => 'en',
-                        ),
-                        array(
-                            'text'  => $this->module->l('Dutch'),
-                            'value' => 'nl',
-                        ),
-                        array(
-                            'text'  => $this->module->l('French'),
-                            'value' => 'fr',
-                        ),
-                        array(
-                            'text'  => $this->module->l('German'),
-                            'value' => 'de',
-                        ),
-                    ),
-                ),
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
@@ -764,6 +623,11 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BUCKAROOPAYPAL_FEE',
                     'size'     => 80,
+                ),
+                array(
+                    'label'    => $this->module->l('Paypal Seller Protection'),
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED',
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1588,31 +1452,31 @@ class Buckaroo3Admin
 
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('In3 settings'),
-            'name'    => 'CAPAYABLE',
-            'test'    => Configuration::get('BUCKAROO_CAPAYABLE_TEST'),
-            'enabled' => Configuration::get('BUCKAROO_CAPAYABLE_ENABLED'),
+            'name'    => 'IN3',
+            'test'    => Configuration::get('BUCKAROO_IN3_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_IN3_ENABLED'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
-                    'name' => 'BUCKAROO_CAPAYABLE_ENABLED',
+                    'name' => 'BUCKAROO_IN3_ENABLED',
                 ),
                 array(
                     'type' => 'hidearea_start',
                 ),
                 array(
                     'type' => 'mode',
-                    'name' => 'BUCKAROO_CAPAYABLE_TEST',
+                    'name' => 'BUCKAROO_IN3_TEST',
                 ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Frontend label'),
-                    'name'     => 'BUCKAROO_CAPAYABLE_LABEL',
+                    'name'     => 'BUCKAROO_IN3_LABEL',
                     'size'     => 80,
                 ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
-                    'name'     => 'BUCKAROO_CAPAYABLE_FEE',
+                    'name'     => 'BUCKAROO_IN3_FEE',
                     'size'     => 80,
                 ),
                 array(

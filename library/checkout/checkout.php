@@ -27,9 +27,7 @@ abstract class Checkout
     protected $customVars = array();
     
     const CHECKOUT_TYPE_PAYPAL          = 'buckaroopaypal';
-    const CHECKOUT_TYPE_EMPAYMENT       = 'empayment';
     const CHECKOUT_TYPE_IDEAL           = 'ideal';
-    const CHECKOUT_TYPE_DIRECTDEBIT     = 'directdebit';
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_GIROPAY         = 'giropay';
     const CHECKOUT_TYPE_KBC             = 'kbc';
@@ -43,14 +41,12 @@ abstract class Checkout
     const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
     const CHECKOUT_TYPE_BELFIUS         = 'belfius';
     const CHECKOUT_TYPE_IDIN            = 'idin';
-    const CHECKOUT_TYPE_CAPAYABLE       = 'capayable';
+    const CHECKOUT_TYPE_IN3             = 'in3';
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
         Checkout::CHECKOUT_TYPE_PAYPAL          => 'BuckarooPayPal',
-        Checkout::CHECKOUT_TYPE_EMPAYMENT       => 'Empayment',
         Checkout::CHECKOUT_TYPE_IDEAL           => 'IDeal',
-        Checkout::CHECKOUT_TYPE_DIRECTDEBIT     => 'DirectDebit',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY         => 'Giropay',
         Checkout::CHECKOUT_TYPE_KBC             => 'Kbc',
@@ -64,7 +60,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_APPLEPAY        => 'ApplePay',
         Checkout::CHECKOUT_TYPE_BELFIUS         => 'Belfius',
         Checkout::CHECKOUT_TYPE_IDIN            => 'Idin',
-        Checkout::CHECKOUT_TYPE_CAPAYABLE       => 'Capayable',
+        Checkout::CHECKOUT_TYPE_IN3             => 'in3',
 
     );
 
@@ -96,6 +92,7 @@ abstract class Checkout
     }
 
     public $returnUrl;
+    public $pushUrl;
 
     public function __construct($cart)
     {
@@ -116,7 +113,7 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDedit = $originalAmount =
+        $this->payment_request->amountDebit = $originalAmount =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         $payment_method = Tools::getValue('method');
@@ -126,8 +123,8 @@ abstract class Checkout
 
         if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
             if ($buckarooFee>0) {
-                $this->payment_request->amountDedit =
-                    (string) ((float) $this->payment_request->amountDedit + (float) $buckarooFee);
+                $this->payment_request->amountDebit =
+                    (string) ((float) $this->payment_request->amountDebit + (float) $buckarooFee);
                 Db::getInstance()->insert('buckaroo_fee', array(
                     'reference' => $this->reference,
                     'id_cart' => $this->cart->id,
@@ -153,6 +150,7 @@ abstract class Checkout
         $this->payment_request->invoiceId   = $reference;
         $this->payment_request->orderId     = $reference;
         $this->payment_request->returnUrl   = $this->returnUrl;
+        $this->payment_request->pushUrl     = $this->pushUrl;
     }
 
     public function startPayment()

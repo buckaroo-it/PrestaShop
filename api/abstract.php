@@ -81,38 +81,4 @@ abstract class BuckarooAbstract
             'status' => self::BUCKAROO_FAILED,
         ),
     );
-
-    public function printResponse($requestResponse)
-    {
-        list($response, $responseXML, $requestXML) = $requestResponse;
-
-        echo "The SOAP request has been sent. <br/>";
-        if (is_object($requestXML) && is_object($responseXML)) {
-            echo "Request: " . var_export($requestXML->saveXML(), true) . "<br/><br/>";
-            echo "Response: " . var_export($response, true) . "<br/><br/>";
-            echo "Response XML:" . var_export($responseXML->saveXML(), true) . "<br/><br/>";
-        }
-
-        echo "Response recieved. \n";
-    }
-
-    public function buckarooSort($array)
-    {
-        $arrayToSort = array();
-        $origArray = array();
-        foreach ($array as $key => $value) {
-            $arrayToSort[Tools::strtolower($key)] = $value;
-            $origArray[Tools::strtolower($key)] = $key;
-        }
-
-        ksort($arrayToSort);
-
-        $sortedArray = array();
-        foreach ($arrayToSort as $key => $value) {
-            $key = $origArray[$key];
-            $sortedArray[$key] = $value;
-        }
-
-        return $sortedArray;
-    }
 }

@@ -66,7 +66,6 @@ class KlarnaCheckout extends Checkout
         $country                                         = new Country($this->invoice_address->id_country);
         $this->payment_request->BillingCountry           = Tools::strtoupper($country->iso_code);
         $this->payment_request->BillingEmail             = !empty($this->customer->email) ? $this->customer->email : '';
-        $this->payment_request->BillingLanguage          = $language;
         $this->payment_request->BillingPhoneNumber       = $phone;
         $Discount                                        = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
         if ($Discount > 0) {
@@ -115,7 +114,6 @@ class KlarnaCheckout extends Checkout
             $this->payment_request->ShippingEmail             = Tools::getIsset(
                 $this->customer->email
             ) ? $this->customer->email : '';
-            $this->payment_request->ShippingLanguage = $language;
             $phone                                   = '';
             if (!empty($this->shipping_address->phone_mobile)) {
                 $phone = $this->shipping_address->phone_mobile;
@@ -146,9 +144,6 @@ class KlarnaCheckout extends Checkout
             $this->payment_request->ShippingCity              = $point->city;
             $country                                          = $point->country;
         }
-
-        $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
-        $this->payment_request->Accept            = 'TRUE';
     }
 
     public function isRedirectRequired()

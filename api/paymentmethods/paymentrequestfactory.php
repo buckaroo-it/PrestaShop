@@ -19,12 +19,10 @@
 
 include_once(dirname(__FILE__) . '/functions.php');
 
-
 class PaymentRequestFactory
 {
 
     const REQUEST_TYPE_PAYPAL = 'buckaroopaypal';
-    const REQUEST_TYPE_EMPAYMENT = 'empayment';
     const REQUEST_TYPE_IDEAL = 'ideal';
     const REQUEST_TYPE_GIROPAY = 'giropay';
     const REQUEST_TYPE_KBC = 'kbc';
@@ -39,12 +37,11 @@ class PaymentRequestFactory
     const REQUEST_TYPE_APPLEPAY = 'applepay';
     const REQUEST_TYPE_BELFIUS = 'belfius';
     const REQUEST_TYPE_IDIN = 'idin';
-    const REQUEST_TYPE_CAPAYABLE = 'capayable';
+    const REQUEST_TYPE_IN3 = 'in3';
 
     // Request types (Payment Methods).
     public static $valid_request_types = array(
         PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'BuckarooPayPal',
-        PaymentRequestFactory::REQUEST_TYPE_EMPAYMENT => 'Empayment',
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
@@ -59,7 +56,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_APPLEPAY => 'ApplePay',
         PaymentRequestFactory::REQUEST_TYPE_BELFIUS => 'Belfius',
         PaymentRequestFactory::REQUEST_TYPE_IDIN => 'Idin',
-        PaymentRequestFactory::REQUEST_TYPE_CAPAYABLE => 'Capayable',
+        PaymentRequestFactory::REQUEST_TYPE_IN3 => 'In3',
     );
 
     final public static function create($request_type_id, $data = array())

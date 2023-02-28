@@ -49,7 +49,7 @@ class AdminRefundController extends AdminControllerCore
                     Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $transaction->amount;
                 $Refunds = new Refunds($transaction->payment_method);
                 $currency = new Currency((int)$transaction->id_currency);
-                $Refunds->amountDedit = 0;
+                $Refunds->amountDebit = 0;
                 $Refunds->amountCredit = $transaction_amount;
                 $Refunds->currency = $currency->iso_code;
                 $Refunds->description = '';

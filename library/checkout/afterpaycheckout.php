@@ -65,7 +65,6 @@ class AfterPayCheckout extends Checkout
         $country                                         = new Country($this->invoice_address->id_country);
         $this->payment_request->BillingCountry           = Tools::strtoupper($country->iso_code);
         $this->payment_request->BillingEmail             = !empty($this->customer->email) ? $this->customer->email : '';
-        $this->payment_request->BillingLanguage          = $language;
         $this->payment_request->BillingPhoneNumber       = $phone;
         $this->payment_request->BillingCompanyName       = $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null;
         $this->payment_request->CustomerType             = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
@@ -112,7 +111,6 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingEmail             = Tools::getIsset(
                 $this->customer->email
             ) ? $this->customer->email : '';
-            $this->payment_request->ShippingLanguage = $language;
             $phone                                   = '';
             if (!empty($this->shipping_address->phone_mobile)) {
                 $phone = $this->shipping_address->phone_mobile;
@@ -151,7 +149,6 @@ class AfterPayCheckout extends Checkout
         }
 
         $this->payment_request->CustomerIPAddress = $_SERVER["REMOTE_ADDR"];
-        $this->payment_request->Accept            = 'TRUE';
     }
 
     public function isRedirectRequired()

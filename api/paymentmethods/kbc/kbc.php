@@ -23,7 +23,7 @@ class Kbc extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = "KBCPaymentButton";
+        $this->type = "kbcpaymentbutton";
         $this->version = 1;
         $this->mode = Config::getMode($this->type);
     }

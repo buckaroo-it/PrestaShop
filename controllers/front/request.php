@@ -52,11 +52,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $filename    = Config::get('BUCKAROO_CERTIFICATE_PATH');
         $merchantkey = Config::get('BUCKAROO_MERCHANT_KEY');
         $secret_key  = Config::get('BUCKAROO_SECRET_KEY');
-        $thumbprint  = Config::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        if (!file_exists($filename) || empty($merchantkey) || empty($secret_key) || empty($thumbprint)) {
+        if (empty($merchantkey) || empty($secret_key)) {
             $error = $this->module->l(
                 "<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured."
             );
@@ -111,6 +109,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $this->checkout = Checkout::getInstance($payment_method, $cart);
         $this->checkout->returnUrl = 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';//phpcs:ignore
+        $this->checkout->pushUrl = 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
         $logger->logDebug("Get checkout class: ", $this->checkout);
         $pending           = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = $this->module->getPaymentTranslation($payment_method);
@@ -189,7 +188,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     $this->context->cookie->__set("HtmlText", $response->consumerMessage['HtmlText']);
                 }
                 Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&responce_received=' . $response->payment_method//phpcs:ignore
+                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&response_received=' . $response->payment_method//phpcs:ignore
                 );
             } else {
                 $logger->logInfo('Payment request failed/canceled');
@@ -252,7 +251,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         && $response->statusmessage) {
                         $error = $response->statusmessage;
                     }
-                    $this->displayError(null, error);
+                    $this->displayError(null, $error);
                 }
             };
         } else {
