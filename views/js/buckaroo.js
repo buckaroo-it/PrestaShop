@@ -98,6 +98,16 @@ paymentMethodValidation={
             this.valid = false;
         }
     },
+    billinkTrigger: function () {
+        if ($("#customerbirthdate_d_billing_billink").val()) {
+            let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_billink").val() + $("#customerbirthdate_m_billing_billink").val() + $("#customerbirthdate_y_billing_billink").val());
+            this.displayMessage($("#customerbirthdate_d_billing_billink"), buckarooMessages.validation.date, !dateInvalid);
+
+            if(dateInvalid === true) {
+                this.valid = false;
+            }
+        }
+    },
     init: function (e) {  
         this.valid = true;
         $('.buckaroo-validation-message').remove();
@@ -113,6 +123,9 @@ paymentMethodValidation={
             case 'afterpay&service=digi':
                this.afterpayDigiTrigger();
                 break;
+                case 'billink':
+                    this.billinkTrigger();
+                     break;
             default:
         }
         if (this.valid) {

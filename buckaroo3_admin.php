@@ -265,6 +265,42 @@ class Buckaroo3Admin
                     'BUCKAROO_APPLEPAY_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE'))
                 );
+                
+                Configuration::updateValue('BUCKAROO_BILLINK_ENABLED', Tools::getValue('BUCKAROO_BILLINK_ENABLED'));
+                Configuration::updateValue('BUCKAROO_BILLINK_TEST', Tools::getValue('BUCKAROO_BILLINK_TEST'));
+                Configuration::updateValue('BUCKAROO_BILLINK_LABEL', Tools::getValue('BUCKAROO_BILLINK_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_FEE'))
+                );
+
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_DEFAULT_VAT',
+                    Tools::getValue('BUCKAROO_BILLINK_DEFAULT_VAT')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_WRAPPING_VAT',
+                    Tools::getValue('BUCKAROO_BILLINK_WRAPPING_VAT')
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_TAXRATE',
+                    serialize(Tools::getValue('BUCKAROO_BILLINK_TAXRATE'))
+                );
+
+                Configuration::updateValue(
+                    'BBUCKAROO_BILLINK_CUSTOMER_TYPE',
+                    Tools::getValue('BUCKAROO_BILLINK_CUSTOMER_TYPE')
+                );
+
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_B2B_MIN_VALUE',
+                    Tools::getValue('BUCKAROO_BILLINK_B2B_MIN_VALUE')
+                );
+
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_B2B_MAX_VALUE',
+                    Tools::getValue('BUCKAROO_BILLINK_B2B_MAX_VALUE')
+                );
             }
         }
         return null;
@@ -433,6 +469,20 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_APPLEPAY_TEST']       = Configuration::get('BUCKAROO_APPLEPAY_TEST');
         $fields_value['BUCKAROO_APPLEPAY_LABEL']       = Configuration::get('BUCKAROO_APPLEPAY_LABEL');
         $fields_value['BUCKAROO_APPLEPAY_FEE']       = Configuration::get('BUCKAROO_APPLEPAY_FEE');
+        
+        $fields_value['BUCKAROO_BILLINK_ENABLED']      = Configuration::get('BUCKAROO_BILLINK_ENABLED');
+        $fields_value['BUCKAROO_BILLINK_TEST']         = Configuration::get('BUCKAROO_BILLINK_TEST');
+        $fields_value['BUCKAROO_BILLINK_LABEL']         = Configuration::get('BUCKAROO_BILLINK_LABEL');
+        $fields_value['BUCKAROO_BILLINK_FEE']         = Configuration::get('BUCKAROO_BILLINK_FEE');
+        $fields_value['BUCKAROO_BILLINK_DEFAULT_VAT']  = Configuration::get('BUCKAROO_BILLINK_DEFAULT_VAT');
+        $fields_value['BUCKAROO_BILLINK_WRAPPING_VAT'] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
+        $fields_value['BUCKAROO_BILLINK_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_BILLINK_TAXRATE'));
+        $billinkCustomerType = Configuration::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+        $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? Billink::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
+
+        $fields_value['BUCKAROO_BILLINK_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MIN_VALUE');
+        $fields_value['BUCKAROO_BILLINK_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MAX_VALUE');
+
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
@@ -1037,6 +1087,7 @@ class Buckaroo3Admin
                 ),
             ),
         );
+        //TODO - Refactor taxes part
         $tx      = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
         $taxes   = array();
         $taxes[] = "No tax";
@@ -1478,6 +1529,187 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IN3_FEE',
                     'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+        //Billink
+        $tx      = Tax::getTaxes(Configuration::get('PS_LANG_DEFAULT'));
+        $taxes   = array();
+        $taxes[] = "No tax";
+        $defaultTaxvalues = [];
+        $defaultTaxvalues[0] = 1;
+        foreach ($tx as $t) {
+            $taxes[$t["id_tax"]] = $t["name"];
+            $defaultTaxvalues[$t["id_tax"]] = 1;
+        }
+        $taxvalues = $defaultTaxvalues;
+        $savedtaxvalues = Configuration::get('BUCKAROO_AFTERPAY_TAXRATE');
+        if (!empty($savedtaxvalues)) {
+            $savedtaxvalues = unserialize($savedtaxvalues);
+            if(count($savedtaxvalues)) {
+                $taxvalues = $savedtaxvalues;
+            }
+        }
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Billink Settings'),
+            'name'    => 'BILLINK',
+            'test'    => Configuration::get('BUCKAROO_BILLINK_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_BILLINK_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_BILLINK_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_BILLINK_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_BILLINK_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_BILLINK_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_BILLINK_CUSTOMER_TYPE',
+                    'label'     => $this->module->l('Customer type'),
+                    'description' => $this->module->l('This setting determines whether you accept Billink payments for B2C, B2B or both customer types. When B2B is selected, this method is only shown when a company name is entered in the checkout process.'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Both'),
+                            'value' => 'both',
+                        ),
+                        array(
+                            'text'  => $this->module->l('B2B (Business-to-Business)'),
+                            'value' => 'b2b',
+                        ),
+                        array(
+                            'text'  => $this->module->l('B2C (Business-to-consumer)'),
+                            'value' => 'b2c',
+                        ),
+                    )
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount for B2B'),
+                    'name'     => 'BUCKAROO_BILLINK_B2B_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount for B2B'),
+                    'name'     => 'BUCKAROO_BILLINK_B2B_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_BILLINK_DEFAULT_VAT',
+                    'label'     => $this->module->l('Default product Vat type'),
+                    'description' => $this->module->l('Please select default vat type for your products'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_BILLINK_WRAPPING_VAT',
+                    'label'     => $this->module->l('Vat type for wrapping'),
+                    'description' => $this->module->l('Please select  vat type for wrapping'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                ),
+                array(
+                    'type'       => 'taxrate',
+                    'name'       => 'BUCKAROO_BILLINK_TAXRATE',
+                    'label'      => $this->module->l('Select tax rates'),
+                    'taxarray'   => $taxes,
+                    'taxvalues'  => $taxvalues,
+                    'taxoptions' => array(
+                        array(
+                            'text'  => $this->module->l('1 = High rate'),
+                            'value' => '1',
+                        ),
+                        array(
+                            'text'  => $this->module->l('2 = Low rate'),
+                            'value' => '2',
+                        ),
+                        array(
+                            'text'  => $this->module->l('3 = Zero rate'),
+                            'value' => '3',
+                        ),
+                        array(
+                            'text'  => $this->module->l('4 = Null rate'),
+                            'value' => '4',
+                        ),
+                        array(
+                            'text'  => $this->module->l('5 = Middle rate'),
+                            'value' => '5',
+                        ),
+                    ),
+                    'required'   => true,
                 ),
                 array(
                     'type' => 'hidearea_end',

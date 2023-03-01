@@ -389,6 +389,14 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IN3_LABEL', '');
         Configuration::updateValue('BUCKAROO_IN3_FEE', '');
 
+        Configuration::updateValue('BUCKAROO_BILLINK_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_BILLINK_TEST', '1');
+        Configuration::updateValue('BUCKAROO_BILLINK_LABEL', '');
+        Configuration::updateValue('BUCKAROO_BILLINK_FEE', '');
+        Configuration::updateValue('BUCKAROO_BILLINK_DEFAULT_VAT', '2');
+        Configuration::updateValue('BUCKAROO_BILLINK_WRAPPING_VAT', '2');
+        Configuration::updateValue('BUCKAROO_BILLINK_TAXRATE', serialize(array()));
+        Configuration::updateValue('BUCKAROO_BILLINK_CUSTOMER_TYPE', 'both');
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
@@ -554,6 +562,15 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IN3_TEST');
         Configuration::deleteByName('BUCKAROO_IN3_LABEL');
         Configuration::deleteByName('BUCKAROO_IN3_FEE');
+
+        Configuration::deleteByName('BUCKAROO_BILLINK_ENABLED');
+        Configuration::deleteByName('BUCKAROO_BILLINK_TEST');
+        Configuration::deleteByName('BUCKAROO_BILLINK_LABEL');
+        Configuration::deleteByName('BUCKAROO_BILLINK_FEE');
+        Configuration::deleteByName('BUCKAROO_BILLINK_DEFAULT_VAT');
+        Configuration::deleteByName('BUCKAROO_BILLINK_WRAPPING_VAT');
+        Configuration::deleteByName('BUCKAROO_BILLINK_TAXRATE');
+        Configuration::deleteByName('BUCKAROO_BILLINK_CUSTOMER_TYPE');
 
         return true;
     }
@@ -778,6 +795,17 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_in3.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }
+
+        if (Config::get('BUCKAROO_BILLINK_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('BILLINK', 'Billink'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])) //phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('BILLINK'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_billink.tpl')) //phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_billink.png?v'); //phpcs:ignore
+            $payment_options[] = $newOption;
+        }
+
         return $payment_options;
     }
 
@@ -958,6 +986,9 @@ class Buckaroo3 extends PaymentModule
                 break;
             case 'in3':
                 $payment_method_tr = $this->l('In3');
+                break;
+            case 'billink':
+                $payment_method_tr = $this->l('Billink');
                 break;
             default:
                 $payment_method_tr = $this->l($payment_method);

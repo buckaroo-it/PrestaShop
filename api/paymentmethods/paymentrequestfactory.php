@@ -38,6 +38,7 @@ class PaymentRequestFactory
     const REQUEST_TYPE_BELFIUS = 'belfius';
     const REQUEST_TYPE_IDIN = 'idin';
     const REQUEST_TYPE_IN3 = 'in3';
+    const REQUEST_TYPE_BILLINK = 'billink';
 
     // Request types (Payment Methods).
     public static $valid_request_types = array(
@@ -57,6 +58,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_BELFIUS => 'Belfius',
         PaymentRequestFactory::REQUEST_TYPE_IDIN => 'Idin',
         PaymentRequestFactory::REQUEST_TYPE_IN3 => 'In3',
+        PaymentRequestFactory::REQUEST_TYPE_BILLINK => 'Billink'
     );
 
     final public static function create($request_type_id, $data = array())
