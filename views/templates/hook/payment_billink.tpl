@@ -27,7 +27,7 @@
                     </select>
                 </div>
         <br/>
-                <div class="row row-padding">
+        <div class="row row-padding">
             <div class="col-xs-5"><label
                         class="required">{l s='Date of birth' mod='buckaroo3'} :</label></div>
             <div class="col-xs-7" id="billink_date" >
@@ -45,5 +45,17 @@
                 {l s='YYYY' mod='buckaroo3'}
             </div>
         </div>
+        {if $billink_show_coc}
+        <div class="row row-padding">
+                <div class="col-xs-5">
+                    <label class="required">{l s='CoC-number' mod='buckaroo3'}:</label>
+                </div>
+                <div class="col-xs-4">
+                    <input title="customerbillink-coc" name="customerbillink-coc"
+                           id="customerbillink-coc" type="text" value="" required
+                           class="form-control" autocomplete="off"/>
+                </div>
+            </div>
+        {/if}
     </form>
 </section>

@@ -666,7 +666,8 @@ class Buckaroo3 extends PaymentModule
                 'phone_afterpay_billing'  => $phone_afterpay_billing,
                 'total'                   => $cart->getOrderTotal(true, 3),
                 'country'                 => Country::getIsoById(Tools::getCountry()),
-                'afterpay_show_coc'  => $this->showAfterpayCoc($cart)
+                'afterpay_show_coc'  => $this->showAfterpayCoc($cart),
+                'billink_show_coc'  => $this->showBillinkCoc($cart)
             )
         );
 
@@ -1344,6 +1345,29 @@ class Buckaroo3 extends PaymentModule
         return AfterPay::CUSTOMER_TYPE_B2B ===  $afterpay_customer_type ||
         (
             AfterPay::CUSTOMER_TYPE_B2C !==  $afterpay_customer_type &&
+            (
+                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL') ||
+                ($this->companyExists($billingAddress) && $billingCountry === 'NL')
+            )
+        );
+    }
+
+    public function showBillinkCoc($cart)
+    {
+        $billink_customer_type = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+        
+        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
+
+        $billingAddress = $this->getAddressById($idAddressInvoice);
+        $billingCountry = Country::getIsoById($billingAddress->id_country);
+
+        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
+        $shippingCountry = Country::getIsoById($shippingAddress->id_country);
+
+
+        return Billink::CUSTOMER_TYPE_B2B ===  $billink_customer_type ||
+        (
+            Billink::CUSTOMER_TYPE_B2C !==  $billink_customer_type &&
             (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL') ||
                 ($this->companyExists($billingAddress) && $billingCountry === 'NL')
