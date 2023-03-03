@@ -18,6 +18,7 @@
  */
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
+require_once dirname(__FILE__) . '../../logger.php';
 
 class BillinkCheckout extends Checkout
 {
@@ -41,13 +42,14 @@ class BillinkCheckout extends Checkout
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
         $birthDate = date(
-                            'Y-m-d',
+                            'd-m-Y',
                             strtotime(
                                 Tools::getValue("customerbirthdate_y_billing_billink") . "-" . Tools::getValue(
                                     "customerbirthdate_m_billing_billink"
                                 ) . "-" . Tools::getValue("customerbirthdate_d_billing_billink")
                             )
                         );
+        $this->payment_request->VatNumber        = $this->invoice_address->vat_number;
         $this->payment_request->BillingInitials  = initials($this->invoice_address->firstname .' '. $this->invoice_address->lastname);
         $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
         $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
@@ -129,7 +131,7 @@ class BillinkCheckout extends Checkout
 
     public function isRedirectRequired()
     {
-        return true;
+        return false;
     }
 
     public function isVerifyRequired()
@@ -139,6 +141,9 @@ class BillinkCheckout extends Checkout
 
     public function startPayment()
     {
+        $logger = new Logger(Logger::INFO, 'Billink');
+        $logger->logInfo("Products", print_r($this->products));
+
         $products  = array();
         $taxvalues = Configuration::get('BUCKAROO_BILLINK_TAXRATE');
         if (!$taxvalues) {
@@ -151,8 +156,8 @@ class BillinkCheckout extends Checkout
             $tmp["ArticleDescription"] = $item['name'];
             $tmp["ArticleId"]          = $item['id_product'];
             $tmp["ArticleQuantity"]    = $item["quantity"];
-            $tmp["ArticleUnitPriceIncl"]   = round($item["price_wt"], 2);
-            $tmp["ArticleUnitPriceExcl"]   = round($item["price_wt"], 2);
+            $tmp["ArticleUnitPriceIncl"]   = round($item["price_with_reduction"], 2);
+            $tmp["ArticleUnitPriceExcl"]   = round($item["price_with_reduction_without_tax"], 2);
             $tmp["ArticleVatcategory"] = $item["rate"];
             $products[] = $tmp;
         }

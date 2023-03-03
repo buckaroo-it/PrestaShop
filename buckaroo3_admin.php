@@ -288,7 +288,7 @@ class Buckaroo3Admin
                 );
 
                 Configuration::updateValue(
-                    'BBUCKAROO_BILLINK_CUSTOMER_TYPE',
+                    'BUCKAROO_BILLINK_CUSTOMER_TYPE',
                     Tools::getValue('BUCKAROO_BILLINK_CUSTOMER_TYPE')
                 );
 

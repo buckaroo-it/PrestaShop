@@ -77,7 +77,7 @@ class Billink extends PaymentMethod
         return null;
     }
 
-    public function payAfterpay($products, $customVars = array())
+    public function payBillink($products, $customVars = array())
     {
         $this->payload = $this->getPayload($products);
         return parent::pay();
@@ -89,7 +89,7 @@ class Billink extends PaymentMethod
             'vATNumber' => $this->VatNumber,
             'billing'       => [
                 'recipient'        => [
-                    'category'              => (self::CUSTOMER_TYPE_B2C != $this->CustomerType) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
+                    'category'              => (self::CUSTOMER_TYPE_B2C == $this->CustomerType) ? 'B2C' : 'B2B',
                     'careOf'                => $this->BillingFirstName . ' ' . $this->BillingLastName,
                     'firstName'             => $this->BillingFirstName,
                     'lastName'              => $this->BillingLastName,
@@ -126,7 +126,7 @@ class Billink extends PaymentMethod
 
             if (isset($payload['shipping'])){
                 $payload['shipping']['recipient']['companyName'] = $this->ShippingCompanyName;
-                $payload['shipping']['recipient']['category'] = RecipientCategory::COMPANY;
+                $payload['shipping']['recipient']['category'] = 'B2B';
             }
         }
         return $payload;        
@@ -167,7 +167,7 @@ class Billink extends PaymentMethod
                 'vatPercentage' => $this->ShippingCostsTax,
                 'quantity'      => 1,
                 'price'         => $this->ShippingCosts,
-                'priceExcl'     => $$this->ShippingCosts,
+                'priceExcl'     => $this->ShippingCosts,
             ];
         }
 

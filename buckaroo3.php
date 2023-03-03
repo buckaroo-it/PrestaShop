@@ -26,6 +26,7 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/billink/billink.php';
 
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
