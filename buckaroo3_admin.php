@@ -301,6 +301,47 @@ class Buckaroo3Admin
                     'BUCKAROO_BILLINK_B2B_MAX_VALUE',
                     Tools::getValue('BUCKAROO_BILLINK_B2B_MAX_VALUE')
                 );
+
+                Configuration::updateValue('BUCKAROO_EPS_ENABLED', Tools::getValue('BUCKAROO_EPS_ENABLED'));
+                Configuration::updateValue('BUCKAROO_EPS_TEST', Tools::getValue('BUCKAROO_EPS_TEST'));
+                Configuration::updateValue('BUCKAROO_EPS_LABEL', Tools::getValue('BUCKAROO_EPS_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_EPS_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_FEE'))
+                );
+
+                Configuration::updateValue('BUCKAROO_TINKA_ENABLED', Tools::getValue('BUCKAROO_TINKA_ENABLED'));
+                Configuration::updateValue('BUCKAROO_TINKA_TEST', Tools::getValue('BUCKAROO_TINKA_TEST'));
+                Configuration::updateValue('BUCKAROO_TINKA_LABEL', Tools::getValue('BUCKAROO_TINKA_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_TINKA_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_FEE'))
+                );
+
+                Configuration::updateValue('BUCKAROO_TRUSTLY_ENABLED', Tools::getValue('BUCKAROO_TRUSTLY_ENABLED'));
+                Configuration::updateValue('BUCKAROO_TRUSTLY_TEST', Tools::getValue('BUCKAROO_TRUSTLY_TEST'));
+                Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', Tools::getValue('BUCKAROO_TRUSTLY_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_TRUSTLY_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_FEE'))
+                );
+
+                Configuration::updateValue('BUCKAROO_PRZELEWY24_ENABLED', Tools::getValue('BUCKAROO_PRZELEWY24_ENABLED'));
+                Configuration::updateValue('BUCKAROO_PRZELEWY24_TEST', Tools::getValue('BUCKAROO_PRZELEWY24_TEST'));
+                Configuration::updateValue('BUCKAROO_PRZELEWY24_LABEL', Tools::getValue('BUCKAROO_PRZELEWY24_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_PRZELEWY24_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PRZELEWY24_FEE'))
+                );
+
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ENABLED', Tools::getValue('BUCKAROO_PAYPEREMAIL_ENABLED'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', Tools::getValue('BUCKAROO_PAYPEREMAIL_TEST'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', Tools::getValue('BUCKAROO_PAYPEREMAIL_LABEL'));
+                Configuration::updateValue(
+                    'BUCKAROO_PAYPEREMAIL_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_FEE'))
+                );              
+
             }
         }
         return null;
@@ -406,6 +447,31 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_KBC_TEST']             = Configuration::get('BUCKAROO_KBC_TEST');
         $fields_value['BUCKAROO_KBC_LABEL']             = Configuration::get('BUCKAROO_KBC_LABEL');
         $fields_value['BUCKAROO_KBC_FEE']             = Configuration::get('BUCKAROO_KBC_FEE');
+
+        $fields_value['BUCKAROO_EPS_ENABLED']          = Configuration::get('BUCKAROO_EPS_ENABLED');
+        $fields_value['BUCKAROO_EPS_TEST']             = Configuration::get('BUCKAROO_EPS_TEST');
+        $fields_value['BUCKAROO_EPS_LABEL']            = Configuration::get('BUCKAROO_EPS_LABEL');
+        $fields_value['BUCKAROO_EPS_FEE']              = Configuration::get('BUCKAROO_EPS_FEE');
+
+        $fields_value['BUCKAROO_PAYPEREMAIL_ENABLED']          = Configuration::get('BUCKAROO_PAYPEREMAIL_ENABLED');
+        $fields_value['BUCKAROO_PAYPEREMAIL_TEST']             = Configuration::get('BUCKAROO_PAYPEREMAIL_TEST');
+        $fields_value['BUCKAROO_PAYPEREMAIL_LABEL']            = Configuration::get('BUCKAROO_PAYPEREMAIL_LABEL');
+        $fields_value['BUCKAROO_PAYPEREMAIL_FEE']              = Configuration::get('BUCKAROO_PAYPEREMAIL_FEE');
+        
+        $fields_value['BUCKAROO_PRZELEWY24_ENABLED']          = Configuration::get('BUCKAROO_PRZELEWY24_ENABLED');
+        $fields_value['BUCKAROO_PRZELEWY24_TEST']             = Configuration::get('BUCKAROO_PRZELEWY24_TEST');
+        $fields_value['BUCKAROO_PRZELEWY24_LABEL']            = Configuration::get('BUCKAROO_PRZELEWY24_LABEL');
+        $fields_value['BUCKAROO_PRZELEWY24_FEE']              = Configuration::get('BUCKAROO_PRZELEWY24_FEE');
+
+        $fields_value['BUCKAROO_TINKA_ENABLED']          = Configuration::get('BUCKAROO_TINKA_ENABLED');
+        $fields_value['BUCKAROO_TINKA_TEST']             = Configuration::get('BUCKAROO_TINKA_TEST');
+        $fields_value['BUCKAROO_TINKA_LABEL']            = Configuration::get('BUCKAROO_TINKA_LABEL');
+        $fields_value['BUCKAROO_TINKA_FEE']              = Configuration::get('BUCKAROO_TINKA_FEE');
+
+        $fields_value['BUCKAROO_TRUSTLY_ENABLED']          = Configuration::get('BUCKAROO_TRUSTLY_ENABLED');
+        $fields_value['BUCKAROO_TRUSTLY_TEST']             = Configuration::get('BUCKAROO_TRUSTLY_TEST');
+        $fields_value['BUCKAROO_TRUSTLY_LABEL']            = Configuration::get('BUCKAROO_TRUSTLY_LABEL');
+        $fields_value['BUCKAROO_TRUSTLY_FEE']              = Configuration::get('BUCKAROO_TRUSTLY_FEE');
 
         $fields_value['BUCKAROO_MISTERCASH_ENABLED']       = Configuration::get('BUCKAROO_MISTERCASH_ENABLED');
         $fields_value['BUCKAROO_MISTERCASH_TEST']          = Configuration::get('BUCKAROO_MISTERCASH_TEST');
@@ -841,6 +907,211 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KBC_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('EPS settings'),
+            'name'    => 'EPS',
+            'test'    => Configuration::get('BUCKAROO_EPS_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_EPS_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_EPS_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_EPS_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_EPS_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_EPS_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('PayPerEmail settings'),
+            'name'    => 'PAYPEREMAIL',
+            'test'    => Configuration::get('BUCKAROO_PAYPEREMAIL_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_PAYPEREMAIL_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_PAYPEREMAIL_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_PAYPEREMAIL_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Przelewy24 settings'),
+            'name'    => 'PRZELEWY24',
+            'test'    => Configuration::get('BUCKAROO_PRZELEWY24_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_PRZELEWY24_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_PRZELEWY24_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_PRZELEWY24_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_PRZELEWY24_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_PRZELEWY24_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Tinka settings'),
+            'name'    => 'TINKA',
+            'test'    => Configuration::get('BUCKAROO_TINKA_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_TINKA_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_TINKA_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_TINKA_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_TINKA_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_TINKA_FEE',
+                    'size'     => 80,
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            ),
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('Trustly settings'),
+            'name'    => 'TRUSTLY',
+            'test'    => Configuration::get('BUCKAROO_TRUSTLY_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_TRUSTLY_ENABLED'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_TRUSTLY_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_TRUSTLY_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_TRUSTLY_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Buckaroo Fee'),
+                    'name'     => 'BUCKAROO_TRUSTLY_FEE',
                     'size'     => 80,
                 ),
                 array(

@@ -335,6 +335,32 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_KBC_TEST', '1');
         Configuration::updateValue('BUCKAROO_KBC_LABEL', '');
         Configuration::updateValue('BUCKAROO_KBC_FEE', '');
+
+        Configuration::updateValue('BUCKAROO_EPS_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_EPS_TEST', '1');
+        Configuration::updateValue('BUCKAROO_EPS_LABEL', '');
+        Configuration::updateValue('BUCKAROO_EPS_FEE', '');
+
+        Configuration::updateValue('BUCKAROO_PRZELEWY24_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PRZELEWY24_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PRZELEWY24_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PRZELEWY24_FEE', '');
+
+        Configuration::updateValue('BUCKAROO_TRUSTLY_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_TRUSTLY_TEST', '1');
+        Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', '');
+        Configuration::updateValue('BUCKAROO_TRUSTLY_FEE', '');
+
+        Configuration::updateValue('BUCKAROO_TINKA_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_TINKA_TEST', '1');
+        Configuration::updateValue('BUCKAROO_TINKA_LABEL', '');
+        Configuration::updateValue('BUCKAROO_TINKA_FEE', '');
+
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_FEE', '');
+
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
         Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
@@ -507,6 +533,31 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_KBC_TEST');
         Configuration::deleteByName('BUCKAROO_KBC_LABEL');
         Configuration::deleteByName('BUCKAROO_KBC_FEE');
+
+        Configuration::deleteByName('BUCKAROO_EPS_ENABLED');
+        Configuration::deleteByName('BUCKAROO_EPS_TEST');
+        Configuration::deleteByName('BUCKAROO_EPS_LABEL');
+        Configuration::deleteByName('BUCKAROO_EPS_FEE');
+
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_TEST');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_LABEL');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_FEE');
+
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_ENABLED');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_TEST');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_LABEL');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_FEE');
+
+        Configuration::deleteByName('BUCKAROO_TINKA_ENABLED');
+        Configuration::deleteByName('BUCKAROO_TINKA_TEST');
+        Configuration::deleteByName('BUCKAROO_TINKA_LABEL');
+        Configuration::deleteByName('BUCKAROO_TINKA_FEE');
+
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_LABEL');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_FEE');
 
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
@@ -808,6 +859,46 @@ class Buckaroo3 extends PaymentModule
             $payment_options[] = $newOption;
         }
 
+        if (Config::get('BUCKAROO_EPS_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('EPS', 'Pay by EPS'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'eps']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_eps.png?v');
+            $payment_options[] = $newOption;
+        }
+
+        if (Config::get('BUCKAROO_PRZELEWY24_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('PRZELEWY24', 'Pay by Przelewy24'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'przelewy24']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_przelewy24.png?v');
+            $payment_options[] = $newOption;
+        }
+
+        if (Config::get('BUCKAROO_PAYPEREMAIL_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('PAYPEREMAIL', 'Pay by PayPerEmail'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_payperemail.png?v');
+            $payment_options[] = $newOption;
+        }
+
+        if (Config::get('BUCKAROO_TINKA_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('TINKA', 'Pay by Tinka'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'tinka']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_tinka.png?v');
+            $payment_options[] = $newOption;
+        }
+
+        if (Config::get('BUCKAROO_TRUSTLY_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('TRUSTLY', 'Pay by Trustly'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'trustly']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_trustly.png?v');
+            $payment_options[] = $newOption;
+        }
+
         return $payment_options;
     }
 
@@ -992,6 +1083,21 @@ class Buckaroo3 extends PaymentModule
             case 'billink':
                 $payment_method_tr = $this->l('Billink');
                 break;
+            case 'eps':
+                $payment_method_tr = $this->l('EPS');
+                break;
+            case 'przelewy24':
+                $payment_method_tr = $this->l('Przelewy24');
+                break;
+            case 'tinka':
+                $payment_method_tr = $this->l('Tinka');
+                break;
+            case 'trustly':
+                $payment_method_tr = $this->l('Trustly');
+                break;
+            case 'payperemail':
+                $payment_method_tr = $this->l('PayPerEmail');
+                break;
             default:
                 $payment_method_tr = $this->l($payment_method);
                 break;
@@ -1036,7 +1142,14 @@ class Buckaroo3 extends PaymentModule
             'TRANSFER',
             'AFTERPAY',
             'KLARNA',
-            'APPLEPAY'
+            'APPLEPAY',
+            'IN3',
+            'BILLINK',
+            'EPS',
+            'PRZELEWY24',
+            'TINKA',
+            'TRUSTLY',
+            'PAYPEREMAIL'
         ];
         $result  = [];
         foreach ($methods as $method) {

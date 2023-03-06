@@ -374,6 +374,105 @@
     </div>
 {/if}
 
+{***********EPS************}
+{if $eps_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id="eps_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/eps.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
+                   href="#"
+                   title="{l s='Pay by EPS' mod='buckaroo3'}">
+                    {l s='Pay by EPS' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+    <div rel="booAnimBl" class="booBlAnimCont row" style="display: none;">
+        <div class="col-xs-12 col-md-6">
+            <form name="booEpsForm" id="booEpsForm"
+                  action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'eps'])|escape:'quotes':'UTF-8'}" method="post">
+
+                <div class="row row-padding">
+                    <button id="booEpsSendBtn" type="button" name="processCarrier"
+                            class="button btn btn-default standard-checkout button-medium pull-right padding-right-button">
+                <span>
+                    {l s='I confirm my order' mod='buckaroo3'}
+                    <i class="icon-chevron-right right"></i>
+                </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
+
+{***********Przelewy24************}
+{if $przelewy24_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id="przelewy24_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/przelewy24.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
+                   href="#"
+                   title="{l s='Pay by Przelewy24' mod='buckaroo3'}">
+                    {l s='Pay by Przelewy24' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+    <div rel="booAnimBl" class="booBlAnimCont row" style="display: none;">
+        <div class="col-xs-12 col-md-6">
+            <form name="booPrzelewy24Form" id="booPrzelewy24Form"
+                  action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'przelewy24'])|escape:'quotes':'UTF-8'}" method="post">
+
+                <div class="row row-padding">
+                    <button id="booPrzelewy24SendBtn" type="button" name="processCarrier"
+                            class="button btn btn-default standard-checkout button-medium pull-right padding-right-button">
+                <span>
+                    {l s='I confirm my order' mod='buckaroo3'}
+                    <i class="icon-chevron-right right"></i>
+                </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
+
+{***********Trustly************}
+{if $trustly_enabled}
+    <div class="row">
+        <div class="col-xs-12 col-md-6">
+            <p class="payment_module">
+                <a id="trustly_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/trustly.png)"
+                   class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
+                   href="#"
+                   title="{l s='Pay by Trustly' mod='buckaroo3'}">
+                    {l s='Pay by Trustly' mod='buckaroo3'}
+                </a>
+            </p>
+        </div>
+    </div>
+    <div rel="booAnimBl" class="booBlAnimCont row" style="display: none;">
+        <div class="col-xs-12 col-md-6">
+            <form name="booTrustlyForm" id="booTrustlyForm"
+                  action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'trustly'])|escape:'quotes':'UTF-8'}" method="post">
+
+                <div class="row row-padding">
+                    <button id="booTrustlySendBtn" type="button" name="processCarrier"
+                            class="button btn btn-default standard-checkout button-medium pull-right padding-right-button">
+                <span>
+                    {l s='I confirm my order' mod='buckaroo3'}
+                    <i class="icon-chevron-right right"></i>
+                </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{/if}
+
 {***********MisterCash*************}
 {if $mistercash_enabled}
     <div class="row">

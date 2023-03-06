@@ -43,6 +43,11 @@ abstract class Checkout
     const CHECKOUT_TYPE_IDIN            = 'idin';
     const CHECKOUT_TYPE_IN3             = 'in3';
     const CHECKOUT_TYPE_BILLINK         = 'billink';
+    const CHECKOUT_TYPE_EPS             = 'eps';
+    const CHECKOUT_TYPE_PAYPEREMAIL     = 'payperemail';
+    const CHECKOUT_TYPE_PRZELEWY24      = 'przelewy24';
+    const CHECKOUT_TYPE_TINKA           = 'tinka';
+    const CHECKOUT_TYPE_TRUSTLY         = 'trustly';
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
@@ -61,8 +66,13 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_APPLEPAY        => 'ApplePay',
         Checkout::CHECKOUT_TYPE_BELFIUS         => 'Belfius',
         Checkout::CHECKOUT_TYPE_IDIN            => 'Idin',
-        Checkout::CHECKOUT_TYPE_IN3             => 'in3',
+        Checkout::CHECKOUT_TYPE_IN3             => 'In3',
         Checkout::CHECKOUT_TYPE_BILLINK         => 'Billink',
+        Checkout::CHECKOUT_TYPE_EPS             => 'Eps',
+        Checkout::CHECKOUT_TYPE_PAYPEREMAIL     => 'PayPerEmail',
+        Checkout::CHECKOUT_TYPE_PRZELEWY24      => 'Przelewy24',
+        Checkout::CHECKOUT_TYPE_TINKA           => 'Tinka',
+        Checkout::CHECKOUT_TYPE_TRUSTLY         => 'Trustly'
 
     );
 
