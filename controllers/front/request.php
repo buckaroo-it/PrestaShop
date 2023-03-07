@@ -166,7 +166,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $message->id_order = $id_order;
                 $message->message  = 'Transaction key: ' . $response->transactions;
                 $message->add();
-
+                //TODO fix adding Mandateref & date as message
                 if ($response->payment_method == 'SepaDirectDebit') {
                     /* @var $response Response */
                     foreach ($response->getResponse()->Services->Service->ResponseParameter as $param) {

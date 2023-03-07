@@ -24,19 +24,16 @@ class TransferCheckout extends Checkout
 
     final public function setCheckout()
     {
-
         parent::setCheckout();
 
-        $this->customVars['CustomerEmail']     = $this->customer->email;
-        $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
-        $this->customVars['CustomerLastName']  = $this->invoice_address->lastname;
-        $this->customVars['SendMail'] = ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE');//phpcs:ignore
-        $this->customVars['DateDue']           = date(
-            'Y-m-d',
-            strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')
-        );
-        $country                             = new Country($this->invoice_address->id_country);
-        $this->customVars['CustomerCountry'] = Tools::strtoupper($country->iso_code);
+        $this->customVars([
+            'CustomerEmail'     => $this->customer->email,
+            'CustomerFirstName' => $this->invoice_address->firstname,
+            'CustomerLastName'  => $this->invoice_address->lastname,
+            'SendMail'          => ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE'),//phpcs:ignore
+            'DateDue'           => date('Y-m-d', strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')),//phpcs:ignore
+            'CustomerCountry'   => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code)
+        ]);                       
     }
 
     public function isRedirectRequired()
@@ -51,7 +48,7 @@ class TransferCheckout extends Checkout
 
     public function startPayment()
     {
-        $this->payment_response = $this->payment_request->payTransfer($this->customVars);
+        $this->payment_response = $this->payment_request->pay($this->customVars);
     }
 
     protected function initialize()

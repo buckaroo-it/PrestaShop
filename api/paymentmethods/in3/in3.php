@@ -20,14 +20,18 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-use Buckaroo\Resources\Constants\Gender;
-
 class In3 extends PaymentMethod
 {
     public function __construct()
     {
         $this->type = "in3";
         $this->mode = Config::getMode($this->type);
+    }
+
+    public function pay($customVars = array())
+    {
+        $this->payload = $this->getPayload($data);
+        return parent::executeCustomPayAction('payInInstallments');
     }
 
     public function getPayload($data)
@@ -44,12 +48,6 @@ class In3 extends PaymentMethod
             'address'           => $data['address'],
         ];
         return $payload;
-    }
-
-    public function payIn3($data = array())
-    {
-        $this->payload = $this->getPayload($data);
-        return parent::executeCustomPayAction('payInInstallments');
     }
 }
  

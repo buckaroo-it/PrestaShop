@@ -31,30 +31,23 @@ class Transfer extends PaymentMethod
 
     public function pay($customVars = array())
     {
-        return null;
-    }
-
-    public function getPayload($customVars)
-    {
-
-        $payload = array(
-                'customer' => [
-                    'firstName' => $customVars['CustomerFirstName'],
-                    'lastName' => $customVars['CustomerLastName']
-                ],
-                'email' => $customVars['CustomerEmail'],
-                'country' => $customVars['CustomerCountry'],
-                'dateDue' =>  $customVars['DateDue'],
-                'sendMail' => $customVars['SendMail']
-        );
-
-        return $payload;
-        
-    }
-
-    public function payTransfer($customVars)
-    {
         $this->payload = $this->getPayload($customVars);
         return parent::pay();
+    }
+
+    public function getPayload($data)
+    {
+
+        $payload = [
+                'customer' => [
+                    'firstName' => $data['CustomerFirstName'],
+                    'lastName'  => $data['CustomerLastName']
+                ],
+                'email'    => $data['CustomerEmail'],
+                'country'  => $data['CustomerCountry'],
+                'dateDue'  => $data['DateDue'],
+                'sendMail' => $data['SendMail']
+        ];
+        return $payload;        
     }
 }

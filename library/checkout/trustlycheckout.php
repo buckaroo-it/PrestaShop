@@ -29,10 +29,9 @@ class TrustlyCheckout extends Checkout
         parent::setCheckout();
         
         $this->customVars = [
-            "first_name" => $this->invoice_address->firstname,
-            "last_name"  => $this->invoice_address->lastname,
-            "country"    => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code
-            ),
+            'first_name' => $this->invoice_address->firstname,
+            'last_name'  => $this->invoice_address->lastname,
+            'country'    => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
         ];
     }
 

@@ -30,19 +30,19 @@ class In3Checkout extends Checkout
         $this->addRequiredDescription();
         
         $this->customVars = [
-            "description" => $this->payment_request->invoiceId,
-            "customer" => $this->getCustomer(),
-            "address" => $this->getAddress(),
-            "articles" => $this->getArticles(),
-            "phone" => $this->getPhone(),
-            "email" => $this->customer->email,
-            "articles" => $this->getArticles()
+            'description' => $this->payment_request->invoiceId,
+            'customer' => $this->getCustomer(),
+            'address' => $this->getAddress(),
+            'articles' => $this->getArticles(),
+            'phone' => $this->getPhone(),
+            'email' => $this->customer->email,
+            'articles' => $this->getArticles()
         ];
     }
 
     public function startPayment()
     {
-        $this->payment_response = $this->payment_request->payIn3($this->customVars);
+        $this->payment_response = $this->payment_request->pay($this->customVars);
     }
 
     public function isRedirectRequired()

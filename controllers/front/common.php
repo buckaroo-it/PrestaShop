@@ -65,7 +65,6 @@ class BuckarooCommonController extends ModuleFrontController
     protected function displayError($invoicenumber = null, $error_message = null)
     {
 
-        //if ($invoicenumber != null)
         if (is_null($error_message)) {
             $error_message = $this->module->l(
                 'Your payment was unsuccessful. Please try again or choose another payment method.'

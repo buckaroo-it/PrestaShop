@@ -88,7 +88,7 @@ abstract class PaymentMethod extends BuckarooAbstract
     }
 
     public function refundGlobal()
-    {
+    {//TODO - remove unused code
         if ($this->type == "afterpay") {
             if ($refund_amount = Tools::getValue('refund_amount')) {
                 $this->data['customVars'][$this->type]["RefundType"][0]["value"] = 'Return';

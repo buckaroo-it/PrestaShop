@@ -68,13 +68,18 @@ abstract class Response extends BuckarooAbstract
         } else {
             $this->isPush   = $this->isPushRequest();
             $this->received = true;           
-            $this->parsePostValues();
+            $this->parsePushRequest();
         }
         
     }
 
-    private function parsePostValues()
+    private function parsePushRequest()
     {
+        if (!$this->isPushRequest())
+        {
+            return false;
+        }
+
         $this->payment = $this->setPostVariable('brq_payment');
         if (Tools::getValue('brq_payment_method')) {
             $this->payment_method = Tools::getValue('brq_payment_method');
@@ -108,7 +113,7 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    /*
+    /*TODO - Remove unused code
     public function __construct($data = null)
     {
         $logger = new Logger(Logger::INFO, 'response');
@@ -285,7 +290,7 @@ abstract class Response extends BuckarooAbstract
 
         return '';
     }
-
+    //TODO - remove unused code
     private function setResponse($response)
     {
         $this->response = $response;
@@ -296,6 +301,7 @@ abstract class Response extends BuckarooAbstract
         return $this->response;
     }
 
+    //TODO - remove unused code
     public function getData($key = null)
     {   
         $data = $this->response->data();

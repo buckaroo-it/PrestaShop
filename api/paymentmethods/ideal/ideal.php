@@ -18,7 +18,7 @@
  */
 
 require_once dirname(__FILE__) . '/../paymentmethod.php';
-
+//TODO Refactor this
 class IDeal extends PaymentMethod
 {
     public $issuer;
@@ -35,10 +35,7 @@ class IDeal extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = array())
     {
-        // @codingStandardsIgnoreEnd
-        $this->data['customVars'][$this->type]['issuer'] = $this->getIssuer($this->issuer);
         $this->payload['issuer'] = $this->getIssuer($this->issuer);
-
         return parent::pay();
     }
 
@@ -47,6 +44,7 @@ class IDeal extends PaymentMethod
         return parent::refund();
     }
 
+    //TODO Add issuer list from sdk with cache
     public static function getIssuerList()
     {
         $issuerArray = array(
