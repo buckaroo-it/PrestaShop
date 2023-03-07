@@ -188,7 +188,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     $this->context->cookie->__set("HtmlText", $response->consumerMessage['HtmlText']);
                 }
                 Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&response_received=' . $response->payment_method//phpcs:ignore
+                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method//phpcs:ignore
                 );
             } else {
                 $logger->logInfo('Payment request failed/canceled');
