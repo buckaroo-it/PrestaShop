@@ -360,7 +360,9 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', '');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_FEE', '');
-
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL', '1');
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', '7');
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', 'ideal');
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
         Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
@@ -558,6 +560,9 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_TEST');
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_LABEL');
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_FEE');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
 
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
@@ -879,6 +884,8 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('PAYPEREMAIL', 'Pay by PayPerEmail'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail']))
+                ->setInputs($this->getBuckarooFeeInputs('PAYPEREMAIL'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_payperemail.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_payperemail.png?v');
             $payment_options[] = $newOption;
         }

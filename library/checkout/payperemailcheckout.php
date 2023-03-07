@@ -27,6 +27,13 @@ class PayPerEmailCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->customVars = [
+            'first_name' => $this->invoice_address->firstname,
+            'last_name'  => $this->invoice_address->lastname,
+            'email'      => $this->customer->email,
+            'gender'     => Tools::getValue("bpe_payperemail_person_gender"),
+        ];
     }
 
     public function startPayment()

@@ -337,6 +337,10 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ENABLED', Tools::getValue('BUCKAROO_PAYPEREMAIL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', Tools::getValue('BUCKAROO_PAYPEREMAIL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', Tools::getValue('BUCKAROO_PAYPEREMAIL_LABEL'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL', Tools::getValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', Tools::getValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', Tools::getValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'));
+
                 Configuration::updateValue(
                     'BUCKAROO_PAYPEREMAIL_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_FEE'))
@@ -457,7 +461,10 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPEREMAIL_TEST']             = Configuration::get('BUCKAROO_PAYPEREMAIL_TEST');
         $fields_value['BUCKAROO_PAYPEREMAIL_LABEL']            = Configuration::get('BUCKAROO_PAYPEREMAIL_LABEL');
         $fields_value['BUCKAROO_PAYPEREMAIL_FEE']              = Configuration::get('BUCKAROO_PAYPEREMAIL_FEE');
-        
+        $fields_value['BUCKAROO_PAYPEREMAIL_SEND_EMAIL']       = Configuration::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
+        $fields_value['BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS']      = Configuration::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
+        $fields_value['BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS']  = Configuration::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
+
         $fields_value['BUCKAROO_PRZELEWY24_ENABLED']          = Configuration::get('BUCKAROO_PRZELEWY24_ENABLED');
         $fields_value['BUCKAROO_PRZELEWY24_TEST']             = Configuration::get('BUCKAROO_PRZELEWY24_TEST');
         $fields_value['BUCKAROO_PRZELEWY24_LABEL']            = Configuration::get('BUCKAROO_PRZELEWY24_LABEL');
@@ -978,6 +985,23 @@ class Buckaroo3Admin
                 array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_PAYPEREMAIL_TEST',
+                ),
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_PAYPEREMAIL_SEND_EMAIL',
+                    'label'    => $this->module->l('Send payment invite email'),
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Invite expire(days)'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Allowed methods separated by comma'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS',
+                    'size'     => 300,
                 ),
                 array(
                     'type'     => 'text',

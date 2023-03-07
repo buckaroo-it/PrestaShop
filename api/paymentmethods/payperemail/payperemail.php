@@ -19,95 +19,39 @@
 
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
+use Buckaroo\Resources\Constants\Gender;
+
 class PayPerEmail extends PaymentMethod
 {
-    public $customeraccountname;
-    public $CustomerBIC;
-    public $CustomerIBAN;
 
     public function __construct()
     {
         $this->type    = "payperemail";
         $this->version = '1';
-        $this->mode    = Config::getMode('SDD');
+        $this->mode    = Config::getMode($this->type);
     }
 
-    // @codingStandardsIgnoreStart
+
     public function pay($customVars = array())
     {
-        // @codingStandardsIgnoreEnd
-        return null;
+        $this->payload = $this->getPayload($customVars);
+        return parent::executeCustomPayAction('paymentInvitation');
     }
 
-    public function paymentInvitation($customVars)
+    public function getPayload($data)
     {
-        $this->data['services'][$this->type]['action']  = 'PaymentInvitation';
-        $this->data['services'][$this->type]['version'] = $this->version;
-
-        $this->data['customVars'][$this->type]['customergender']     = $customVars['Customergender'];
-        $this->data['customVars'][$this->type]['CustomerEmail']      = $customVars['Customeremail'];
-        $this->data['customVars'][$this->type]['CustomerFirstName']  = $customVars['CustomerFirstName'];
-        $this->data['customVars'][$this->type]['CustomerLastName']   = $customVars['CustomerLastName'];
-        $this->data['customVars'][$this->type]['MerchantSendsEmail'] = 'false';
-        if (!empty($customVars['PaymentMethodsAllowed'])) {
-            $this->data['customVars'][$this->type]['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];
-        }
-
-        $this->data['currency']     = $this->currency;
-        $this->data['amountDebit']  = $this->amountDebit;
-        $this->data['amountCredit'] = $this->amountCredit;
-        $this->data['invoice']      = $this->invoiceId;
-        $this->data['order']        = $this->orderId;
-        $this->data['description']  = $this->description;
-        $this->data['returnUrl']    = $this->returnUrl;
-        $this->data['mode']         = $this->mode;
-
-        if ($this->usecreditmanagment) {
-            $this->data['services']['creditmanagement']['action']             = 'Invoice';
-            $this->data['services']['creditmanagement']['version']            = '1';
-            $this->data['customVars']['creditmanagement']['MaxReminderLevel'] = $customVars['MaxReminderLevel'];
-            $this->data['customVars']['creditmanagement']['DateDue']          = $customVars['DateDue'];
-            $this->data['customVars']['creditmanagement']['InvoiceDate']      = $customVars['InvoiceDate'];
-            if (Tools::getIsset($customVars['CustomerCode'])) {
-                $this->data['customVars']['creditmanagement']['CustomerCode'] = $customVars['CustomerCode'];
-            }
-            if (!empty($customVars['CompanyName'])) {
-                $this->data['customVars']['creditmanagement']['CompanyName'] = $customVars['CompanyName'];
-            }
-            $this->data['customVars']['creditmanagement']['CustomerFirstName'] = $customVars['CustomerFirstName'];
-            $this->data['customVars']['creditmanagement']['CustomerLastName']  = $customVars['CustomerLastName'];
-            $this->data['customVars']['creditmanagement']['CustomerInitials']  = $customVars['CustomerInitials'];
-            $this->data['customVars']['creditmanagement']['Customergender']    = $customVars['Customergender'];
-            $this->data['customVars']['creditmanagement']['Customeremail']     = $customVars['Customeremail'];
-
-            if (!empty($customVars['PaymentMethodsAllowed'])) {
-                $this->data['customVars']['creditmanagement']['PaymentMethodsAllowed'] = $customVars['PaymentMethodsAllowed'];//phpcs:ignore
-            }
-
-            if (Tools::getIsset($customVars['MobilePhoneNumber'])) {
-                $this->data['customVars']['creditmanagement']['MobilePhoneNumber'] = $customVars['MobilePhoneNumber'];
-                $this->data['customVars']['creditmanagement']['PhoneNumber']       = $customVars['MobilePhoneNumber'];
-            }
-            if (Tools::getIsset($customVars['PhoneNumber'])) {
-                $this->data['customVars']['creditmanagement']['PhoneNumber'] = $customVars['PhoneNumber'];
-            }
-            if (Tools::getIsset($customVars['CustomerBirthDate'])) {
-                $this->data['customVars']['creditmanagement']['CustomerBirthDate'] = $customVars['CustomerBirthDate'];
-            }
-
-            $this->data['customVars']['creditmanagement']['CustomerType'] = '0';
-            $this->data['customVars']['creditmanagement']['AmountVat']    = $customVars['AmountVat'];
-
-            foreach ($customVars['ADDRESS'] as $key => $adress) {
-                foreach ($adress as $key2 => $value) {
-                    $this->data['customVars']['creditmanagement'][$key2][$key]['value'] = $value;
-                    $this->data['customVars']['creditmanagement'][$key2][$key]['group'] = 'address';
-                }
-            }
-        }
-
-        //$soap = new Soap($this->data);
-
-        return ResponseFactory::getResponse($soap->transactionRequest());
+        $payload = [
+            'customer' => [
+                'gender' => $data['gender'],
+                'firstName' => $data['first_name'],
+                'lastName' => $data['last_name'],
+            ],
+            'email' => $data['email'],
+            'merchantSendsEmail' => Config::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'),
+            'expirationDate' => date('Y-m-d', strtotime( '+'. (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') .'day')),
+            'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'),//'ideal,mastercard,paypal',
+            'attachment' => ''
+        ];
+        return $payload;
     }
 }
