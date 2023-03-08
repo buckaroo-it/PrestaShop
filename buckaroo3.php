@@ -363,6 +363,12 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL', '1');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', '7');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', 'ideal');
+
+        Configuration::updateValue('BUCKAROO_PAYCONIQ_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYCONIQ_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYCONIQ_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYCONIQ_FEE', '');
+
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
         Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
@@ -563,6 +569,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
         Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
+
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_LABEL');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_FEE');
 
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
@@ -890,6 +901,14 @@ class Buckaroo3 extends PaymentModule
             $payment_options[] = $newOption;
         }
 
+        if (Config::get('BUCKAROO_PAYCONIQ_ENABLED')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('PAYCONIQ', 'Pay by Payconiq'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payconiq']))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_payconiq.png?v');
+            $payment_options[] = $newOption;
+        }
+
         if (Config::get('BUCKAROO_TINKA_ENABLED')) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('TINKA', 'Pay by Tinka'))
@@ -1105,6 +1124,9 @@ class Buckaroo3 extends PaymentModule
             case 'payperemail':
                 $payment_method_tr = $this->l('PayPerEmail');
                 break;
+            case 'payconiq':
+                $payment_method_tr = $this->l('Payconiq');
+                break;
             default:
                 $payment_method_tr = $this->l($payment_method);
                 break;
@@ -1156,7 +1178,8 @@ class Buckaroo3 extends PaymentModule
             'PRZELEWY24',
             'TINKA',
             'TRUSTLY',
-            'PAYPEREMAIL'
+            'PAYPEREMAIL',
+            'PAYCONIQ'
         ];
         $result  = [];
         foreach ($methods as $method) {
