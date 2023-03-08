@@ -913,6 +913,8 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('TINKA', 'Pay by Tinka'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'tinka']))
+                ->setInputs($this->getBuckarooFeeInputs('TINKA'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_tinka.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_tinka.png?v');
             $payment_options[] = $newOption;
         }

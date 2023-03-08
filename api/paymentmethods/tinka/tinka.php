@@ -29,9 +29,37 @@ class Tinka extends PaymentMethod
 
     public function getPayload($data)
     {
-        
+        $payload = [
+            'description' => 'This is a test order',
+            'paymentMethod' => 'Credit',
+            'deliveryMethod' => 'Locker',
+            'deliveryDate' => date('Y-m-d'),
+            'articles' => $data['articles'],
+            'customer' => $data['customer'],
+            'billing' => [
+                'recipient' => [
+                    'lastNamePrefix' => 'the',
+                ],
+                'email' => $data['email'],
+                'phone' => [
+                    'mobile' => $data['billing']['phone']
+                ],
+                'address' => $data['billing']['address']
+            ],
+            'shipping' => [
+                'recipient' => [
+                    'lastNamePrefix' => 'the',
+                ],
+                'email' => $data['email'],
+                'phone' => [
+                    'mobile' => $data['shipping']['phone'],
+                ],
+                'address' => $data['shipping']['address']
+            ],
+        ];
+        return $payload;
     }
-    // @codingStandardsIgnoreStart
+
     public function pay($customVars = array())
     {
         $this->payload = $this->getPayload($customVars);
