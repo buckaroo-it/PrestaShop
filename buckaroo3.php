@@ -41,7 +41,7 @@ class Buckaroo3 extends PaymentModule
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = array('min' => '1.', 'max' => '9.0');
+        $this->ps_versions_compliancy = array('min' => '1.', 'max' => _PS_VERSION_);
 
         parent::__construct();
 
@@ -639,6 +639,13 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_BILLINK_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_BILLINK_TAXRATE');
         Configuration::deleteByName('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+
+        Configuration::deleteByName('BUCKAROO_TRANSFER_ENABLED');
+        Configuration::deleteByName('BUCKAROO_TRANSFER_TEST');
+        Configuration::deleteByName('BUCKAROO_TRANSFER_LABEL');
+        Configuration::deleteByName('BUCKAROO_TRANSFER_FEE');
+        Configuration::deleteByName('BUCKAROO_TRANSFER_DATEDUE');
+        Configuration::deleteByName('BUCKAROO_TRANSFER_SENDMAIL');
 
         return true;
     }
