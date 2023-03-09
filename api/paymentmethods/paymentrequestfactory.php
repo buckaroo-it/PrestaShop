@@ -22,7 +22,7 @@ include_once(dirname(__FILE__) . '/functions.php');
 class PaymentRequestFactory
 {
 
-    const REQUEST_TYPE_PAYPAL = 'buckaroopaypal';
+    const REQUEST_TYPE_PAYPAL = 'paypal';
     const REQUEST_TYPE_IDEAL = 'ideal';
     const REQUEST_TYPE_GIROPAY = 'giropay';
     const REQUEST_TYPE_KBC = 'kbc';
@@ -48,7 +48,7 @@ class PaymentRequestFactory
     
     // Request types (Payment Methods).
     public static $valid_request_types = array(
-        PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'BuckarooPayPal',
+        PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'PayPal',
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',

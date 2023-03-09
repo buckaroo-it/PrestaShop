@@ -19,7 +19,7 @@
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooPayPal extends PaymentMethod
+class PayPal extends PaymentMethod
 {
     public function __construct()
     {
@@ -28,6 +28,7 @@ class BuckarooPayPal extends PaymentMethod
         $this->mode = Config::getMode($this->type);
     }
 
+    //Seller protection payload
     public function getPayload($data)
     {
         $payload = [
@@ -51,7 +52,14 @@ class BuckarooPayPal extends PaymentMethod
 
     public function pay($customVars = array())
     {
-        $this->payload = $this->getPayload($customVars);
-        return parent::executeCustomPayAction('extraInfo');
+        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'))
+        {
+            //Pay with Seller Protection enabled
+            $this->payload = $this->getPayload($customVars);
+            return parent::executeCustomPayAction('extraInfo');
+        } else {
+            //Regular paypal payment
+            return parent::pay();
+        }
     }
 }

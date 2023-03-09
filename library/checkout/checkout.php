@@ -26,7 +26,7 @@ abstract class Checkout
 
     protected $customVars = array();
     
-    const CHECKOUT_TYPE_PAYPAL          = 'buckaroopaypal';
+    const CHECKOUT_TYPE_PAYPAL          = 'paypal';
     const CHECKOUT_TYPE_IDEAL           = 'ideal';
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_GIROPAY         = 'giropay';
@@ -52,7 +52,7 @@ abstract class Checkout
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
-        Checkout::CHECKOUT_TYPE_PAYPAL          => 'BuckarooPayPal',
+        Checkout::CHECKOUT_TYPE_PAYPAL          => 'PayPal',
         Checkout::CHECKOUT_TYPE_IDEAL           => 'IDeal',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY         => 'Giropay',

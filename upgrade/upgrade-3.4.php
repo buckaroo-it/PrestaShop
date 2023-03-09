@@ -34,3 +34,7 @@ Configuration::deleteByName('BUCKAROO_CAPAYABLE_ENABLED');
 Configuration::deleteByName('BUCKAROO_CAPAYABLE_TEST');
 Configuration::deleteByName('BUCKAROO_CAPAYABLE_LABEL');
 Configuration::deleteByName('BUCKAROO_CAPAYABLE_FEE');
+
+//Paypal update
+Configuration::updateValue('BUCKAROO_PAYPAL_FEE', Configuration::get('BUCKAROO_BUCKAROOPAYPAL_FEE'));
+Configuration::deleteByName('BUCKAROO_BUCKAROOPAYPAL_FEE');

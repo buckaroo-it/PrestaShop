@@ -322,7 +322,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_FEE', '');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_IDEAL_LABEL', '');
@@ -751,9 +751,9 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_PAYPAL_ENABLED')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('BUCKAROOPAYPAL', 'Pay by PayPal'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal']))
-                ->setInputs($this->getBuckarooFeeInputs('BUCKAROOPAYPAL'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('PAYPAL', 'Pay by PayPal'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paypal']))
+                ->setInputs($this->getBuckarooFeeInputs('PAYPAL'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_paypal.png?v');
             $payment_options[] = $newOption;
         }
@@ -1056,10 +1056,8 @@ class Buckaroo3 extends PaymentModule
     {
         switch ($payment_method) {
             case 'paypal':
-            case 'buckaroopaypal':
                 $payment_method_tr = $this->l('PayPal');
                 break;
-            case 'SepaDirectDebit':
             case 'sepadirectdebit':
                 $payment_method_tr = $this->l('Sepa Direct Debit');
                 break;
@@ -1161,7 +1159,7 @@ class Buckaroo3 extends PaymentModule
     {
         $methods = [
             'IDEAL',
-            'BUCKAROOPAYPAL',
+            'PAYPAL',
             'SDD',
             'GIROPAY',
             'KBC',

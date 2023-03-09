@@ -38,7 +38,7 @@
             <p class="payment_module">
                 <a id="paypal_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_paypal.png)"
                    class="buckaroo_paylink buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;"
-                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'buckaroopaypal'])|escape:'quotes':'UTF-8'}"
+                   href="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'paypal'])|escape:'quotes':'UTF-8'}"
                    title="{l s='Pay by PayPal' mod='buckaroo3'}">
                     {l s='Pay by PayPal' mod='buckaroo3'}
                 </a>

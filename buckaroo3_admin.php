@@ -78,8 +78,8 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
                 Configuration::updateValue(
-                    'BUCKAROO_BUCKAROOPAYPAL_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BUCKAROOPAYPAL_FEE'))
+                    'BUCKAROO_PAYPAL_FEE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_FEE'))
                 );
 
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
@@ -440,7 +440,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
         $fields_value['BUCKAROO_PAYPAL_LABEL']              = Configuration::get('BUCKAROO_PAYPAL_LABEL');
-        $fields_value['BUCKAROO_BUCKAROOPAYPAL_FEE']       = Configuration::get('BUCKAROO_BUCKAROOPAYPAL_FEE');
+        $fields_value['BUCKAROO_PAYPAL_FEE']       = Configuration::get('BUCKAROO_PAYPAL_FEE');
         $fields_value['BUCKAROO_SDD_ENABLED']              = Configuration::get('BUCKAROO_SDD_ENABLED');
         $fields_value['BUCKAROO_SDD_TEST']                 = Configuration::get('BUCKAROO_SDD_TEST');
         $fields_value['BUCKAROO_SDD_LABEL']                 = Configuration::get('BUCKAROO_SDD_LABEL');
@@ -757,7 +757,7 @@ class Buckaroo3Admin
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
-                    'name'     => 'BUCKAROO_BUCKAROOPAYPAL_FEE',
+                    'name'     => 'BUCKAROO_PAYPAL_FEE',
                     'size'     => 80,
                 ),
                 array(
