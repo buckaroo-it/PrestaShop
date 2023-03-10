@@ -21,9 +21,7 @@ class AdminBuckaroologController extends AdminControllerCore
 {
     public function __construct()
     {
-        $this->lang = (!Tools::getIsset($this->context->cookie) || !is_object(
-            $this->context->cookie
-        )) ? (int) (Configuration::get('PS_LANG_DEFAULT')) : (int) ($this->context->cookie->id_lang);
+        $this->lang = Configuration::get('PS_LANG_DEFAULT');
         $this->bootstrap = true;
         parent::__construct();
     }

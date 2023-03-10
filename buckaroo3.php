@@ -70,8 +70,6 @@ class Buckaroo3 extends PaymentModule
             }
         }
         
-
-
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY') ||
             !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ||
             !Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ||
@@ -97,11 +95,6 @@ class Buckaroo3 extends PaymentModule
         $translations[] = $this->l('Follow my order');
         $translations[] = $this->l('Payment in progress');
         $translations[] = $this->l('Buckaroo supports the following gift cards:');
-    }
-
-    public function hookDisplayBackOfficeTop($params)
-    {
-        return $this->display(__FILE__, 'views/templates/hook/buckaroolog-quicklinks.tpl');
     }
 
     public function hookDisplayAdminOrderMainBottom($params)
@@ -253,11 +246,6 @@ class Buckaroo3 extends PaymentModule
         return $return;
     }
 
-    public function hookDisplayBackOfficeHeader()
-    {
-        $this->context->controller->addCss($this->_path . 'views/css/tab.css');
-    }
-
     public function addBuckarooIdin()
     {
         Db::getInstance()->query('SHOW COLUMNS FROM `'._DB_PREFIX_.'customer` LIKE "buckaroo_idin_%"');
@@ -285,17 +273,51 @@ class Buckaroo3 extends PaymentModule
         return Db::getInstance()->execute($sql);
     }
 
+    private function installTab()
+    {
+        $parent_tab = new Tab();
+        $parent_tab->name[$this->context->language->id] = $this->l('Buckaroo Payments');
+        $parent_tab->class_name = 'AdminBuckaroo';
+        $parent_tab->id_parent = 0;
+        $parent_tab->module = 'buckaroo3';
+        $parent_tab->add();
+
+        //Config
+        $tab = new Tab();
+        $tab->name[$this->context->language->id] = $this->l('Configure');
+        $tab->class_name = 'AdminBuckaroo';
+        $tab->id_parent = $parent_tab->id;
+        $tab->module = 'buckaroo3';
+        $tab->add();
+
+        //Logs
+        $tab = new Tab();
+        $tab->name[$this->context->language->id] = $this->l('Logs');
+        $tab->class_name = 'AdminBuckaroolog';
+        $tab->id_parent = $parent_tab->id;
+        $tab->module = 'buckaroo3';
+        $tab->add();        
+    }
+
+    private function uninstallTab()
+    {
+        $moduleTabs = Tab::getCollectionFromModule('buckaroo3');
+        if (!empty($moduleTabs)) {
+            foreach ($moduleTabs as $moduleTab) {
+                $moduleTab->delete();
+            }
+        }
+    }
+
     public function install()
     {
-        if (!parent::install() || !$this->registerHook('payment') || !$this->registerHook(
+        if (!parent::install() || !$this->registerHook(
             'header'
-        ) || !$this->registerHook('paymentReturn') || !$this->registerHook('backOfficeHeader')
+        ) || !$this->registerHook('paymentReturn')
             || !$this->registerHook('paymentOptions')
-            || !$this->registerHook('displayBackOfficeTop')
             || !$this->registerHook('displayAdminOrderMainBottom')
             || !$this->registerHook('displayOrderConfirmation')
-            || !$this->installModuleTab('AdminBuckaroolog', array(1 => 'Buckaroo error log'), 0)
-            || !$this->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1)
+            || !$this->installTab()
             || !$this->createTransactionTable()
             || !$this->registerHook('actionEmailSendBefore')
             || !$this->registerHook('displayPDFInvoice')
@@ -502,8 +524,7 @@ class Buckaroo3 extends PaymentModule
         if (!parent::uninstall()) {
             return false;
         }
-        $this->uninstallModuleTab('AdminBuckaroolog');
-        $this->uninstallModuleTab('AdminRefund');
+        $this->uninstallTab();
         $this->unregisterHook('displayBackOfficeHeader');
         $this->unregisterHook('displayAdminOrderMainBottom');
         $this->unregisterHook('displayOrderConfirmation');
@@ -659,10 +680,6 @@ class Buckaroo3 extends PaymentModule
         return $buckaroo_admin->postProcess() . $buckaroo_admin->displayForm();
     }
 
-    public function hookBackOfficeHeader()
-    {
-    }
-
     public function hookPaymentOptions($params)
     {
         if (!$this->active) {
@@ -741,8 +758,8 @@ class Buckaroo3 extends PaymentModule
                 'phone_afterpay_billing'  => $phone_afterpay_billing,
                 'total'                   => $cart->getOrderTotal(true, 3),
                 'country'                 => Country::getIsoById(Tools::getCountry()),
-                'afterpay_show_coc'  => $this->showAfterpayCoc($cart),
-                'billink_show_coc'  => $this->showBillinkCoc($cart)
+                'afterpay_show_coc'       => $this->showAfterpayCoc($cart),
+                'billink_show_coc'        => $this->showBillinkCoc($cart)
             )
         );
 
@@ -994,31 +1011,6 @@ class Buckaroo3 extends PaymentModule
                 exit();
             }
         }
-    }
-
-    public function installModuleTab($tabClass, $tabName, $idTabParent)
-    {
-        $tab             = new Tab();
-        $tab->name       = $tabName;
-        $tab->class_name = $tabClass;
-        $tab->module     = $this->name;
-        $tab->id_parent  = $idTabParent;
-
-        if (!$tab->save()) {
-            return false;
-        }
-        return true;
-    }
-
-    public function uninstallModuleTab($tabClass)
-    {
-        $idTab = Tab::getIdFromClassName($tabClass);
-        if ($idTab != 0) {
-            $tab = new Tab($idTab);
-            $tab->delete();
-            return true;
-        }
-        return false;
     }
 
     public function hookDisplayHeader()
