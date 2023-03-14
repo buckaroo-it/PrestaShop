@@ -73,6 +73,7 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_IDIN_ENABLED', Tools::getValue('BUCKAROO_IDIN_ENABLED'));
                 Configuration::updateValue('BUCKAROO_IDIN_TEST', Tools::getValue('BUCKAROO_IDIN_TEST'));
                 Configuration::updateValue('BUCKAROO_IDIN_MODE', Tools::getValue('BUCKAROO_IDIN_MODE'));
+                
                 Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
@@ -80,6 +81,14 @@ class Buckaroo3Admin
                 Configuration::updateValue(
                     'BUCKAROO_PAYPAL_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYPAL_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYPAL_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_MAX_VALUE'))
                 );
 
                 Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
@@ -89,12 +98,28 @@ class Buckaroo3Admin
                     'BUCKAROO_SDD_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_SDD_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_SDD_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_MAX_VALUE'))
+                );
                 Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', Tools::getValue('BUCKAROO_IDEAL_ENABLED'));
                 Configuration::updateValue('BUCKAROO_IDEAL_TEST', Tools::getValue('BUCKAROO_IDEAL_TEST'));
                 Configuration::updateValue('BUCKAROO_IDEAL_LABEL', Tools::getValue('BUCKAROO_IDEAL_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_IDEAL_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_IDEAL_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_IDEAL_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_MAX_VALUE'))
                 );
                 Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', Tools::getValue('BUCKAROO_GIROPAY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_GIROPAY_TEST', Tools::getValue('BUCKAROO_GIROPAY_TEST'));
@@ -103,12 +128,28 @@ class Buckaroo3Admin
                     'BUCKAROO_GIROPAY_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_GIROPAY_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_GIROPAY_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_MAX_VALUE'))
+                );
                 Configuration::updateValue('BUCKAROO_KBC_ENABLED', Tools::getValue('BUCKAROO_KBC_ENABLED'));
                 Configuration::updateValue('BUCKAROO_KBC_TEST', Tools::getValue('BUCKAROO_KBC_TEST'));
                 Configuration::updateValue('BUCKAROO_KBC_LABEL', Tools::getValue('BUCKAROO_KBC_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_KBC_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KBC_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KBC_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_MAX_VALUE'))
                 );
                 Configuration::updateValue(
                     'BUCKAROO_MISTERCASH_ENABLED',
@@ -120,6 +161,14 @@ class Buckaroo3Admin
                     'BUCKAROO_MISTERCASH_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_MISTERCASH_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_MISTERCASH_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_MAX_VALUE'))
+                );
                 Configuration::updateValue('BUCKAROO_GIFTCARD_ENABLED', Tools::getValue('BUCKAROO_GIFTCARD_ENABLED'));
                 Configuration::updateValue('BUCKAROO_GIFTCARD_TEST', Tools::getValue('BUCKAROO_GIFTCARD_TEST'));
                 Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', Tools::getValue('BUCKAROO_GIFTCARD_LABEL'));
@@ -127,6 +176,15 @@ class Buckaroo3Admin
                     'BUCKAROO_GIFTCARD_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_GIFTCARD_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_GIFTCARD_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_MAX_VALUE'))
+                );
+
                 Configuration::updateValue(
                     'BUCKAROO_CREDITCARD_ENABLED',
                     Tools::getValue('BUCKAROO_CREDITCARD_ENABLED')
@@ -137,6 +195,15 @@ class Buckaroo3Admin
                     'BUCKAROO_CREDITCARD_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_CREDITCARD_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_CREDITCARD_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_MAX_VALUE'))
+                );
+
                 Configuration::updateValue(
                     'BUCKAROO_SOFORTBANKING_ENABLED',
                     Tools::getValue('BUCKAROO_SOFORTBANKING_ENABLED')
@@ -154,6 +221,15 @@ class Buckaroo3Admin
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_FEE'))
                 );
                 Configuration::updateValue(
+                    'BUCKAROO_SOFORTBANKING_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_SOFORTBANKING_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_MAX_VALUE'))
+                );
+
+                Configuration::updateValue(
                     'BUCKAROO_BELFIUS_ENABLED',
                     Tools::getValue('BUCKAROO_BELFIUS_ENABLED')
                 );
@@ -169,7 +245,14 @@ class Buckaroo3Admin
                     'BUCKAROO_BELFIUS_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_FEE'))
                 );
-
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BELFIUS_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_MAX_VALUE'))
+                );
 
                 Configuration::updateValue(
                     'BUCKAROO_IN3_ENABLED',
@@ -187,7 +270,14 @@ class Buckaroo3Admin
                     'BUCKAROO_IN3_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_FEE'))
                 );
-
+                Configuration::updateValue(
+                    'BUCKAROO_IN3_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_IN3_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_MAX_VALUE'))
+                );
 
                 Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', Tools::getValue('BUCKAROO_TRANSFER_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_TEST', Tools::getValue('BUCKAROO_TRANSFER_TEST'));
@@ -196,6 +286,15 @@ class Buckaroo3Admin
                     'BUCKAROO_TRANSFER_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_TRANSFER_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_TRANSFER_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_MAX_VALUE'))
+                );
+
                 Configuration::updateValue('BUCKAROO_TRANSFER_DATEDUE', Tools::getValue('BUCKAROO_TRANSFER_DATEDUE'));
                 Configuration::updateValue('BUCKAROO_TRANSFER_SENDMAIL', Tools::getValue('BUCKAROO_TRANSFER_SENDMAIL'));
 
@@ -205,6 +304,14 @@ class Buckaroo3Admin
                 Configuration::updateValue(
                     'BUCKAROO_AFTERPAY_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_AFTERPAY_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_MAX_VALUE'))
                 );
                 Configuration::updateValue(
                     'BUCKAROO_AFTERPAY_DEFAULT_VAT',
@@ -242,6 +349,14 @@ class Buckaroo3Admin
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_FEE'))
                 );
                 Configuration::updateValue(
+                    'BUCKAROO_KLARNA_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_KLARNA_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_MAX_VALUE'))
+                );
+                Configuration::updateValue(
                     'BUCKAROO_KLARNA_DEFAULT_VAT',
                     Tools::getValue('BUCKAROO_KLARNA_DEFAULT_VAT')
                 );
@@ -265,13 +380,29 @@ class Buckaroo3Admin
                     'BUCKAROO_APPLEPAY_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE'))
                 );
-                
+                Configuration::updateValue(
+                    'BUCKAROO_APPLEPAY_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_APPLEPAY_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_MAX_VALUE'))
+                );
+
                 Configuration::updateValue('BUCKAROO_BILLINK_ENABLED', Tools::getValue('BUCKAROO_BILLINK_ENABLED'));
                 Configuration::updateValue('BUCKAROO_BILLINK_TEST', Tools::getValue('BUCKAROO_BILLINK_TEST'));
                 Configuration::updateValue('BUCKAROO_BILLINK_LABEL', Tools::getValue('BUCKAROO_BILLINK_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_BILLINK_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_BILLINK_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_MAX_VALUE'))
                 );
 
                 Configuration::updateValue(
@@ -309,6 +440,14 @@ class Buckaroo3Admin
                     'BUCKAROO_EPS_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_EPS_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_EPS_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_MAX_VALUE'))
+                );
 
                 Configuration::updateValue('BUCKAROO_TINKA_ENABLED', Tools::getValue('BUCKAROO_TINKA_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TINKA_TEST', Tools::getValue('BUCKAROO_TINKA_TEST'));
@@ -317,13 +456,28 @@ class Buckaroo3Admin
                     'BUCKAROO_TINKA_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_FEE'))
                 );
-
+                Configuration::updateValue(
+                    'BUCKAROO_TINKA_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_TINKA_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_MAX_VALUE'))
+                );
                 Configuration::updateValue('BUCKAROO_TRUSTLY_ENABLED', Tools::getValue('BUCKAROO_TRUSTLY_ENABLED'));
                 Configuration::updateValue('BUCKAROO_TRUSTLY_TEST', Tools::getValue('BUCKAROO_TRUSTLY_TEST'));
                 Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', Tools::getValue('BUCKAROO_TRUSTLY_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_TRUSTLY_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_TRUSTLY_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_TRUSTLY_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_MAX_VALUE'))
                 );
 
                 Configuration::updateValue('BUCKAROO_PRZELEWY24_ENABLED', Tools::getValue('BUCKAROO_PRZELEWY24_ENABLED'));
@@ -344,6 +498,14 @@ class Buckaroo3Admin
                     'BUCKAROO_PAYPEREMAIL_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_FEE'))
                 );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYPEREMAIL_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYPEREMAIL_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_MAX_VALUE'))
+                );
 
                 Configuration::updateValue('BUCKAROO_PAYCONIQ_ENABLED', Tools::getValue('BUCKAROO_PAYCONIQ_ENABLED'));
                 Configuration::updateValue('BUCKAROO_PAYCONIQ_TEST', Tools::getValue('BUCKAROO_PAYCONIQ_TEST'));
@@ -351,6 +513,14 @@ class Buckaroo3Admin
                 Configuration::updateValue(
                     'BUCKAROO_PAYCONIQ_FEE',
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_FEE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYCONIQ_MIN_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_MIN_VALUE'))
+                );
+                Configuration::updateValue(
+                    'BUCKAROO_PAYCONIQ_MAX_VALUE',
+                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_MAX_VALUE'))
                 );
 
 
@@ -436,39 +606,57 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_IDIN_ENABLED']           = Configuration::get('BUCKAROO_IDIN_ENABLED');
         $fields_value['BUCKAROO_IDIN_TEST']              = Configuration::get('BUCKAROO_IDIN_TEST');
         $fields_value['BUCKAROO_IDIN_MODE']              = Configuration::get('BUCKAROO_IDIN_MODE');
-        $fields_value['BUCKAROO_PAYPAL_ENABLED']           = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
+        
+        $fields_value['BUCKAROO_PAYPAL_ENABLED']         = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
-        $fields_value['BUCKAROO_PAYPAL_TEST']              = Configuration::get('BUCKAROO_PAYPAL_TEST');
-        $fields_value['BUCKAROO_PAYPAL_LABEL']              = Configuration::get('BUCKAROO_PAYPAL_LABEL');
-        $fields_value['BUCKAROO_PAYPAL_FEE']       = Configuration::get('BUCKAROO_PAYPAL_FEE');
-        $fields_value['BUCKAROO_SDD_ENABLED']              = Configuration::get('BUCKAROO_SDD_ENABLED');
-        $fields_value['BUCKAROO_SDD_TEST']                 = Configuration::get('BUCKAROO_SDD_TEST');
-        $fields_value['BUCKAROO_SDD_LABEL']                 = Configuration::get('BUCKAROO_SDD_LABEL');
-        $fields_value['BUCKAROO_SDD_FEE']                 = Configuration::get('BUCKAROO_SDD_FEE');
-        $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY']  = Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
-        $fields_value['BUCKAROO_IDEAL_ENABLED']            = Configuration::get('BUCKAROO_IDEAL_ENABLED');
-        $fields_value['BUCKAROO_IDEAL_TEST']               = Configuration::get('BUCKAROO_IDEAL_TEST');
-        $fields_value['BUCKAROO_IDEAL_LABEL']               = Configuration::get('BUCKAROO_IDEAL_LABEL');
-        $fields_value['BUCKAROO_IDEAL_FEE']               = Configuration::get('BUCKAROO_IDEAL_FEE');
-        $fields_value['BUCKAROO_GIROPAY_ENABLED']          = Configuration::get('BUCKAROO_GIROPAY_ENABLED');
-        $fields_value['BUCKAROO_GIROPAY_TEST']             = Configuration::get('BUCKAROO_GIROPAY_TEST');
-        $fields_value['BUCKAROO_GIROPAY_LABEL']             = Configuration::get('BUCKAROO_GIROPAY_LABEL');
-        $fields_value['BUCKAROO_GIROPAY_FEE']             = Configuration::get('BUCKAROO_GIROPAY_FEE');
+        $fields_value['BUCKAROO_PAYPAL_TEST']            = Configuration::get('BUCKAROO_PAYPAL_TEST');
+        $fields_value['BUCKAROO_PAYPAL_LABEL']           = Configuration::get('BUCKAROO_PAYPAL_LABEL');
+        $fields_value['BUCKAROO_PAYPAL_FEE']             = Configuration::get('BUCKAROO_PAYPAL_FEE');
+        $fields_value['BUCKAROO_PAYPAL_MIN_VALUE']       = (float)Configuration::get('BUCKAROO_PAYPAL_MIN_VALUE');
+        $fields_value['BUCKAROO_PAYPAL_MAX_VALUE']       = (float)Configuration::get('BUCKAROO_PAYPAL_MAX_VALUE');
 
-        $fields_value['BUCKAROO_KBC_ENABLED']          = Configuration::get('BUCKAROO_KBC_ENABLED');
-        $fields_value['BUCKAROO_KBC_TEST']             = Configuration::get('BUCKAROO_KBC_TEST');
-        $fields_value['BUCKAROO_KBC_LABEL']             = Configuration::get('BUCKAROO_KBC_LABEL');
-        $fields_value['BUCKAROO_KBC_FEE']             = Configuration::get('BUCKAROO_KBC_FEE');
+        $fields_value['BUCKAROO_SDD_ENABLED']            = Configuration::get('BUCKAROO_SDD_ENABLED');
+        $fields_value['BUCKAROO_SDD_TEST']               = Configuration::get('BUCKAROO_SDD_TEST');
+        $fields_value['BUCKAROO_SDD_LABEL']              = Configuration::get('BUCKAROO_SDD_LABEL');
+        $fields_value['BUCKAROO_SDD_FEE']                = Configuration::get('BUCKAROO_SDD_FEE');
+        $fields_value['BUCKAROO_SDD_MIN_VALUE']          = (float)Configuration::get('BUCKAROO_SDD_MIN_VALUE');
+        $fields_value['BUCKAROO_SDD_MAX_VALUE']          = (float)Configuration::get('BUCKAROO_SDD_MAX_VALUE');
 
-        $fields_value['BUCKAROO_EPS_ENABLED']          = Configuration::get('BUCKAROO_EPS_ENABLED');
-        $fields_value['BUCKAROO_EPS_TEST']             = Configuration::get('BUCKAROO_EPS_TEST');
-        $fields_value['BUCKAROO_EPS_LABEL']            = Configuration::get('BUCKAROO_EPS_LABEL');
-        $fields_value['BUCKAROO_EPS_FEE']              = Configuration::get('BUCKAROO_EPS_FEE');
+        $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY']= Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
+        $fields_value['BUCKAROO_IDEAL_ENABLED']          = Configuration::get('BUCKAROO_IDEAL_ENABLED');
+        $fields_value['BUCKAROO_IDEAL_TEST']             = Configuration::get('BUCKAROO_IDEAL_TEST');
+        $fields_value['BUCKAROO_IDEAL_LABEL']            = Configuration::get('BUCKAROO_IDEAL_LABEL');
+        $fields_value['BUCKAROO_IDEAL_FEE']              = Configuration::get('BUCKAROO_IDEAL_FEE');
+        $fields_value['BUCKAROO_IDEAL_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_IDEAL_MIN_VALUE');
+        $fields_value['BUCKAROO_IDEAL_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_IDEAL_MAX_VALUE');
+
+        $fields_value['BUCKAROO_GIROPAY_ENABLED']        = Configuration::get('BUCKAROO_GIROPAY_ENABLED');
+        $fields_value['BUCKAROO_GIROPAY_TEST']           = Configuration::get('BUCKAROO_GIROPAY_TEST');
+        $fields_value['BUCKAROO_GIROPAY_LABEL']          = Configuration::get('BUCKAROO_GIROPAY_LABEL');
+        $fields_value['BUCKAROO_GIROPAY_FEE']            = Configuration::get('BUCKAROO_GIROPAY_FEE');
+        $fields_value['BUCKAROO_GIROPAY_MIN_VALUE']      = (float)Configuration::get('BUCKAROO_GIROPAY_MIN_VALUE');
+        $fields_value['BUCKAROO_GIROPAY_MAX_VALUE']      = (float)Configuration::get('BUCKAROO_GIROPAY_MAX_VALUE');
+
+        $fields_value['BUCKAROO_KBC_ENABLED']            = Configuration::get('BUCKAROO_KBC_ENABLED');
+        $fields_value['BUCKAROO_KBC_TEST']               = Configuration::get('BUCKAROO_KBC_TEST');
+        $fields_value['BUCKAROO_KBC_LABEL']              = Configuration::get('BUCKAROO_KBC_LABEL');
+        $fields_value['BUCKAROO_KBC_FEE']                = Configuration::get('BUCKAROO_KBC_FEE');
+        $fields_value['BUCKAROO_KBC_MIN_VALUE']          = (float)Configuration::get('BUCKAROO_KBC_MIN_VALUE');
+        $fields_value['BUCKAROO_KBC_MAX_VALUE']          = (float)Configuration::get('BUCKAROO_KBC_MAX_VALUE');
+
+        $fields_value['BUCKAROO_EPS_ENABLED']            = Configuration::get('BUCKAROO_EPS_ENABLED');
+        $fields_value['BUCKAROO_EPS_TEST']               = Configuration::get('BUCKAROO_EPS_TEST');
+        $fields_value['BUCKAROO_EPS_LABEL']              = Configuration::get('BUCKAROO_EPS_LABEL');
+        $fields_value['BUCKAROO_EPS_FEE']                = Configuration::get('BUCKAROO_EPS_FEE');
+        $fields_value['BUCKAROO_EPS_MIN_VALUE']          = (float)Configuration::get('BUCKAROO_EPS_MIN_VALUE');
+        $fields_value['BUCKAROO_EPS_MAX_VALUE']          = (float)Configuration::get('BUCKAROO_EPS_MAX_VALUE');
 
         $fields_value['BUCKAROO_PAYPEREMAIL_ENABLED']          = Configuration::get('BUCKAROO_PAYPEREMAIL_ENABLED');
         $fields_value['BUCKAROO_PAYPEREMAIL_TEST']             = Configuration::get('BUCKAROO_PAYPEREMAIL_TEST');
         $fields_value['BUCKAROO_PAYPEREMAIL_LABEL']            = Configuration::get('BUCKAROO_PAYPEREMAIL_LABEL');
         $fields_value['BUCKAROO_PAYPEREMAIL_FEE']              = Configuration::get('BUCKAROO_PAYPEREMAIL_FEE');
+        $fields_value['BUCKAROO_PAYPEREMAIL_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_PAYPEREMAIL_MIN_VALUE');
+        $fields_value['BUCKAROO_PAYPEREMAIL_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_PAYPEREMAIL_MAX_VALUE');
         $fields_value['BUCKAROO_PAYPEREMAIL_SEND_EMAIL']       = Configuration::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
         $fields_value['BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS']      = Configuration::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
         $fields_value['BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS']  = Configuration::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
@@ -477,98 +665,129 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYCONIQ_TEST']             = Configuration::get('BUCKAROO_PAYCONIQ_TEST');
         $fields_value['BUCKAROO_PAYCONIQ_LABEL']            = Configuration::get('BUCKAROO_PAYCONIQ_LABEL');
         $fields_value['BUCKAROO_PAYCONIQ_FEE']              = Configuration::get('BUCKAROO_PAYCONIQ_FEE');
+        $fields_value['BUCKAROO_PAYCONIQ_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_PAYCONIQ_MIN_VALUE');
+        $fields_value['BUCKAROO_PAYCONIQ_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_PAYCONIQ_MAX_VALUE');
 
         $fields_value['BUCKAROO_PRZELEWY24_ENABLED']          = Configuration::get('BUCKAROO_PRZELEWY24_ENABLED');
         $fields_value['BUCKAROO_PRZELEWY24_TEST']             = Configuration::get('BUCKAROO_PRZELEWY24_TEST');
         $fields_value['BUCKAROO_PRZELEWY24_LABEL']            = Configuration::get('BUCKAROO_PRZELEWY24_LABEL');
         $fields_value['BUCKAROO_PRZELEWY24_FEE']              = Configuration::get('BUCKAROO_PRZELEWY24_FEE');
+        $fields_value['BUCKAROO_PRZELEWY24_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_PRZELEWY24_MIN_VALUE');
+        $fields_value['BUCKAROO_PRZELEWY24_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_PRZELEWY24_MAX_VALUE');
 
         $fields_value['BUCKAROO_TINKA_ENABLED']          = Configuration::get('BUCKAROO_TINKA_ENABLED');
         $fields_value['BUCKAROO_TINKA_TEST']             = Configuration::get('BUCKAROO_TINKA_TEST');
         $fields_value['BUCKAROO_TINKA_LABEL']            = Configuration::get('BUCKAROO_TINKA_LABEL');
         $fields_value['BUCKAROO_TINKA_FEE']              = Configuration::get('BUCKAROO_TINKA_FEE');
+        $fields_value['BUCKAROO_TINKA_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_TINKA_MIN_VALUE');
+        $fields_value['BUCKAROO_TINKA_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_TINKA_MAX_VALUE');
 
         $fields_value['BUCKAROO_TRUSTLY_ENABLED']          = Configuration::get('BUCKAROO_TRUSTLY_ENABLED');
         $fields_value['BUCKAROO_TRUSTLY_TEST']             = Configuration::get('BUCKAROO_TRUSTLY_TEST');
         $fields_value['BUCKAROO_TRUSTLY_LABEL']            = Configuration::get('BUCKAROO_TRUSTLY_LABEL');
         $fields_value['BUCKAROO_TRUSTLY_FEE']              = Configuration::get('BUCKAROO_TRUSTLY_FEE');
+        $fields_value['BUCKAROO_TRUSTLY_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_TRUSTLY_MIN_VALUE');
+        $fields_value['BUCKAROO_TRUSTLY_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_TRUSTLY_MAX_VALUE');
 
         $fields_value['BUCKAROO_MISTERCASH_ENABLED']       = Configuration::get('BUCKAROO_MISTERCASH_ENABLED');
         $fields_value['BUCKAROO_MISTERCASH_TEST']          = Configuration::get('BUCKAROO_MISTERCASH_TEST');
-        $fields_value['BUCKAROO_MISTERCASH_LABEL']          = Configuration::get('BUCKAROO_MISTERCASH_LABEL');
-        $fields_value['BUCKAROO_MISTERCASH_FEE']          = Configuration::get('BUCKAROO_MISTERCASH_FEE');
+        $fields_value['BUCKAROO_MISTERCASH_LABEL']         = Configuration::get('BUCKAROO_MISTERCASH_LABEL');
+        $fields_value['BUCKAROO_MISTERCASH_FEE']           = Configuration::get('BUCKAROO_MISTERCASH_FEE');
+        $fields_value['BUCKAROO_MISTERCASH_MIN_VALUE']     = (float)Configuration::get('BUCKAROO_MISTERCASH_MIN_VALUE');
+        $fields_value['BUCKAROO_MISTERCASH_MAX_VALUE']     = (float)Configuration::get('BUCKAROO_MISTERCASH_MAX_VALUE');
+
         $fields_value['BUCKAROO_GIFTCARD_ENABLED']         = Configuration::get('BUCKAROO_GIFTCARD_ENABLED');
         $fields_value['BUCKAROO_GIFTCARD_TEST']            = Configuration::get('BUCKAROO_GIFTCARD_TEST');
-        $fields_value['BUCKAROO_GIFTCARD_LABEL']            = Configuration::get('BUCKAROO_GIFTCARD_LABEL');
-        $fields_value['BUCKAROO_GIFTCARD_FEE']            = Configuration::get('BUCKAROO_GIFTCARD_FEE');
+        $fields_value['BUCKAROO_GIFTCARD_LABEL']           = Configuration::get('BUCKAROO_GIFTCARD_LABEL');
+        $fields_value['BUCKAROO_GIFTCARD_FEE']             = Configuration::get('BUCKAROO_GIFTCARD_FEE');
+        $fields_value['BUCKAROO_GIFTCARD_MIN_VALUE']       = (float)Configuration::get('BUCKAROO_GIFTCARD_MIN_VALUE');
+        $fields_value['BUCKAROO_GIFTCARD_MAX_VALUE']       = (float)Configuration::get('BUCKAROO_GIFTCARD_MAX_VALUE');
         $fields_value['BUCKAROO_GIFTCARD_ALLOWED_CARDS']   = Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
+
         $fields_value['BUCKAROO_CREDITCARD_ALLOWED_CARDS'] = Configuration::get('BUCKAROO_CREDITCARD_ALLOWED_CARDS');
         $fields_value['BUCKAROO_CREDITCARD_ENABLED']       = Configuration::get('BUCKAROO_CREDITCARD_ENABLED');
         $fields_value['BUCKAROO_CREDITCARD_TEST']          = Configuration::get('BUCKAROO_CREDITCARD_TEST');
-        $fields_value['BUCKAROO_CREDITCARD_LABEL']          = Configuration::get('BUCKAROO_CREDITCARD_LABEL');
-        $fields_value['BUCKAROO_CREDITCARD_FEE']          = Configuration::get('BUCKAROO_CREDITCARD_FEE');
+        $fields_value['BUCKAROO_CREDITCARD_LABEL']         = Configuration::get('BUCKAROO_CREDITCARD_LABEL');
+        $fields_value['BUCKAROO_CREDITCARD_FEE']           = Configuration::get('BUCKAROO_CREDITCARD_FEE');
+        $fields_value['BUCKAROO_CREDITCARD_MIN_VALUE']     = (float)Configuration::get('BUCKAROO_CREDITCARD_MIN_VALUE');
+        $fields_value['BUCKAROO_CREDITCARD_MAX_VALUE']     = (float)Configuration::get('BUCKAROO_CREDITCARD_MAX_VALUE');
+
         $fields_value['BUCKAROO_SOFORTBANKING_ENABLED']    = Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED');
         $fields_value['BUCKAROO_SOFORTBANKING_TEST']       = Configuration::get('BUCKAROO_SOFORTBANKING_TEST');
-        $fields_value['BUCKAROO_SOFORTBANKING_LABEL']       = Configuration::get('BUCKAROO_SOFORTBANKING_LABEL');
-        $fields_value['BUCKAROO_SOFORTBANKING_FEE']       = Configuration::get('BUCKAROO_SOFORTBANKING_FEE');
-        $fields_value['BUCKAROO_BELFIUS_ENABLED']    = Configuration::get('BUCKAROO_BELFIUS_ENABLED');
-        $fields_value['BUCKAROO_BELFIUS_TEST']       = Configuration::get('BUCKAROO_BELFIUS_TEST');
-        $fields_value['BUCKAROO_BELFIUS_LABEL']       = Configuration::get('BUCKAROO_BELFIUS_LABEL');
+        $fields_value['BUCKAROO_SOFORTBANKING_LABEL']      = Configuration::get('BUCKAROO_SOFORTBANKING_LABEL');
+        $fields_value['BUCKAROO_SOFORTBANKING_FEE']        = Configuration::get('BUCKAROO_SOFORTBANKING_FEE');
+        $fields_value['BUCKAROO_SOFORTBANKING_MIN_VALUE']  = (float)Configuration::get('BUCKAROO_SOFORTBANKING_MIN_VALUE');
+        $fields_value['BUCKAROO_SOFORTBANKING_MAX_VALUE']  = (float)Configuration::get('BUCKAROO_SOFORTBANKING_MAX_VALUE');
+
+        $fields_value['BUCKAROO_BELFIUS_ENABLED']   = Configuration::get('BUCKAROO_BELFIUS_ENABLED');
+        $fields_value['BUCKAROO_BELFIUS_TEST']      = Configuration::get('BUCKAROO_BELFIUS_TEST');
+        $fields_value['BUCKAROO_BELFIUS_LABEL']     = Configuration::get('BUCKAROO_BELFIUS_LABEL');
         $fields_value['BUCKAROO_BELFIUS_FEE']       = Configuration::get('BUCKAROO_BELFIUS_FEE');
+        $fields_value['BUCKAROO_BELFIUS_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_BELFIUS_MIN_VALUE');
+        $fields_value['BUCKAROO_BELFIUS_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_BELFIUS_MAX_VALUE');
 
         $fields_value['BUCKAROO_IN3_ENABLED']    = Configuration::get('BUCKAROO_IN3_ENABLED');
         $fields_value['BUCKAROO_IN3_TEST']       = Configuration::get('BUCKAROO_IN3_TEST');
-        $fields_value['BUCKAROO_IN3_LABEL']       = Configuration::get('BUCKAROO_IN3_LABEL');
-        $fields_value['BUCKAROO_IN3_FEE']       = Configuration::get('BUCKAROO_IN3_FEE');
+        $fields_value['BUCKAROO_IN3_LABEL']      = Configuration::get('BUCKAROO_IN3_LABEL');
+        $fields_value['BUCKAROO_IN3_FEE']        = Configuration::get('BUCKAROO_IN3_FEE');
+        $fields_value['BUCKAROO_IN3_MIN_VALUE']  = (float)Configuration::get('BUCKAROO_IN3_MIN_VALUE');
+        $fields_value['BUCKAROO_IN3_MAX_VALUE']  = (float)Configuration::get('BUCKAROO_IN3_MAX_VALUE');
 
 
         $fields_value['BUCKAROO_TRANSFER_ENABLED']         = Configuration::get('BUCKAROO_TRANSFER_ENABLED');
         $fields_value['BUCKAROO_TRANSFER_TEST']            = Configuration::get('BUCKAROO_TRANSFER_TEST');
-        $fields_value['BUCKAROO_TRANSFER_LABEL']            = Configuration::get('BUCKAROO_TRANSFER_LABEL');
-        $fields_value['BUCKAROO_TRANSFER_FEE']            = Configuration::get('BUCKAROO_TRANSFER_FEE');
+        $fields_value['BUCKAROO_TRANSFER_LABEL']           = Configuration::get('BUCKAROO_TRANSFER_LABEL');
+        $fields_value['BUCKAROO_TRANSFER_FEE']             = Configuration::get('BUCKAROO_TRANSFER_FEE');
         $fields_value['BUCKAROO_TRANSFER_DATEDUE']         = Configuration::get('BUCKAROO_TRANSFER_DATEDUE');
         $fields_value['BUCKAROO_TRANSFER_SENDMAIL']        = Configuration::get('BUCKAROO_TRANSFER_SENDMAIL');
+        $fields_value['BUCKAROO_TRANSFER_MIN_VALUE']       = (float)Configuration::get('BUCKAROO_TRANSFER_MIN_VALUE');
+        $fields_value['BUCKAROO_TRANSFER_MAX_VALUE']       = (float)Configuration::get('BUCKAROO_TRANSFER_MAX_VALUE');
 
         $fields_value['BUCKAROO_AFTERPAY_ENABLED']      = Configuration::get('BUCKAROO_AFTERPAY_ENABLED');
         $fields_value['BUCKAROO_AFTERPAY_TEST']         = Configuration::get('BUCKAROO_AFTERPAY_TEST');
-        $fields_value['BUCKAROO_AFTERPAY_LABEL']         = Configuration::get('BUCKAROO_AFTERPAY_LABEL');
-        $fields_value['BUCKAROO_AFTERPAY_FEE']         = Configuration::get('BUCKAROO_AFTERPAY_FEE');
+        $fields_value['BUCKAROO_AFTERPAY_LABEL']        = Configuration::get('BUCKAROO_AFTERPAY_LABEL');
+        $fields_value['BUCKAROO_AFTERPAY_FEE']          = Configuration::get('BUCKAROO_AFTERPAY_FEE');
+        $fields_value['BUCKAROO_AFTERPAY_MIN_VALUE']    = (float)Configuration::get('BUCKAROO_AFTERPAY_MIN_VALUE');
+        $fields_value['BUCKAROO_AFTERPAY_MAX_VALUE']    = (float)Configuration::get('BUCKAROO_AFTERPAY_MAX_VALUE');
         $fields_value['BUCKAROO_AFTERPAY_DEFAULT_VAT']  = Configuration::get('BUCKAROO_AFTERPAY_DEFAULT_VAT');
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
-        $afterpayCustomerType = Configuration::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+        $afterpayCustomerType                           = Configuration::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
         $fields_value['BUCKAROO_AFTERPAY_CUSTOMER_TYPE'] = strlen($afterpayCustomerType) === 0 ? AfterPay::CUSTOMER_TYPE_BOTH : $afterpayCustomerType;
-
         $fields_value['BUCKAROO_AFTERPAY_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_AFTERPAY_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_AFTERPAY_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_AFTERPAY_B2B_MAX_VALUE');
 
         $fields_value['BUCKAROO_KLARNA_ENABLED']      = Configuration::get('BUCKAROO_KLARNA_ENABLED');
         $fields_value['BUCKAROO_KLARNA_TEST']         = Configuration::get('BUCKAROO_KLARNA_TEST');
-        $fields_value['BUCKAROO_KLARNA_LABEL']         = Configuration::get('BUCKAROO_KLARNA_LABEL');
-        $fields_value['BUCKAROO_KLARNA_FEE']         = Configuration::get('BUCKAROO_KLARNA_FEE');
+        $fields_value['BUCKAROO_KLARNA_LABEL']        = Configuration::get('BUCKAROO_KLARNA_LABEL');
+        $fields_value['BUCKAROO_KLARNA_FEE']          = Configuration::get('BUCKAROO_KLARNA_FEE');
+        $fields_value['BUCKAROO_KLARNA_MIN_VALUE']    = (float)Configuration::get('BUCKAROO_KLARNA_MIN_VALUE');
+        $fields_value['BUCKAROO_KLARNA_MAX_VALUE']    = (float)Configuration::get('BUCKAROO_KLARNA_MAX_VALUE');
         $fields_value['BUCKAROO_KLARNA_DEFAULT_VAT']  = Configuration::get('BUCKAROO_KLARNA_DEFAULT_VAT');
         $fields_value['BUCKAROO_KLARNA_WRAPPING_VAT'] = Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT');
         $fields_value['BUCKAROO_KLARNA_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_KLARNA_TAXRATE'));
-        $fields_value['BUCKAROO_KLARNA_BUSINESS']      = unserialize(Configuration::get('BUCKAROO_KLARNA_BUSINESS'));
+        $fields_value['BUCKAROO_KLARNA_BUSINESS']     = unserialize(Configuration::get('BUCKAROO_KLARNA_BUSINESS'));
 
         $fields_value['BUCKAROO_APPLEPAY_ENABLED']    = Configuration::get('BUCKAROO_APPLEPAY_ENABLED');
         $fields_value['BUCKAROO_APPLEPAY_TEST']       = Configuration::get('BUCKAROO_APPLEPAY_TEST');
-        $fields_value['BUCKAROO_APPLEPAY_LABEL']       = Configuration::get('BUCKAROO_APPLEPAY_LABEL');
-        $fields_value['BUCKAROO_APPLEPAY_FEE']       = Configuration::get('BUCKAROO_APPLEPAY_FEE');
+        $fields_value['BUCKAROO_APPLEPAY_LABEL']      = Configuration::get('BUCKAROO_APPLEPAY_LABEL');
+        $fields_value['BUCKAROO_APPLEPAY_FEE']        = Configuration::get('BUCKAROO_APPLEPAY_FEE');
+        $fields_value['BUCKAROO_APPLEPAY_MIN_VALUE']  = (float)Configuration::get('BUCKAROO_APPLEPAY_MIN_VALUE');
+        $fields_value['BUCKAROO_APPLEPAY_MAX_VALUE']  = (float)Configuration::get('BUCKAROO_APPLEPAY_MAX_VALUE');
         
         $fields_value['BUCKAROO_BILLINK_ENABLED']      = Configuration::get('BUCKAROO_BILLINK_ENABLED');
         $fields_value['BUCKAROO_BILLINK_TEST']         = Configuration::get('BUCKAROO_BILLINK_TEST');
-        $fields_value['BUCKAROO_BILLINK_LABEL']         = Configuration::get('BUCKAROO_BILLINK_LABEL');
-        $fields_value['BUCKAROO_BILLINK_FEE']         = Configuration::get('BUCKAROO_BILLINK_FEE');
+        $fields_value['BUCKAROO_BILLINK_LABEL']        = Configuration::get('BUCKAROO_BILLINK_LABEL');
+        $fields_value['BUCKAROO_BILLINK_FEE']          = Configuration::get('BUCKAROO_BILLINK_FEE');
+        $fields_value['BUCKAROO_BILLINK_MIN_VALUE']    = (float)Configuration::get('BUCKAROO_BILLINK_MIN_VALUE');
+        $fields_value['BUCKAROO_BILLINK_MAX_VALUE']    = (float)Configuration::get('BUCKAROO_BILLINK_MAX_VALUE');
         $fields_value['BUCKAROO_BILLINK_DEFAULT_VAT']  = Configuration::get('BUCKAROO_BILLINK_DEFAULT_VAT');
         $fields_value['BUCKAROO_BILLINK_WRAPPING_VAT'] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
         $fields_value['BUCKAROO_BILLINK_TAXRATE']      = unserialize(Configuration::get('BUCKAROO_BILLINK_TAXRATE'));
-        $billinkCustomerType = Configuration::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+        $billinkCustomerType                           = Configuration::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
         $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? Billink::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
-
         $fields_value['BUCKAROO_BILLINK_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_BILLINK_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MAX_VALUE');
-
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
@@ -755,14 +974,31 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPAL_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_PAYPAL_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_PAYPAL_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'label'    => $this->module->l('Paypal Seller Protection'),
-                    'type' => 'enabled',
+                    'type' => 'bool',
                     'name' => 'BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED',
                 ),
                 array(
@@ -801,10 +1037,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SDD_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_SDD_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_SDD_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -836,16 +1089,33 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_IDEAL_TEST',
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Frontend label'),
                     'name'     => 'BUCKAROO_IDEAL_LABEL',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IDEAL_FEE',
                     'size'     => 80,
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_IDEAL_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_IDEAL_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -883,10 +1153,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIROPAY_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_GIROPAY_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_GIROPAY_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -924,10 +1211,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KBC_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_KBC_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_KBC_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -965,10 +1269,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_EPS_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_EPS_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_EPS_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1000,15 +1321,16 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_PAYPEREMAIL_TEST',
                 ),
                 array(
-                    'type' => 'enabled',
+                    'type' => 'bool',
                     'name' => 'BUCKAROO_PAYPEREMAIL_SEND_EMAIL',
                     'label'    => $this->module->l('Send payment invite email'),
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Invite expire(days)'),
                     'name'     => 'BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS',
-                    'size'     => 80,
+                    'step'     => 1,
+                    'min'      => 1
                 ),
                 array(
                     'type'     => 'text',
@@ -1026,7 +1348,24 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPEREMAIL_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_PAYPEREMAIL_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1067,7 +1406,24 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYCONIQ_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_PAYCONIQ_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_PAYCONIQ_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1105,10 +1461,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PRZELEWY24_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_PRZELEWY24_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_PRZELEWY24_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1146,10 +1519,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TINKA_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_TINKA_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_TINKA_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1187,10 +1577,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRUSTLY_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_TRUSTLY_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_TRUSTLY_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1228,10 +1635,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_MISTERCASH_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_MISTERCASH_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_MISTERCASH_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1269,10 +1693,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIFTCARD_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_GIFTCARD_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_GIFTCARD_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1310,10 +1751,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_CREDITCARD_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_CREDITCARD_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_CREDITCARD_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1351,10 +1809,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SOFORTBANKING_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_SOFORTBANKING_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_SOFORTBANKING_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1371,8 +1846,8 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Bank Transfer settings'),
             'name'    => 'TRANSFER',
-            'test'    => (Configuration::get('BUCKAROO_TRANSFER_TEST') == '1' ? true : false),
-            'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED') == '1' ? true : false),
+            'test'    => (Configuration::get('BUCKAROO_TRANSFER_TEST')),
+            'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED')),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1392,19 +1867,36 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRANSFER_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
-                    'type'      => 'text',
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_TRANSFER_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_TRANSFER_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'      => 'number',
                     'name'      => 'BUCKAROO_TRANSFER_DATEDUE',
                     'label'     => $this->module->l('Number of days to the date that the order should be payed.'),
                     'description' => $this->module->l(
                         'This is only for display purposes, to be able to use it in email templates.'
                     ),
-                    'size'      => 4,
+                    'min'      => 1,
                     'required'  => true,
                 ),
                 array(
@@ -1478,10 +1970,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_AFTERPAY_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_AFTERPAY_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_AFTERPAY_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type'      => 'select',
@@ -1641,10 +2150,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_APPLEPAY_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_APPLEPAY_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_APPLEPAY_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1690,10 +2216,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KLARNA_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_KLARNA_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_KLARNA_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type'      => 'select',
@@ -1833,10 +2376,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BELFIUS_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_BELFIUS_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_BELFIUS_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1874,11 +2434,30 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IN3_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
+
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_IN3_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_IN3_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+
                 array(
                     'type' => 'hidearea_end',
                 ),
@@ -1933,10 +2512,27 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'text',
+                    'type'     => 'number',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BILLINK_FEE',
-                    'size'     => 80,
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_BILLINK_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_BILLINK_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
                 ),
                 array(
                     'type'      => 'select',

@@ -33,6 +33,19 @@
             <div class="buckaroo-field-description">{$input.description}</div>
         {/if}
     </div>
+{elseif $input.type == 'bool'}
+    <label for="{$input.name|escape:'quotes':'UTF-8'}">{if !empty($input.label)} {$input.label|escape:'html':'UTF-8'}{else} Enabled{/if}</label>
+    <div class="margin-form">
+        <select id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}">
+            <option value="0"
+                    {if empty($fields_value[$input.name])}selected="selected"{/if}>{l s='No' mod='buckaroo3'}</option>
+            <option value="1"
+                    {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
+        </select>
+        {if isset($input.description)}
+            <div class="buckaroo-field-description">{$input.description}</div>
+        {/if}
+    </div>
 {elseif $input.type == 'submit'}
     <label>&nbsp;</label>
     <div class="margin-form">
