@@ -61,6 +61,10 @@
                                                               class="middle"/> <img
                     src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/Revolut.png" class="middle"
                     style="width: 16px;"/> {l s='Revolut' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_Issuer" value="YOURSAFE" type="radio"
+                    class="middle"/> <img
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/YourSafe.png" class="middle"
+                    style="width: 16px;"/> {l s='Yoursafe' mod='buckaroo3'}</div>
         <br/>
     </form>
 </section>
