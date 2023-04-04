@@ -297,7 +297,8 @@ class Buckaroo3 extends PaymentModule
         $tab->class_name = 'AdminBuckaroolog';
         $tab->id_parent = $parent_tab->id;
         $tab->module = 'buckaroo3';
-        $tab->add();        
+        $tab->add(); 
+        return true;       
     }
 
     private function uninstallTab()
@@ -325,8 +326,6 @@ class Buckaroo3 extends PaymentModule
         ) {
             return false;
         }
-        $this->registerHook('displayBackOfficeHeader');
-
         $this->registerHook('displayBeforeCarrier');
         $this->registerHook('actionAdminCustomersListingFieldsModifier');
         $this->registerHook('displayAdminProductsMainStepLeftColumnMiddle');
