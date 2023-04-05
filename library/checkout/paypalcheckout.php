@@ -72,11 +72,13 @@ class PayPalCheckout extends Checkout
         if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->invoice_address->address2;
         }
+
+        $state = new State((int) $this->invoice_address->id_state);
         $data = [
             "street"  => $address_components['street'],
             "street2" => $address_components['house_number'],
             "zipcode" => $this->invoice_address->postcode,
-            "state"   => (int) new State((int) $this->invoice_address->id_state),
+            "state"   => $state !== null  ? $state->name : null,
             "city"    => $this->invoice_address->city,
             "country" => Tools::strtoupper(
                 (new Country($this->invoice_address->id_country))->iso_code

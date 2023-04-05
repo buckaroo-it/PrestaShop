@@ -272,29 +272,14 @@ abstract class Response extends BuckarooAbstract
 
     public function isRedirectRequired()
     {
-        $reqAction = $this->response->get('RequiredAction');
-
-        return is_array($reqAction) &&
-            !empty($reqAction['RedirectURL']) &&
-            !empty($reqAction['Name']) &&
-            !empty($reqAction['Name']) &&
-            $reqAction['Name'] == 'Redirect';
+        return $this->response->hasRedirect();
     }
 
     public function getRedirectUrl()
     {
-        $reqAction = $this->response->get('RequiredAction');
-        if ($this->isRedirectRequired()) {
-            return $reqAction['RedirectURL'];
-        }
+        return $this->response->getRedirectUrl();
+    }
 
-        return '';
-    }
-    //TODO - remove unused code
-    private function setResponse($response)
-    {
-        $this->response = $response;
-    }
 
     public function getResponse()
     {

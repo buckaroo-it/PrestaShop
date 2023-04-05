@@ -39,7 +39,6 @@ class PayPal extends PaymentMethod
                 'street' => $data['address']['street'],
                 'street2' => $data['address']['street2'],
                 'city' => $data['address']['city'],
-                'state' => $data['address']['state'],
                 'zipcode' => $data['address']['zipcode'],
                 'country' => $data['address']['country']
             ],
@@ -47,6 +46,10 @@ class PayPal extends PaymentMethod
                 'mobile' => $data['phone']
             ],
         ];
+
+        if($data['address']['state'] !== null) {
+            $payload['address']['state'] = $data['address']['state'];
+        }
         return $payload;
     }
 
