@@ -92,6 +92,10 @@ class IDeal extends PaymentMethod
                 'name' => 'Revolut',
                 'logo' => 'Revolut.png',
             ),
+            'YOURSAFE' => array(
+                'name' => 'Yoursafe',
+                'logo' => 'YourSafe.png',
+            ),
         );
 
         return $issuerArray;
@@ -137,6 +141,9 @@ class IDeal extends PaymentMethod
                 break;
             case 'REVOLT21':
                 $issuerCode = 'REVOLT21';
+                break;
+            case 'YOURSAFE':
+                $issuerCode = 'BITSNL2A';
                 break;
         }
 
