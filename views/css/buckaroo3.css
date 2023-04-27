@@ -318,7 +318,25 @@ p.payment_module a.buckaroo_paylink:after {
     outline: 0.1875rem solid #FF0000;
 }
 /*iDeal slidedown div*/
-
+#bk-ideal-form {
+    margin-bottom: 15px;
+}
+.bk-ideal-issuer {
+    display: flex;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
+.bk-issuer-logo {
+    max-height: 25px;
+    width: auto;
+    margin: 0 5px;
+}
+.bk-issuer-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+}
 .bankRadioBtn {
     margin-left: 20px;
 
