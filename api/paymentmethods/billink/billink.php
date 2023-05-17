@@ -89,7 +89,7 @@ class Billink extends PaymentMethod
             'vATNumber' => $this->VatNumber,
             'billing'       => [
                 'recipient'        => [
-                    'category'              => (self::CUSTOMER_TYPE_B2C == $this->CustomerType) ? 'B2C' : 'B2B',
+                    'category'              => (self::CUSTOMER_TYPE_B2B == $this->CustomerType) ? 'B2B' : 'B2C',
                     'careOf'                => $this->BillingFirstName . ' ' . $this->BillingLastName,
                     'firstName'             => $this->BillingFirstName,
                     'lastName'              => $this->BillingLastName,
@@ -119,14 +119,16 @@ class Billink extends PaymentMethod
             $payload['shipping'] = $this->addShippingIfDifferent();
         }
 
-        //Add company name if b2b enabled 
+        //Add company name if b2b enabled
         if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
-            $payload['billing']['recipient']['companyName'] = $this->BillingCompanyName;;
-            $payload['billing']['recipient']['chamberOfCommerce'] = $this->CompanyCOCRegistration;
+            if($this->BillingCompanyName){
+                $payload['billing']['recipient']['careOf'] = $this->BillingCompanyName;
+                $payload['billing']['recipient']['chamberOfCommerce'] = $this->CompanyCOCRegistration;
 
-            if (isset($payload['shipping'])){
-                $payload['shipping']['recipient']['companyName'] = $this->ShippingCompanyName;
-                $payload['shipping']['recipient']['category'] = 'B2B';
+                if (isset($payload['shipping'])){
+                    $payload['shipping']['recipient']['careOf'] = $this->ShippingCompanyName;
+                    $payload['shipping']['recipient']['category'] = 'B2B';
+                }
             }
         }
         return $payload;        

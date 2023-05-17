@@ -173,6 +173,20 @@ class BillinkCheckout extends Checkout
             $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
             $products[]                = $tmp;
         }
+
+        $buckarooFee = $this->getBuckarooFee();
+
+        if ($buckarooFee > 0) {
+            $tmp                       = array();
+            $tmp["ArticleDescription"] = 'buckaroo_fee';
+            $tmp["ArticleId"]          = '0';
+            $tmp["ArticleQuantity"]    = '1';
+            $tmp["ArticleUnitPriceIncl"]   = round($buckarooFee, 2);
+            $tmp["ArticleUnitPriceExcl"]   = round($buckarooFee, 2);
+            $tmp["ArticleVatcategory"] = 0;
+            $products[]                = $tmp;
+        }
+
         $this->payment_response = $this->payment_request->payBillink($products, $this->customVars);
     }
 

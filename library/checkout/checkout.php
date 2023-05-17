@@ -129,35 +129,16 @@ abstract class Checkout
         $currency = new Currency((int) $this->cart->id_currency);
         $this->payment_request->amountDebit = $originalAmount =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-
         $payment_method = Tools::getValue('method');
         if ($payment_method=='bancontactmrcash') {
             $payment_method='MISTERCASH';
         }
 
-        if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
-            if ($buckarooFee>0) {
-                $this->payment_request->amountDebit =
-                    (string) ((float) $this->payment_request->amountDebit + (float) $buckarooFee);
-                Db::getInstance()->insert('buckaroo_fee', array(
-                    'reference' => $this->reference,
-                    'id_cart' => $this->cart->id,
-                    'buckaroo_fee' => (float) $buckarooFee,
-                    'currency' => $currency->iso_code,
-                ));
-
-                $orderFeeNumber = new Number((string) 0);
-                $totalPrice = new Number((string) ($originalAmount + $buckarooFee));
-                $orderFeeNumber->plus($totalPrice);
-
-                $orderid = Order::getOrderByCartId($this->cart->id);
-                $order = new Order($orderid);
-                $order->total_paid_tax_excl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_excl));
-                $order->total_paid_tax_incl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_incl));
-                $order->total_paid = $totalPrice->toPrecision(2);
-                $order->update();
-            }
+        $buckarooFee = $this->getBuckarooFee();
+        if ($buckarooFee > 0) {
+            $this->updateOrderFee($buckarooFee);
         }
+
         $this->payment_request->currency    = $currency->iso_code;
         $this->payment_request->description = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
         $reference                          = $this->reference . '_' . $this->cart->id;
@@ -165,6 +146,53 @@ abstract class Checkout
         $this->payment_request->orderId     = $reference;
         $this->payment_request->returnUrl   = $this->returnUrl;
         $this->payment_request->pushUrl     = $this->pushUrl;
+    }
+
+    public function getBuckarooFee(){
+        $payment_method = Tools::getValue('method');
+        if ($payment_method=='bancontactmrcash') {
+            $payment_method='MISTERCASH';
+        }
+
+        if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
+            // Remove any whitespace from the fee.
+            $buckarooFee = trim($buckarooFee);
+
+            if (strpos($buckarooFee, '%') !== false) {
+                // The fee includes a percentage sign, so treat it as a percentage.
+                // Remove the percentage sign and convert the remaining value to a float.
+                $buckarooFee = str_replace('%', '', $buckarooFee);
+                $buckarooFee = (float) $this->payment_request->amountDebit * ((float) $buckarooFee / 100);
+            } else {
+                $buckarooFee = (float) $buckarooFee;
+            }
+            return $buckarooFee;
+        }
+    }
+
+    public function updateOrderFee($buckarooFee){
+        $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
+        $currency = new Currency((int) $this->cart->id_currency);
+        Db::getInstance()->insert('buckaroo_fee', array(
+            'reference' => $this->reference,
+            'id_cart' => $this->cart->id,
+            'buckaroo_fee' => $buckarooFee,
+            'currency' => $currency->iso_code,
+        ));
+
+        $orderFeeNumber = new Number((string) 0);
+        $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
+        $totalPrice = new Number((string) ($originalAmount + $buckarooFee));
+        $orderFeeNumber->plus($totalPrice);
+
+        $orderid = Order::getOrderByCartId($this->cart->id);
+
+        $order = new Order($orderid);
+
+        $order->total_paid_tax_excl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_excl));
+        $order->total_paid_tax_incl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_incl));
+        $order->total_paid = $totalPrice->toPrecision(2);
+        $order->update();
     }
 
     public function startPayment()
@@ -181,7 +209,7 @@ abstract class Checkout
     }
 
     abstract public function isRedirectRequired();
-    
+
     abstract public function isVerifyRequired();
 
     public function doRedirect($redirect_url = null)

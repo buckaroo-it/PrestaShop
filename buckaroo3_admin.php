@@ -111,7 +111,7 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_IDEAL_LABEL', Tools::getValue('BUCKAROO_IDEAL_LABEL'));
                 Configuration::updateValue(
                     'BUCKAROO_IDEAL_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_FEE'))
+                    $this->handlePaymentPercentageFee(Tools::getValue('BUCKAROO_IDEAL_FEE'))
                 );
                 Configuration::updateValue(
                     'BUCKAROO_IDEAL_MIN_VALUE',
@@ -523,6 +523,31 @@ class Buckaroo3Admin
                     $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_MAX_VALUE'))
                 );
 
+                Configuration::updateValue('BUCKAROO_GLOBAL_POSITION',Tools::getValue('BUCKAROO_GLOBAL_POSITION'));
+                Configuration::updateValue('BUCKAROO_IDIN_POSITION',Tools::getValue('BUCKAROO_IDIN_POSITION'));
+                Configuration::updateValue('BUCKAROO_PAYPAL_POSITION',Tools::getValue('BUCKAROO_PAYPAL_POSITION'));
+                Configuration::updateValue('BUCKAROO_SDD_POSITION',Tools::getValue('BUCKAROO_SDD_POSITION'));
+                Configuration::updateValue('BUCKAROO_IDEAL_POSITION',Tools::getValue('BUCKAROO_IDEAL_POSITION'));
+                Configuration::updateValue('BUCKAROO_GIROPAY_POSITION',Tools::getValue('BUCKAROO_GIROPAY_POSITION'));
+                Configuration::updateValue('BUCKAROO_KBC_POSITION',Tools::getValue('BUCKAROO_KBC_POSITION'));
+                Configuration::updateValue('BUCKAROO_EPS_POSITION',Tools::getValue('BUCKAROO_EPS_POSITION'));
+                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_POSITION',Tools::getValue('BUCKAROO_PAYPEREMAIL_POSITION'));
+                Configuration::updateValue('BUCKAROO_PAYCONIQ_POSITION',Tools::getValue('BUCKAROO_PAYCONIQ_POSITION'));
+                Configuration::updateValue('BUCKAROO_PRZELEWY24_POSITION',Tools::getValue('BUCKAROO_PRZELEWY24_POSITION'));
+                Configuration::updateValue('BUCKAROO_TINKA_POSITION',Tools::getValue('BUCKAROO_TINKA_POSITION'));
+                Configuration::updateValue('BUCKAROO_TRUSTLY_POSITION',Tools::getValue('BUCKAROO_TRUSTLY_POSITION'));
+                Configuration::updateValue('BUCKAROO_MISTERCASH_POSITION',Tools::getValue('BUCKAROO_MISTERCASH_POSITION'));
+                Configuration::updateValue('BUCKAROO_GIFTCARD_POSITION',Tools::getValue('BUCKAROO_GIFTCARD_POSITION'));
+                Configuration::updateValue('BUCKAROO_CREDITCARD_POSITION',Tools::getValue('BUCKAROO_CREDITCARD_POSITION'));
+                Configuration::updateValue('BUCKAROO_SOFORTBANKING_POSITION',Tools::getValue('BUCKAROO_SOFORTBANKING_POSITION'));
+                Configuration::updateValue('BUCKAROO_TRANSFER_POSITION',Tools::getValue('BUCKAROO_TRANSFER_POSITION'));
+                Configuration::updateValue('BUCKAROO_AFTERPAY_POSITION',Tools::getValue('BUCKAROO_AFTERPAY_POSITION'));
+                Configuration::updateValue('BUCKAROO_APPLEPAY_POSITION',Tools::getValue('BUCKAROO_APPLEPAY_POSITION'));
+                Configuration::updateValue('BUCKAROO_KLARNA_POSITION',Tools::getValue('BUCKAROO_KLARNA_POSITION'));
+                Configuration::updateValue('BUCKAROO_BELFIUS_POSITION',Tools::getValue('BUCKAROO_BELFIUS_POSITION'));
+                Configuration::updateValue('BUCKAROO_IN3_POSITION',Tools::getValue('BUCKAROO_IN3_POSITION'));
+                Configuration::updateValue('BUCKAROO_BILLINK_POSITION',Tools::getValue('BUCKAROO_BILLINK_POSITION'));
+                Configuration::updateValue('BUCKAROO_BELFIUS_POSITION',Tools::getValue('BUCKAROO_BELFIUS_POSITION'));
 
             }
         }
@@ -788,6 +813,38 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? Billink::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
         $fields_value['BUCKAROO_BILLINK_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_BILLINK_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MAX_VALUE');
+
+
+
+
+        $fields_value['BUCKAROO_GLOBAL_POSITION'] = Configuration::get('BUCKAROO_GLOBAL_POSITION');
+        $fields_value['BUCKAROO_IDIN_POSITION'] = Configuration::get('BUCKAROO_IDIN_POSITION');
+        $fields_value['BUCKAROO_PAYPAL_POSITION'] = Configuration::get('BUCKAROO_PAYPAL_POSITION');
+        $fields_value['BUCKAROO_SDD_POSITION'] = Configuration::get('BUCKAROO_SDD_POSITION');
+        $fields_value['BUCKAROO_IDEAL_POSITION'] = Configuration::get('BUCKAROO_IDEAL_POSITION');
+        $fields_value['BUCKAROO_GIROPAY_POSITION'] = Configuration::get('BUCKAROO_GIROPAY_POSITION');
+        $fields_value['BUCKAROO_KBC_POSITION'] = Configuration::get('BUCKAROO_KBC_POSITION');
+        $fields_value['BUCKAROO_EPS_POSITION'] = Configuration::get('BUCKAROO_EPS_POSITION');
+        $fields_value['BUCKAROO_PAYPEREMAIL_POSITION'] = Configuration::get('BUCKAROO_PAYPEREMAIL_POSITION');
+        $fields_value['BUCKAROO_PAYCONIQ_POSITION'] = Configuration::get('BUCKAROO_PAYCONIQ_POSITION');
+        $fields_value['BUCKAROO_PRZELEWY24_POSITION'] = Configuration::get('BUCKAROO_PRZELEWY24_POSITION');
+        $fields_value['BUCKAROO_TINKA_POSITION'] = Configuration::get('BUCKAROO_TINKA_POSITION');
+        $fields_value['BUCKAROO_TRUSTLY_POSITION'] = Configuration::get('BUCKAROO_TRUSTLY_POSITION');
+        $fields_value['BUCKAROO_MISTERCASH_POSITION'] = Configuration::get('BUCKAROO_MISTERCASH_POSITION');
+        $fields_value['BUCKAROO_GIFTCARD_POSITION'] = Configuration::get('BUCKAROO_GIFTCARD_POSITION');
+        $fields_value['BUCKAROO_CREDITCARD_POSITION'] = Configuration::get('BUCKAROO_CREDITCARD_POSITION');
+        $fields_value['BUCKAROO_SOFORTBANKING_POSITION'] = Configuration::get('BUCKAROO_SOFORTBANKING_POSITION');
+        $fields_value['BUCKAROO_TRANSFER_POSITION'] = Configuration::get('BUCKAROO_TRANSFER_POSITION');
+        $fields_value['BUCKAROO_AFTERPAY_POSITION'] = Configuration::get('BUCKAROO_AFTERPAY_POSITION');
+        $fields_value['BUCKAROO_KLARNA_POSITION'] = Configuration::get('BUCKAROO_KLARNA_POSITION');
+        $fields_value['BUCKAROO_BELFIUS_POSITION'] = Configuration::get('BUCKAROO_BELFIUS_POSITION');
+        $fields_value['BUCKAROO_IN3_POSITION'] = Configuration::get('BUCKAROO_IN3_POSITION');
+        $fields_value['BUCKAROO_BILLINK_POSITION'] = Configuration::get('BUCKAROO_BILLINK_POSITION');
+        $fields_value['BUCKAROO_APPLEPAY_POSITION'] = Configuration::get('BUCKAROO_APPLEPAY_POSITION');
+
+
+
+
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
@@ -801,6 +858,7 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Global settings'),
             'name'    => 'GLOBAL',
+            'position'=> 0,
             'enabled' => true,
             'test'    => Configuration::get('BUCKAROO_TEST'),
             'input'   => array(
@@ -809,29 +867,30 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_TEST',
                 ),
                 array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GLOBAL_POSITION',
+                ),
+                array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Merchant key'),
                     'name'     => 'BUCKAROO_MERCHANT_KEY',
                     'size'     => 25,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Secret key'),
                     'name'     => 'BUCKAROO_SECRET_KEY',
                     'size'     => 80,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Transaction label'),
                     'name'     => 'BUCKAROO_TRANSACTION_LABEL',
                     'size'     => 80,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
@@ -892,9 +951,11 @@ class Buckaroo3Admin
 
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('iDIN verification Settings'),
-            'name'    => 'PAYPAL',
+            'name'    => 'iDIN',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/idin.png',
             'test'    => Configuration::get('BUCKAROO_IDIN_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDIN_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IDIN_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -902,6 +963,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IDIN_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -953,8 +1018,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('PayPal Settings'),
             'name'    => 'PAYPAL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_paypal.png',
             'test'    => Configuration::get('BUCKAROO_PAYPAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYPAL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYPAL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -962,6 +1029,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYPAL_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -974,11 +1045,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPAL_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1017,8 +1088,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('SEPA Direct debit settings'),
             'name'    => 'SEPADD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_sepa_dd.png',
             'test'    => Configuration::get('BUCKAROO_SDD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SDD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_SDD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1026,6 +1099,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_SDD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1038,11 +1115,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SDD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1075,8 +1152,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('IDeal settings'),
             'name'    => 'IDEAL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_ideal.png',
             'test'    => Configuration::get('BUCKAROO_IDEAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDEAL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IDEAL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1086,20 +1165,24 @@ class Buckaroo3Admin
                     'type' => 'hidearea_start',
                 ),
                 array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IDEAL_POSITION',
+                ),
+                array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_IDEAL_TEST',
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Frontend label'),
                     'name'     => 'BUCKAROO_IDEAL_LABEL',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IDEAL_FEE',
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
                     'size'     => 80,
                 ),
                 array(
@@ -1133,8 +1216,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Giropay settings'),
             'name'    => 'GIROPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.png',
             'test'    => Configuration::get('BUCKAROO_GIROPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIROPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_GIROPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1142,6 +1227,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GIROPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1154,11 +1243,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIROPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1191,8 +1280,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('KBC settings'),
             'name'    => 'KBC',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_kbc.png',
             'test'    => Configuration::get('BUCKAROO_KBC_TEST'),
             'enabled' => Configuration::get('BUCKAROO_KBC_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_KBC_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1200,6 +1291,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_KBC_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1212,11 +1307,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KBC_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1249,8 +1344,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('EPS settings'),
             'name'    => 'EPS',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_eps.png',
             'test'    => Configuration::get('BUCKAROO_EPS_TEST'),
             'enabled' => Configuration::get('BUCKAROO_EPS_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_EPS_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1258,6 +1355,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_EPS_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1270,11 +1371,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_EPS_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1307,8 +1408,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('PayPerEmail settings'),
             'name'    => 'PAYPEREMAIL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_payperemail.png',
             'test'    => Configuration::get('BUCKAROO_PAYPEREMAIL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYPEREMAIL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYPEREMAIL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1316,6 +1419,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYPEREMAIL_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1349,8 +1456,8 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPEREMAIL_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1383,8 +1490,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Payconiq settings'),
             'name'    => 'PAYCONIQ',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_payconiq.png',
             'test'    => Configuration::get('BUCKAROO_PAYCONIQ_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYCONIQ_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYCONIQ_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1392,6 +1501,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYCONIQ_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1407,8 +1520,8 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYCONIQ_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1441,8 +1554,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Przelewy24 settings'),
             'name'    => 'PRZELEWY24',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_przelewy24.png',
             'test'    => Configuration::get('BUCKAROO_PRZELEWY24_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PRZELEWY24_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PRZELEWY24_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1450,6 +1565,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PRZELEWY24_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1462,11 +1581,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PRZELEWY24_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1499,8 +1618,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Tinka settings'),
             'name'    => 'TINKA',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_tinka.png',
             'test'    => Configuration::get('BUCKAROO_TINKA_TEST'),
             'enabled' => Configuration::get('BUCKAROO_TINKA_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TINKA_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1508,6 +1629,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TINKA_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1520,11 +1645,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TINKA_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1557,8 +1682,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Trustly settings'),
             'name'    => 'TRUSTLY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_trustly.png',
             'test'    => Configuration::get('BUCKAROO_TRUSTLY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_TRUSTLY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TRUSTLY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1566,6 +1693,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TRUSTLY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1578,11 +1709,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRUSTLY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1615,8 +1746,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Bancontact / Mister Cash settings'),
             'name'    => 'MISTERCASH',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_mistercash.png',
             'test'    => Configuration::get('BUCKAROO_MISTERCASH_TEST'),
             'enabled' => Configuration::get('BUCKAROO_MISTERCASH_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_MISTERCASH_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1624,6 +1757,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_MISTERCASH_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1636,11 +1773,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_MISTERCASH_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1673,8 +1810,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('GiftCard settings'),
             'name'    => 'GIFTCARD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giftcards.png',
             'test'    => Configuration::get('BUCKAROO_GIFTCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIFTCARD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_GIFTCARD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1682,6 +1821,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GIFTCARD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1694,11 +1837,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIFTCARD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1731,8 +1874,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('CreditCard settings'),
             'name'    => 'CREDITCARD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_cc.png',
             'test'    => Configuration::get('BUCKAROO_CREDITCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_CREDITCARD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_CREDITCARD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1740,6 +1885,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_CREDITCARD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1752,11 +1901,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_CREDITCARD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1789,8 +1938,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Sofortbanking settings'),
             'name'    => 'SOFORTBANKING',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_sofort.png',
             'test'    => Configuration::get('BUCKAROO_SOFORTBANKING_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_SOFORTBANKING_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1798,6 +1949,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_SOFORTBANKING_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1810,11 +1965,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SOFORTBANKING_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1847,8 +2002,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Bank Transfer settings'),
             'name'    => 'TRANSFER',
-            'test'    => (Configuration::get('BUCKAROO_TRANSFER_TEST')),
-            'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED')),
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_transfer.png',
+            'test'    => Configuration::get('BUCKAROO_TRANSFER_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_TRANSFER_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TRANSFER_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1856,6 +2013,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TRANSFER_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1868,11 +2029,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRANSFER_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1950,8 +2111,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Riverty | AfterPay Settings'),
             'name'    => 'AFTERPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_afterpay.png',
             'test'    => Configuration::get('BUCKAROO_AFTERPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_AFTERPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_AFTERPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1959,6 +2122,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_AFTERPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1971,11 +2138,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_AFTERPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2130,8 +2297,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('ApplePay settings'),
             'name'    => 'APPLEPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_applepay.png',
             'test'    => Configuration::get('BUCKAROO_APPLEPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_APPLEPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_APPLEPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2139,6 +2308,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_APPLEPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2151,11 +2324,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_APPLEPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2196,7 +2369,9 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Klarna Pay later (pay) Settings'),
             'name'    => 'KLARNA',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_klarna.png',
             'test'    => Configuration::get('BUCKAROO_KLARNA_TEST'),
+            'position'=> Configuration::get('BUCKAROO_KLARNA_POSITION'),
             'enabled' => Configuration::get('BUCKAROO_KLARNA_ENABLED'),
             'input'   => array(
                 array(
@@ -2205,6 +2380,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_KLARNA_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2217,11 +2396,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KLARNA_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2356,8 +2535,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Belfius settings'),
             'name'    => 'BELFIUS',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_belfius.png',
             'test'    => Configuration::get('BUCKAROO_BELFIUS_TEST'),
             'enabled' => Configuration::get('BUCKAROO_BELFIUS_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_BELFIUS_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2365,6 +2546,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_BELFIUS_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2377,11 +2562,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BELFIUS_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2414,8 +2599,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('In3 settings'),
             'name'    => 'IN3',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png',
             'test'    => Configuration::get('BUCKAROO_IN3_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IN3_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IN3_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2423,6 +2610,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IN3_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2435,11 +2626,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IN3_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
 
                 array(
@@ -2492,8 +2683,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Billink Settings'),
             'name'    => 'BILLINK',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_billink.png',
             'test'    => Configuration::get('BUCKAROO_BILLINK_TEST'),
             'enabled' => Configuration::get('BUCKAROO_BILLINK_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_BILLINK_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2501,6 +2694,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_BILLINK_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2513,11 +2710,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BILLINK_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2669,6 +2866,10 @@ class Buckaroo3Admin
             ),
         );
 
+        usort($fields_form, function($a, $b) {
+            return $a['position'] - $b['position'];
+        });
+
         $this->module->context->smarty->assign(
             array(
                 'fields_form'  => $fields_form,
@@ -2688,5 +2889,9 @@ class Buckaroo3Admin
     private function handlePaymentFee($value)
     {
         return preg_replace('/[^0-9\.]/', '', $value);
+    }
+    private function handlePaymentPercentageFee($value)
+    {
+        return preg_replace('/[^0-9\.%]/', '', $value);
     }
 }

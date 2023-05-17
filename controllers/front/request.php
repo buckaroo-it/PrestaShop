@@ -87,7 +87,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $payment_method = Tools::getValue('method');
 
         if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
-            if ($buckarooFee>0) {
+            $buckarooFee = trim($buckarooFee);
+
+            if (strpos($buckarooFee, '%') !== false) {
+                // The fee includes a percentage sign, so treat it as a percentage.
+                // Remove the percentage sign and convert the remaining value to a float.
+                $buckarooFee = str_replace('%', '', $buckarooFee);
+                $total += ($total * ((float) $buckarooFee / 100));
+            } else if ($buckarooFee > 0) {
+                // The fee is a flat amount.
                 $total += (float) $buckarooFee;
             }
         }

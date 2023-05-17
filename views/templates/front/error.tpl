@@ -21,7 +21,7 @@
         <a href="index.php?controller=order&submitReorder=&id_order={$order_id|escape:'html':'UTF-8'}"
            class="button btn btn-default standart-checkout button-medium"><span>{l s='Return to checkout' mod='buckaroo3'}</span></a>
     {else}
-        <a href="index.php?controller=order"
+        <a href="order"
            class="button btn btn-default standart-checkout button-medium"><span>{l s='Return to checkout' mod='buckaroo3'}</span></a>
     {/if}
 </p>

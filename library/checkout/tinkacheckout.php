@@ -91,7 +91,7 @@ class TinkaCheckout extends Checkout
 
             $addressType = 'shipping_address';
         }
-        
+
         $address_components = $this->getAddressComponents($this->$addressType->address1);
 
         if (empty($address_components['house_number'])) {
@@ -134,7 +134,7 @@ class TinkaCheckout extends Checkout
                 "description" => $item['name'],
                 "unitCode" => $item['id_product'],
                 "quantity" => $item["quantity"],
-                "price" =>round($item["price_wt"], 2)
+                "price" => round($item["price_wt"], 2)
             ];
         }
 
@@ -171,9 +171,22 @@ class TinkaCheckout extends Checkout
                 "description" => 'Shipping',
                 "unitCode" => 'SHIP',
                 "quantity" => 1,
-                "price" =>round($shipping, 2)
+                "price" => round($shipping, 2)
             ];
         }
+
+        $buckarooFee = $this->getBuckarooFee();
+
+        if ($buckarooFee > 0) {
+            $products[] = [
+                "type" => 1,
+                "description" => 'buckaroo_fee',
+                "unitCode" => 'fee',
+                "quantity" => 1,
+                "price" => round($buckarooFee, 2)
+            ];
+        }
+
         return $products;
     }
 }

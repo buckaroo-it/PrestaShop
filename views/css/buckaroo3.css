@@ -284,7 +284,7 @@
     display: inline
 }
 .form-control-small {
-    width: 50px;
+    width: 54px !important;
     display: inline
 }
 
