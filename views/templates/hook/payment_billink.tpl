@@ -14,7 +14,7 @@
 *}
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="BILLINK">
-    <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post">
+    <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         {l s='Please select gender:' mod='buckaroo3'}<br/><br/>
             <div class="col-xs-12">
                 <select name="bpe_billink_person_gender"

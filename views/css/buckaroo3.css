@@ -288,6 +288,14 @@
     display: inline
 }
 
+.form-control {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
+    /* Add your custom styles here. */
+}
+
 .padding-right-button {
     margin: 7px;
 }
