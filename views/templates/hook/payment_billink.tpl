@@ -16,16 +16,17 @@
     <input type="hidden" name="buckarooKey" value="BILLINK">
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Please select gender:' mod='buckaroo3'}<br/><br/>
-                <div class="col-xs-12">
-                    <select name="bpe_billink_person_gender"
-                                               id="bpe_billink_person_gender"
-                                               class="required-entry form-control">
-                        <option value="Male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
-                        <option value="Female">{l s='She/her' mod='buckaroo3'}</option>
-                        <option value="Unknown">{l s='They/Them' mod='buckaroo3'}</option>
-                        <option value="Unknown">{l s='I prefer not to say' mod='buckaroo3'}</option>
-                    </select>
-                </div>
+            <div class="col-xs-12">
+                <select name="bpe_billink_person_gender"
+                                           id="bpe_billink_person_gender"
+                                           class="required-entry form-control custom-select">
+                    <option value="Male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
+                    <option value="Female">{l s='She/her' mod='buckaroo3'}</option>
+                    <option value="Unknown">{l s='They/Them' mod='buckaroo3'}</option>
+                    <option value="Unknown">{l s='I prefer not to say' mod='buckaroo3'}</option>
+                </select>
+            </div>
+        <br/>
         <br/>
         <div class="row row-padding">
             <div class="col-xs-5"><label

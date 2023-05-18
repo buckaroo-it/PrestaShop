@@ -35,11 +35,8 @@
     {/if}
 </div>
 {elseif $input.type == 'submit'}
-<div class="form-group">
-    <label> </label>
     <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'quotes':'UTF-8'}"{/if} type="submit"
            value=" {$input.label|escape:'html':'UTF-8'} " class="btn btn-default"/>
-</div>
 {elseif $input.type == 'multiselect'}
 <div class="form-group">
     <label for="{$input.name|escape:'html':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
@@ -115,6 +112,6 @@
     </div>
 {/if}
 
-{if !isset($input.type) || !in_array($input.type,array('hidearea_start','hidearea_end'))}
+{if !isset($input.type) || !in_array($input.type,array('hidearea_start','hidearea_end')) && $input.type != 'submit'}
     <div class="clear"></div>
 {/if}

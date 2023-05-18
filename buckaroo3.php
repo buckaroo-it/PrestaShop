@@ -1560,16 +1560,16 @@ class Buckaroo3 extends PaymentModule
     public function hookDisplayProductExtraContent($params)
     {
         if ($this->isIdinProductBoxShow($params)) {
-            $content = $this->display(__FILE__, 'views/templates/hook/idin_box.tpl', array(
+            $this->smarty->assign(array(
                 'this_path' => _MODULE_DIR_ . $this->tpl_folder . '/',
             ));
 
-            $array = [];
-            $array[] = (new PrestaShop\PrestaShop\Core\Product\ProductExtraContent())
-                ->setTitle('iDIN Info')
-                ->setContent($content);
+            $content = $this->display(__FILE__, 'views/templates/hook/idin_box.tpl');
+            $productExtraContent = new PrestaShop\PrestaShop\Core\Product\ProductExtraContent();
+            $productExtraContent->setTitle($this->l('iDIN Info'));
+            $productExtraContent->setContent($content);
 
-            return $array;
+            return array($productExtraContent);
         }
     }
 

@@ -17,50 +17,50 @@
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Choose your creditcard' mod='buckaroo3'}<br/><br/>
 
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="amex" type="radio"
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="amex" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/AmericanExpress.png" class="middle"
-                    style="width:16px;"/> {l s='American Express' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="cartebancaire" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/AmericanExpress.png" class="middle bk-creditcard-logo"
+                    /> {l s='American Express' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="cartebancaire" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBancaire.png" class="middle"
-                    style="width:16px;"/> {l s='CarteBancaire' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="cartebleue" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBancaire.png" class="middle bk-creditcard-logo"
+                    /> {l s='CarteBancaire' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="cartebleue" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBleue.png" class="middle"
-                    style="width:16px;"/> {l s='CarteBleue' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="dankort" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBleue.png" class="middle bk-creditcard-logo"
+                    /> {l s='CarteBleue' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="dankort" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Dankort.png" class="middle"
-                    style="width:16px;"/> {l s='Dankort' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="maestro" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Dankort.png" class="middle bk-creditcard-logo"
+                    /> {l s='Dankort' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="maestro" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Maestro.png" class="middle"
-                    style="width:16px;"/> {l s='Maestro' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="mastercard" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Maestro.png" class="middle bk-creditcard-logo"
+                    /> {l s='Maestro' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="mastercard" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Mastercard.png" class="middle"
-                    style="width:16px;"/> {l s='Mastercard' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="nexi" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Mastercard.png" class="middle bk-creditcard-logo"
+                    /> {l s='Mastercard' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="nexi" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Nexi.png" class="middle"
-                    style="width:16px;"/> {l s='Nexi' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="postepay" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Nexi.png" class="middle bk-creditcard-logo"
+                    /> {l s='Nexi' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="postepay" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/PostePay.png" class="middle"
-                    style="width:16px;"/> {l s='PostePay' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="visa" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/PostePay.png" class="middle bk-creditcard-logo"
+                    /> {l s='PostePay' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="visa" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISA.png" class="middle"
-                    style="width:16px;"/> {l s='VISA' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="visaelectron" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISA.png" class="middle bk-creditcard-logo"
+                    /> {l s='VISA' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="visaelectron" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISAelectron.png" class="middle"
-                    style="width:16px;"/> {l s='VISA Electron' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn"><input name="BPE_CreditCard" value="vpay" type="radio"
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISAelectron.png" class="middle bk-creditcard-logo"
+                    /> {l s='VISA Electron' mod='buckaroo3'}</div>
+        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="vpay" type="radio"
                                                               class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VPAY.png" class="middle"
-                    style="width:16px;"/> {l s='VPAY' mod='buckaroo3'}</div>        
+                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VPAY.png" class="middle bk-creditcard-logo"
+                    /> {l s='VPAY' mod='buckaroo3'}</div>        
         <br/>
     </form>
 </section>

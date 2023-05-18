@@ -36,4 +36,64 @@ $(document).ready(function () {
             $(this).parents("fieldset").children("legend").addClass("test").removeClass("active");
         }
     });
+
+    // Check the initial state of the toggle switches
+    $(".toggle-switch").each(function() {
+        var panelID = this.dataset.target;
+
+        // Check if the switch is enabled (checked)
+        if ($(this).is(":checked")) {
+            // Remove the "collapse" class to keep the panel open
+            $(panelID).collapse('toggle');
+        }
+    });
+    // Listen for the change event on switches
+    $(".toggle-switch").change(function() {
+        // Get the ID of the panel associated with this switch
+        var panelID = this.dataset.target;
+        // Check if the switch is enabled (checked)
+        $(panelID).collapse('toggle');
+    });
+    $( function() {
+        $( "#sortable" ).sortable();
+        $( "#sortable" ).disableSelection();
+    } );
+
+    function updatePositions() {
+        // Iterate over each sortable item
+        $("#sortable .panel").each(function(index) {
+            // Update the value of the hidden input field to reflect the current index
+            $(this).find('.position-input').val(index);
+        });
+    }
+
+    $("#sortable").sortable({
+        update: function(event, ui) {
+            // Call the function to update positions whenever a sort operation is performed
+            updatePositions();
+        }
+    });
+
+    // Also call the function on page load to initialize positions
+    updatePositions();
+
+    testButton = function () {
+        let buckarooTestButton = $('#test_connection')
+
+        buckarooTestButton.on('click', function() {
+                let website_key = $('#BUCKAROO_MERCHANT_KEY').val();
+                let secret_key =$('#BUCKAROO_SECRET_KEY').val();
+                jQuery.post(
+                    ajaxurl,
+                    {
+                        action:'buckaroo_test_credentials',
+                        website_key,
+                        secret_key
+                    },
+                    function(response) {
+                        alert(response);
+                    }
+                )
+        });
+    }
 });

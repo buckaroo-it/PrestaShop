@@ -16,6 +16,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+use Buckaroo\BuckarooClient;
 
 class Buckaroo3Admin
 {
@@ -35,6 +36,20 @@ class Buckaroo3Admin
             if ($idTab == 0) {
                 $this->module->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1);
             }
+        } else if (Tools::getValue('test_connection')){
+            $output = null;
+
+            if (!empty(Tools::getValue('BUCKAROO_MERCHANT_KEY')) && !empty(Tools::getValue('BUCKAROO_SECRET_KEY'))) {
+                $buckarooClient = new BuckarooClient(Tools::getValue('BUCKAROO_MERCHANT_KEY'), Tools::getValue('BUCKAROO_SECRET_KEY'));
+                if ($buckarooClient->confirmCredential()) {
+                    $output .= $this->module->displayConfirmation($this->module->l('Credentials are OK!'));
+                } else {
+                    $output .= $this->module->displayError($this->module->l('Credentials are incorrect!'));
+                }
+            } else {
+                $output .= $this->module->displayError($this->module->l('Please fill the credentials!'));
+            }
+            return $output.$this->displayForm();
         } else {
             if (Tools::isSubmit('BUCKAROO_TEST')) {
                 Configuration::updateValue('BUCKAROO_TEST', Tools::getValue('BUCKAROO_TEST'));
@@ -934,6 +949,12 @@ class Buckaroo3Admin
                     'type'     => 'submit',
                     'name'     => 'refresh_module',
                     'label'    => $this->module->l('Refresh module'),
+                    'required' => true,
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'test_connection',
+                    'label'    => $this->module->l('Test Connection'),
                     'required' => true,
                 ),
             ),
