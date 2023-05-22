@@ -93,7 +93,7 @@
                     <td><select id="{$input.name|escape:'quotes':'UTF-8'}[{$it|escape:'quotes':'UTF-8'}]" class="form-control" name="{$input.name|escape:'quotes':'UTF-8'}[{$it|escape:'quotes':'UTF-8'}]">
                             {foreach from=$input.taxoptions item=option}
                                 <option value="{$option.value|escape:'quotes':'UTF-8'}"
-                                        {if (Tools::getIsset($input.taxvalues[$it]) && $input.taxvalues[$it] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
+                                        {if ($input.taxvalues[$it] == $option.value)}selected="selected"{/if}>{$option.text|escape:'html':'UTF-8'}</option>
                             {/foreach}
                         </select></td>
                 </tr>

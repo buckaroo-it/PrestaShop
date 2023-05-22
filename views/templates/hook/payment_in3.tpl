@@ -25,7 +25,7 @@
                     <label class="required">{l s='Phone number' mod='buckaroo3'}:</label>
                 </div>
                 <div class="col-xs-9">
-                    <input name="customer_phone" id="customer_phone" value="{$phone|escape:'html':'UTF-8'}" type="text" class="form-control"/>
+                    <input name="customer_phone" id="customer_phone" value="{$phone|escape:'html':'UTF-8'}" type="text" class="form-control form-control-large"/>
                 </div>
             </div>
         </form>

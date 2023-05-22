@@ -26,7 +26,7 @@
                 </div>
                 <div class="col-xs-9">
                     <input name="BPE_Bic" id="BPE_Bic" value="" autocomplete="off" type="text"
-                                             maxlength="11" class="form-control"/>
+                                             maxlength="11" class="form-control form-control-large"/>
                 </div>
             </div>
 

@@ -281,21 +281,26 @@
 
 .form-control-middle {
     width: 70px;
-    display: inline
-}
-.form-control-small {
-    width: 54px !important;
-    display: inline
-}
-
-.form-control {
+    display: inline;
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
     border-radius: .25rem;
     color: #495057;
-    /* Add your custom styles here. */
 }
-
+.form-control-small {
+    width: 54px !important;
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
+}
+.form-control-large{
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
+}
 .padding-right-button {
     margin: 7px;
 }

@@ -19,7 +19,7 @@
             <div class="col-xs-12">
                 <select name="bpe_billink_person_gender"
                                            id="bpe_billink_person_gender"
-                                           class="required-entry form-control custom-select">
+                                           class="required-entry form-control form-control-large custom-select">
                     <option value="Male" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
                     <option value="Female">{l s='She/her' mod='buckaroo3'}</option>
                     <option value="Unknown">{l s='They/Them' mod='buckaroo3'}</option>

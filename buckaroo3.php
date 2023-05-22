@@ -281,8 +281,9 @@ class Buckaroo3 extends PaymentModule
         $parent_tab = new Tab();
         $parent_tab->name[$this->context->language->id] = $this->l('Buckaroo Payments');
         $parent_tab->class_name = 'AdminBuckaroo';
-        $parent_tab->id_parent = 0;
+        $parent_tab->id_parent = Tab::getIdFromClassName('IMPROVE');
         $parent_tab->module = 'buckaroo3';
+        $parent_tab->icon = 'buckaroo';
         $parent_tab->add();
 
         //Config

@@ -19,7 +19,7 @@
         <div class="col-xs-12">
             <select name="bpe_klarna_person_gender"
                                        id="bpe_klarna_person_gender"
-                                       class="required-entry form-control mb-2">
+                                       class="required-entry form-control form-control-large mb-2">
                 <option value="1" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
                 <option value="2">{l s='She/her' mod='buckaroo3'}</option>
             </select>
