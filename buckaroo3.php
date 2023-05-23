@@ -41,12 +41,11 @@ class Buckaroo3 extends PaymentModule
         $this->version                = '3.4.0';
         $this->author                 = 'Buckaroo';
         $this->need_instance          = 1;
-        $this->bootstrap = true;
+        $this->bootstrap              = true;
         $this->module_key             = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = array('min' => '1.', 'max' => _PS_VERSION_);
 
         parent::__construct();
-        ini_set("serialize_precision", -1);
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
@@ -326,7 +325,8 @@ class Buckaroo3 extends PaymentModule
             || !$this->createTransactionTable()
             || !$this->registerHook('actionEmailSendBefore')
             || !$this->registerHook('displayPDFInvoice')
-        ) {
+            || !$this->registerHook('displayBackOfficeHeader')
+    ) {
             return false;
         }
         $this->registerHook('displayBeforeCarrier');
@@ -808,11 +808,15 @@ class Buckaroo3 extends PaymentModule
         return true;
     }
 
-    public function getContent()
+    public function hookDisplayBackOfficeHeader()
     {
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
+    }
+
+    public function getContent()
+    {
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.admin.js');
-        $this->context->controller->addJS('https://code.jquery.com/ui/1.12.1/jquery-ui.min.js');
+        $this->context->controller->addJS($this->_path . 'views/js/jquery-ui.min.js');
         include_once _PS_MODULE_DIR_ . '/' . $this->name . '/buckaroo3_admin.php';
         $buckaroo_admin = new Buckaroo3Admin($this);
         return $buckaroo_admin->postProcess() . $buckaroo_admin->displayForm();
@@ -1088,13 +1092,6 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_trustly.png?v');
             $payment_options[] = $newOption;
         }
-
-//        usort($payment_options, function($a, $b) {
-//            $aPosition = $a->getAdditionalInformation() !== null ? intval($a->getAdditionalInformation()) : 0;
-//            $bPosition = $b->getAdditionalInformation() !== null ? intval($b->getAdditionalInformation()) : 0;
-//            return $aPosition - $bPosition;
-//        });
-
 
         return $payment_options;
     }

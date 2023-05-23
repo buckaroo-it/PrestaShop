@@ -65,8 +65,8 @@ class TinkaCheckout extends Checkout
     {
         return [
             "firstName" => $this->invoice_address->firstname,
-            "lastName" => $this->invoice_address->lastname,
-            "initials" => initials($this->invoice_address->firstname.' '.$this->invoice_address->lastname),
+            "lastName"  => $this->invoice_address->lastname,
+            "initials"  => initials($this->invoice_address->firstname.' '.$this->invoice_address->lastname),
             "birthDate" => date(
                 'Y-m-d',
                 strtotime(
@@ -98,11 +98,11 @@ class TinkaCheckout extends Checkout
             $address_components['house_number'] = $this->$addressType->address2;
         }
         $data = [
-            "street" => $address_components['street'],
-            "houseNumber" => $address_components['house_number'],
-            "zipcode" => $this->$addressType->postcode,
-            "city" => $this->$addressType->city,
-            "country" => Tools::strtoupper(
+            "street"        => $address_components['street'],
+            "houseNumber"   => $address_components['house_number'],
+            "zipcode"       => $this->$addressType->postcode,
+            "city"          => $this->$addressType->city,
+            "country"       => Tools::strtoupper(
                 (new Country($this->$addressType->id_country))->iso_code
             ),
         ];
@@ -130,11 +130,11 @@ class TinkaCheckout extends Checkout
         $products = [];
         foreach ($this->products as $item) {
             $products[] = [
-                "type" => 1,
-                "description" => $item['name'],
-                "unitCode" => $item['id_product'],
-                "quantity" => $item["quantity"],
-                "price" => round($item["price_wt"], 2)
+                "type"          => 1,
+                "description"   => $item['name'],
+                "unitCode"      => $item['id_product'],
+                "quantity"      => $item["quantity"],
+                "price"         => round($item["price_wt"], 2)
             ];
         }
 
@@ -142,11 +142,11 @@ class TinkaCheckout extends Checkout
         if ($wrapping > 0) {
 
             $products[] = [
-                "type" => 1,
-                "description" => 'Wrapping',
-                "unitCode" => 'WRAP',
-                "quantity" => 1,
-                "price" =>round($wrapping, 2)
+                "type"          => 1,
+                "description"   => 'Wrapping',
+                "unitCode"      => 'WRAP',
+                "quantity"      => 1,
+                "price"         => round($wrapping, 2)
             ];
         }
 
@@ -155,11 +155,11 @@ class TinkaCheckout extends Checkout
         if ($discounts > 0) {
 
             $products[] = [
-                "type" => 1,
-                "description" => 'Discounts',
-                "unitCode" => 'DISC',
-                "quantity" => 1,
-                "price" => - round($discounts, 2)
+                "type"          => 1,
+                "description"   => 'Discounts',
+                "unitCode"      => 'DISC',
+                "quantity"      => 1,
+                "price"         => - round($discounts, 2)
             ];
         }
 
@@ -167,11 +167,11 @@ class TinkaCheckout extends Checkout
         if ($shipping > 0) {
 
             $products[] = [
-                "type" => 1,
-                "description" => 'Shipping',
-                "unitCode" => 'SHIP',
-                "quantity" => 1,
-                "price" => round($shipping, 2)
+                "type"          => 1,
+                "description"   => 'Shipping',
+                "unitCode"      => 'SHIP',
+                "quantity"      => 1,
+                "price"         => round($shipping, 2)
             ];
         }
 
@@ -179,11 +179,11 @@ class TinkaCheckout extends Checkout
 
         if ($buckarooFee > 0) {
             $products[] = [
-                "type" => 1,
-                "description" => 'buckaroo_fee',
-                "unitCode" => 'fee',
-                "quantity" => 1,
-                "price" => round($buckarooFee, 2)
+                "type"          => 1,
+                "description"   => 'buckaroo_fee',
+                "unitCode"      => 'fee',
+                "quantity"      => 1,
+                "price"         => round($buckarooFee, 2)
             ];
         }
 

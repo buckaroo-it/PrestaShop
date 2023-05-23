@@ -76,24 +76,4 @@ $(document).ready(function () {
 
     // Also call the function on page load to initialize positions
     updatePositions();
-
-    testButton = function () {
-        let buckarooTestButton = $('#test_connection')
-
-        buckarooTestButton.on('click', function() {
-                let website_key = $('#BUCKAROO_MERCHANT_KEY').val();
-                let secret_key =$('#BUCKAROO_SECRET_KEY').val();
-                jQuery.post(
-                    ajaxurl,
-                    {
-                        action:'buckaroo_test_credentials',
-                        website_key,
-                        secret_key
-                    },
-                    function(response) {
-                        alert(response);
-                    }
-                )
-        });
-    }
 });
