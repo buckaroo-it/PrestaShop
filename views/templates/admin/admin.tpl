@@ -35,9 +35,9 @@
                             <span class="handle" style="cursor: move;">☰ </span>
                             {foreach from=$fieldset.input item=input}
                                 {if $input.type == 'enabled'}
-                                    <label class="switch">
+                                    <label class="switch buckaroo-switch">
                                         <input type="checkbox" id="{$input.name|escape:'quotes':'UTF-8'}" data-target="#collapse{$fieldset.name}" class="toggle-switch" name="{$input.name|escape:'quotes':'UTF-8'}" value="1" {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}checked{/if}>
-                                        <span class="slider round"></span>
+                                        <span class="slider buckaroo-slider round"></span>
                                     </label>
                                 {/if}
                             {/foreach}

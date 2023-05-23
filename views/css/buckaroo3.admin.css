@@ -12,20 +12,20 @@ legend.active {
     margin-top: 3px;
 }
 
-.switch {
+.buckaroo-switch {
     position: relative;
     display: inline-block;
     width: 50px;
     height: 28px;
 }
 
-.switch input {
+.buckaroo-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-.slider {
+.buckaroo-slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -37,7 +37,7 @@ legend.active {
     transition: .4s;
 }
 
-.slider:before {
+.buckaroo-slider:before {
     position: absolute;
     content: "";
     height: 22px;
@@ -49,28 +49,24 @@ legend.active {
     transition: .4s;
 }
 
-input:checked + .slider {
+input:checked + .buckaroo-slider {
     background-color: #2196F3;
 }
 
-input:focus + .slider {
+input:focus + .buckaroo-slider {
     box-shadow: 0 0 1px #2196F3;
 }
 
-input:checked + .slider:before {
+input:checked + .buckaroo-slider:before {
     transform: translateX(22px); /* Adjusted for moderately sized switch */
 }
 
-.slider.round {
+.buckaroo-slider.round {
     border-radius: 28px; /* Adjusted for moderately sized switch */
 }
 
-.slider.round:before {
+.buckaroo-slider.round:before {
     border-radius: 50%;
-}
-.button-group {
-    display: flex;
-    justify-content: space-between;  /* optional, if you want to space your buttons evenly */
 }
 
 #subtab-AdminBuckaroo > a > i.mi-buckaroo {

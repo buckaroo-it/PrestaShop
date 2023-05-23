@@ -1593,6 +1593,9 @@ class Buckaroo3 extends PaymentModule
      */
     protected function getAddressById($id)
     {
+        if (is_int($id)) {
+            return;
+        }
         return new Address($id);
     }
     /**
