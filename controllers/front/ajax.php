@@ -46,8 +46,20 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                     );
                 }
 
-                $paymentFee = new Number(Tools::getValue('paymentFee'));
+                $paymentFee = trim($paymentFee);
                 $orderTotal = new Number((string)$cart->getOrderTotal());
+
+                if (strpos($paymentFee, '%') !== false) {
+                    $paymentFee = str_replace('%', '', $paymentFee);
+                    $paymentFee = new Number((string)$paymentFee);
+                    $percentage = $paymentFee->dividedBy(new Number('100'));
+                    $paymentFee = $orderTotal->times($percentage);
+                } else if ($paymentFee > 0) {
+                    // The fee is a flat amount.
+                    $paymentFee = new Number((string)$paymentFee);
+                }
+                $buckarooFee = Tools::displayPrice($paymentFee->toPrecision(2));
+
                 $orderTotalWithFee = $orderTotal->plus($paymentFee);
 
                 $orderTotalNoTax = new Number((string)$cart->getOrderTotal(false));
@@ -92,6 +104,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                     json_encode(
                         [
                             'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
+                            'paymentFee' => $buckarooFee
                         ]
                     )
                 );

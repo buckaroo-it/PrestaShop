@@ -185,6 +185,19 @@ class KlarnaCheckout extends Checkout
             $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT');
             $products[]                = $tmp;
         }
+
+        $buckarooFee = $this->getBuckarooFee();
+
+        if ($buckarooFee > 0) {
+            $tmp                       = array();
+            $tmp["ArticleDescription"] = 'buckaroo_fee';
+            $tmp["ArticleId"]          = '0';
+            $tmp["ArticleQuantity"]    = '1';
+            $tmp["ArticleUnitprice"]   = round($buckarooFee, 2);
+            $tmp["ArticleVatcategory"] = 0;
+            $products[]                = $tmp;
+        }
+
         $this->payment_response = $this->payment_request->payKlarna($products, $this->customVars);
     }
 

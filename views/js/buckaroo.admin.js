@@ -14,6 +14,7 @@
  */
 $(document).ready(function () {
     $(".hidable.disabled").hide();
+
     $(".enabledisable").change(function () {
         if ($(this).val() == 0) {
             $(this).parents("fieldset").children("legend").removeClass("test").removeClass("active");
@@ -24,7 +25,6 @@ $(document).ready(function () {
             } else {
                 $(this).parents("fieldset").children("legend").addClass("test");
             }
-            ;
 
             $(this).parents("fieldset").children(".hidable").show();
         }
@@ -36,4 +36,32 @@ $(document).ready(function () {
             $(this).parents("fieldset").children("legend").addClass("test").removeClass("active");
         }
     });
+
+    $(".toggle-switch").each(function() {
+        if ($(this).is(":checked")) {
+            togglePanel.call(this);
+        }
+    }).change(togglePanel);
+
+    function togglePanel() {
+        var panelID = this.dataset.target;
+        $(panelID).collapse('toggle');
+    }
+
+    $("#sortable").sortable();
+    $("#sortable").disableSelection();
+
+    function updatePositions() {
+        $("#sortable .panel").each(function(index) {
+            $(this).find('.position-input').val(index);
+        });
+    }
+
+    $("#sortable").sortable({
+        update: function() {
+            updatePositions();
+        }
+    });
+
+    updatePositions();
 });

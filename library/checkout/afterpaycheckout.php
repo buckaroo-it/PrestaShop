@@ -190,6 +190,19 @@ class AfterPayCheckout extends Checkout
             $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
             $products[]                = $tmp;
         }
+
+        $buckarooFee = $this->getBuckarooFee();
+
+        if ($buckarooFee > 0) {
+            $tmp                       = array();
+            $tmp["ArticleDescription"] = 'buckaroo_fee';
+            $tmp["ArticleId"]          = '0';
+            $tmp["ArticleQuantity"]    = '1';
+            $tmp["ArticleUnitprice"]   = round($buckarooFee, 2);
+            $tmp["ArticleVatcategory"] = 4;
+            $products[]                = $tmp;
+        }
+
         $this->payment_response = $this->payment_request->payAfterpay($products, $this->customVars);
     }
 

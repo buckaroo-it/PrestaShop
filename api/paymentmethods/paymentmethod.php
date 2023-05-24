@@ -137,7 +137,7 @@ abstract class PaymentMethod extends BuckarooAbstract
         $buckaroo = $this->getBuckarooClient();
         //Verify
         $response = $buckaroo->method('idin')->identify([
-            'issuer' => $this->data['issuer']
+            'issuer' => $this->data['customVars']["idin"]['issuerId']
         ]);
         return ResponseFactory::getResponse($response);
     }

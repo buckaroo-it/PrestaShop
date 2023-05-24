@@ -1,44 +1,64 @@
-{*
-*
- *
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * It is available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- *
- * @author Buckaroo.nl <plugins@buckaroo.nl>
- * @copyright Copyright (c) Buckaroo B.V.
- * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
-*}
-{if !empty($top_error)}
-    <div class="error">{$top_error|escape:'html':'UTF-8'}</div>
-{/if}
 <form action="{$form_action|escape:'quotes':'UTF-8'}" method="post" class="clear" id="buckaroo3settings_form" method="post"
       enctype="multipart/form-data">
+    <!-- Always display the 'GLOBAL' fieldset first and keep it open -->
     {foreach from=$fields_form item=fieldset}
-        <fieldset id="fieldset_{$fieldset.name|escape:'quotes':'UTF-8'}">
-            <legend class="{if $fieldset.enabled}{if $fieldset.test}test{else}active{/if}{/if}">
-                <img src="../img/admin/contact.gif" alt="{l s='Global Settings' mod='buckaroo3'}"/>{$fieldset.legend|escape:'html':'UTF-8'}
-            </legend>
-            {if $fieldset.name == 'GLOBAL'}
-                <div style="margin: 0 0 10px 0; padding: 5px;">
-                    <b>Welcome to Buckaroo Payment Engine</b><br>
-                    Contact Buckaroo for any questions regarding your account. <b>Phone number</b>: +31 (0)30 711 50 00 <b>E-mail</b>: info@buckaroo.nl
+        {if $fieldset.name == 'GLOBAL'}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {$fieldset.legend|escape:'html':'UTF-8'}
                 </div>
-                {foreach from=$fieldset.input item=input}
-                    {include file="$dir/admin.input.tpl" input=$input}
-                {/foreach}
-            {else}
-                {foreach from=$fieldset.input item=input}
-                    {include file="$dir/admin.input.tpl" input=$input enabled=$fieldset.enabled}
-                {/foreach}
-            {/if}
-            <div class="small">
-                <sup>*</sup> {l s='Required field' mod='buckaroo3'}
+                <div class="panel-body">
+                    <div style="margin: 0 0 10px 0; padding: 5px;">
+                        <b>Welcome to Buckaroo Payment Engine</b><br>
+                        Contact Buckaroo for any questions regarding your account. <b>Phone number</b>: +31 (0)30 711 50 00 <b>E-mail</b>: info@buckaroo.nl
+                    </div>
+                    {foreach from=$fieldset.input item=input}
+                        {include file="$dir/admin.input.tpl" input=$input enabled=$fieldset.enabled}
+                    {/foreach}
+                    <div class="form-group">
+                    </div>
+                    <div class="small">
+                        <sup>*</sup> {l s='Required field' mod='buckaroo3'}
+                    </div>
+                </div>
             </div>
-        </fieldset>
-        <br/>
+        {/if}
     {/foreach}
+
+    <!-- Apply sortable and collapse functionalities to the rest of the fieldsets -->
+    <div id="sortable">
+        {foreach from=$fields_form item=fieldset}
+            {if $fieldset.name != 'GLOBAL'}
+                <div class="panel panel-default">
+                    <div class="panel-heading" id="heading{$fieldset.name}">
+                        <h2 class="mb-0">
+                            <span class="handle" style="cursor: move;">☰ </span>
+                            {foreach from=$fieldset.input item=input}
+                                {if $input.type == 'enabled'}
+                                    <label class="switch buckaroo-switch">
+                                        <input type="checkbox" id="{$input.name|escape:'quotes':'UTF-8'}" data-target="#collapse{$fieldset.name}" class="toggle-switch" name="{$input.name|escape:'quotes':'UTF-8'}" value="1" {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}checked{/if}>
+                                        <span class="slider buckaroo-slider round"></span>
+                                    </label>
+                                {/if}
+                            {/foreach}
+                            <img src="{$fieldset.image}" alt="Icon"> <!-- insert your image here -->
+                            {$fieldset.legend|escape:'html':'UTF-8'}
+                        </h2>
+                    </div>
+                    <div id="collapse{$fieldset.name}" class="collapse" aria-labelledby="heading{$fieldset.name}">
+                        <div class="panel-body">
+                            {foreach from=$fieldset.input item=input}
+                                <div class="form-group">
+                                    {include file="$dir/admin.input.tpl" input=$input enabled=$fieldset.enabled}
+                                </div>
+                            {/foreach}
+                            <div class="small">
+                                <sup>*</sup> {l s='Required field' mod='buckaroo3'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {/if}
+        {/foreach}
+    </div>
 </form>

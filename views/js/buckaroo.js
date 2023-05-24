@@ -234,8 +234,8 @@ $(document).ready(function () {
                     response = jQuery.parseJSON(response);
                     $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
                     var paymentFeeHtml = '';
-                    if(paymentFee != undefined && paymentFee >0){
-                        paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + paymentFeeDisplay + ' </span> </div>';
+                    if(response.paymentFee != undefined ){
+                        paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
                     }
 
                     if($('#cart-subtotal-buckarooFee').length == 0){

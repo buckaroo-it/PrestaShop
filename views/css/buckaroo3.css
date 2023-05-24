@@ -281,13 +281,26 @@
 
 .form-control-middle {
     width: 70px;
-    display: inline
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
 }
 .form-control-small {
-    width: 50px;
-    display: inline
+    width: 54px !important;
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
 }
-
+.form-control-large{
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
+}
 .padding-right-button {
     margin: 7px;
 }
@@ -326,7 +339,17 @@ p.payment_module a.buckaroo_paylink:after {
     vertical-align: middle;
     margin-bottom: 5px;
 }
+.bk-credit-card {
+    display: flex;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
 .bk-issuer-logo {
+    max-height: 25px;
+    width: auto;
+    margin: 0 5px;
+}
+.bk-creditcard-logo {
     max-height: 25px;
     width: auto;
     margin: 0 5px;
@@ -358,4 +381,9 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 .buckaroo-validation-message {
     color:#FF0000;
     margin-top:5px;
+}
+
+.payment-option label img {
+    float: left;
+    margin-right: 10px;
 }

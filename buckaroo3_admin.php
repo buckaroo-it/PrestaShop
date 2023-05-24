@@ -16,6 +16,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+use Buckaroo\BuckarooClient;
 
 class Buckaroo3Admin
 {
@@ -35,6 +36,20 @@ class Buckaroo3Admin
             if ($idTab == 0) {
                 $this->module->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1);
             }
+        } else if (Tools::getValue('test_connection')){
+            $output = null;
+
+            if (!empty(Tools::getValue('BUCKAROO_MERCHANT_KEY')) && !empty(Tools::getValue('BUCKAROO_SECRET_KEY'))) {
+                $buckarooClient = new BuckarooClient(Tools::getValue('BUCKAROO_MERCHANT_KEY'), Tools::getValue('BUCKAROO_SECRET_KEY'));
+                if ($buckarooClient->confirmCredential()) {
+                    $output .= $this->module->displayConfirmation($this->module->l('Credentials are OK!'));
+                } else {
+                    $output .= $this->module->displayError($this->module->l('Credentials are incorrect!'));
+                }
+            } else {
+                $output .= $this->module->displayError($this->module->l('Please fill the credentials!'));
+            }
+            return $output.$this->displayForm();
         } else {
             if (Tools::isSubmit('BUCKAROO_TEST')) {
                 Configuration::updateValue('BUCKAROO_TEST', Tools::getValue('BUCKAROO_TEST'));
@@ -55,478 +70,124 @@ class Buckaroo3Admin
                 Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', Tools::getValue('BUCKAROO_TRANSACTION_LABEL'));
                 Configuration::updateValue('BUCKAROO_TRANSACTION_FEE', Tools::getValue('BUCKAROO_TRANSACTION_FEE'));
 
-                Configuration::updateValue(
-                    'BUCKAROO_PGST_PAYMENT',
-                    serialize(Tools::getValue('BUCKAROO_PGST_PAYMENT'))
-                );
-                
-                Configuration::updateValue(
-                    'BUCKAROO_PGBY_PAYMENT',
-                    serialize(Tools::getValue('BUCKAROO_PGBY_PAYMENT'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_IDIN_CATEGORY',
-                    serialize(Tools::getValue('BUCKAROO_IDIN_CATEGORY'))
-                );
-
-                Configuration::updateValue('BUCKAROO_IDIN_ENABLED', Tools::getValue('BUCKAROO_IDIN_ENABLED'));
-                Configuration::updateValue('BUCKAROO_IDIN_TEST', Tools::getValue('BUCKAROO_IDIN_TEST'));
-                Configuration::updateValue('BUCKAROO_IDIN_MODE', Tools::getValue('BUCKAROO_IDIN_MODE'));
-                
-                Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', Tools::getValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PAYPAL_TEST', Tools::getValue('BUCKAROO_PAYPAL_TEST'));
-                Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', Tools::getValue('BUCKAROO_PAYPAL_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPAL_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPAL_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPAL_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPAL_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_SDD_ENABLED', Tools::getValue('BUCKAROO_SDD_ENABLED'));
-                Configuration::updateValue('BUCKAROO_SDD_TEST', Tools::getValue('BUCKAROO_SDD_TEST'));
-                Configuration::updateValue('BUCKAROO_SDD_LABEl', Tools::getValue('BUCKAROO_SDD_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SDD_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SDD_MAX_VALUE'))
-                );
-                Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', Tools::getValue('BUCKAROO_IDEAL_ENABLED'));
-                Configuration::updateValue('BUCKAROO_IDEAL_TEST', Tools::getValue('BUCKAROO_IDEAL_TEST'));
-                Configuration::updateValue('BUCKAROO_IDEAL_LABEL', Tools::getValue('BUCKAROO_IDEAL_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_IDEAL_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IDEAL_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IDEAL_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IDEAL_MAX_VALUE'))
-                );
-                Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', Tools::getValue('BUCKAROO_GIROPAY_ENABLED'));
-                Configuration::updateValue('BUCKAROO_GIROPAY_TEST', Tools::getValue('BUCKAROO_GIROPAY_TEST'));
-                Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', Tools::getValue('BUCKAROO_GIROPAY_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_GIROPAY_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_GIROPAY_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_GIROPAY_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIROPAY_MAX_VALUE'))
-                );
-                Configuration::updateValue('BUCKAROO_KBC_ENABLED', Tools::getValue('BUCKAROO_KBC_ENABLED'));
-                Configuration::updateValue('BUCKAROO_KBC_TEST', Tools::getValue('BUCKAROO_KBC_TEST'));
-                Configuration::updateValue('BUCKAROO_KBC_LABEL', Tools::getValue('BUCKAROO_KBC_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_KBC_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KBC_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KBC_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KBC_MAX_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_MISTERCASH_ENABLED',
-                    Tools::getValue('BUCKAROO_MISTERCASH_ENABLED')
-                );
-                Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', Tools::getValue('BUCKAROO_MISTERCASH_TEST'));
-                Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', Tools::getValue('BUCKAROO_MISTERCASH_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_MISTERCASH_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_MISTERCASH_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_MISTERCASH_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_MISTERCASH_MAX_VALUE'))
-                );
-                Configuration::updateValue('BUCKAROO_GIFTCARD_ENABLED', Tools::getValue('BUCKAROO_GIFTCARD_ENABLED'));
-                Configuration::updateValue('BUCKAROO_GIFTCARD_TEST', Tools::getValue('BUCKAROO_GIFTCARD_TEST'));
-                Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', Tools::getValue('BUCKAROO_GIFTCARD_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_GIFTCARD_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_GIFTCARD_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_GIFTCARD_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_GIFTCARD_MAX_VALUE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_CREDITCARD_ENABLED',
-                    Tools::getValue('BUCKAROO_CREDITCARD_ENABLED')
-                );
-                Configuration::updateValue('BUCKAROO_CREDITCARD_TEST', Tools::getValue('BUCKAROO_CREDITCARD_TEST'));
-                Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', Tools::getValue('BUCKAROO_CREDITCARD_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_CREDITCARD_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_CREDITCARD_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_CREDITCARD_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_CREDITCARD_MAX_VALUE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_ENABLED',
-                    Tools::getValue('BUCKAROO_SOFORTBANKING_ENABLED')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_TEST',
-                    Tools::getValue('BUCKAROO_SOFORTBANKING_TEST')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_LABEL',
-                    Tools::getValue('BUCKAROO_SOFORTBANKING_LABEL')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_SOFORTBANKING_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_SOFORTBANKING_MAX_VALUE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_ENABLED',
-                    Tools::getValue('BUCKAROO_BELFIUS_ENABLED')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_TEST',
-                    Tools::getValue('BUCKAROO_BELFIUS_TEST')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_LABEL',
-                    Tools::getValue('BUCKAROO_BELFIUS_LABEL')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BELFIUS_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BELFIUS_MAX_VALUE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_ENABLED',
-                    Tools::getValue('BUCKAROO_IN3_ENABLED')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_TEST',
-                    Tools::getValue('BUCKAROO_IN3_TEST')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_LABEL',
-                    Tools::getValue('BUCKAROO_IN3_LABEL')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_IN3_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_IN3_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', Tools::getValue('BUCKAROO_TRANSFER_ENABLED'));
-                Configuration::updateValue('BUCKAROO_TRANSFER_TEST', Tools::getValue('BUCKAROO_TRANSFER_TEST'));
-                Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', Tools::getValue('BUCKAROO_TRANSFER_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_TRANSFER_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TRANSFER_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TRANSFER_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRANSFER_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_TRANSFER_DATEDUE', Tools::getValue('BUCKAROO_TRANSFER_DATEDUE'));
-                Configuration::updateValue('BUCKAROO_TRANSFER_SENDMAIL', Tools::getValue('BUCKAROO_TRANSFER_SENDMAIL'));
-
-                Configuration::updateValue('BUCKAROO_AFTERPAY_ENABLED', Tools::getValue('BUCKAROO_AFTERPAY_ENABLED'));
-                Configuration::updateValue('BUCKAROO_AFTERPAY_TEST', Tools::getValue('BUCKAROO_AFTERPAY_TEST'));
-                Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', Tools::getValue('BUCKAROO_AFTERPAY_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_AFTERPAY_MAX_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_DEFAULT_VAT',
-                    Tools::getValue('BUCKAROO_AFTERPAY_DEFAULT_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_WRAPPING_VAT',
-                    Tools::getValue('BUCKAROO_AFTERPAY_WRAPPING_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_TAXRATE',
-                    serialize(Tools::getValue('BUCKAROO_AFTERPAY_TAXRATE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_CUSTOMER_TYPE',
-                    Tools::getValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_B2B_MIN_VALUE',
-                    Tools::getValue('BUCKAROO_AFTERPAY_B2B_MIN_VALUE')
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_AFTERPAY_B2B_MAX_VALUE',
-                    Tools::getValue('BUCKAROO_AFTERPAY_B2B_MAX_VALUE')
-                );
-
-                Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', Tools::getValue('BUCKAROO_KLARNA_ENABLED'));
-                Configuration::updateValue('BUCKAROO_KLARNA_TEST', Tools::getValue('BUCKAROO_KLARNA_TEST'));
-                Configuration::updateValue('BUCKAROO_KLARNA_LABEL', Tools::getValue('BUCKAROO_KLARNA_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_KLARNA_MAX_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_DEFAULT_VAT',
-                    Tools::getValue('BUCKAROO_KLARNA_DEFAULT_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_WRAPPING_VAT',
-                    Tools::getValue('BUCKAROO_KLARNA_WRAPPING_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_TAXRATE',
-                    serialize(Tools::getValue('BUCKAROO_KLARNA_TAXRATE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_KLARNA_BUSINESS',
-                    serialize(Tools::getValue('BUCKAROO_KLARNA_BUSINESS'))
-                );
-
-                Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', Tools::getValue('BUCKAROO_APPLEPAY_ENABLED'));
-                Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', Tools::getValue('BUCKAROO_APPLEPAY_TEST'));
-                Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', Tools::getValue('BUCKAROO_APPLEPAY_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_APPLEPAY_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_APPLEPAY_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_APPLEPAY_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_APPLEPAY_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_BILLINK_ENABLED', Tools::getValue('BUCKAROO_BILLINK_ENABLED'));
-                Configuration::updateValue('BUCKAROO_BILLINK_TEST', Tools::getValue('BUCKAROO_BILLINK_TEST'));
-                Configuration::updateValue('BUCKAROO_BILLINK_LABEL', Tools::getValue('BUCKAROO_BILLINK_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_BILLINK_MAX_VALUE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_DEFAULT_VAT',
-                    Tools::getValue('BUCKAROO_BILLINK_DEFAULT_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_WRAPPING_VAT',
-                    Tools::getValue('BUCKAROO_BILLINK_WRAPPING_VAT')
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_TAXRATE',
-                    serialize(Tools::getValue('BUCKAROO_BILLINK_TAXRATE'))
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_CUSTOMER_TYPE',
-                    Tools::getValue('BUCKAROO_BILLINK_CUSTOMER_TYPE')
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_B2B_MIN_VALUE',
-                    Tools::getValue('BUCKAROO_BILLINK_B2B_MIN_VALUE')
-                );
-
-                Configuration::updateValue(
-                    'BUCKAROO_BILLINK_B2B_MAX_VALUE',
-                    Tools::getValue('BUCKAROO_BILLINK_B2B_MAX_VALUE')
-                );
-
-                Configuration::updateValue('BUCKAROO_EPS_ENABLED', Tools::getValue('BUCKAROO_EPS_ENABLED'));
-                Configuration::updateValue('BUCKAROO_EPS_TEST', Tools::getValue('BUCKAROO_EPS_TEST'));
-                Configuration::updateValue('BUCKAROO_EPS_LABEL', Tools::getValue('BUCKAROO_EPS_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_EPS_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_EPS_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_EPS_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_EPS_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_TINKA_ENABLED', Tools::getValue('BUCKAROO_TINKA_ENABLED'));
-                Configuration::updateValue('BUCKAROO_TINKA_TEST', Tools::getValue('BUCKAROO_TINKA_TEST'));
-                Configuration::updateValue('BUCKAROO_TINKA_LABEL', Tools::getValue('BUCKAROO_TINKA_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_TINKA_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TINKA_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TINKA_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TINKA_MAX_VALUE'))
-                );
-                Configuration::updateValue('BUCKAROO_TRUSTLY_ENABLED', Tools::getValue('BUCKAROO_TRUSTLY_ENABLED'));
-                Configuration::updateValue('BUCKAROO_TRUSTLY_TEST', Tools::getValue('BUCKAROO_TRUSTLY_TEST'));
-                Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', Tools::getValue('BUCKAROO_TRUSTLY_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_TRUSTLY_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TRUSTLY_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_TRUSTLY_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_TRUSTLY_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_PRZELEWY24_ENABLED', Tools::getValue('BUCKAROO_PRZELEWY24_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PRZELEWY24_TEST', Tools::getValue('BUCKAROO_PRZELEWY24_TEST'));
-                Configuration::updateValue('BUCKAROO_PRZELEWY24_LABEL', Tools::getValue('BUCKAROO_PRZELEWY24_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_PRZELEWY24_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PRZELEWY24_FEE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ENABLED', Tools::getValue('BUCKAROO_PAYPEREMAIL_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', Tools::getValue('BUCKAROO_PAYPEREMAIL_TEST'));
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', Tools::getValue('BUCKAROO_PAYPEREMAIL_LABEL'));
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL', Tools::getValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'));
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', Tools::getValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS'));
-                Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', Tools::getValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'));
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPEREMAIL_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPEREMAIL_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYPEREMAIL_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYPEREMAIL_MAX_VALUE'))
-                );
-
-                Configuration::updateValue('BUCKAROO_PAYCONIQ_ENABLED', Tools::getValue('BUCKAROO_PAYCONIQ_ENABLED'));
-                Configuration::updateValue('BUCKAROO_PAYCONIQ_TEST', Tools::getValue('BUCKAROO_PAYCONIQ_TEST'));
-                Configuration::updateValue('BUCKAROO_PAYCONIQ_LABEL', Tools::getValue('BUCKAROO_PAYCONIQ_LABEL'));
-                Configuration::updateValue(
-                    'BUCKAROO_PAYCONIQ_FEE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_FEE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYCONIQ_MIN_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_MIN_VALUE'))
-                );
-                Configuration::updateValue(
-                    'BUCKAROO_PAYCONIQ_MAX_VALUE',
-                    $this->handlePaymentFee(Tools::getValue('BUCKAROO_PAYCONIQ_MAX_VALUE'))
-                );
-
-
+                $this->updatePaymentSettings();
+                $this->updatePositionSettings();
             }
         }
         return null;
+    }
+
+    private function updatePaymentSettings() {
+        $paymentMethods = [
+            'IDIN',
+            'PAYPAL',
+            'SDD',
+            'IDEAL',
+            'GIROPAY',
+            'KBC',
+            'EPS',
+            'PAYPEREMAIL',
+            'PAYCONIQ',
+            'PRZELEWY24',
+            'TINKA',
+            'TRUSTLY',
+            'MISTERCASH',
+            'GIFTCARD',
+            'CREDITCARD',
+            'SOFORTBANKING',
+            'TRANSFER',
+            'AFTERPAY',
+            'AFTERPAY_B2B',
+            'APPLEPAY',
+            'KLARNA',
+            'BELFIUS',
+            'IN3',
+            'BILLINK',
+            'BILLINK_B2B',
+        ];
+
+        $settings = [
+            'ENABLED',
+            'TEST',
+            'LABEL',
+            'FEE',
+            'MIN_VALUE',
+            'MAX_VALUE',
+            'SELLER_PROTECTION_ENABLED',
+            'SEND_EMAIL',
+            'EXPIRE_DAYS',
+            'ALLOWED_METHODS',
+            'ALLOWED_CARDS',
+            'DATEDUE',
+            'SENDMAIL',
+            'DEFAULT_VAT',
+            'WRAPPING_VAT',
+            'TAXRATE',
+            'CUSTOMER_TYPE',
+            'PAYMENT',
+            'CATEGORY',
+            'BUSINESS'
+        ];
+
+        foreach ($paymentMethods as $method) {
+            foreach ($settings as $setting) {
+                $value = Tools::getValue('BUCKAROO_'.$method.'_'.$setting);
+                if ($value !== false) {
+                    $value = $this->handleSpecialSettings($setting, $value);
+                    Configuration::updateValue('BUCKAROO_'.$method.'_'.$setting, $value);
+                }
+            }
+        }
+    }
+
+    private function handleSpecialSettings($setting, $value)
+    {
+        if (in_array($setting, ['TAXRATE', 'BUSINESS', 'PAYMENT', 'CATEGORY'])) {
+            $value = serialize($value);
+        }
+
+        if (in_array($setting, ['FEE', 'MIN_VALUE', 'MAX_VALUE'])) {
+            $value = $this->handlePaymentFee($value);
+        }
+
+        return $value;
+    }
+
+    private function updatePositionSettings() {
+        $positionMethods = [
+            'GLOBAL',
+            'IDIN',
+            'PAYPAL',
+            'SDD',
+            'IDEAL',
+            'GIROPAY',
+            'KBC',
+            'EPS',
+            'PAYPEREMAIL',
+            'PAYCONIQ',
+            'PRZELEWY24',
+            'TINKA',
+            'TRUSTLY',
+            'MISTERCASH',
+            'GIFTCARD',
+            'CREDITCARD',
+            'SOFORTBANKING',
+            'TRANSFER',
+            'AFTERPAY',
+            'APPLEPAY',
+            'KLARNA',
+            'BELFIUS',
+            'IN3',
+            'BILLINK'
+        ];
+
+        foreach ($positionMethods as $method) {
+            $value = Tools::getValue('BUCKAROO_'.$method.'_POSITION');
+            if ($value === false) {
+                throw new Exception('Failed to get value for BUCKAROO_'.$method.'_POSITION');
+            }
+            Configuration::updateValue('BUCKAROO_'.$method.'_POSITION', $value);
+        }
     }
 
     public function displayForm()
@@ -622,7 +283,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_SDD_MIN_VALUE']          = (float)Configuration::get('BUCKAROO_SDD_MIN_VALUE');
         $fields_value['BUCKAROO_SDD_MAX_VALUE']          = (float)Configuration::get('BUCKAROO_SDD_MAX_VALUE');
 
-        $fields_value['BUCKAROO_IDEAL_NOTIFICATIONDELAY']= Configuration::get('BUCKAROO_IDEAL_NOTIFICATIONDELAY');
         $fields_value['BUCKAROO_IDEAL_ENABLED']          = Configuration::get('BUCKAROO_IDEAL_ENABLED');
         $fields_value['BUCKAROO_IDEAL_TEST']             = Configuration::get('BUCKAROO_IDEAL_TEST');
         $fields_value['BUCKAROO_IDEAL_LABEL']            = Configuration::get('BUCKAROO_IDEAL_LABEL');
@@ -788,6 +448,38 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? Billink::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
         $fields_value['BUCKAROO_BILLINK_B2B_MIN_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_BILLINK_B2B_MAX_VALUE'] = (float)Configuration::get('BUCKAROO_BILLINK_B2B_MAX_VALUE');
+
+
+
+
+        $fields_value['BUCKAROO_GLOBAL_POSITION'] = Configuration::get('BUCKAROO_GLOBAL_POSITION');
+        $fields_value['BUCKAROO_IDIN_POSITION'] = Configuration::get('BUCKAROO_IDIN_POSITION');
+        $fields_value['BUCKAROO_PAYPAL_POSITION'] = Configuration::get('BUCKAROO_PAYPAL_POSITION');
+        $fields_value['BUCKAROO_SDD_POSITION'] = Configuration::get('BUCKAROO_SDD_POSITION');
+        $fields_value['BUCKAROO_IDEAL_POSITION'] = Configuration::get('BUCKAROO_IDEAL_POSITION');
+        $fields_value['BUCKAROO_GIROPAY_POSITION'] = Configuration::get('BUCKAROO_GIROPAY_POSITION');
+        $fields_value['BUCKAROO_KBC_POSITION'] = Configuration::get('BUCKAROO_KBC_POSITION');
+        $fields_value['BUCKAROO_EPS_POSITION'] = Configuration::get('BUCKAROO_EPS_POSITION');
+        $fields_value['BUCKAROO_PAYPEREMAIL_POSITION'] = Configuration::get('BUCKAROO_PAYPEREMAIL_POSITION');
+        $fields_value['BUCKAROO_PAYCONIQ_POSITION'] = Configuration::get('BUCKAROO_PAYCONIQ_POSITION');
+        $fields_value['BUCKAROO_PRZELEWY24_POSITION'] = Configuration::get('BUCKAROO_PRZELEWY24_POSITION');
+        $fields_value['BUCKAROO_TINKA_POSITION'] = Configuration::get('BUCKAROO_TINKA_POSITION');
+        $fields_value['BUCKAROO_TRUSTLY_POSITION'] = Configuration::get('BUCKAROO_TRUSTLY_POSITION');
+        $fields_value['BUCKAROO_MISTERCASH_POSITION'] = Configuration::get('BUCKAROO_MISTERCASH_POSITION');
+        $fields_value['BUCKAROO_GIFTCARD_POSITION'] = Configuration::get('BUCKAROO_GIFTCARD_POSITION');
+        $fields_value['BUCKAROO_CREDITCARD_POSITION'] = Configuration::get('BUCKAROO_CREDITCARD_POSITION');
+        $fields_value['BUCKAROO_SOFORTBANKING_POSITION'] = Configuration::get('BUCKAROO_SOFORTBANKING_POSITION');
+        $fields_value['BUCKAROO_TRANSFER_POSITION'] = Configuration::get('BUCKAROO_TRANSFER_POSITION');
+        $fields_value['BUCKAROO_AFTERPAY_POSITION'] = Configuration::get('BUCKAROO_AFTERPAY_POSITION');
+        $fields_value['BUCKAROO_KLARNA_POSITION'] = Configuration::get('BUCKAROO_KLARNA_POSITION');
+        $fields_value['BUCKAROO_BELFIUS_POSITION'] = Configuration::get('BUCKAROO_BELFIUS_POSITION');
+        $fields_value['BUCKAROO_IN3_POSITION'] = Configuration::get('BUCKAROO_IN3_POSITION');
+        $fields_value['BUCKAROO_BILLINK_POSITION'] = Configuration::get('BUCKAROO_BILLINK_POSITION');
+        $fields_value['BUCKAROO_APPLEPAY_POSITION'] = Configuration::get('BUCKAROO_APPLEPAY_POSITION');
+
+
+
+
         //Global Settings
         $i              = 0;
         $orderStatesGet = OrderState::getOrderStates((int) (Configuration::get('PS_LANG_DEFAULT')));
@@ -801,6 +493,7 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Global settings'),
             'name'    => 'GLOBAL',
+            'position'=> 0,
             'enabled' => true,
             'test'    => Configuration::get('BUCKAROO_TEST'),
             'input'   => array(
@@ -809,29 +502,30 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_TEST',
                 ),
                 array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GLOBAL_POSITION',
+                ),
+                array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Merchant key'),
                     'name'     => 'BUCKAROO_MERCHANT_KEY',
                     'size'     => 25,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Secret key'),
                     'name'     => 'BUCKAROO_SECRET_KEY',
                     'size'     => 80,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Transaction label'),
                     'name'     => 'BUCKAROO_TRANSACTION_LABEL',
                     'size'     => 80,
                     'required' => true,
-                )
-                ,
+                ),
                 array(
                     'type' => 'enabled',
                     'name' => 'BUCKAROO_ADVANCED_CONFIGURATION_ENABLED',
@@ -877,6 +571,12 @@ class Buckaroo3Admin
                     'label'    => $this->module->l('Refresh module'),
                     'required' => true,
                 ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'test_connection',
+                    'label'    => $this->module->l('Test Connection'),
+                    'required' => true,
+                ),
             ),
         );
 
@@ -892,9 +592,11 @@ class Buckaroo3Admin
 
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('iDIN verification Settings'),
-            'name'    => 'PAYPAL',
+            'name'    => 'iDIN',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/idin.png',
             'test'    => Configuration::get('BUCKAROO_IDIN_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDIN_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IDIN_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -902,6 +604,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IDIN_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -953,8 +659,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('PayPal Settings'),
             'name'    => 'PAYPAL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_paypal.png',
             'test'    => Configuration::get('BUCKAROO_PAYPAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYPAL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYPAL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -962,6 +670,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYPAL_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -974,11 +686,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPAL_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1017,8 +729,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('SEPA Direct debit settings'),
             'name'    => 'SEPADD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_sepa_dd.png',
             'test'    => Configuration::get('BUCKAROO_SDD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SDD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_SDD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1026,6 +740,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_SDD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1038,11 +756,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SDD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1075,8 +793,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('IDeal settings'),
             'name'    => 'IDEAL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_ideal.png',
             'test'    => Configuration::get('BUCKAROO_IDEAL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDEAL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IDEAL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1086,20 +806,24 @@ class Buckaroo3Admin
                     'type' => 'hidearea_start',
                 ),
                 array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IDEAL_POSITION',
+                ),
+                array(
                     'type' => 'mode',
                     'name' => 'BUCKAROO_IDEAL_TEST',
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Frontend label'),
                     'name'     => 'BUCKAROO_IDEAL_LABEL',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IDEAL_FEE',
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
                     'size'     => 80,
                 ),
                 array(
@@ -1133,8 +857,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Giropay settings'),
             'name'    => 'GIROPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.png',
             'test'    => Configuration::get('BUCKAROO_GIROPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIROPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_GIROPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1142,6 +868,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GIROPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1154,11 +884,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIROPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1191,8 +921,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('KBC settings'),
             'name'    => 'KBC',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_kbc.png',
             'test'    => Configuration::get('BUCKAROO_KBC_TEST'),
             'enabled' => Configuration::get('BUCKAROO_KBC_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_KBC_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1200,6 +932,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_KBC_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1212,11 +948,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KBC_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1249,8 +985,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('EPS settings'),
             'name'    => 'EPS',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_eps.png',
             'test'    => Configuration::get('BUCKAROO_EPS_TEST'),
             'enabled' => Configuration::get('BUCKAROO_EPS_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_EPS_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1258,6 +996,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_EPS_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1270,11 +1012,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_EPS_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1307,8 +1049,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('PayPerEmail settings'),
             'name'    => 'PAYPEREMAIL',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_payperemail.png',
             'test'    => Configuration::get('BUCKAROO_PAYPEREMAIL_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYPEREMAIL_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYPEREMAIL_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1316,6 +1060,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYPEREMAIL_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1349,8 +1097,8 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYPEREMAIL_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1383,8 +1131,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Payconiq settings'),
             'name'    => 'PAYCONIQ',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_payconiq.png',
             'test'    => Configuration::get('BUCKAROO_PAYCONIQ_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PAYCONIQ_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYCONIQ_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1392,6 +1142,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYCONIQ_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1407,8 +1161,8 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PAYCONIQ_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1441,8 +1195,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Przelewy24 settings'),
             'name'    => 'PRZELEWY24',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_przelewy24.png',
             'test'    => Configuration::get('BUCKAROO_PRZELEWY24_TEST'),
             'enabled' => Configuration::get('BUCKAROO_PRZELEWY24_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PRZELEWY24_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1450,6 +1206,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PRZELEWY24_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1462,11 +1222,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_PRZELEWY24_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1499,8 +1259,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Tinka settings'),
             'name'    => 'TINKA',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_tinka.png',
             'test'    => Configuration::get('BUCKAROO_TINKA_TEST'),
             'enabled' => Configuration::get('BUCKAROO_TINKA_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TINKA_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1508,6 +1270,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TINKA_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1520,11 +1286,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TINKA_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1557,8 +1323,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Trustly settings'),
             'name'    => 'TRUSTLY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_trustly.png',
             'test'    => Configuration::get('BUCKAROO_TRUSTLY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_TRUSTLY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TRUSTLY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1566,6 +1334,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TRUSTLY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1578,11 +1350,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRUSTLY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1615,8 +1387,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Bancontact / Mister Cash settings'),
             'name'    => 'MISTERCASH',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_mistercash.png',
             'test'    => Configuration::get('BUCKAROO_MISTERCASH_TEST'),
             'enabled' => Configuration::get('BUCKAROO_MISTERCASH_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_MISTERCASH_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1624,6 +1398,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_MISTERCASH_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1636,11 +1414,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_MISTERCASH_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1673,8 +1451,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('GiftCard settings'),
             'name'    => 'GIFTCARD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giftcards.png',
             'test'    => Configuration::get('BUCKAROO_GIFTCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIFTCARD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_GIFTCARD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1682,6 +1462,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_GIFTCARD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1694,11 +1478,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_GIFTCARD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1731,8 +1515,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('CreditCard settings'),
             'name'    => 'CREDITCARD',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_cc.png',
             'test'    => Configuration::get('BUCKAROO_CREDITCARD_TEST'),
             'enabled' => Configuration::get('BUCKAROO_CREDITCARD_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_CREDITCARD_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1740,6 +1526,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_CREDITCARD_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1752,11 +1542,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_CREDITCARD_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1789,8 +1579,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Sofortbanking settings'),
             'name'    => 'SOFORTBANKING',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_sofort.png',
             'test'    => Configuration::get('BUCKAROO_SOFORTBANKING_TEST'),
             'enabled' => Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_SOFORTBANKING_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1798,6 +1590,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_SOFORTBANKING_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1810,11 +1606,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_SOFORTBANKING_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1847,8 +1643,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Bank Transfer settings'),
             'name'    => 'TRANSFER',
-            'test'    => (Configuration::get('BUCKAROO_TRANSFER_TEST')),
-            'enabled' => (Configuration::get('BUCKAROO_TRANSFER_ENABLED')),
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_transfer.png',
+            'test'    => Configuration::get('BUCKAROO_TRANSFER_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_TRANSFER_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_TRANSFER_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1856,6 +1654,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_TRANSFER_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1868,11 +1670,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_TRANSFER_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -1950,8 +1752,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Riverty | AfterPay Settings'),
             'name'    => 'AFTERPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_afterpay.png',
             'test'    => Configuration::get('BUCKAROO_AFTERPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_AFTERPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_AFTERPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -1959,6 +1763,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_AFTERPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -1971,11 +1779,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_AFTERPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2130,8 +1938,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('ApplePay settings'),
             'name'    => 'APPLEPAY',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_applepay.png',
             'test'    => Configuration::get('BUCKAROO_APPLEPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_APPLEPAY_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_APPLEPAY_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2139,6 +1949,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_APPLEPAY_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2151,11 +1965,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_APPLEPAY_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2196,7 +2010,9 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Klarna Pay later (pay) Settings'),
             'name'    => 'KLARNA',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_klarna.png',
             'test'    => Configuration::get('BUCKAROO_KLARNA_TEST'),
+            'position'=> Configuration::get('BUCKAROO_KLARNA_POSITION'),
             'enabled' => Configuration::get('BUCKAROO_KLARNA_ENABLED'),
             'input'   => array(
                 array(
@@ -2205,6 +2021,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_KLARNA_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2217,11 +2037,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_KLARNA_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2356,8 +2176,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Belfius settings'),
             'name'    => 'BELFIUS',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_belfius.png',
             'test'    => Configuration::get('BUCKAROO_BELFIUS_TEST'),
             'enabled' => Configuration::get('BUCKAROO_BELFIUS_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_BELFIUS_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2365,6 +2187,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_BELFIUS_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2377,11 +2203,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BELFIUS_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2414,8 +2240,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('In3 settings'),
             'name'    => 'IN3',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png',
             'test'    => Configuration::get('BUCKAROO_IN3_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IN3_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_IN3_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2423,6 +2251,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_IN3_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2435,11 +2267,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_IN3_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
 
                 array(
@@ -2481,7 +2313,7 @@ class Buckaroo3Admin
             $defaultTaxvalues[$t["id_tax"]] = 1;
         }
         $taxvalues = $defaultTaxvalues;
-        $savedtaxvalues = Configuration::get('BUCKAROO_AFTERPAY_TAXRATE');
+        $savedtaxvalues = Configuration::get('BUCKAROO_BILLINK_TAXRATE');
         if (!empty($savedtaxvalues)) {
             $savedtaxvalues = unserialize($savedtaxvalues);
             if(count($savedtaxvalues)) {
@@ -2492,8 +2324,10 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('Billink Settings'),
             'name'    => 'BILLINK',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_billink.png',
             'test'    => Configuration::get('BUCKAROO_BILLINK_TEST'),
             'enabled' => Configuration::get('BUCKAROO_BILLINK_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_BILLINK_POSITION'),
             'input'   => array(
                 array(
                     'type' => 'enabled',
@@ -2501,6 +2335,10 @@ class Buckaroo3Admin
                 ),
                 array(
                     'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_BILLINK_POSITION',
                 ),
                 array(
                     'type' => 'mode',
@@ -2513,11 +2351,11 @@ class Buckaroo3Admin
                     'size'     => 80,
                 ),
                 array(
-                    'type'     => 'number',
+                    'type'     => 'text',
                     'label'    => $this->module->l('Buckaroo Fee'),
                     'name'     => 'BUCKAROO_BILLINK_FEE',
-                    'step'     => 0.01,
-                    'min'      => 0
+                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
+                    'size'     => 80,
                 ),
                 array(
                     'type'     => 'number',
@@ -2669,6 +2507,9 @@ class Buckaroo3Admin
             ),
         );
 
+        usort($fields_form, function($a, $b) {
+            return $a['position'] - $b['position'];
+        });
         $this->module->context->smarty->assign(
             array(
                 'fields_form'  => $fields_form,
@@ -2688,5 +2529,9 @@ class Buckaroo3Admin
     private function handlePaymentFee($value)
     {
         return preg_replace('/[^0-9\.]/', '', $value);
+    }
+    private function handlePaymentPercentageFee($value)
+    {
+        return preg_replace('/[^0-9\.%]/', '', $value);
     }
 }
