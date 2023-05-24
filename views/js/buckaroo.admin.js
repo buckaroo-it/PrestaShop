@@ -38,11 +38,7 @@ $(document).ready(function () {
     });
 
     $('.buckaroo-toggle-switch').change(function() {
-        if(this.checked) {
-            $(this).prev().attr('disabled', true);
-        } else {
-            $(this).prev().attr('disabled', false);
-        }
+        $(this).prev().attr('disabled',this.checked)
     });
 
     $(".buckaroo-toggle-switch").each(function() {
