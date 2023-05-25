@@ -37,7 +37,11 @@ $(document).ready(function () {
         }
     });
 
-    $(".toggle-switch").each(function() {
+    $('.buckaroo-toggle-switch').change(function() {
+        $(this).prev().attr('disabled',this.checked)
+    });
+
+    $(".buckaroo-toggle-switch").each(function() {
         if ($(this).is(":checked")) {
             togglePanel.call(this);
         }

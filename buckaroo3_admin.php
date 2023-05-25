@@ -593,7 +593,7 @@ class Buckaroo3Admin
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('iDIN verification Settings'),
             'name'    => 'iDIN',
-            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/idin.png',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_idin.png',
             'test'    => Configuration::get('BUCKAROO_IDIN_TEST'),
             'enabled' => Configuration::get('BUCKAROO_IDIN_ENABLED'),
             'position'=> Configuration::get('BUCKAROO_IDIN_POSITION'),
