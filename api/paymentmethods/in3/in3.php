@@ -30,7 +30,7 @@ class In3 extends PaymentMethod
 
     public function pay($customVars = array())
     {
-        $this->payload = $this->getPayload($data);
+        $this->payload = $this->getPayload($customVars);
         return parent::executeCustomPayAction('payInInstallments');
     }
 
