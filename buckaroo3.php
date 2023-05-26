@@ -1576,7 +1576,7 @@ class Buckaroo3 extends PaymentModule
         $product   = new Product($params['id_product']);
         $languages = Language::getLanguages(false);
         $this->context->smarty->assign(array(
-            'buckaroo_idin'    => $product->buckaroo_idin,
+            'buckaroo_idin'    => $product->buckaroo_idin ?? 0,
             'languages'        => $languages,
             'default_language' => $this->context->employee->id_lang,
         ));
