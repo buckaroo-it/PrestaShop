@@ -38,7 +38,7 @@ $(document).ready(function () {
     });
 
     $('.buckaroo-toggle-switch').change(function() {
-        $(this).prev().attr('disabled',this.checked)
+        $(this).prev().val(this.checked ? 1 : 0)
     });
 
     $(".buckaroo-toggle-switch").each(function() {
