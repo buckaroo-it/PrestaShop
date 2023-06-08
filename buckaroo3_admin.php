@@ -183,10 +183,9 @@ class Buckaroo3Admin
 
         foreach ($positionMethods as $method) {
             $value = Tools::getValue('BUCKAROO_'.$method.'_POSITION');
-            if ($value === false) {
-                throw new Exception('Failed to get value for BUCKAROO_'.$method.'_POSITION');
+            if ($value !== false) {
+                Configuration::updateValue('BUCKAROO_'.$method.'_POSITION', $value);
             }
-            Configuration::updateValue('BUCKAROO_'.$method.'_POSITION', $value);
         }
     }
 
