@@ -320,6 +320,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', '');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', '1');

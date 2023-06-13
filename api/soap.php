@@ -152,6 +152,9 @@ final class Soap extends BuckarooAbstract
         $TransactionRequest->ClientIP->_    = $_SERVER['REMOTE_ADDR'];
 
         foreach ($TransactionRequest->Services->Service as $key => $service) {
+            if(property_exists($service, 'Action') && $service->Action === "extraInfo") {
+                continue;
+            }
             $this->addCustomFields($TransactionRequest, $key, $service->Name);
         }
 
@@ -404,6 +407,15 @@ final class Soap extends BuckarooAbstract
         foreach ($this->_vars['services'] as $fieldName => $value) {
             if (empty($value)) {
                 continue;
+            }
+
+            if(isset($value['action2']) && !empty($value['action2'])) {
+                $service          = new Service();
+                $service->Name    = $fieldName;
+                $service->Action  = $value['action2'];
+                $service->Version = $value['version2'];
+            
+                $services[] = $service;
             }
 
             $service          = new Service();
