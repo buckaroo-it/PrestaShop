@@ -1798,7 +1798,7 @@ class Buckaroo3 extends PaymentModule
     protected function getBillingCountryIso($cart)
     {
         $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
-        $billingAddress = $this->getAddressById($idAddressInvoice);
+        $billingAddress = $this->getAddressById((int)$idAddressInvoice);
 
         if($billingAddress !== null) {
             return Country::getIsoById($billingAddress->id_country);
