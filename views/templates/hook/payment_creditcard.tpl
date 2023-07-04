@@ -15,7 +15,7 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="CREDITCARD">
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
-        {l s='Choose your creditcard' mod='buckaroo3'}<br/><br/>
+        {l s='Choose your credit and debit card' mod='buckaroo3'}<br/><br/>
 
         <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="amex" type="radio"
                                                               class="middle" /> <img
