@@ -37,15 +37,14 @@ $(document).ready(function () {
         }
     });
 
-    $('.buckaroo-toggle-switch').change(function() {
-        $(this).prev().val(this.checked ? 1 : 0)
-    });
-
     $(".buckaroo-toggle-switch").each(function() {
         if ($(this).is(":checked")) {
             togglePanel.call(this);
         }
-    }).change(togglePanel);
+    }).change(function() {
+        $(this).prev().val(this.checked ? 1 : 0);
+        togglePanel.call(this);
+    });
 
     function togglePanel() {
         var panelID = this.dataset.target;
