@@ -1,54 +1,72 @@
 <?php
+
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
 require_once(dirname(__FILE__) . '/../paymentmethod.php');
 
-class BuckarooPayPal extends PaymentMethod
+class Capayable extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = "paypal";
+        $this->type = "Capayable";
         $this->version = 1;
         $this->mode = Config::getMode($this->type);
     }
 
-    public function pay($customVars = array())
+    public function pay($data = array())
     {
-        if (isset($customVars['sellerProtection']) && $customVars['sellerProtection'] === true ) {
-            $this->setService('action2', 'extraInfo');
-            $this->setService('version2', $this->version);
 
-            $this->setCustomVar(
-                [
-                'Name'=> mb_substr($customVars['CustomerName'], 0, 32),
-                'Street1'=> mb_substr($customVars['ShippingStreet'] . ' '. $customVars['ShippingHouse'], 0, 100),
-                'CityName'=>mb_substr($customVars['ShippingCity'], 0, 40),
-                'StateOrProvince'=>$customVars['StateOrProvince'],
-                'PostalCode'=>mb_substr($customVars['ShippingPostalCode'],0, 20),
-                'Country'=>$customVars['Country'],
-                'AddressOverride'=>'TRUE'
-                ]
-            );
-            
-        }
-        return parent::pay();
+        $this->setCustomVar("CustomerType", "Debtor");
+        $this->setCustomVar("InvoiceDate", date("d-m-Y"));
+
+        $this->setCustomVar(
+            $data['customer'],
+            null,
+            'Person'
+        );
+
+        $this->setCustomVar(
+            $data['address'],
+            null,
+            'Address'
+        );
+        $this->setCustomVar("Phone", $data['phone'], 'Phone');
+        $this->setCustomVar("Email", $data['email'], 'Email');
+
+
+        $this->setArticles($data['articles']);
+
+        return parent::executeAction('PayInInstallments');
     }
+
+
+    protected function setArticles($articles)
+    {
+        foreach ($articles as $pos => $article) {
+            $this->setCustomVarsAtPosition(
+                $article,
+                $pos,
+                'ProductLine'
+            );
+        }
+    }
+
     /**
      * Set custom param key and value
      *
@@ -123,6 +141,57 @@ class BuckarooPayPal extends PaymentMethod
         }
         return $value;
     }
+
+    /**
+     * Set custom param at specific position in array
+     *
+     * @param string $key
+     * @param string $value
+     * @param integer $position
+     * @param string $group
+     * @param string $type
+     *
+     * @return void
+     */
+    public function setCustomVarAtPosition($key, $value, $position = 0, $group = null, $type = null)
+    {
+        if ($type === null) {
+            $type = $this->type;
+        }
+
+        if (!isset($this->data['customVars'])) {
+            $this->data['customVars'] = [];
+        }
+        if (!isset($this->data['customVars'][$type])) {
+            $this->data['customVars'][$type] = [];
+        }
+        if ($group !== null) {
+            $value = [
+                "value" => $value,
+                "group" => $group
+            ];
+        }
+        $this->data['customVars'][$type][$key][$position] = $value;
+    }
+
+    /**
+     * Set custom value for position fro array of values
+     *
+     * @param array $values
+     * @param int $position
+     * @param string|null $group
+     * @param string|null $type
+     *
+     * @return void
+     */
+    public function setCustomVarsAtPosition($values, $position, $group = null, $type = null)
+    {
+        foreach ($values as $key => $value) {
+            $this->setCustomVarAtPosition(
+                $key, $value, $position, $group, $type
+            );
+        }
+    }
     /**
      * Set custom param without type key
      *
@@ -147,45 +216,6 @@ class BuckarooPayPal extends PaymentMethod
         $this->data['customVars'][$keyOrValues] = $value;
         return $value;
     }
-    /**
-     * Set service param key and value
-     *
-     * @param string $key
-     * @param string $value
-     * @param string|null $type
-     *
-     * @return string $value
-     */
-    public function setService($key, $value)
-    {
-        return $this->setServiceOfType($key, $value);
-    }
 
-    /**
-     * Set service param for specific type
-     *
-     * @param string $key
-     * @param string $value
-     * @param string|null $type
-     *
-     * @return string $value
-     */
-    public function setServiceOfType($key, $value, $type = null)
-    {
-        if ($type === null) {
-            $type = $this->type;
-        }
-
-        if (!isset($this->data['services'])) {
-            $this->data['services'] = [];
-        }
-
-        if (!isset($this->data['services'][$type])) {
-            $this->data['services'][$type] = [];
-        }
-
-        $this->data['services'][$type][$key] = $value;
-
-        return $value;
-    }
 }
+ 

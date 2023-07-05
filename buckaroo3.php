@@ -324,6 +324,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_BUCKAROOPAYPAL_FEE', '');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EMPAYMENT_TEST', '1');
@@ -397,6 +398,13 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', '');
         Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', '');
+
+
+        Configuration::updateValue('BUCKAROO_CAPAYABLE_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_CAPAYABLE_TEST', '1');
+        Configuration::updateValue('BUCKAROO_CAPAYABLE_LABEL', '');
+        Configuration::updateValue('BUCKAROO_CAPAYABLE_FEE', '');
+
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
@@ -603,6 +611,11 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_APPLEPAY_TEST');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_LABEL');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_FEE');
+
+        Configuration::deleteByName('BUCKAROO_CAPAYABLE_ENABLED');
+        Configuration::deleteByName('BUCKAROO_CAPAYABLE_TEST');
+        Configuration::deleteByName('BUCKAROO_CAPAYABLE_LABEL');
+        Configuration::deleteByName('BUCKAROO_CAPAYABLE_FEE');
 
         return true;
     }
@@ -815,6 +828,17 @@ class Buckaroo3 extends PaymentModule
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_applepay.png?v'); //phpcs:ignore
             $payment_options[] = $newOption;
         }
+
+
+        if (Config::get('BUCKAROO_CAPAYABLE_ENABLED') && $this->isCapayableAvailable($cart)) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('CAPAYABLE', 'In3'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'capayable'])) //phpcs:ignore
+                ->setInputs($this->getBuckarooFeeInputs('CAPAYABLE'))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_capayable.tpl')) //phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_capayable.png?v'); //phpcs:ignore
+            $payment_options[] = $newOption;
+        }
         return $payment_options;
     }
 
@@ -992,6 +1016,9 @@ class Buckaroo3 extends PaymentModule
                 break;
             case 'applepay':
                 $payment_method_tr = $this->l('Apple Pay');
+                break;
+            case 'capayable':
+                $payment_method_tr = $this->l('In3');
                 break;
             default:
                 $payment_method_tr = $this->l($payment_method);
@@ -1385,7 +1412,7 @@ class Buckaroo3 extends PaymentModule
     {
         $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
         $billingAddress = $this->getAddressById($idAddressInvoice);
-        $billingCountry = Country::getIsoById($billingAddress->id_country);
+        $billingCountry = $this->getBillingCountryIso($cart);
 
         $shippingAddress = $this->getAddressById($cart->id_address_delivery);
         $shippingCountry = Country::getIsoById($shippingAddress->id_country);
@@ -1444,5 +1471,32 @@ class Buckaroo3 extends PaymentModule
         if($result !== false) {
             return $result;
         }
+    }
+
+     * Get billing country iso from cart
+     *
+     * @param Cart $cart
+     *
+     * @return string|null
+     */
+    protected function getBillingCountryIso($cart)
+    {
+        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
+        $billingAddress = $this->getAddressById($idAddressInvoice);
+        if($billingAddress !== null) {
+            return Country::getIsoById($billingAddress->id_country);
+        }
+    }
+
+    /**
+     * Is capayable available 
+     *
+     * @param Cart $cart
+     *
+     * @return boolean
+     */
+    protected function isCapayableAvailable($cart)
+    {
+        return $this->getBillingCountryIso($cart) === 'NL';
     }
 }

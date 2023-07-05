@@ -30,6 +30,28 @@ class BuckarooPayPalCheckout extends Checkout
 
     public function startPayment()
     {
+        $sellerProtectionEnabled = Configuration::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED') == 1;
+        if($sellerProtectionEnabled) {
+
+            $state = new State((int) $this->invoice_address->id_state);
+
+            $address = $this->getAddressComponents($this->invoice_address->address1);
+            $this->customVars = array_merge(
+                $this->customVars,
+                [
+                    'sellerProtection'   => true,
+                    'CustomerName'       => $this->invoice_address->firstname." ".$this->invoice_address->lastname,
+                    'ShippingPostalCode' => $this->invoice_address->postcode,
+                    'ShippingCity'       => $this->invoice_address->city,
+                    'ShippingStreet'     => $address['street'],
+                    'ShippingHouse'      => $address['house_number'],
+                    'StateOrProvince'    => $state !== null && $state->name !== null ? $state->name :'',
+                    'Country'            => Tools::strtoupper(
+                        (new Country($this->invoice_address->id_country))->iso_code
+                    )
+                ]
+            );
+        }
         $this->payment_response = $this->payment_request->pay($this->customVars);
     }
     

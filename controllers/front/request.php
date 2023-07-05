@@ -257,7 +257,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         && $response->statusmessage) {
                         $error = $response->statusmessage;
                     }
-                    $this->displayError(null, error);
+                    $this->displayError(null, $error);
                 }
             };
         } else {
