@@ -143,6 +143,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($this->checkout->isRequestSucceeded()) {
             $response = $this->checkout->getResponse();
+
+            if (method_exists($response, 'isTest')) {
+                $this->saveOrderInTestMode($id_order_cart, $response->isTest());
+            }
+
             $logger->loginfo('Request succeeded');
 
             if ($this->checkout->isRedirectRequired()) {
@@ -274,5 +279,35 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             }
             $this->displayError(null, $error);
         };
+    }
+
+    /**
+     * Save flag for order in test mode
+     *
+     * @param integer $orderId
+     * @param boolean $inTestMode
+     *
+     * @return void
+     */
+    protected function saveOrderInTestMode(int $orderId, bool $inTestMode)
+    {
+        $this->saveOrderData($orderId, 'order_in_test_mode', (int)$inTestMode);
+    }
+
+    /**
+     * Save any additional order data by key/value
+     *
+     * @param integer $orderId
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return void
+     */
+    protected function saveOrderData(int $orderId, string $key, $value)
+    {
+        $sql = "INSERT INTO `" . _DB_PREFIX_ . "buckaroo_order_data`
+        (`id_order`, `key`, `value`) values ({$orderId}, '{$key}', '{$value}')";
+
+        Db::getInstance()->execute($sql);
     }
 }
