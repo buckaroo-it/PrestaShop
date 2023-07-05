@@ -299,6 +299,11 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
+    public function getServiceParameters()
+    {
+        return $this->response->getServiceParameters();
+    }
+
     private function setPostVariable($key)
     {
         if (Tools::getValue($key)) {

@@ -12,17 +12,14 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
-{capture name=path}{l s='Order Processing' mod='buckaroo3'}{/capture}
-<h2>{l s='Order Processing Error' mod='buckaroo3'}</h2>
-<p class="error">{$error_message|escape:'html':'UTF-8'}</p>
-<br/>
-<p>
-    {if isset($order_id)}
-        <a href="index.php?controller=order&submitReorder=&id_order={$order_id|escape:'html':'UTF-8'}"
-           class="button btn btn-default standart-checkout button-medium"><span>{l s='Return to checkout' mod='buckaroo3'}</span></a>
-    {else}
-        <a href="order"
-           class="button btn btn-default standart-checkout button-medium"><span>{l s='Return to checkout' mod='buckaroo3'}</span></a>
-    {/if}
-</p>
 
+{extends file='page.tpl'}
+{block name='page_content'}
+    <div class="container js-mollie-payment-error">
+        <article class="alert alert-danger" role="alert" data-alert="danger">
+            <ul id="mollie-notifications">
+                <li>{$error_message|escape:'html':'UTF-8'}</li>
+            </ul>
+        </article>
+    </div>
+{/block}
