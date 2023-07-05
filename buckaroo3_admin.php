@@ -709,7 +709,7 @@ class Buckaroo3Admin
                 ),
                 array(
                     'label'     => $this->module->l('Seller protection'),
-                    'description' => $this->module->l('Send customer address information to PayPal to enable PayPal seller protection..'),
+                    'description' => $this->module->l('Send customer address information to PayPal to enable PayPal seller protection.'),
                     'type' => 'bool',
                     'name' => 'BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED',
                 ),
