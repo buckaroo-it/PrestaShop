@@ -15,9 +15,9 @@
 
 {extends file='page.tpl'}
 {block name='page_content'}
-    <div class="container js-mollie-payment-error">
+    <div class="container js-buckaroo-payment-error">
         <article class="alert alert-danger" role="alert" data-alert="danger">
-            <ul id="mollie-notifications">
+            <ul id="buckaroo-notifications">
                 <li>{$error_message|escape:'html':'UTF-8'}</li>
             </ul>
         </article>
