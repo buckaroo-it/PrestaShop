@@ -970,9 +970,9 @@ class Buckaroo3 extends PaymentModule
                 ->setModuleName('GIFTCARD');
             $payment_options[] = $newOption;
         }
-        if (Config::get('BUCKAROO_CREDITCARD_ENABLED') && $this->isPaymentMethodAvailable($cart,  'CREDITCARD')) {
+        if (Config::get('BUCKAROO_CREDITCARD_ENABLED') && $this->isPaymentMethodAvailable($cart,  'Credit and debit card')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('CREDITCARD', 'Pay by Creditcards'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('CREDITCARD', 'Pay by credit and debit card'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
                 ->setInputs($this->getBuckarooFeeInputs('CREDITCARD'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_creditcard.tpl')) //phpcs:ignore

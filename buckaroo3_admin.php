@@ -709,7 +709,7 @@ class Buckaroo3Admin
                 ),
                 array(
                     'label'     => $this->module->l('Seller protection'),
-                    'description' => $this->module->l('Send customer address information to PayPal to enable PayPal seller protection..'),
+                    'description' => $this->module->l('Send customer address information to PayPal to enable PayPal seller protection.'),
                     'type' => 'bool',
                     'name' => 'BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED',
                 ),
@@ -1512,7 +1512,7 @@ class Buckaroo3Admin
         );
 
         $fields_form[$i++] = array(
-            'legend'  => $this->module->l('CreditCard settings'),
+            'legend'  => $this->module->l('Credit and debit card settings'),
             'name'    => 'CREDITCARD',
             'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_cc.png',
             'test'    => Configuration::get('BUCKAROO_CREDITCARD_TEST'),
