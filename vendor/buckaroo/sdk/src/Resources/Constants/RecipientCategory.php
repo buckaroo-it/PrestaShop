@@ -24,4 +24,6 @@ class RecipientCategory
 {
     const PERSON = 'Person';
     const COMPANY = 'Company';
+    const B2B = 'B2B';
+    const B2C = 'B2C';
 }

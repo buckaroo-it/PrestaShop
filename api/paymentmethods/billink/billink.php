@@ -89,7 +89,7 @@ class Billink extends PaymentMethod
             'vATNumber' => $this->VatNumber,
             'billing'       => [
                 'recipient'        => [
-                    'category'              => (self::CUSTOMER_TYPE_B2B == $this->CustomerType) ? 'B2B' : 'B2C',
+                    'category'              => (self::CUSTOMER_TYPE_B2C != $this->CustomerType) ? RecipientCategory::B2B : RecipientCategory::B2C,
                     'careOf'                => $this->BillingFirstName . ' ' . $this->BillingLastName,
                     'firstName'             => $this->BillingFirstName,
                     'lastName'              => $this->BillingLastName,
@@ -182,7 +182,7 @@ class Billink extends PaymentMethod
         {
             return [
                 'recipient' => [
-                    'category' => RecipientCategory::PERSON,
+                    'category'              => RecipientCategory::PERSON,
                     'careOf'                => $this->ShippingFirstName . ' ' . $this->ShippingFirstName,
                     'firstName'             => $this->ShippingFirstName,
                     'lastName'              => $this->ShippingLastName,

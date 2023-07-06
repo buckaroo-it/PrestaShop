@@ -18,7 +18,6 @@
  */
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
-require_once dirname(__FILE__) . '../../logger.php';
 
 class BillinkCheckout extends Checkout
 {
@@ -49,13 +48,13 @@ class BillinkCheckout extends Checkout
                                 ) . "-" . Tools::getValue("customerbirthdate_d_billing_billink")
                             )
                         );
-        $this->payment_request->VatNumber        = $this->invoice_address->vat_number;
-        $this->payment_request->BillingInitials  = initials($this->invoice_address->firstname .' '. $this->invoice_address->lastname);
-        $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
-        $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
-        $this->payment_request->BillingBirthDate = $birthDate;
+        $this->payment_request->VatNumber                = $this->invoice_address->vat_number;
+        $this->payment_request->BillingInitials          = initials($this->invoice_address->firstname .' '. $this->invoice_address->lastname);
+        $this->payment_request->BillingFirstName         = $this->invoice_address->firstname;
+        $this->payment_request->BillingLastName          = $this->invoice_address->lastname;
+        $this->payment_request->BillingBirthDate         = $birthDate;
         $this->payment_request->BillingGender            = Tools::getValue("bpe_billink_person_gender");
-        $address_components = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
+        $address_components                              = $this->getAddressComponents($this->invoice_address->address1);//phpcs:ignore
         if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->invoice_address->address2;
         }
@@ -85,7 +84,7 @@ class BillinkCheckout extends Checkout
             $this->payment_request->ShippingCompanyName       = $this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null;
             $this->payment_request->ShippingBirthDate         = $birthDate;
             $this->payment_request->ShippingGender            = Tools::getValue("bpe_billink_person_gender");
-            $address_components = $this->getAddressComponents($this->shipping_address->address1);//phpcs:ignore
+            $address_components                               = $this->getAddressComponents($this->shipping_address->address1);//phpcs:ignore
             $this->payment_request->ShippingStreet            = $address_components['street'];
             $this->payment_request->ShippingHouseNumber       = $address_components['house_number'];
             $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
@@ -96,7 +95,7 @@ class BillinkCheckout extends Checkout
             $this->payment_request->ShippingEmail             = Tools::getIsset(
                 $this->customer->email
             ) ? $this->customer->email : '';
-            $phone                                   = '';
+            $phone                                            = '';
             if (!empty($this->shipping_address->phone_mobile)) {
                 $phone = $this->shipping_address->phone_mobile;
             }
@@ -141,8 +140,9 @@ class BillinkCheckout extends Checkout
 
     public function startPayment()
     {
-        $logger = new Logger(Logger::INFO, 'Billink');
-        $logger->logInfo("Products", print_r($this->products));
+        $logger                     = new Logger(Logger::INFO, 'return');
+
+        $logger->logInfo("Products", $this->products);
 
         $products  = array();
         $taxvalues = Configuration::get('BUCKAROO_BILLINK_TAXRATE');
@@ -152,26 +152,26 @@ class BillinkCheckout extends Checkout
             $taxvalues = unserialize($taxvalues);
         }
         foreach ($this->products as $item) {
-            $tmp                       = array();
-            $tmp["ArticleDescription"] = $item['name'];
-            $tmp["ArticleId"]          = $item['id_product'];
-            $tmp["ArticleQuantity"]    = $item["quantity"];
+            $tmp                           = array();
+            $tmp["ArticleDescription"]     = $item['name'];
+            $tmp["ArticleId"]              = $item['id_product'];
+            $tmp["ArticleQuantity"]        = $item["quantity"];
             $tmp["ArticleUnitPriceIncl"]   = round($item["price_with_reduction"], 2);
             $tmp["ArticleUnitPriceExcl"]   = round($item["price_with_reduction_without_tax"], 2);
-            $tmp["ArticleVatcategory"] = $item["rate"];
-            $products[] = $tmp;
+            $tmp["ArticleVatcategory"]     = $item["rate"];
+            $products[]                    = $tmp;
         }
 
         $Wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($Wrapping > 0) {
-            $tmp                       = array();
-            $tmp["ArticleDescription"] = 'Wrapping';
-            $tmp["ArticleId"]          = '0';
-            $tmp["ArticleQuantity"]    = '1';
+            $tmp                           = array();
+            $tmp["ArticleDescription"]     = 'Wrapping';
+            $tmp["ArticleId"]              = '0';
+            $tmp["ArticleQuantity"]        = '1';
             $tmp["ArticleUnitPriceIncl"]   = $Wrapping;
             $tmp["ArticleUnitPriceExcl"]   = $Wrapping;
-            $tmp["ArticleVatcategory"] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
-            $products[]                = $tmp;
+            $tmp["ArticleVatcategory"]     = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
+            $products[]                    = $tmp;
         }
 
         $buckarooFee = $this->getBuckarooFee();

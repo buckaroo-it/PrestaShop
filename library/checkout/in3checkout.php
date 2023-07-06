@@ -35,8 +35,7 @@ class In3Checkout extends Checkout
             'address' => $this->getAddress(),
             'articles' => $this->getArticles(),
             'phone' => $this->getPhone(),
-            'email' => $this->customer->email,
-            'articles' => $this->getArticles()
+            'email' => $this->customer->email
         ];
     }
 
