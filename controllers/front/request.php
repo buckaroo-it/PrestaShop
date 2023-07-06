@@ -153,12 +153,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $logger->loginfo('Request succeeded');
 
             if ($this->checkout->isRedirectRequired()) {
-                $oldCart     = new Cart($response->getCartId());
+                $oldCart     = new Cart($cart->id);
                 $duplication = $oldCart->duplicate();
                 if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
                     $this->context->cookie->id_cart = $duplication['cart']->id;
                     $this->context->cookie->write();
                 }
+
                 $logger->logInfo('Redirecting ... ');
                 $this->checkout->doRedirect();
                 exit();
@@ -230,7 +231,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $logger->logInfo('Find order by cart ID', 'Order not found.');
                     }
 
-                    $oldCart     = new Cart($response->getCartId());
+                    $oldCart     = new Cart($cart->id);
                     $duplication = $oldCart->duplicate();
                     if ($duplication
                         && Validate::isLoadedObject($duplication['cart'])
