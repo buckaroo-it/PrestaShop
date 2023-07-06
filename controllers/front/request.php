@@ -266,21 +266,20 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         } else {
             $response = $this->checkout->getResponse();
             $logger->logError('Request not succeeded', $this->checkout);
+
             $oldCart     = new Cart($cart->id);
             $duplication = $oldCart->duplicate();
+
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
                 $this->context->cookie->id_cart = $duplication['cart']->id;
                 $this->context->cookie->write();
             }
-            $error = null;
-            if (!empty($response) && !empty($response->payment_method)
-                && !empty($response->payment_method)
-                && ($response->payment_method == 'afterpayacceptgiro'
-                    || $response->payment_method == 'afterpaydigiaccept')
-            ) {
-                $error = $response->statusmessage;
+            $error = $response->getServiceParameters();
+            if (isset($error["errorresponsemessage"]) && is_array($error)) {
+                $this->displayError(null, $error['errorresponsemessage']);
+            } else {
+                $this->displayError(null, $error);
             }
-            $this->displayError(null, $error);
         };
     }
 }
