@@ -73,6 +73,21 @@ abstract class Response extends BuckarooAbstract
         
     }
 
+    /**
+     * Get code required for payment
+     *
+     * @param string $configCode
+     *
+     * @return string
+     */
+    protected function getPaymentCode(string $configCode): string
+    {
+        if ($configCode === 'capayable') {
+            return 'in3';
+        }
+        return $configCode;
+    }
+
     private function parsePushRequest()
     {
         if (!$this->isPushRequest())
@@ -82,9 +97,9 @@ abstract class Response extends BuckarooAbstract
 
         $this->payment = $this->setPostVariable('brq_payment');
         if (Tools::getValue('brq_payment_method')) {
-            $this->payment_method = Tools::getValue('brq_payment_method');
+            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_payment_method'));
         } elseif (Tools::getValue('brq_transaction_method')) {
-            $this->payment_method = Tools::getValue('brq_transaction_method');
+            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_transaction_method'));
         }
 
         $this->statuscode                            = $this->setPostVariable('brq_statuscode');
