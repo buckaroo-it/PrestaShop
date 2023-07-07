@@ -82,7 +82,7 @@ abstract class Response extends BuckarooAbstract
      */
     protected function getPaymentCode(string $configCode): string
     {
-        if ($configCode === 'capayable') {
+        if ($configCode === 'Capayable') {
             return 'in3';
         }
         return $configCode;
