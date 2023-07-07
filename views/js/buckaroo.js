@@ -39,12 +39,12 @@ $bkjq(function($) {
 });
 var paymentMethodValidation;
 paymentMethodValidation={
-    methodSelector: null, // selected method notation from from 'action' attribute
+    methodSelector: null, // selected method notation from 'action' attribute
     formPointer:    null, // JS form object pointer
     valid: true,
     requiredAll: function() {
         that = this;
-        this.formPointer.find('label.required').parent().nextAll().children().not('.buckaroo-validation-message').each(function() {
+        this.formPointer.find('label.required').parent().nextAll().find('input').not('.buckaroo-validation-message').each(function() {
 
             let invalid = !validateRequired($(this).val());
             if(invalid === true) {
