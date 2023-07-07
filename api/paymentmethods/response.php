@@ -82,14 +82,9 @@ abstract class Response extends BuckarooAbstract
      */
     protected function getPaymentCode(string $configCode): string
     {
-        $mappings = [
-            'capayable' => 'in3'
-        ];
-
-        if(isset($mappings[$configCode])) {
-            return $mappings[$configCode];
+        if ($configCode === 'capayable') {
+            return 'in3';
         }
-
         return $configCode;
     }
 
