@@ -1,4 +1,14 @@
 <?php
+
+namespace Buckaroo3\Controller;
+
+use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Order;
+use Tools;
+use Refunds;
+use Currency;
+use Context;
 /**
 *
 *
@@ -21,14 +31,16 @@ include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php');
 include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/logger.php');
 include_once(_PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php');
 
-class AdminRefundController extends AdminControllerCore
+class AdminRefundController extends FrameworkBundleAdminController
 {
+    /**
+     * @var Context
+     */
+    private $context;
+
     public function __construct()
     {
-        parent::__construct();
-        if (Tools::getValue('action') && Tools::getValue('action') == 'refund') {
-            $this->refundAction();
-        }
+        $this->context = Context::getContext();
     }
 
     public function display()

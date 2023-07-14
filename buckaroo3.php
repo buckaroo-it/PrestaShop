@@ -29,6 +29,7 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.p
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/billink/billink.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
 
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Buckaroo3 extends PaymentModule
@@ -147,7 +148,7 @@ class Buckaroo3 extends PaymentModule
                 'paymentInfo'   => $paymentInfo,
                 'messageStatus' => $messageStatus,
                 'buckarooFee'   => $buckarooFee,
-                'refundLink'    => $this->context->link->getAdminLink('AdminRefund', true)
+                'refundLink'    => SymfonyContainer::getInstance()->get('router')->generate('buckaroo_refund')
             )
         );
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
