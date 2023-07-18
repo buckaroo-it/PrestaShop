@@ -89,27 +89,22 @@ abstract class PaymentMethod extends BuckarooAbstract
 
     public function refundGlobal()
     {//TODO - remove unused code
-        if ($this->type == "afterpay") {
-            if ($refund_amount = Tools::getValue('refund_amount')) {
-                $this->data['customVars'][$this->type]["RefundType"][0]["value"] = 'Return';
-                $this->data['customVars'][$this->type]["RefundType"][0]["group"] = 'Article';
-                $this->data['customVars'][$this->type]["Description"][0]["value"] = 'Refund';
-                $this->data['customVars'][$this->type]["Description"][0]["group"] = 'Article';
-                $this->data['customVars'][$this->type]["Identifier"][0]["value"] = '1';
-                $this->data['customVars'][$this->type]["Identifier"][0]["group"] = 'Article';
-                $this->data['customVars'][$this->type]["Quantity"][0]["value"] = 1;
-                $this->data['customVars'][$this->type]["Quantity"][0]["group"] = 'Article';
-                $this->data['customVars'][$this->type]["GrossUnitprice"][0]["value"] = $refund_amount;
-                $this->data['customVars'][$this->type]["GrossUnitprice"][0]["group"] = 'Article';
-                $this->data['customVars'][$this->type]["VatPercentage"][0]["value"] = 0;
-                $this->data['customVars'][$this->type]["VatPercentage"][0]["group"] = 'Article';
-            }
+
+        $refund_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
+        if (in_array($this->type , ["afterpay","klarnakp", "billink"])) {
+            $this->data['articles'] = [[
+                'refundType'        => 'Return',
+                'identifier'        => 1,
+                'description'       => 'Refund',
+                'quantity'          => 1,
+                'price'             =>  round($refund_amount, 2),
+                'vatPercentage'     => 0,
+            ]];
         }
 
         $this->data['currency']               = $this->currency;
         $this->data['amountDebit']            = $this->amountDebit;
-        $this->data['amountCredit']           =
-        Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
+        $this->data['amountCredit']           = $refund_amount;
         $this->data['invoice']                = $this->invoiceId;
         $this->data['order']                  = $this->orderId;
         $this->data['description']            = $this->description;
