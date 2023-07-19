@@ -97,8 +97,8 @@ class Client
         ]);
 
         $headers = new HmacHeader($headers, $this->config, $url, $data, $method);
-        $headers = new CultureHeader($headers);
-        $headers = new SoftwareHeader($headers);
+        $headers = new CultureHeader($headers, $this->config);
+        $headers = new SoftwareHeader($headers, $this->config);
 
         return $headers->getHeaders();
     }
@@ -133,6 +133,32 @@ class Client
     public function dataRequest(Request $data = null, $responseClass = TransactionResponse::class)
     {
         $endPoint = $this->getEndpoint('json/DataRequest/');
+
+        return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
+    }
+
+    /**
+     * @param Request|null $data
+     * @param $responseClass
+     * @return mixed
+     * @throws BuckarooException
+     */
+    public function dataBatchRequest(Request $data = null, $responseClass = TransactionResponse::class)
+    {
+        $endPoint = $this->getEndpoint('json/batch/DataRequests');
+
+        return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
+    }
+
+    /**
+     * @param Request|null $data
+     * @param $responseClass
+     * @return mixed
+     * @throws BuckarooException
+     */
+    public function transactionBatchRequest(Request $data = null, $responseClass = TransactionResponse::class)
+    {
+        $endPoint = $this->getEndpoint('json/batch/Transactions');
 
         return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
     }

@@ -46,7 +46,9 @@ use Buckaroo\PaymentMethods\KBC\KBC;
 use Buckaroo\PaymentMethods\KlarnaKP\KlarnaKP;
 use Buckaroo\PaymentMethods\KlarnaPay\KlarnaPay;
 use Buckaroo\PaymentMethods\Marketplaces\Marketplaces;
+use Buckaroo\PaymentMethods\NoServiceSpecifiedPayment\NoServiceSpecifiedPayment;
 use Buckaroo\PaymentMethods\Payconiq\Payconiq;
+use Buckaroo\PaymentMethods\PaymentInitiation\PaymentInitiation;
 use Buckaroo\PaymentMethods\Paypal\Paypal;
 use Buckaroo\PaymentMethods\PayPerEmail\PayPerEmail;
 use Buckaroo\PaymentMethods\PointOfSale\PointOfSale;
@@ -55,6 +57,7 @@ use Buckaroo\PaymentMethods\SEPA\SEPA;
 use Buckaroo\PaymentMethods\Sofort\Sofort;
 use Buckaroo\PaymentMethods\Subscriptions\Subscriptions;
 use Buckaroo\PaymentMethods\Surepay\Surepay;
+use Buckaroo\PaymentMethods\Thunes\Thunes;
 use Buckaroo\PaymentMethods\Tinka\Tinka;
 use Buckaroo\PaymentMethods\Trustly\Trustly;
 use Buckaroo\PaymentMethods\WeChatPay\WeChatPay;
@@ -93,21 +96,22 @@ class PaymentMethodFactory
         Surepay::class => ['surepay'],
         Subscriptions::class => ['subscriptions'],
         SEPA::class => ['sepadirectdebit', 'sepa'],
-        KBC::class => ['kbcpaymentbutton'],
+        KBC::class => ['kbc', 'kbcpaymentbutton'],
         Paypal::class => ['paypal'],
         PayPerEmail::class => ['payperemail'],
+        PaymentInitiation::class => ['paymentinitiation','paybybank'],
         EPS::class => ['eps'],
         Emandates::class => ['emandates'],
         Sofort::class => ['sofort', 'sofortueberweisung'],
         Tinka::class => ['tinka'],
         Marketplaces::class => ['marketplaces'],
+        NoServiceSpecifiedPayment::class => ['noservice'],
         Payconiq::class => ['payconiq'],
         Przelewy24::class => ['przelewy24'],
         PointOfSale::class => ['pospayment'],
         Giropay::class => ['giropay'],
         GiftCard::class => [
-            'giftcard', 'westlandbon', 'ideal',
-            'ippies', 'babygiftcard', 'babyparkgiftcard',
+            'giftcard', 'westlandbon', 'babygiftcard', 'babyparkgiftcard',
             'beautywellness', 'boekenbon', 'boekenvoordeel',
             'designshopsgiftcard', 'fashioncheque', 'fashionucadeaukaart',
             'fijncadeau', 'koffiecadeau', 'kokenzo',
@@ -115,6 +119,10 @@ class PaymentMethodFactory
             'podiumcadeaukaart', 'shoesaccessories', 'webshopgiftcard',
             'wijncadeau', 'wonenzo', 'yourgift',
             'vvvgiftcard', 'parfumcadeaukaart',
+        ],
+        Thunes::class => [
+            'thunes', 'monizzemealvoucher', 'monizzeecovoucher', 'monizzegiftvoucher',
+            'sodexomealvoucher', 'sodexoecovoucher', 'sodexogiftvoucher',
         ],
         Trustly::class => ['trustly'],
         BankTransfer::class => ['transfer'],
@@ -129,40 +137,50 @@ class PaymentMethodFactory
     /**
      * @var string
      */
-    private string $paymentMethod;
+    private ?string $paymentMethod;
 
     /**
      * @param Client $client
-     * @param string $paymentMethod
+     * @param string|null $paymentMethod
      */
-    public function __construct(Client $client, string $paymentMethod)
+    public function __construct(Client $client, ?string $paymentMethod)
     {
         $this->client = $client;
-        $this->paymentMethod = strtolower($paymentMethod);
+        $this->paymentMethod = ($paymentMethod)? strtolower($paymentMethod) : null;
     }
 
     /**
      * @return PaymentMethod
+     * @throws BuckarooException
      */
     public function getPaymentMethod(): PaymentMethod
     {
-        foreach (self::$payments as $class => $alias)
+        if ($this->paymentMethod)
         {
-            if (in_array($this->paymentMethod, $alias))
+            foreach (self::$payments as $class => $alias)
             {
-                return new $class($this->client, $this->paymentMethod);
+                if (in_array($this->paymentMethod, $alias))
+                {
+                    return new $class($this->client, $this->paymentMethod);
+                }
             }
+
+            throw new BuckarooException(
+                $this->client->config()->getLogger(),
+                "Wrong payment method code has been given"
+            );
         }
 
-        throw new BuckarooException($this->client->config()->getLogger(), "Wrong payment method code has been given");
+        return new NoServiceSpecifiedPayment($this->client, $this->paymentMethod);
     }
 
     /**
      * @param Client $client
-     * @param string $paymentMethod
+     * @param string|null $paymentMethod
      * @return PaymentMethod
+     * @throws BuckarooException
      */
-    public static function get(Client $client, string $paymentMethod): PaymentMethod
+    public static function get(Client $client, ?string $paymentMethod): PaymentMethod
     {
         $factory = new self($client, $paymentMethod);
 

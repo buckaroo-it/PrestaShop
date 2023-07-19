@@ -28,6 +28,8 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/billink/billink.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paybybank/paybybank.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/creditcard/creditcard.php';
 
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -359,6 +361,15 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IDEAL_FEE', '');
         Configuration::updateValue('BUCKAROO_IDEAL_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_IDEAL_MAX_VALUE', '');
+        Configuration::updateValue('BUCKAROO_IDEAL_DISPLAY_TYPE', 'radio');
+
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_FEE', '');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_MIN_VALUE', '');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_MAX_VALUE', '');
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_DISPLAY_TYPE', 'radio');
 
         Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_TEST', '1');
@@ -439,6 +450,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_CREDITCARD_FEE', '');
         Configuration::updateValue('BUCKAROO_CREDITCARD_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_CREDITCARD_MAX_VALUE', '');
+        Configuration::updateValue('BUCKAROO_CREDITCARD_DISPLAY_TYPE', 'radio');
 
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_TEST', '1');
@@ -510,7 +522,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_BILLINK_CUSTOMER_TYPE', 'both');
 
         Configuration::updateValue('BUCKAROO_GLOBAL_POSITION',0);
-        Configuration::updateValue('BUCKAROO_IDIN_POSITION',1);
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_POSITION',1);
         Configuration::updateValue('BUCKAROO_PAYPAL_POSITION',2);
         Configuration::updateValue('BUCKAROO_SDD_POSITION',3);
         Configuration::updateValue('BUCKAROO_IDEAL_POSITION',4);
@@ -533,6 +545,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_BELFIUS_POSITION',21);
         Configuration::updateValue('BUCKAROO_IN3_POSITION',22);
         Configuration::updateValue('BUCKAROO_BILLINK_POSITION',23);
+        Configuration::updateValue('BUCKAROO_IDIN_POSITION',24);
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
@@ -652,6 +665,15 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IDEAL_FEE');
         Configuration::deleteByName('BUCKAROO_IDEAL_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_IDEAL_MAX_VALUE');
+        Configuration::deleteByName('BUCKAROO_IDEAL_DISPLAY_TYPE');
+
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_LABEL');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_FEE');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MAX_VALUE');
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_DISPLAY_TYPE');
 
         Configuration::deleteByName('BUCKAROO_GIROPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIROPAY_TEST');
@@ -732,6 +754,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_CREDITCARD_FEE');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_MAX_VALUE');
+        Configuration::deleteByName('BUCKAROO_CREDITCARD_DISPLAY_TYPE');
 
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_ENABLED');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
@@ -903,7 +926,12 @@ class Buckaroo3 extends PaymentModule
                 'country'                 => Country::getIsoById(Tools::getCountry()),
                 'afterpay_show_coc'       => $this->showAfterpayCoc($cart),
                 'billink_show_coc'        => $this->showBillinkCoc($cart),
-                'idealIssuers'           => (new IssuersIdeal())->get()
+                'idealIssuers'            => (new IssuersIdeal())->get(),
+                'idealShowIcons'          => Config::get('BUCKAROO_IDEAL_DISPLAY_TYPE'),
+                'paybybankIssuers'        => (new PayByBank())->getIssuerList(),
+                'paybybankShowIcons'      => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
+                'creditcardIssuers'       => (new CreditCard())->getIssuerList(),
+                'creditcardShowIcons'     => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
             )
         );
 
@@ -916,6 +944,15 @@ class Buckaroo3 extends PaymentModule
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_ideal.png?v')
                 ->setModuleName('IDEAL');
+            $payment_options[] = $newOption;
+        }
+        if (Config::get('BUCKAROO_PAYBYBANK_ENABLED') && $this->isPaymentMethodAvailable($cart,  'PAYBYBANK')) {
+            $newOption = new PaymentOption();
+            $newOption->setCallToActionText($this->getBuckarooLabel('PAYBYBANK', 'Pay by bank'))
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank']))
+                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paybybank.tpl'))
+                ->setLogo($this->_path . 'views/img/buckaroo_images/'.(new PayByBank())->getSelectedIssuerLogo())
+                ->setModuleName('PAYBYBANK');
             $payment_options[] = $newOption;
         }
         if (Config::get('BUCKAROO_PAYPAL_ENABLED') && $this->isPaymentMethodAvailable($cart,  'PAYPAL')) {

@@ -9,7 +9,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "buckaroo/sdk": "^1.4.0"
+        "buckaroo/sdk": "^1.7.3"
     },
     "autoload": {
         "psr-4": {

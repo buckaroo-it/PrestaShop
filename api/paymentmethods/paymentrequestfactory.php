@@ -21,9 +21,9 @@ include_once(dirname(__FILE__) . '/functions.php');
 
 class PaymentRequestFactory
 {
-
     const REQUEST_TYPE_PAYPAL = 'paypal';
     const REQUEST_TYPE_IDEAL = 'ideal';
+    const REQUEST_TYPE_PAYBYBANK = 'paybybank';
     const REQUEST_TYPE_GIROPAY = 'giropay';
     const REQUEST_TYPE_KBC = 'kbc';
     const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
@@ -50,6 +50,7 @@ class PaymentRequestFactory
     public static $valid_request_types = array(
         PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'PayPal',
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
+        PaymentRequestFactory::REQUEST_TYPE_PAYBYBANK => 'PayByBank',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
         PaymentRequestFactory::REQUEST_TYPE_KBC => 'Kbc',

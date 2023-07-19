@@ -40,4 +40,56 @@ class CreditCard extends PaymentMethod
 
         return parent::pay();
     }
+
+    public function getIssuerList()
+    {
+        $issuerArray =  array(
+            'amex' => array(
+                'name' => 'American Express',
+                'logo' => 'AmericanExpress.png',
+            ),
+            'cartebancaire' => array(
+                'name' => 'CarteBancaire',
+                'logo' => 'CarteBancaire.png',
+            ),
+            'cartebleue' => array(
+                'name' => 'CarteBleue',
+                'logo' => 'CarteBleue.png',
+            ),
+            'dankort' => array(
+                'name' => 'Dankort',
+                'logo' => 'Dankort.png',
+            ),
+            'maestro' => array(
+                'name' => 'Maestro',
+                'logo' => 'Maestro.png',
+            ),
+            'mastercard' => array(
+                'name' => 'Mastercard',
+                'logo' => 'Mastercard.png',
+            ),
+            'nexi' => array(
+                'name' => 'Nexi',
+                'logo' => 'Nexi.png',
+            ),
+            'postepay' => array(
+                'name' => 'PostePay',
+                'logo' => 'PostePay.png',
+            ),
+            'visa' => array(
+                'name' => 'VISA',
+                'logo' => 'VISA.png',
+            ),
+            'visaelectron' => array(
+                'name' => 'VISA Electron',
+                'logo' => 'VISAelectron.png',
+            ),
+            'vpay' => array(
+                'name' => 'VPAY',
+                'logo' => 'VPAY.png',
+            ),
+        );
+
+        return $issuerArray;
+    }
 }

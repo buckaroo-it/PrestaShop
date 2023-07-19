@@ -28,6 +28,7 @@ abstract class Checkout
     
     const CHECKOUT_TYPE_PAYPAL          = 'paypal';
     const CHECKOUT_TYPE_IDEAL           = 'ideal';
+    const CHECKOUT_TYPE_PAYBYBANK       = 'paybybank';
     const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     const CHECKOUT_TYPE_GIROPAY         = 'giropay';
     const CHECKOUT_TYPE_KBC             = 'kbc';
@@ -54,6 +55,7 @@ abstract class Checkout
     public static $payment_method_type = array(
         Checkout::CHECKOUT_TYPE_PAYPAL          => 'PayPal',
         Checkout::CHECKOUT_TYPE_IDEAL           => 'IDeal',
+        Checkout::CHECKOUT_TYPE_PAYBYBANK       => 'PayByBank',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY         => 'Giropay',
         Checkout::CHECKOUT_TYPE_KBC             => 'Kbc',
@@ -247,7 +249,8 @@ abstract class Checkout
     {
 
         $class_name = self::$payment_method_type[$payment_method] . "Checkout";
-        checkoutautoload($class_name); //Try to find class in api directory
+        require_once "/var/www/html/modules/buckaroo3/library/checkout/paybybankcheckout.php";
+
         if (!class_exists($class_name)) {
             throw new Exception('Payment method not found', '1'); //TODO: ExceptionPayment
         }

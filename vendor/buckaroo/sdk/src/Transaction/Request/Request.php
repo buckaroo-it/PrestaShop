@@ -48,8 +48,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
         if (is_null($offset))
         {
             $this->data[] = $value;
-        }
-        else
+        } else
         {
             $this->data[$offset] = $value;
         }
@@ -97,8 +96,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
         if ($prefix === 'set')
         {
             return $this->offsetSet($param, $arg);
-        }
-        elseif ($prefix === 'get')
+        } elseif ($prefix === 'get')
         {
             return $this->offsetGet($param);
         }
@@ -148,8 +146,7 @@ class Request implements JsonSerializable, ArrayAccess, Arrayable
      */
     public function getHeaders(): array
     {
-        return array_map(function ($value, $key)
-        {
+        return array_map(function ($value, $key) {
             return $key . ': ' . $value;
         }, $this->headers);
     }

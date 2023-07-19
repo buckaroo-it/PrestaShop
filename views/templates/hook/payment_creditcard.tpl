@@ -14,53 +14,61 @@
 *}
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="CREDITCARD">
-    <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
+    <form id="booCreditCardForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Choose your credit or debit card' mod='buckaroo3'}<br/><br/>
-
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="amex" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/AmericanExpress.png" class="middle bk-creditcard-logo"
-                    /> {l s='American Express' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="cartebancaire" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBancaire.png" class="middle bk-creditcard-logo"
-                    /> {l s='CarteBancaire' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="cartebleue" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/CarteBleue.png" class="middle bk-creditcard-logo"
-                    /> {l s='CarteBleue' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="dankort" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Dankort.png" class="middle bk-creditcard-logo"
-                    /> {l s='Dankort' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="maestro" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Maestro.png" class="middle bk-creditcard-logo"
-                    /> {l s='Maestro' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="mastercard" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Mastercard.png" class="middle bk-creditcard-logo"
-                    /> {l s='Mastercard' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="nexi" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/Nexi.png" class="middle bk-creditcard-logo"
-                    /> {l s='Nexi' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="postepay" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/PostePay.png" class="middle bk-creditcard-logo"
-                    /> {l s='PostePay' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="visa" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISA.png" class="middle bk-creditcard-logo"
-                    /> {l s='VISA' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="visaelectron" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VISAelectron.png" class="middle bk-creditcard-logo"
-                    /> {l s='VISA Electron' mod='buckaroo3'}</div>
-        <div rel="booRow" class="pointer bankRadioBtn bk-credit-card"><input name="BPE_CreditCard" value="vpay" type="radio"
-                                                              class="middle" /> <img
-                    src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/VPAY.png" class="middle bk-creditcard-logo"
-                    /> {l s='VPAY' mod='buckaroo3'}</div>        
-        <br/>
+        <fieldset>
+            {if $creditcardShowIcons === 'dropdown'}
+                <p class="form-row form-row-wide">
+                    <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
+                        <option value="0" style="color: grey !important">
+                            <p> {l s='Select your bank' mod='buckaroo3'}</p>
+                        </option>
+                        {foreach $creditcardIssuers as $key => $issuer}
+                            <div>
+                                <option value="{$key}"
+                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
+                                            selected
+                                        {/if}
+                                        id="bankMethod{$key}">
+                                    {l s=$issuer['name'] mod='buckaroo3'}
+                                </option>
+                            </div>
+                        {/foreach}
+                    </select>
+                </p>
+            {else}
+                <div class="bk-method-selector">
+                    {foreach $creditcardIssuers as $key => $issuer}
+                        <div rel="booRow" class="bk-method-issuer">
+                            <input
+                                    name="BPE_Issuer"
+                                    id="creditcard_issuer_{$key}"
+                                    value="{$key}"
+                                    type="radio"
+                            />
+                            <label for="creditcard_issuer_{$key}" class="bk-issuer-label">
+                                {if isset($issuer['logo']) && $issuer['logo'] !== null}
+                                    <img
+                                            class=""
+                                            alt="{l s=$issuer['name'] mod='buckaroo3'}"
+                                            title="{l s=$issuer['name'] mod='buckaroo3'}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/{$issuer['logo']}"
+                                    />
+                                {/if}
+                                {l s=$issuer['name'] mod='buckaroo3'}
+                            </label>
+                        </div>
+                    {/foreach}
+                </div>
+                <div class="bk-method-toggle-list">
+                    <div class="bk-toggle-wrap">
+                        <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
+                            {l s='More banks' mod='buckaroo3'}
+                        </div>
+                        <div class="bk-toggle bk-toggle-down"></div>
+                    </div>
+                </div>
+            {/if}
+        </fieldset>
     </form>
 </section>
