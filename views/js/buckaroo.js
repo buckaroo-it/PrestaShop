@@ -256,8 +256,8 @@ class BuckarooCheckout {
         this.toogleMethods();
 
         jQuery("body").on("updated_checkout", function () {
-            this.initMethod()
-        }.bind(this));
+            self.initMethod()
+        });
     }
 
     /**

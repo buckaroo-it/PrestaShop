@@ -296,7 +296,6 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYBYBANK_ENABLED']      = Configuration::get('BUCKAROO_PAYBYBANK_ENABLED');
         $fields_value['BUCKAROO_PAYBYBANK_TEST']         = Configuration::get('BUCKAROO_PAYBYBANK_TEST');
         $fields_value['BUCKAROO_PAYBYBANK_LABEL']        = Configuration::get('BUCKAROO_PAYBYBANK_LABEL');
-        $fields_value['BUCKAROO_PAYBYBANK_FEE']          = Configuration::get('BUCKAROO_PAYBYBANK_FEE');
         $fields_value['BUCKAROO_PAYBYBANK_MIN_VALUE']    = (float)Configuration::get('BUCKAROO_PAYBYBANK_MIN_VALUE');
         $fields_value['BUCKAROO_PAYBYBANK_MAX_VALUE']    = (float)Configuration::get('BUCKAROO_PAYBYBANK_MAX_VALUE');
         $fields_value['BUCKAROO_PAYBYBANK_DISPLAY_TYPE'] = Configuration::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE');
@@ -910,13 +909,6 @@ class Buckaroo3Admin
                     'type'     => 'text',
                     'label'    => $this->module->l('Frontend label'),
                     'name'     => 'BUCKAROO_PAYBYBANK_LABEL',
-                    'size'     => 80,
-                ),
-                array(
-                    'type'     => 'text',
-                    'label'    => $this->module->l('Buckaroo Fee'),
-                    'name'     => 'BUCKAROO_PAYBYBANK_FEE',
-                    'description' => $this->module->l('Specify static (e.g. 1.50) or percentage amount (e.g. 1%). Decimals must be separated by a dot (.).'),
                     'size'     => 80,
                 ),
                 array(

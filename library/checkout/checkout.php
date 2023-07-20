@@ -249,7 +249,7 @@ abstract class Checkout
     {
 
         $class_name = self::$payment_method_type[$payment_method] . "Checkout";
-        require_once "/var/www/html/modules/buckaroo3/library/checkout/paybybankcheckout.php";
+        checkoutautoload($class_name); //Try to find class in api directory
 
         if (!class_exists($class_name)) {
             throw new Exception('Payment method not found', '1'); //TODO: ExceptionPayment

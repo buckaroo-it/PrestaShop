@@ -18,7 +18,7 @@
     <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
        <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <fieldset>
-            {if $idealShowIcons === 'dropdown'}
+            {if $idealDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
                     <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">

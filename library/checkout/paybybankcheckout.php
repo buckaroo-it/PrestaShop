@@ -38,6 +38,9 @@ class PayByBankCheckout extends Checkout
 
     public function isRedirectRequired()
     {
+        if($this->payment_request->issuer === 'NTSBDEB1'){
+            return false;
+        }
         return true;
     }
 

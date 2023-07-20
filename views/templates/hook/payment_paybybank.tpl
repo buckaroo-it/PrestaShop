@@ -19,7 +19,7 @@
         <p> {l s='Choose your bank' mod='buckaroo3'}</p>
 
         <fieldset>
-            {if $paybybankShowIcons === 'dropdown'}
+            {if $payByBankDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
                     <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
@@ -57,7 +57,7 @@
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/{$issuer['logo']}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}

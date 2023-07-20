@@ -17,7 +17,7 @@
     <form id="booCreditCardForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Choose your credit or debit card' mod='buckaroo3'}<br/><br/>
         <fieldset>
-            {if $creditcardShowIcons === 'dropdown'}
+            {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
                     <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
@@ -52,7 +52,7 @@
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/{$issuer['logo']}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}

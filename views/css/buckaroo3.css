@@ -386,20 +386,10 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 .payment-option label img {
     float: left;
     margin-right: 10px;
-    max-height: 25px
+    max-height: 25px;
+    width: 32px;
 }
 
-form .form-row {
-    margin-bottom: 1rem;
-}
-
-form .form-row-wide .form-row-wide {
-    clear: both;
-}
-
- form .form-row label.form-row label {
-    display: block;
-}
 /* paybybank,ideal, creditcards  */
 
 .bk-toggle-down {
@@ -467,6 +457,7 @@ form .form-row-wide .form-row-wide {
     }
     .bk-method-selector .bk-issuer-label img {
         padding: 10px 20px;
+        width: 100%;
     }
 
     .bk-method-selector input {
