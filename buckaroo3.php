@@ -1132,7 +1132,9 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        if (Order::getByCartId($cart->id)->module !== $this->name) {
+
+        $order = Order::getByCartId($cart->id);
+        if ($order === null || $order->module !== $this->name) {
             return true;
         }
 
@@ -1154,10 +1156,6 @@ class Buckaroo3 extends PaymentModule
             $params['template'] === 'outofstock' ||
             $params['template'] === 'bankwire' ||
             $params['template'] === 'refund') {
-            $order = Order::getByCartId($cart->id);
-            if (!$order) {
-                return true;
-            }
 
             $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
             if ($buckarooFee) {
