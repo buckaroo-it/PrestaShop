@@ -35,13 +35,14 @@ class AfterPayCheckout extends Checkout
         if (empty($phone) && !empty($this->invoice_address->phone)) {
             $phone = $this->invoice_address->phone;
         }
+        if (empty($phone) && !empty(Tools::getValue("phone_afterpay_billing"))) {
+            $phone = Tools::getValue("phone_afterpay_billing");
+        }
 
         $ShippingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
         if ($ShippingCost > 0) {
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
-
-        $language = Language::getIsoById((int) $this->cart->id_lang);
 
         $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
         $this->payment_request->BillingLastName  = $this->invoice_address->lastname;
@@ -96,7 +97,7 @@ class AfterPayCheckout extends Checkout
 
             $this->payment_request->AddressesDiffer           = 'TRUE';
             $this->payment_request->ShippingInitials          = initials($this->shipping_address->firstname);
-            $this->payment_request->ShippingFirstName          = $this->shipping_address->firstname;
+            $this->payment_request->ShippingFirstName         = $this->shipping_address->firstname;
             $this->payment_request->ShippingLastName          = $this->shipping_address->lastname;
             $this->payment_request->ShippingCompanyName       = $this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null;
             $this->payment_request->ShippingBirthDate         = $ShippingBirthDate;
@@ -111,13 +112,19 @@ class AfterPayCheckout extends Checkout
             $this->payment_request->ShippingEmail             = Tools::getIsset(
                 $this->customer->email
             ) ? $this->customer->email : '';
-            $phone                                   = '';
+
+            $phone = '';
+
             if (!empty($this->shipping_address->phone_mobile)) {
                 $phone = $this->shipping_address->phone_mobile;
             }
             if (empty($phone) && !empty($this->shipping_address->phone)) {
                 $phone = $this->shipping_address->phone;
             }
+            if (empty($phone) && !empty(Tools::getValue("phone_afterpay_billing"))) {
+                $phone = Tools::getValue("phone_afterpay_billing");
+            }
+
             $this->payment_request->ShippingPhoneNumber = $phone;
         }
 

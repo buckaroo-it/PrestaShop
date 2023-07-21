@@ -887,23 +887,23 @@ class Buckaroo3 extends PaymentModule
 
         $this->context->smarty->assign(
             array(
-                'address_differ'          => $address_differ,
-                'this_path'               => $this->_path,
-                'customer_gender'         => $customer->id_gender,
-                'customer_name'           => $customer->firstname . ' ' . $customer->lastname,
-                'customer_email'          => $customer->email,
-                'customer_birthday'       => explode('-', $customer->birthday),
-                'customer_company'        => $company,
-                'customer_vat'            => $vat,
-                'phone'                   => $phone,
-                'phone_mobile'            => $phone_mobile,
-                'phone_afterpay_shipping' => $phone_afterpay_shipping,
-                'phone_afterpay_billing'  => $phone_afterpay_billing,
-                'total'                   => $cart->getOrderTotal(true, 3),
-                'country'                 => Country::getIsoById(Tools::getCountry()),
-                'afterpay_show_coc'       => $this->showAfterpayCoc($cart),
-                'billink_show_coc'        => $this->showBillinkCoc($cart),
-                'idealIssuers'           => (new IssuersIdeal())->get()
+                'address_differ'                       => $address_differ,
+                'this_path'                            => $this->_path,
+                'customer_gender'                      => $customer->id_gender,
+                'customer_name'                        => $customer->firstname . ' ' . $customer->lastname,
+                'customer_email'                       => $customer->email,
+                'customer_birthday'                    => explode('-', $customer->birthday),
+                'customer_company'                     => $company,
+                'customer_vat'                         => $vat,
+                'phone'                                => $phone,
+                'phone_mobile'                         => $phone_mobile,
+                'phone_afterpay_shipping'              => $phone_afterpay_shipping,
+                'phone_afterpay_billing'               => $phone_afterpay_billing,
+                'total'                                => $cart->getOrderTotal(true, 3),
+                'country'                              => Country::getIsoById(Tools::getCountry()),
+                'afterpay_show_coc'                    => $this->showAfterpayCoc($cart),
+                'billink_show_coc'                     => $this->showBillinkCoc($cart),
+                'idealIssuers'                         => (new IssuersIdeal())->get()
             )
         );
 
@@ -1191,10 +1191,11 @@ class Buckaroo3 extends PaymentModule
             'buckarooFees'    => $this->getBuckarooFees(),
             'buckarooMessages'=> [
                 "validation" => [
-                    "date"=>$this->l('Please enter correct birthdate date'),
-                    "required"=>$this->l('Field is required'),
+                    "date"      => $this->l('Please enter correct birthdate date'),
+                    "required"  => $this->l('Field is required'),
                     "agreement" => $this->l('Please accept licence agreements'),
-                    "iban" => $this->l('A valid IBAN is required'),
+                    "iban"      => $this->l('A valid IBAN is required'),
+                    "age"       => $this->l('You must be at least 18 years old'),
                 ]
             ]
         ]);
