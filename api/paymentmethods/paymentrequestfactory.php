@@ -21,31 +21,31 @@ include_once(dirname(__FILE__) . '/functions.php');
 
 class PaymentRequestFactory
 {
-    const REQUEST_TYPE_PAYPAL = 'paypal';
-    const REQUEST_TYPE_IDEAL = 'ideal';
-    const REQUEST_TYPE_PAYBYBANK = 'paybybank';
-    const REQUEST_TYPE_GIROPAY = 'giropay';
-    const REQUEST_TYPE_KBC = 'kbc';
-    const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
-    const REQUEST_TYPE_MISTERCASH = 'bancontactmrcash';
-    const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
-    const REQUEST_TYPE_GIFTCARD = 'giftcard';
-    const REQUEST_TYPE_CREDITCARD = 'creditcard';
-    const REQUEST_TYPE_TRANSFER = 'transfer';
-    const REQUEST_TYPE_AFTERPAY = 'afterpay';
-    const REQUEST_TYPE_KLARNA = 'klarna';
-    const REQUEST_TYPE_APPLEPAY = 'applepay';
-    const REQUEST_TYPE_BELFIUS = 'belfius';
-    const REQUEST_TYPE_IDIN = 'idin';
-    const REQUEST_TYPE_IN3 = 'in3';
-    const REQUEST_TYPE_BILLINK = 'billink';
-    const REQUEST_TYPE_EPS = 'eps';
-    const REQUEST_TYPE_PAYCONIQ = 'payconiq';
-    const REQUEST_TYPE_PAYPEREMAIL = 'payperemail';
-    const REQUEST_TYPE_PRZELEWY24 = 'przelewy24';
-    const REQUEST_TYPE_TINKA = 'tinka';
-    const REQUEST_TYPE_TRUSTLY = 'trustly';
-    
+    public const REQUEST_TYPE_PAYPAL = 'paypal';
+    public const REQUEST_TYPE_IDEAL = 'ideal';
+    public const REQUEST_TYPE_PAYBYBANK = 'paybybank';
+    public const REQUEST_TYPE_GIROPAY = 'giropay';
+    public const REQUEST_TYPE_KBC = 'kbc';
+    public const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
+    public const REQUEST_TYPE_MISTERCASH = 'bancontactmrcash';
+    public const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
+    public const REQUEST_TYPE_GIFTCARD = 'giftcard';
+    public const REQUEST_TYPE_CREDITCARD = 'creditcard';
+    public const REQUEST_TYPE_TRANSFER = 'transfer';
+    public const REQUEST_TYPE_AFTERPAY = 'afterpay';
+    public const REQUEST_TYPE_KLARNA = 'klarna';
+    public const REQUEST_TYPE_APPLEPAY = 'applepay';
+    public const REQUEST_TYPE_BELFIUS = 'belfius';
+    public const REQUEST_TYPE_IDIN = 'idin';
+    public const REQUEST_TYPE_IN3 = 'in3';
+    public const REQUEST_TYPE_BILLINK = 'billink';
+    public const REQUEST_TYPE_EPS = 'eps';
+    public const REQUEST_TYPE_PAYCONIQ = 'payconiq';
+    public const REQUEST_TYPE_PAYPEREMAIL = 'payperemail';
+    public const REQUEST_TYPE_PRZELEWY24 = 'przelewy24';
+    public const REQUEST_TYPE_TINKA = 'tinka';
+    public const REQUEST_TYPE_TRUSTLY = 'trustly';
+
     // Request types (Payment Methods).
     public static $valid_request_types = array(
         PaymentRequestFactory::REQUEST_TYPE_PAYPAL => 'PayPal',

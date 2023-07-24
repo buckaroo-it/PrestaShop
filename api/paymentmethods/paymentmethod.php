@@ -44,7 +44,7 @@ abstract class PaymentMethod extends BuckarooAbstract
 
     public function getBuckarooClient()
     {
-      return new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'), $this->mode);
+        return new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'), $this->mode);
     }
 
     public function executeCustomPayAction($action)
@@ -84,14 +84,14 @@ abstract class PaymentMethod extends BuckarooAbstract
         //Pay
         $response = $buckaroo->method($this->type)->$payAction($this->payload);
 
-       return ResponseFactory::getResponse($response);
+        return ResponseFactory::getResponse($response);
     }
 
     public function refundGlobal()
     {//TODO - remove unused code
 
         $refund_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
-        if (in_array($this->type , ["afterpay","klarnakp", "billink"])) {
+        if (in_array($this->type, ["afterpay","klarnakp", "billink"])) {
             $this->data['articles'] = [[
                 'refundType'        => 'Return',
                 'identifier'        => 1,

@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  *
@@ -50,4 +49,3 @@ class In3 extends PaymentMethod
         return $payload;
     }
 }
- 

@@ -23,7 +23,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
-
     /* @var $checkout IDealCheckout */
     public $checkout;
 
@@ -94,7 +93,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 // Remove the percentage sign and convert the remaining value to a float.
                 $buckarooFee = str_replace('%', '', $buckarooFee);
                 $total += ($total * ((float) $buckarooFee / 100));
-            } else if ($buckarooFee > 0) {
+            } elseif ($buckarooFee > 0) {
                 // The fee is a flat amount.
                 $total += (float) $buckarooFee;
             }

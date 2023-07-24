@@ -21,7 +21,6 @@ include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php');
 
 class CashTicketCheckout extends Checkout
 {
-
     final public function setCheckout()
     {
 

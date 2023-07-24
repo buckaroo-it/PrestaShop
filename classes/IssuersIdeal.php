@@ -1,5 +1,21 @@
 <?php
-
+/**
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 use Buckaroo\BuckarooClient;
 
 require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
@@ -9,7 +25,7 @@ class IssuersIdeal
 {
     protected const CACHE_ISSUERS_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE';
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE_DATE';
-    
+
     protected const ISSUERS_IMAGES = [
         'ABNANL2A' => 'ABNAMRO.png',
         'ASNBNL21' => 'ASNBANK.png',
@@ -46,10 +62,10 @@ class IssuersIdeal
     private function addLogos($issuers)
     {
         return array_map(
-            function($issuer) {
+            function ($issuer) {
                 $logo = null;
                 if(
-                    isset($issuer['id']) && 
+                    isset($issuer['id']) &&
                     isset(self::ISSUERS_IMAGES[$issuer['id']])
                 ) {
                     $logo = self::ISSUERS_IMAGES[$issuer['id']];
@@ -89,7 +105,7 @@ class IssuersIdeal
         return $buckaroo->method('ideal')->issuers();
     }
 
-    /** 
+    /**
      * Save issuers to cache with new date
      *
      * @param array $issuers
@@ -114,14 +130,14 @@ class IssuersIdeal
     {
         $issuersString = Configuration::get(self::CACHE_ISSUERS_KEY);
         if(!is_string($issuersString)) {
-           return;
+            return;
         }
         return json_decode($issuersString, true);
     }
 
     /**
      * Get cached date
-     * 
+     *
      * @return bool|string
      */
     private function getCacheDate()

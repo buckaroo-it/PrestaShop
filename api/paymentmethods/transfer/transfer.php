@@ -48,6 +48,6 @@ class Transfer extends PaymentMethod
                 'dateDue'  => $data['DateDue'],
                 'sendMail' => $data['SendMail']
         ];
-        return $payload;        
+        return $payload;
     }
 }

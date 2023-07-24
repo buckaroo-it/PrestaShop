@@ -23,10 +23,10 @@ class CoreLogger
 {
     //put your code here
 
-    const DEBUG = '0';
-    const INFO  = '1';
-    const WARN  = '2';
-    const ERROR = '3';
+    public const DEBUG = '0';
+    public const INFO  = '1';
+    public const WARN  = '2';
+    public const ERROR = '3';
 
     public static $log_level = array(
         self::DEBUG => 'Debug',

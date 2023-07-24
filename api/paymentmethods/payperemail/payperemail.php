@@ -23,7 +23,6 @@ use Buckaroo\Resources\Constants\Gender;
 
 class PayPerEmail extends PaymentMethod
 {
-
     public function __construct()
     {
         $this->type    = "payperemail";
@@ -48,7 +47,7 @@ class PayPerEmail extends PaymentMethod
             ],
             'email' => $data['email'],
             'merchantSendsEmail' => Config::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'),
-            'expirationDate' => date('Y-m-d', strtotime( '+'. (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') .'day')),
+            'expirationDate' => date('Y-m-d', strtotime('+'. (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') .'day')),
             'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'),//'ideal,mastercard,paypal',
             'attachment' => ''
         ];

@@ -64,9 +64,9 @@ class Klarna extends PaymentMethod
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = Array())
+    public function pay($customVars = array())
     {
-    // @codingStandardsIgnoreEnd
+        // @codingStandardsIgnoreEnd
         return null;
     }
 
@@ -94,10 +94,10 @@ class Klarna extends PaymentMethod
                         ],
                         'articles'          => $this->getArticles($products)
                     );
-                    //Add shipping address if is different
-                    if ($this->addShippingIfDifferent()) {
-                        $payload['shipping'] = $this->addShippingIfDifferent();
-                    }
+        //Add shipping address if is different
+        if ($this->addShippingIfDifferent()) {
+            $payload['shipping'] = $this->addShippingIfDifferent();
+        }
         return $payload;
     }
 
@@ -115,8 +115,7 @@ class Klarna extends PaymentMethod
 
         $products = $mergedProducts;
 
-        foreach($products as $item)
-        {
+        foreach($products as $item) {
             $productsArr[] = [
                 'identifier'    => $item['ArticleId'],
                 'description'   => $item['ArticleDescription'],
@@ -129,7 +128,7 @@ class Klarna extends PaymentMethod
 
         //Add shipping costs
         if ($this->ShippingCosts > 0) {
-            $productsArr[] = [                
+            $productsArr[] = [
                 'identifier'    => 'shipping',
                 'description'   => 'Shipping Costs',
                 'vatPercentage' => $this->ShippingCostsTax,
@@ -138,13 +137,12 @@ class Klarna extends PaymentMethod
             ];
         }
 
-        return $productsArr;        
+        return $productsArr;
     }
-    
+
     private function addShippingIfDifferent()
     {
-        if($this->AddressesDiffer == 'TRUE')
-        {
+        if($this->AddressesDiffer == 'TRUE') {
             return [
                 'recipient'        => [
                     'firstName'             => $this->ShippingFirstName,

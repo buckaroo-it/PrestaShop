@@ -19,7 +19,6 @@
 
 class BuckarooCommonController extends ModuleFrontController
 {
-
     private $id_order;
 
     protected function displayConfirmationTransfer($response)

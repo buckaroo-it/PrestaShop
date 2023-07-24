@@ -23,7 +23,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
 class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
-
     public $ssl = true;
 
     /**
@@ -213,7 +212,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             header("HTTP/1.1 503 Service Unavailable");
             $logger->logError('Payment response not valid', $response);
             echo 'Payment response not valid';
-                    exit();
+            exit();
         }
 
         $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' .

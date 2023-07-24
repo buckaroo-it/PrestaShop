@@ -52,9 +52,9 @@ class SepaDirectDebit extends PaymentMethod
         );
 
         return $payload;
-        
+
     }
-    
+
     public function payDirectDebit($customVars)
     {
         $this->payload = $this->getPayload($customVars);
@@ -105,7 +105,7 @@ class SepaDirectDebit extends PaymentMethod
                 $this->data['customVars']['creditmanagement'][$key]['group'] = 'address';
             }
         }
-        
+
         return parent::pay();
         */
     }

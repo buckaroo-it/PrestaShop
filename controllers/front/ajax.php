@@ -21,7 +21,6 @@ use PrestaShop\Decimal\Number;
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
-
     public function postProcess()
     {
         $action = Tools::getValue('action');
@@ -54,7 +53,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                     $paymentFee = new Number((string)$paymentFee);
                     $percentage = $paymentFee->dividedBy(new Number('100'));
                     $paymentFee = $orderTotal->times($percentage);
-                } else if ($paymentFee > 0) {
+                } elseif ($paymentFee > 0) {
                     // The fee is a flat amount.
                     $paymentFee = new Number((string)$paymentFee);
                 }

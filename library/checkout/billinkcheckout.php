@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class BillinkCheckout extends Checkout
 {
-
     protected $customVars = array();
 
     final public function setCheckout()
@@ -41,13 +40,13 @@ class BillinkCheckout extends Checkout
             $this->payment_request->ShippingCosts = round($ShippingCost, 2);
         }
         $birthDate = date(
-                            'd-m-Y',
-                            strtotime(
-                                Tools::getValue("customerbirthdate_y_billing_billink") . "-" . Tools::getValue(
-                                    "customerbirthdate_m_billing_billink"
-                                ) . "-" . Tools::getValue("customerbirthdate_d_billing_billink")
-                            )
-                        );
+            'd-m-Y',
+            strtotime(
+                Tools::getValue("customerbirthdate_y_billing_billink") . "-" . Tools::getValue(
+                    "customerbirthdate_m_billing_billink"
+                ) . "-" . Tools::getValue("customerbirthdate_d_billing_billink")
+            )
+        );
         $this->payment_request->VatNumber                = $this->invoice_address->vat_number;
         $this->payment_request->BillingInitials          = initials($this->invoice_address->firstname .' '. $this->invoice_address->lastname);
         $this->payment_request->BillingFirstName         = $this->invoice_address->firstname;

@@ -27,11 +27,11 @@
                         </option>
                         {foreach $paybybankIssuers as $key => $issuer}
                             <div>
-                                <option value="{$key}"
+                                <option value="{$key|escape:'html':'UTF-8'}"
                                         {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
                                             selected
                                         {/if}
-                                        id="bankMethod{$key}">
+                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
                             </div>
@@ -44,20 +44,20 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_Issuer"
-                                    id="paybybank_issuer_{$key}"
-                                    value="{$key}"
+                                    id="paybybank_issuer_{$key|escape:'html':'UTF-8'}"
+                                    value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
                                     {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
                                         checked
                                     {/if}
                             />
-                            <label for="paybybank_issuer_{$key}" class="bk-issuer-label">
+                            <label for="paybybank_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}

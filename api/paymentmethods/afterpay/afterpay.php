@@ -70,9 +70,9 @@ class AfterPay extends PaymentMethod
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = Array())
+    public function pay($customVars = array())
     {
-    // @codingStandardsIgnoreEnd
+        // @codingStandardsIgnoreEnd
         return null;
     }
 
@@ -83,7 +83,7 @@ class AfterPay extends PaymentMethod
     }
 
     public function getPayload($products)
-    {        
+    {
         $payload = array(
             'clientIP'      => $this->CustomerIPAddress,
             'billing'       => [
@@ -93,7 +93,7 @@ class AfterPay extends PaymentMethod
                     'careOf'                => $this->BillingFirstName . ' ' . $this->BillingLastName,
                     'firstName'             => $this->BillingFirstName,
                     'lastName'              => $this->BillingLastName,
-                    'birthDate'             => ($this->BillingBirthDate) ? $this->BillingBirthDate : null,                    
+                    'birthDate'             => ($this->BillingBirthDate) ? $this->BillingBirthDate : null,
                 ],
                 'address'       => [
                     'street'                => $this->BillingStreet,
@@ -105,7 +105,7 @@ class AfterPay extends PaymentMethod
                 ],
                 'email'         => $this->BillingEmail,
             ],
-            
+
             'articles'          => $this->getArticles($products)
         );
 
@@ -120,17 +120,18 @@ class AfterPay extends PaymentMethod
             $payload['shipping'] = $this->addShippingIfDifferent();
         }
 
-        //Add company name if b2b enabled 
+        //Add company name if b2b enabled
         if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
-            $payload['billing']['recipient']['companyName'] = $this->BillingCompanyName;;
+            $payload['billing']['recipient']['companyName'] = $this->BillingCompanyName;
+            ;
             $payload['billing']['recipient']['chamberOfCommerce'] = $this->CompanyCOCRegistration;
 
-            if (isset($payload['shipping'])){
+            if (isset($payload['shipping'])) {
                 $payload['shipping']['recipient']['companyName'] = $this->ShippingCompanyName;
                 $payload['shipping']['recipient']['category'] = RecipientCategory::COMPANY;
             }
         }
-        return $payload;        
+        return $payload;
     }
 
     private function getArticles($products)
@@ -147,8 +148,7 @@ class AfterPay extends PaymentMethod
 
         $products = $mergedProducts;
 
-        foreach($products as $item)
-        {
+        foreach($products as $item) {
             $productsArr[] = [
                 'identifier'    => $item['ArticleId'],
                 'description'   => $item['ArticleDescription'],
@@ -162,7 +162,7 @@ class AfterPay extends PaymentMethod
 
         //Add shipping costs
         if ($this->ShippingCosts > 0) {
-            $productsArr[] = [                
+            $productsArr[] = [
                 'identifier'    => 'shipping',
                 'description'   => 'Shipping Costs',
                 'vatPercentage' => $this->ShippingCostsTax,
@@ -171,13 +171,12 @@ class AfterPay extends PaymentMethod
             ];
         }
 
-        return $productsArr;        
+        return $productsArr;
     }
 
     private function addShippingIfDifferent()
     {
-        if($this->AddressesDiffer == 'TRUE')
-        {
+        if($this->AddressesDiffer == 'TRUE') {
             return [
                 'recipient'        => [
                     'category'              => RecipientCategory::PERSON,

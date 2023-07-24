@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class TransferCheckout extends Checkout
 {
-
     final public function setCheckout()
     {
         parent::setCheckout();
@@ -33,7 +32,7 @@ class TransferCheckout extends Checkout
             'SendMail'          => ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE'),//phpcs:ignore
             'DateDue'           => date('Y-m-d', strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')),//phpcs:ignore
             'CustomerCountry'   => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code)
-        ]);                       
+        ]);
     }
 
     public function isRedirectRequired()

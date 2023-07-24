@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class PayByBankCheckout extends Checkout
 {
-
     protected $customVars = array();
 
     final public function setCheckout()
@@ -38,7 +37,7 @@ class PayByBankCheckout extends Checkout
 
     public function isRedirectRequired()
     {
-        if($this->payment_request->issuer === 'NTSBDEB1'){
+        if($this->payment_request->issuer === 'NTSBDEB1') {
             return false;
         }
         return true;

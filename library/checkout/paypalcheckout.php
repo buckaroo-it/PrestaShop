@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class PayPalCheckout extends Checkout
 {
-
     protected $customVars = array();
 
     final public function setCheckout()
@@ -29,8 +28,7 @@ class PayPalCheckout extends Checkout
         parent::setCheckout();
 
         //Data required for Seller Protection payload
-        if(Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'))
-        {
+        if(Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED')) {
             $this->customVars = [
                 "customer_name" => $this->invoice_address->firstname .' '. $this->invoice_address->lastname,
                 "address" => $this->getAddress(),
@@ -78,7 +76,7 @@ class PayPalCheckout extends Checkout
             "street"  => $address_components['street'],
             "street2" => $address_components['house_number'],
             "zipcode" => $this->invoice_address->postcode,
-            "state"   => $state !== null  ? $state->name : null,
+            "state"   => $state !== null ? $state->name : null,
             "city"    => $this->invoice_address->city,
             "country" => Tools::strtoupper(
                 (new Country($this->invoice_address->id_country))->iso_code

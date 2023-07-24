@@ -21,15 +21,15 @@ require_once dirname(__FILE__) . '/api/config/configcore.php';
 
 class Config extends ConfigCore
 {
-    const NAME        = 'buckaroo3';
-    const PLUGIN_NAME = 'Buckaroo Payments';
-    const VERSION     = '3.4.0';
+    public const NAME        = 'buckaroo3';
+    public const PLUGIN_NAME = 'Buckaroo Payments';
+    public const VERSION     = '3.4.0';
     //ATTENTION: If log is enabled it can be potential vulnerability
-    const LOG = true;
+    public const LOG = true;
 
     public static function get($key)
     {
-        $val = Configuration::get($key);        
+        $val = Configuration::get($key);
 
         if (is_null($val) || $val === false) {
             return parent::get($key);

@@ -36,7 +36,7 @@ class Buckaroo3Admin
             if ($idTab == 0) {
                 $this->module->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1);
             }
-        } else if (Tools::getValue('test_connection')){
+        } elseif (Tools::getValue('test_connection')) {
             $output = null;
 
             if (!empty(Tools::getValue('BUCKAROO_MERCHANT_KEY')) && !empty(Tools::getValue('BUCKAROO_SECRET_KEY'))) {
@@ -77,7 +77,8 @@ class Buckaroo3Admin
         return null;
     }
 
-    private function updatePaymentSettings() {
+    private function updatePaymentSettings()
+    {
         $paymentMethods = [
             'IDIN',
             'PAYPAL',
@@ -155,7 +156,8 @@ class Buckaroo3Admin
         return $value;
     }
 
-    private function updatePositionSettings() {
+    private function updatePositionSettings()
+    {
         $positionMethods = [
             'GLOBAL',
             'IDIN',
@@ -228,10 +230,10 @@ class Buckaroo3Admin
         );
 
         $fields_value['BUCKAROO_TEST']                   = Configuration::get('BUCKAROO_TEST');
-        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ?  
+        $fields_value['BUCKAROO_ORDER_STATE_DEFAULT']    = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') ?
             Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT') : 1;
         $fields_value['BUCKAROO_ORDER_STATE_SUCCESS']    = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
-            Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS'):Configuration::get('PS_OS_PAYMENT');
+            Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
         $fields_value['BUCKAROO_ORDER_STATE_FAILED']    = Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
             Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
         $fields_value['BUCKAROO_MERCHANT_KEY']           = Configuration::get('BUCKAROO_MERCHANT_KEY');
@@ -269,7 +271,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_IDIN_ENABLED']           = Configuration::get('BUCKAROO_IDIN_ENABLED');
         $fields_value['BUCKAROO_IDIN_TEST']              = Configuration::get('BUCKAROO_IDIN_TEST');
         $fields_value['BUCKAROO_IDIN_MODE']              = Configuration::get('BUCKAROO_IDIN_MODE');
-        
+
         $fields_value['BUCKAROO_PAYPAL_ENABLED']         = Configuration::get('BUCKAROO_PAYPAL_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'] = Configuration::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
         $fields_value['BUCKAROO_PAYPAL_TEST']            = Configuration::get('BUCKAROO_PAYPAL_TEST');
@@ -446,7 +448,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_APPLEPAY_FEE']        = Configuration::get('BUCKAROO_APPLEPAY_FEE');
         $fields_value['BUCKAROO_APPLEPAY_MIN_VALUE']  = (float)Configuration::get('BUCKAROO_APPLEPAY_MIN_VALUE');
         $fields_value['BUCKAROO_APPLEPAY_MAX_VALUE']  = (float)Configuration::get('BUCKAROO_APPLEPAY_MAX_VALUE');
-        
+
         $fields_value['BUCKAROO_BILLINK_ENABLED']      = Configuration::get('BUCKAROO_BILLINK_ENABLED');
         $fields_value['BUCKAROO_BILLINK_TEST']         = Configuration::get('BUCKAROO_BILLINK_TEST');
         $fields_value['BUCKAROO_BILLINK_LABEL']        = Configuration::get('BUCKAROO_BILLINK_LABEL');
@@ -499,7 +501,8 @@ class Buckaroo3Admin
         $orderStates = [];
 
         foreach ($orderStatesGet as $o) {
-            $orderStates[] = array("text" => $o["name"], "value" => $o["id_order_state"]);;
+            $orderStates[] = array("text" => $o["name"], "value" => $o["id_order_state"]);
+            ;
         }
 
         $fields_form       = array();
@@ -2622,7 +2625,7 @@ class Buckaroo3Admin
             ),
         );
 
-        usort($fields_form, function($a, $b) {
+        usort($fields_form, function ($a, $b) {
             return $a['position'] - $b['position'];
         });
         $this->module->context->smarty->assign(

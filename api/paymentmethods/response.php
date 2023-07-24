@@ -61,16 +61,15 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct(TransactionResponse $response = null)
     {
-        if ($response)
-        {
+        if ($response) {
             $this->response = $response;
-            
+
         } else {
             $this->isPush   = $this->isPushRequest();
-            $this->received = true;           
+            $this->received = true;
             $this->parsePushRequest();
         }
-        
+
     }
 
     /**
@@ -90,8 +89,7 @@ abstract class Response extends BuckarooAbstract
 
     private function parsePushRequest()
     {
-        if (!$this->isPushRequest())
-        {
+        if (!$this->isPushRequest()) {
             return false;
         }
 
@@ -261,7 +259,7 @@ abstract class Response extends BuckarooAbstract
             } else {
                 $this->validated = (!$this->isValidationFailure());
             }
-            
+
         }
         return $this->validated;
         */
@@ -269,19 +267,19 @@ abstract class Response extends BuckarooAbstract
 
     public function hasSucceeded()
     {
-        if(isset($this->response)){
+        if(isset($this->response)) {
             if ($this->isValid()) {
-                if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess() ) {
+                if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
                     return true;
                 }
             }
-        }else{
+        } else {
             if ($this->status === self::BUCKAROO_PENDING_PAYMENT || $this->status === self::BUCKAROO_SUCCESS) {
                 return true;
             }
         }
 
-        
+
         return false;
     }
 
@@ -303,11 +301,10 @@ abstract class Response extends BuckarooAbstract
 
     //TODO - remove unused code
     public function getData($key = null)
-    {   
+    {
         $data = $this->response->data();
 
-        if(isset($key) && isset($data[$key]))
-        {
+        if(isset($key) && isset($data[$key])) {
             return $data[$key];
         } else {
             return $data;

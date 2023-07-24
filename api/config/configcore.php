@@ -19,8 +19,8 @@
 //TODO - considering to remove this
 abstract class ConfigCore
 {
-    const LOG              = false;
-    const LOG_DIR          = '/log/';
+    public const LOG              = false;
+    public const LOG_DIR          = '/log/';
 
     // @codingStandardsIgnoreStart
     public static function get($key)

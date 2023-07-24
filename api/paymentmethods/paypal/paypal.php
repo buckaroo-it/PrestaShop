@@ -55,8 +55,7 @@ class PayPal extends PaymentMethod
 
     public function pay($customVars = array())
     {
-        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED'))
-        {
+        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED')) {
             //Pay with Seller Protection enabled
             $this->payload = $this->getPayload($customVars);
             return parent::executeCustomPayAction('extraInfo');

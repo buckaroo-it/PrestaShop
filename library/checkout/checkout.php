@@ -23,33 +23,32 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfacto
 
 abstract class Checkout
 {
-
     protected $customVars = array();
-    
-    const CHECKOUT_TYPE_PAYPAL          = 'paypal';
-    const CHECKOUT_TYPE_IDEAL           = 'ideal';
-    const CHECKOUT_TYPE_PAYBYBANK       = 'paybybank';
-    const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
-    const CHECKOUT_TYPE_GIROPAY         = 'giropay';
-    const CHECKOUT_TYPE_KBC             = 'kbc';
-    const CHECKOUT_TYPE_MISTERCASH      = 'bancontactmrcash';
-    const CHECKOUT_TYPE_GIFTCARD        = 'giftcard';
-    const CHECKOUT_TYPE_CREDITCARD      = 'creditcard';
-    const CHECKOUT_TYPE_SOFORTBANKING   = 'sofortueberweisung';
-    const CHECKOUT_TYPE_TRANSFER        = 'transfer';
-    const CHECKOUT_TYPE_AFTERPAY        = 'afterpay';
-    const CHECKOUT_TYPE_KLARNA          = 'klarna';
-    const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
-    const CHECKOUT_TYPE_BELFIUS         = 'belfius';
-    const CHECKOUT_TYPE_IDIN            = 'idin';
-    const CHECKOUT_TYPE_IN3             = 'in3';
-    const CHECKOUT_TYPE_BILLINK         = 'billink';
-    const CHECKOUT_TYPE_EPS             = 'eps';
-    const CHECKOUT_TYPE_PAYCONIQ        = 'payconiq';
-    const CHECKOUT_TYPE_PAYPEREMAIL     = 'payperemail';
-    const CHECKOUT_TYPE_PRZELEWY24      = 'przelewy24';
-    const CHECKOUT_TYPE_TINKA           = 'tinka';
-    const CHECKOUT_TYPE_TRUSTLY         = 'trustly';
+
+    public const CHECKOUT_TYPE_PAYPAL          = 'paypal';
+    public const CHECKOUT_TYPE_IDEAL           = 'ideal';
+    public const CHECKOUT_TYPE_PAYBYBANK       = 'paybybank';
+    public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
+    public const CHECKOUT_TYPE_GIROPAY         = 'giropay';
+    public const CHECKOUT_TYPE_KBC             = 'kbc';
+    public const CHECKOUT_TYPE_MISTERCASH      = 'bancontactmrcash';
+    public const CHECKOUT_TYPE_GIFTCARD        = 'giftcard';
+    public const CHECKOUT_TYPE_CREDITCARD      = 'creditcard';
+    public const CHECKOUT_TYPE_SOFORTBANKING   = 'sofortueberweisung';
+    public const CHECKOUT_TYPE_TRANSFER        = 'transfer';
+    public const CHECKOUT_TYPE_AFTERPAY        = 'afterpay';
+    public const CHECKOUT_TYPE_KLARNA          = 'klarna';
+    public const CHECKOUT_TYPE_APPLEPAY        = 'applepay';
+    public const CHECKOUT_TYPE_BELFIUS         = 'belfius';
+    public const CHECKOUT_TYPE_IDIN            = 'idin';
+    public const CHECKOUT_TYPE_IN3             = 'in3';
+    public const CHECKOUT_TYPE_BILLINK         = 'billink';
+    public const CHECKOUT_TYPE_EPS             = 'eps';
+    public const CHECKOUT_TYPE_PAYCONIQ        = 'payconiq';
+    public const CHECKOUT_TYPE_PAYPEREMAIL     = 'payperemail';
+    public const CHECKOUT_TYPE_PRZELEWY24      = 'przelewy24';
+    public const CHECKOUT_TYPE_TINKA           = 'tinka';
+    public const CHECKOUT_TYPE_TRUSTLY         = 'trustly';
 
     // Request types (Payment Methods).
     public static $payment_method_type = array(
@@ -150,7 +149,8 @@ abstract class Checkout
         $this->payment_request->pushUrl     = $this->pushUrl;
     }
 
-    public function getBuckarooFee(){
+    public function getBuckarooFee()
+    {
         $payment_method = Tools::getValue('method');
         if ($payment_method=='bancontactmrcash') {
             $payment_method='MISTERCASH';
@@ -172,7 +172,8 @@ abstract class Checkout
         }
     }
 
-    public function updateOrderFee($buckarooFee){
+    public function updateOrderFee($buckarooFee)
+    {
         $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
         $currency = new Currency((int) $this->cart->id_currency);
         Db::getInstance()->insert('buckaroo_fee', array(

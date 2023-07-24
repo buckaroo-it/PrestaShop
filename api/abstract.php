@@ -22,14 +22,14 @@ require_once dirname(__FILE__) . '/software.php';
 
 abstract class BuckarooAbstract
 {
-    const BUCKAROO_SUCCESS = 'BUCKAROO_SUCCESS';
-    const BUCKAROO_FAILED = 'BUCKAROO_FAILED';
-    const BUCKAROO_CANCELED = 'BUCKAROO_CANCELED';
-    const BUCKAROO_ERROR = 'BUCKAROO_ERROR';
-    const BUCKAROO_NEUTRAL = 'BUCKAROO_NEUTRAL';
-    const BUCKAROO_PENDING_PAYMENT = 'BUCKAROO_PENDING_PAYMENT';
-    const BUCKAROO_INCORRECT_PAYMENT = 'BUCKAROO_INCORRECT_PAYMENT';
-    const REQUEST_ERROR = 'REQUEST_ERROR';
+    public const BUCKAROO_SUCCESS = 'BUCKAROO_SUCCESS';
+    public const BUCKAROO_FAILED = 'BUCKAROO_FAILED';
+    public const BUCKAROO_CANCELED = 'BUCKAROO_CANCELED';
+    public const BUCKAROO_ERROR = 'BUCKAROO_ERROR';
+    public const BUCKAROO_NEUTRAL = 'BUCKAROO_NEUTRAL';
+    public const BUCKAROO_PENDING_PAYMENT = 'BUCKAROO_PENDING_PAYMENT';
+    public const BUCKAROO_INCORRECT_PAYMENT = 'BUCKAROO_INCORRECT_PAYMENT';
+    public const REQUEST_ERROR = 'REQUEST_ERROR';
 
     /**
      *  List of possible response codes sent by buckaroo.

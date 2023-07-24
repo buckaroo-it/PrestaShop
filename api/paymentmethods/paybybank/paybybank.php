@@ -37,7 +37,7 @@ class PayByBank extends PaymentMethod
     {
         Context::getContext()->cookie->__set(self::CACHE_LAST_ISSUER_LABEL, $this->issuer);
 
-        if($this->issuer === 'INGBNL2A' && Context::getContext()->isMobile()){
+        if($this->issuer === 'INGBNL2A' && Context::getContext()->isMobile()) {
             $this->type = 'ideal'; // send ideal request if issuer is ING and is on mobile
         }
         $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';

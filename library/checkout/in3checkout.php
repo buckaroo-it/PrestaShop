@@ -21,14 +21,13 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class In3Checkout extends Checkout
 {
-
     protected $customVars = array();
     final public function setCheckout()
     {
         parent::setCheckout();
 
         $this->addRequiredDescription();
-        
+
         $this->customVars = [
             'description' => $this->payment_request->invoiceId,
             'customer' => $this->getCustomer(),
@@ -84,7 +83,7 @@ class In3Checkout extends Checkout
                 'Y-m-d',
                 strtotime(
                     Tools::getValue("customerbirthdate_y_billing") . "-" .
-                    Tools::getValue( "customerbirthdate_m_billing") . "-" .
+                    Tools::getValue("customerbirthdate_m_billing") . "-" .
                     Tools::getValue("customerbirthdate_d_billing")
                 )
             )

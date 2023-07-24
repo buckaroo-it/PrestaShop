@@ -71,9 +71,9 @@ class Billink extends PaymentMethod
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = Array())
+    public function pay($customVars = array())
     {
-    // @codingStandardsIgnoreEnd
+        // @codingStandardsIgnoreEnd
         return null;
     }
 
@@ -84,7 +84,7 @@ class Billink extends PaymentMethod
     }
 
     public function getPayload($products)
-    {        
+    {
         $payload = array(
             'vATNumber' => $this->VatNumber,
             'billing'       => [
@@ -95,7 +95,7 @@ class Billink extends PaymentMethod
                     'lastName'              => $this->BillingLastName,
                     'birthDate'             => ($this->BillingBirthDate) ? $this->BillingBirthDate : null,
                     'title'                 => $this->BillingGender,
-                    'initials'              => $this->BillingInitials,                    
+                    'initials'              => $this->BillingInitials,
                 ],
                 'address'       => [
                     'street'                => $this->BillingStreet,
@@ -110,7 +110,7 @@ class Billink extends PaymentMethod
                 ],
                 'email'         => $this->BillingEmail,
             ],
-            
+
             'articles'          => $this->getArticles($products)
         );
 
@@ -121,17 +121,17 @@ class Billink extends PaymentMethod
 
         //Add company name if b2b enabled
         if (self::CUSTOMER_TYPE_B2C != $this->CustomerType) {
-            if($this->BillingCompanyName){
+            if($this->BillingCompanyName) {
                 $payload['billing']['recipient']['careOf'] = $this->BillingCompanyName;
                 $payload['billing']['recipient']['chamberOfCommerce'] = $this->CompanyCOCRegistration;
 
-                if (isset($payload['shipping'])){
+                if (isset($payload['shipping'])) {
                     $payload['shipping']['recipient']['careOf'] = $this->ShippingCompanyName;
                     $payload['shipping']['recipient']['category'] = 'B2B';
                 }
             }
         }
-        return $payload;        
+        return $payload;
     }
 
     private function getArticles($products)
@@ -148,8 +148,7 @@ class Billink extends PaymentMethod
 
         $products = $mergedProducts;
 
-        foreach($products as $item)
-        {
+        foreach($products as $item) {
             $productsArr[] = [
                 'identifier'    => $item['ArticleId'],
                 'description'   => $item['ArticleDescription'],
@@ -163,7 +162,7 @@ class Billink extends PaymentMethod
 
         //Add shipping costs
         if ($this->ShippingCosts > 0) {
-            $productsArr[] = [                
+            $productsArr[] = [
                 'identifier'    => 'shipping',
                 'description'   => 'Shipping Costs',
                 'vatPercentage' => $this->ShippingCostsTax,
@@ -173,13 +172,12 @@ class Billink extends PaymentMethod
             ];
         }
 
-        return $productsArr;        
+        return $productsArr;
     }
 
     private function addShippingIfDifferent()
     {
-        if($this->AddressesDiffer == 'TRUE')
-        {
+        if($this->AddressesDiffer == 'TRUE') {
             return [
                 'recipient' => [
                     'category'              => RecipientCategory::PERSON,

@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
 class Buckaroo3ErrorModuleFrontController extends BuckarooCommonController
 {
-
     public $ssl = true;
 
     /**

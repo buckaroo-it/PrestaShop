@@ -21,7 +21,6 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class TinkaCheckout extends Checkout
 {
-
     protected $customVars = array();
 
     final public function setCheckout()
@@ -71,7 +70,7 @@ class TinkaCheckout extends Checkout
                 'Y-m-d',
                 strtotime(
                     Tools::getValue("customerbirthdate_y_billing") . "-" .
-                    Tools::getValue( "customerbirthdate_m_billing") . "-" .
+                    Tools::getValue("customerbirthdate_m_billing") . "-" .
                     Tools::getValue("customerbirthdate_d_billing")
                 )
             )

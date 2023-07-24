@@ -24,37 +24,29 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
-
 class ResponseFactory
 {
     final public static function getResponse($transactionResponse = null)
     {
+        $paymentmethod = null;
 
         if($transactionResponse != null) {
-            //print_r($transactionResponse);
-            //exit;
             $data = $transactionResponse->data();
 
-            if(isset($data['Services'][0]['Name']))
-            {
+            if(isset($data['Services'][0]['Name'])) {
                 $paymentmethod = $data['Services'][0]['Name'];
-            }elseif(!empty($data['ServiceCode'])) {
+            } elseif(!empty($data['ServiceCode'])) {
                 $paymentmethod = $data['ServiceCode'];
-            }else{
-                $paymentmethod = null;
             }
-        } elseif(isset($_POST['brq_payment_method'])) {
-            $paymentmethod = $_POST['brq_payment_method'];
-        } else {
-            $paymentmethod = null;
+        } elseif(Tools::isSubmit('brq_payment_method')) {
+            $paymentmethod = Tools::getValue('brq_payment_method');
         }
-        
+
         switch ($paymentmethod) {
             case 'IDIN':
                 return new IdinResponse($transactionResponse);
             default:
                 return new ResponseDefault($transactionResponse);
-                break;
         }
     }
 }
