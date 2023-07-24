@@ -29,7 +29,7 @@ class IssuersCreditCard
             ),
             'mastercard' => array(
                 'name' => 'Mastercard',
-                'logo' => 'Mastercard.svg',
+                'logo' => 'MasterCard.svg',
             ),
             'nexi' => array(
                 'name' => 'Nexi',
@@ -37,19 +37,19 @@ class IssuersCreditCard
             ),
             'postepay' => array(
                 'name' => 'PostePay',
-                'logo' => 'PostePay.svg',
+                'logo' => 'Postepay.svg',
             ),
             'visa' => array(
                 'name' => 'VISA',
-                'logo' => 'VISA.svg',
+                'logo' => 'Visa.svg',
             ),
             'visaelectron' => array(
                 'name' => 'VISA Electron',
-                'logo' => 'VISAelectron.svg',
+                'logo' => 'VisaElectron.svg',
             ),
             'vpay' => array(
                 'name' => 'VPAY',
-                'logo' => 'VPAY.svg',
+                'logo' => 'VPay.svg',
             ),
         );
 

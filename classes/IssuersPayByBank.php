@@ -14,31 +14,31 @@ class IssuersPayByBank
         $issuerArray =  array(
             'ABNANL2A' => array(
                 'name' => 'ABN AMRO',
-                'logo' => 'abnamro.svg',
+                'logo' => 'ABNAMRO.svg',
             ),
             'ASNBNL21' => array(
                 'name' => 'ASN Bank',
-                'logo' => 'asnbank.svg',
+                'logo' => 'ASNBank.svg',
             ),
             'INGBNL2A' => array(
                 'name' => 'ING',
-                'logo' => 'ing.svg',
+                'logo' => 'ING.svg',
             ),
             'RABONL2U' => array(
                 'name' => 'Rabobank',
-                'logo' => 'rabobank.svg',
+                'logo' => 'Rabobank.svg',
             ),
             'SNSBNL2A' => array(
                 'name' => 'SNS Bank',
-                'logo' => 'sns.svg',
+                'logo' => 'SNS.svg',
             ),
             'RBRBNL21' => array(
                 'name' => 'RegioBank',
-                'logo' => 'regiobank.svg',
+                'logo' => 'RegioBank.svg',
             ),
             'KNABNL2H' => array(
                 'name' => 'Knab',
-                'logo' => 'knab.svg',
+                'logo' => 'KNAB.svg',
             ),
             'NTSBDEB1' => array(
                 'name' => 'N26',
