@@ -9,7 +9,7 @@ class IssuersPayByBank
 
     public function getIssuerList()
     {
-        $savedBankIssuer = Configuration::get(self::CACHE_LAST_ISSUER_LABEL);
+        $savedBankIssuer = Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
 
         $issuerArray =  array(
             'ABNANL2A' => array(
