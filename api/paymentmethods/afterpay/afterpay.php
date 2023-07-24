@@ -103,14 +103,17 @@ class AfterPay extends PaymentMethod
                     'city'                  => $this->BillingCity,
                     'country'               => $this->BillingCountry,
                 ],
-                'phone'         => [
-                    'mobile'        => ($this->BillingPhoneNumber) ? $this->BillingPhoneNumber : $this->ShippingPhoneNumber,
-                ],
                 'email'         => $this->BillingEmail,
             ],
             
             'articles'          => $this->getArticles($products)
         );
+
+        if ($this->BillingPhoneNumber != '' || $this->ShippingPhoneNumber != '') {
+            $payload['billing']['phone'] = [
+                'mobile' => $this->BillingPhoneNumber ? $this->BillingPhoneNumber : $this->ShippingPhoneNumber,
+            ];
+        }
 
         //Add shipping address if is different
         if ($this->addShippingIfDifferent()) {

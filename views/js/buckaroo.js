@@ -73,8 +73,24 @@ paymentMethodValidation={
 
             if(dateInvalid === true) {
                 this.valid = false;
+            } else {
+                let day = $("#customerbirthdate_d_billing_digi").val();
+                let month = $("#customerbirthdate_m_billing_digi").val() - 1; // months are 0-based in JavaScript
+                let year = $("#customerbirthdate_y_billing_digi").val();
+
+                let inputDate = new Date(year, month, day); // create a date object from input
+                let now = new Date();
+                let eighteenYearsAgo = new Date(now.getFullYear() - 18, now.getMonth(), now.getDate());
+
+                let ageInvalid = inputDate > eighteenYearsAgo;
+                this.displayMessage($("#customerbirthdate_y_billing_digi"), buckarooMessages.validation.age, !ageInvalid);
+
+                if(ageInvalid === true) {
+                    this.valid = false;
+                }
             }
         }
+
         if ($("#customerbirthdate_d_shipping_digi").val()) {
             let dateInvalidShipping = !isValidDate($("#customerbirthdate_d_shipping_digi").val() + $("#customerbirthdate_m_shipping_digi").val() + $("#customerbirthdate_y_shipping_digi").val());
             this.displayMessage($("#customerbirthdate_d_shipping_digi"), buckarooMessages.validation.date, !dateInvalidShipping);

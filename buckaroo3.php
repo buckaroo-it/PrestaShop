@@ -1226,10 +1226,11 @@ class Buckaroo3 extends PaymentModule
             'buckarooFees'    => $this->getBuckarooFees(),
             'buckarooMessages'=> [
                 "validation" => [
-                    "date"=>$this->l('Please enter correct birthdate date'),
-                    "required"=>$this->l('Field is required'),
+                    "date"      => $this->l('Please enter correct birthdate date'),
+                    "required"  => $this->l('Field is required'),
                     "agreement" => $this->l('Please accept licence agreements'),
-                    "iban" => $this->l('A valid IBAN is required'),
+                    "iban"      => $this->l('A valid IBAN is required'),
+                    "age"       => $this->l('You must be at least 18 years old'),
                 ]
             ]
         ]);
