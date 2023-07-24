@@ -28,6 +28,9 @@ use Buckaroo\Transaction\Request\TransactionRequest;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Psr\Log\LoggerInterface;
 
+/**
+ *
+ */
 abstract class PaymentMethod implements PaymentInterface
 {
     /**
@@ -73,6 +76,11 @@ abstract class PaymentMethod implements PaymentInterface
      * @var bool
      */
     protected bool $isManually = false;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $serviceCode;
 
     /**
      * @param Client $client
@@ -138,7 +146,7 @@ abstract class PaymentMethod implements PaymentInterface
      * @param Model|null $model
      * @return $this
      */
-    protected function setServiceList(string $action, ?Model $model = null)
+    protected function setServiceList(?string $action, ?Model $model = null): PaymentMethod
     {
         $serviceList = new ServiceList($this->paymentName(), $this->serviceVersion(), $action, $model);
 
@@ -185,8 +193,7 @@ abstract class PaymentMethod implements PaymentInterface
     {
         $this->combinablePayment = $combinablePayment;
 
-        $payload_data = array_filter($combinablePayment->request->data(), function ($key)
-        {
+        $payload_data = array_filter($combinablePayment->request->data(), function ($key) {
             return ! in_array($key, ['Services']);
         }, ARRAY_FILTER_USE_KEY);
 
@@ -201,5 +208,10 @@ abstract class PaymentMethod implements PaymentInterface
         }
 
         return $this;
+    }
+
+    public function request(): TransactionRequest
+    {
+        return $this->request;
     }
 }

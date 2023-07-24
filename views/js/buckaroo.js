@@ -246,4 +246,60 @@ $(document).ready(function () {
                 }
             })
     })
+
+    new BuckarooCheckout().listen();
 });
+class BuckarooCheckout {
+    static MOBILE_WIDTH = 768;
+    static SHOW_MORE_BANKS = 5;
+    listen() {
+        this.toogleMethods();
+
+        jQuery("body").on("updated_checkout", function () {
+            self.initMethod()
+        });
+    }
+
+    /**
+     *  toggle payByBank, ideal, creditcards list
+     */
+    toogleMethods() {
+        this.initMethod();
+        jQuery('body').on('click', '.bk-toggle-wrap', this.handleToggle.bind(this));
+        jQuery(window).on('resize', this.showAllIssuers.bind(this));
+    }
+
+    handleToggle() {
+        const toggle = jQuery('.bk-toggle');
+        const textElement = jQuery('.bk-toggle-text');
+        const isDown = toggle.is('.bk-toggle-down');
+        toggle.toggleClass('bk-toggle-down bk-toggle-up');
+
+        if (isDown) {
+            textElement.text(textElement.attr('text-less'));
+        } else {
+            textElement.text(textElement.attr('text-more'));
+        }
+
+        jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).toggle(isDown);
+    }
+
+    initMethod() {
+        jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+        this.showAllIssuers();
+    }
+
+    showAllIssuers() {
+        if (jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH) {
+            jQuery('.bk-toggle-wrap').hide();
+            if (jQuery('.bk-toggle-down').length) {
+                jQuery('.bk-toggle-down').addClass('bk-toggle-up').removeClass('bk-toggle-down');
+                jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).show();
+                jQuery('.bk-toggle-text').text(jQuery('.bk-toggle-text').attr('text-less'));
+            } else {
+                jQuery('.bk-toggle-wrap').show();
+            }
+        }
+    }
+}
+
