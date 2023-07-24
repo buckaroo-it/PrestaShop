@@ -4,16 +4,21 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9
+class ComposerStaticInit0db4ef53b3f4cc6e00b3e267980299ac
 {
     public static $files = array (
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
+        'e39a8b23c42d4e1452234d762b03835a' => __DIR__ . '/..' . '/ramsey/uuid/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'R' => 
+        array (
+            'Ramsey\\Uuid\\' => 12,
+            'Ramsey\\Collection\\' => 18,
+        ),
         'P' => 
         array (
             'Psr\\Log\\' => 8,
@@ -38,18 +43,27 @@ class ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9
         array (
             'Buckaroo\\' => 9,
             'Buckaroo3\\Controller\\' => 21,
+            'Brick\\Math\\' => 11,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Ramsey\\Uuid\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ramsey/uuid/src',
+        ),
+        'Ramsey\\Collection\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/ramsey/collection/src',
+        ),
         'Psr\\Log\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/log/src',
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-factory/src',
-            1 => __DIR__ . '/..' . '/psr/http-message/src',
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -83,6 +97,10 @@ class ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9
         array (
             0 => __DIR__ . '/../..' . '/controllers/admin',
         ),
+        'Brick\\Math\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/brick/math/src',
+        ),
     );
 
     public static $classMap = array (
@@ -92,9 +110,9 @@ class ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitcfd09941f09c7ff8bdaae927b86c59a9::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit0db4ef53b3f4cc6e00b3e267980299ac::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit0db4ef53b3f4cc6e00b3e267980299ac::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit0db4ef53b3f4cc6e00b3e267980299ac::$classMap;
 
         }, null, ClassLoader::class);
     }

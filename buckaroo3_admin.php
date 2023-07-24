@@ -83,6 +83,7 @@ class Buckaroo3Admin
             'PAYPAL',
             'SDD',
             'IDEAL',
+            'PAYBYBANK',
             'GIROPAY',
             'KBC',
             'EPS',
@@ -126,7 +127,8 @@ class Buckaroo3Admin
             'CUSTOMER_TYPE',
             'PAYMENT',
             'CATEGORY',
-            'BUSINESS'
+            'BUSINESS',
+            'DISPLAY_TYPE',
         ];
 
         foreach ($paymentMethods as $method) {
@@ -160,6 +162,7 @@ class Buckaroo3Admin
             'PAYPAL',
             'SDD',
             'IDEAL',
+            'PAYBYBANK',
             'GIROPAY',
             'KBC',
             'EPS',
@@ -288,6 +291,14 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_IDEAL_FEE']              = Configuration::get('BUCKAROO_IDEAL_FEE');
         $fields_value['BUCKAROO_IDEAL_MIN_VALUE']        = (float)Configuration::get('BUCKAROO_IDEAL_MIN_VALUE');
         $fields_value['BUCKAROO_IDEAL_MAX_VALUE']        = (float)Configuration::get('BUCKAROO_IDEAL_MAX_VALUE');
+        $fields_value['BUCKAROO_IDEAL_DISPLAY_TYPE']     = Configuration::get('BUCKAROO_IDEAL_DISPLAY_TYPE');
+
+        $fields_value['BUCKAROO_PAYBYBANK_ENABLED']      = Configuration::get('BUCKAROO_PAYBYBANK_ENABLED');
+        $fields_value['BUCKAROO_PAYBYBANK_TEST']         = Configuration::get('BUCKAROO_PAYBYBANK_TEST');
+        $fields_value['BUCKAROO_PAYBYBANK_LABEL']        = Configuration::get('BUCKAROO_PAYBYBANK_LABEL');
+        $fields_value['BUCKAROO_PAYBYBANK_MIN_VALUE']    = (float)Configuration::get('BUCKAROO_PAYBYBANK_MIN_VALUE');
+        $fields_value['BUCKAROO_PAYBYBANK_MAX_VALUE']    = (float)Configuration::get('BUCKAROO_PAYBYBANK_MAX_VALUE');
+        $fields_value['BUCKAROO_PAYBYBANK_DISPLAY_TYPE'] = Configuration::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE');
 
         $fields_value['BUCKAROO_GIROPAY_ENABLED']        = Configuration::get('BUCKAROO_GIROPAY_ENABLED');
         $fields_value['BUCKAROO_GIROPAY_TEST']           = Configuration::get('BUCKAROO_GIROPAY_TEST');
@@ -370,6 +381,8 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_CREDITCARD_FEE']           = Configuration::get('BUCKAROO_CREDITCARD_FEE');
         $fields_value['BUCKAROO_CREDITCARD_MIN_VALUE']     = (float)Configuration::get('BUCKAROO_CREDITCARD_MIN_VALUE');
         $fields_value['BUCKAROO_CREDITCARD_MAX_VALUE']     = (float)Configuration::get('BUCKAROO_CREDITCARD_MAX_VALUE');
+        $fields_value['BUCKAROO_CREDITCARD_DISPLAY_TYPE']  = Configuration::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE');
+
 
         $fields_value['BUCKAROO_SOFORTBANKING_ENABLED']    = Configuration::get('BUCKAROO_SOFORTBANKING_ENABLED');
         $fields_value['BUCKAROO_SOFORTBANKING_TEST']       = Configuration::get('BUCKAROO_SOFORTBANKING_TEST');
@@ -456,6 +469,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_PAYPAL_POSITION'] = Configuration::get('BUCKAROO_PAYPAL_POSITION');
         $fields_value['BUCKAROO_SDD_POSITION'] = Configuration::get('BUCKAROO_SDD_POSITION');
         $fields_value['BUCKAROO_IDEAL_POSITION'] = Configuration::get('BUCKAROO_IDEAL_POSITION');
+        $fields_value['BUCKAROO_PAYBYBANK_POSITION'] = Configuration::get('BUCKAROO_PAYBYBANK_POSITION');
         $fields_value['BUCKAROO_GIROPAY_POSITION'] = Configuration::get('BUCKAROO_GIROPAY_POSITION');
         $fields_value['BUCKAROO_KBC_POSITION'] = Configuration::get('BUCKAROO_KBC_POSITION');
         $fields_value['BUCKAROO_EPS_POSITION'] = Configuration::get('BUCKAROO_EPS_POSITION');
@@ -840,6 +854,93 @@ class Buckaroo3Admin
                     'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
                     'step'     => 0.01,
                     'min'      => 0
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_IDEAL_DISPLAY_TYPE',
+                    'label'     => $this->module->l('Bank selection display'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Radio buttons'),
+                            'value' => 'radio',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Dropdown'),
+                            'value' => 'dropdown',
+                        ),
+                    )
+                ),
+                array(
+                    'type' => 'hidearea_end',
+                ),
+                array(
+                    'type'     => 'submit',
+                    'name'     => 'save_data',
+                    'label'    => $this->module->l('Save configuration'),
+                    'required' => true,
+                ),
+            )
+        );
+
+        $fields_form[$i++] = array(
+            'legend'  => $this->module->l('PayByBank settings'),
+            'name'    => 'PAYBYBANK',
+            'image'   => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_paybybank.gif',
+            'test'    => Configuration::get('BUCKAROO_PAYBYBANK_TEST'),
+            'enabled' => Configuration::get('BUCKAROO_PAYBYBANK_ENABLED'),
+            'position'=> Configuration::get('BUCKAROO_PAYBYBANK_POSITION'),
+            'input'   => array(
+                array(
+                    'type' => 'enabled',
+                    'name' => 'BUCKAROO_PAYBYBANK_ENABLED',
+                ),
+                array(
+                    'type' => 'hidearea_start',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'BUCKAROO_PAYBYBANK_POSITION',
+                ),
+                array(
+                    'type' => 'mode',
+                    'name' => 'BUCKAROO_PAYBYBANK_TEST',
+                ),
+                array(
+                    'type'     => 'text',
+                    'label'    => $this->module->l('Frontend label'),
+                    'name'     => 'BUCKAROO_PAYBYBANK_LABEL',
+                    'size'     => 80,
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Min order amount'),
+                    'name'     => 'BUCKAROO_PAYBYBANK_MIN_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount greater than the minimum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'     => 'number',
+                    'label'    => $this->module->l('Max order amount'),
+                    'name'     => 'BUCKAROO_PAYBYBANK_MAX_VALUE',
+                    'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
+                    'step'     => 0.01,
+                    'min'      => 0
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_PAYBYBANK_DISPLAY_TYPE',
+                    'label'     => $this->module->l('Bank selection display'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Radio buttons'),
+                            'value' => 'radio',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Dropdown'),
+                            'value' => 'dropdown',
+                        ),
+                    )
                 ),
                 array(
                     'type' => 'hidearea_end',
@@ -1562,6 +1663,21 @@ class Buckaroo3Admin
                     'description' => $this->module->l('The payment method shows only for orders with an order amount smaller than the maximum amount.'),
                     'step'     => 0.01,
                     'min'      => 0
+                ),
+                array(
+                    'type'      => 'select',
+                    'name'      => 'BUCKAROO_CREDITCARD_DISPLAY_TYPE',
+                    'label'     => $this->module->l('Bank selection display'),
+                    'options'   => array(
+                        array(
+                            'text'  => $this->module->l('Radio buttons'),
+                            'value' => 'radio',
+                        ),
+                        array(
+                            'text'  => $this->module->l('Dropdown'),
+                            'value' => 'dropdown',
+                        ),
+                    )
                 ),
                 array(
                     'type' => 'hidearea_end',
