@@ -21,7 +21,7 @@
         <fieldset>
             {if $payByBankDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
+                    <select name="BPE_Issuer" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
