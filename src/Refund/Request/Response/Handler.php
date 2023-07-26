@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,18 +18,15 @@
 
 namespace Buckaroo\Prestashop\Refund\Request\Response;
 
-use Order;
-use Configuration;
-use Doctrine\ORM\EntityManager;
-use Buckaroo\Prestashop\Refund\Settings;
-use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
 use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
+use Buckaroo\Prestashop\Refund\Settings;
 use Buckaroo\Transaction\Response\TransactionResponse;
+use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
 class Handler
 {
-
     /**
      * @var EntityManager
      */
@@ -60,13 +55,12 @@ class Handler
                 $message = $response->getSomeError();
             }
             if (strlen($message) == 0) {
-                $message = "Cannot create refund, check Buckaroo plaza for details https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=" . $response->getTransactionKey(); //phpcs: ignore Generic.Files.LineLength.TooLong
+                $message = 'Cannot create refund, check Buckaroo plaza for details https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey=' . $response->getTransactionKey(); // phpcs: ignore Generic.Files.LineLength.TooLong
             }
             throw new OrderException($message);
         }
-        $this->createNegativePayment(new Order($orderId), $response);
+        $this->createNegativePayment(new \Order($orderId), $response);
     }
-
 
     private function createRefundRequest(TransactionResponse $response, array $body, int $orderId)
     {
@@ -81,11 +75,12 @@ class Handler
         $refundRequest->setKey($response->getTransactionKey());
         $refundRequest->setPaymentKey($this->getPaymentKey($response));
         $refundRequest->setPayload($body);
-        $refundRequest->setData(["response" => $response->toArray()]);
+        $refundRequest->setData(['response' => $response->toArray()]);
         $refundRequest->setCreatedAt(new \DateTime());
 
         $this->entityManager->persist($refundRequest);
         $this->entityManager->flush();
+
         return $refundRequest;
     }
 
@@ -104,24 +99,24 @@ class Handler
             $amountRefunded = 0;
         }
 
-        return floatval($amountRefunded);
+        return (float) $amountRefunded;
     }
 
     protected function getPaymentKey(TransactionResponse $response): string
     {
         $related = $response->get('RelatedTransactions');
         if (
-            !is_array($related) ||
-            !isset($related['RelationType']) ||
-            !isset($related['RelatedTransactionKey'])
+            !is_array($related)
+            || !isset($related['RelationType'])
+            || !isset($related['RelatedTransactionKey'])
         ) {
-
             if (
-                !isset($related[0]['RelationType']) ||
-                !isset($related[0]['RelatedTransactionKey'])
+                !isset($related[0]['RelationType'])
+                || !isset($related[0]['RelatedTransactionKey'])
             ) {
                 return $related[0]['RelatedTransactionKey'];
             }
+
             return '';
         }
 
@@ -135,14 +130,14 @@ class Handler
     /**
      * Create negative payment if enabled and the push is successful
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return void
      */
-    private function createNegativePayment(Order $order, TransactionResponse $response)
+    private function createNegativePayment(\Order $order, TransactionResponse $response)
     {
         if (
-            Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT) == true
+            \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT) == true
         ) {
             $this->paymentService->create(
                 $order,

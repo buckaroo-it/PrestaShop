@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,11 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-
 
 /**
  * @return mixed
@@ -28,7 +24,7 @@ if (!defined('_PS_VERSION_')) {
 function upgrade_module_3_3_11($object)
 {
     Db::getInstance()->execute(
-        "update " . _DB_PREFIX_ . "configuration set value='None' where name='PS_COOKIE_SAMESITE';"
+        'update ' . _DB_PREFIX_ . "configuration set value='None' where name='PS_COOKIE_SAMESITE';"
     );
 
     return true;

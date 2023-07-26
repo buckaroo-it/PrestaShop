@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
@@ -30,42 +27,39 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
      */
     public function initContent()
     {
-        $cookie   = new Cookie('ps');
-        $logger   = new Logger(Logger::INFO, 'return');
-        //print_r($_POST);
-        //print_r($_GET);
-        //exit;
+        $cookie = new Cookie('ps');
+        $logger = new Logger(Logger::INFO, 'return');
+        // print_r($_POST);
+        // print_r($_GET);
+        // exit;
         $response = ResponseFactory::getResponse();
         $logger->logDebug('Checkout response', $response);
         if ($response->isValid()) {
             $logger->logInfo('Payment request succeeded');
 
             if (!empty($response->payment_method)
-                &&
-                ($response->payment_method == 'paypal')
-                &&
-                !empty($response->statuscode)
-                &&
-                ($response->statuscode == 791)
+                && ($response->payment_method == 'paypal')
+                && !empty($response->statuscode)
+                && ($response->statuscode == 791)
             ) {
                 $response->statuscode == 890;
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
             $id_order = Order::getOrderByCartId($response->getCartId());
-            $logger->logInfo('Update the order', "Order ID: " . $id_order);
+            $logger->logInfo('Update the order', 'Order ID: ' . $id_order);
             if ($response->hasSucceeded()) {
-                $cart     = new Cart($response->getCartId());
+                $cart = new Cart($response->getCartId());
                 $customer = new Customer($cart->id_customer);
                 if (!Validate::isLoadedObject($customer)) {
-                    $logger->logError("Load a customer", 'Failed to load the customer with ID: ' . $cart->id_customer);
+                    $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
                     Tools::redirect('index.php?controller=order&step=1');
-                    exit();
+                    exit;
                 }
 
                 $payment_method = $response->payment_method;
-                if ($payment_method=='bancontactmrcash') {
-                    $payment_method='MISTERCASH';
+                if ($payment_method == 'bancontactmrcash') {
+                    $payment_method = 'MISTERCASH';
                 }
 
                 $this->context->cart->delete();
@@ -74,7 +68,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     'id_module' => $this->module->id,
                     'id_order' => $id_order,
                     'key' => $customer->secure_key,
-                    'success' => 'true'
+                    'success' => 'true',
                 ]);
                 Tools::redirect($redirectUrl);
             } else {
@@ -85,12 +79,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     $cookie->statusMessage = $response->statusmessage;
                 }
                 Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
-                exit();
+                exit;
             }
         } else {
             $cookie->statusMessage = 'Not valid response';
             Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
         }
-        exit();
+        exit;
     }
 }

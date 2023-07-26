@@ -1,22 +1,19 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
-
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 class BuckarooCommonController extends ModuleFrontController
 {
     private $id_order;
@@ -33,11 +30,11 @@ class BuckarooCommonController extends ModuleFrontController
         }
 
         $this->context->smarty->assign(
-            array(
-                'is_guest' => (($this->context->customer->is_guest) || $this->context->customer->id == false),
+            [
+                'is_guest' => ($this->context->customer->is_guest || $this->context->customer->id == false),
                 'order' => $order,
                 'message' => $message,
-            )
+            ]
         );
         $this->setTemplate('order-confirmation-transfer.tpl');
     }
@@ -52,28 +49,27 @@ class BuckarooCommonController extends ModuleFrontController
         $price = $order->getOrdersTotalPaid();
 
         $this->context->smarty->assign(
-            array(
-                'is_guest' => (($this->context->customer->is_guest) || $this->context->customer->id == false),
+            [
+                'is_guest' => ($this->context->customer->is_guest || $this->context->customer->id == false),
                 'order' => $order,
                 'price' => Tools::displayPrice($price, $this->context->currency->id),
-            )
+            ]
         );
         $this->setTemplate('order-confirmation.tpl');
     }
 
     protected function displayError($invoicenumber = null, $error_message = null)
     {
-
         if (is_null($error_message)) {
             $error_message = $this->module->l(
                 'Your payment was unsuccessful. Please try again or choose another payment method.'
             );
         }
         $this->context->smarty->assign(
-            array(
+            [
                 'order_id' => $invoicenumber,
                 'error_message' => $error_message,
-            )
+            ]
         );
 
         $this->setTemplate('module:buckaroo3/views/templates/front/error.tpl');

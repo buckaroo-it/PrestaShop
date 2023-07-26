@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,11 +17,10 @@
 
 namespace Buckaroo\Prestashop\Refund\Decorators;
 
-use Buckaroo\Prestashop\Refund\Handler;
 use Buckaroo\Prestashop\Refund\Commands\IssuePartialRefund;
+use Buckaroo\Prestashop\Refund\Handler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssuePartialRefundHandlerInterface;
-
 
 class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
 {
@@ -51,7 +47,7 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
      */
     public function handle(IssuePartialRefundCommand $command): void
     {
-        if(!$command instanceof IssuePartialRefund) {
+        if (!$command instanceof IssuePartialRefund) {
             $this->refundHandler->execute($command);
         }
         $this->handler->handle($command);

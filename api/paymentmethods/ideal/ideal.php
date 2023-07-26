@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,9 +14,8 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../paymentmethod.php';
-//TODO Refactor this
+// TODO Refactor this
 class IDeal extends PaymentMethod
 {
     public $issuer;
@@ -27,15 +24,16 @@ class IDeal extends PaymentMethod
 
     public function __construct()
     {
-        $this->type    = "ideal";
+        $this->type = 'ideal';
         $this->version = 2;
-        $this->mode    = Config::getMode($this->type);
+        $this->mode = Config::getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
+
         return parent::pay();
     }
 

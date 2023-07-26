@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,14 +18,11 @@
 
 namespace Buckaroo\Prestashop\Refund\Request;
 
-use Tools;
-use Configuration;
 use Buckaroo\BuckarooClient;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 class Handler
 {
-
     /**
      * Execute refund request
      *
@@ -39,6 +34,7 @@ class Handler
     public function refund(array $body, string $method): TransactionResponse
     {
         $buckaroo = $this->getClient($method);
+
         return $buckaroo->method($method)->refund($body);
     }
 
@@ -52,8 +48,8 @@ class Handler
     private function getClient(string $method): BuckarooClient
     {
         return new BuckarooClient(
-            Configuration::get('BUCKAROO_MERCHANT_KEY'),
-            Configuration::get('BUCKAROO_SECRET_KEY'),
+            \Configuration::get('BUCKAROO_MERCHANT_KEY'),
+            \Configuration::get('BUCKAROO_SECRET_KEY'),
             $this->getMode($method)
         );
     }
@@ -67,13 +63,14 @@ class Handler
      */
     private function getMode(string $method): string
     {
-        $key = Tools::strtoupper($method);
+        $key = \Tools::strtoupper($method);
         if (
-            Configuration::get('BUCKAROO_TEST') == '0' &&
-            Configuration::get('BUCKAROO_' . $key . '_TEST') == '0'
+            \Configuration::get('BUCKAROO_TEST') == '0'
+            && \Configuration::get('BUCKAROO_' . $key . '_TEST') == '0'
         ) {
             return 'live';
         }
+
         return 'test';
     }
 }

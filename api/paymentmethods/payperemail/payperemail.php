@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,24 +14,21 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../paymentmethod.php';
-
-use Buckaroo\Resources\Constants\Gender;
 
 class PayPerEmail extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type    = "payperemail";
+        $this->type = 'payperemail';
         $this->version = '1';
-        $this->mode    = Config::getMode($this->type);
+        $this->mode = Config::getMode($this->type);
     }
 
-
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         $this->payload = $this->getPayload($customVars);
+
         return parent::executeCustomPayAction('paymentInvitation');
     }
 
@@ -47,10 +42,11 @@ class PayPerEmail extends PaymentMethod
             ],
             'email' => $data['email'],
             'merchantSendsEmail' => Config::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'),
-            'expirationDate' => date('Y-m-d', strtotime('+'. (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') .'day')),
-            'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'),//'ideal,mastercard,paypal',
-            'attachment' => ''
+            'expirationDate' => date('Y-m-d', strtotime('+' . (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') . 'day')),
+            'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'), // 'ideal,mastercard,paypal',
+            'attachment' => '',
         ];
+
         return $payload;
     }
 }

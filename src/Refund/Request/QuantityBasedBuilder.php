@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,13 +17,9 @@
 
 namespace Buckaroo\Prestashop\Refund\Request;
 
-use Order;
-use OrderPayment;
-use Buckaroo\Prestashop\Refund\Request\AbstractBuilder;
-
 class QuantityBasedBuilder extends AbstractBuilder
 {
-    public function create(Order $order, OrderPayment $payment, float $amount)
+    public function create(\Order $order, \OrderPayment $payment, float $amount)
     {
         return array_merge(
             $this->buildCommon($order, $payment, $this->round($amount)),
@@ -38,13 +31,13 @@ class QuantityBasedBuilder extends AbstractBuilder
     private function buildArticles(float $amount)
     {
         return [
-            "articles" => [[
-                'identifier'        => 'amount_refund',
-                'description'       => 'Refund amount of ' . $amount,
-                'quantity'          => 1,
-                'price'             => $amount,
-                'vatPercentage'     => 0,
-            ]]
+            'articles' => [[
+                'identifier' => 'amount_refund',
+                'description' => 'Refund amount of ' . $amount,
+                'quantity' => 1,
+                'price' => $amount,
+                'vatPercentage' => 0,
+            ]],
         ];
     }
 }

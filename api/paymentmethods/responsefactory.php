@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,13 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/idin/idinresponse.php';
 require_once dirname(__FILE__) . '/responsedefault.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
-use Buckaroo\BuckarooClient;
-use Buckaroo\Handlers\Reply\ReplyHandler;
-use Buckaroo\Transaction\Response\TransactionResponse;
 
 class ResponseFactory
 {
@@ -30,15 +24,15 @@ class ResponseFactory
     {
         $paymentmethod = null;
 
-        if($transactionResponse != null) {
+        if ($transactionResponse != null) {
             $data = $transactionResponse->data();
 
-            if(isset($data['Services'][0]['Name'])) {
+            if (isset($data['Services'][0]['Name'])) {
                 $paymentmethod = $data['Services'][0]['Name'];
-            } elseif(!empty($data['ServiceCode'])) {
+            } elseif (!empty($data['ServiceCode'])) {
                 $paymentmethod = $data['ServiceCode'];
             }
-        } elseif(Tools::isSubmit('brq_payment_method')) {
+        } elseif (Tools::isSubmit('brq_payment_method')) {
             $paymentmethod = Tools::getValue('brq_payment_method');
         }
 

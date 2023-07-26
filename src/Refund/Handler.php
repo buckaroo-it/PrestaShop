@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,18 +17,16 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Order;
-use OrderPayment;
-use PrestaShop\Decimal\DecimalNumber;
 use Buckaroo\Prestashop\Refund\Request\Builder;
-use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
-use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
-use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
+use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueReturnProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
 class Handler
 {
@@ -76,7 +71,7 @@ class Handler
      */
     public function execute($command)
     {
-        $order = new Order($command->getOrderId()->getValue());
+        $order = new \Order($command->getOrderId()->getValue());
         $buckarooPayments = $this->getBuckarooPayments($order);
         if (count($buckarooPayments)) {
             $refundSummary = $this->getRefundSummary($order, $command);
@@ -86,15 +81,15 @@ class Handler
         }
     }
 
-    private function refund(Order $order, OrderPayment $payment, OrderRefundSummary $refundSummary)
+    private function refund(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary)
     {
         if ($payment->amount < 0) {
             return null;
         }
-        
+
         if ($refundSummary->getRefundedAmount() - $payment->amount >= 0.01) {
             throw new OrderException(
-                "Maximum amount that can be refunded in a single request is " . $payment->amount
+                'Maximum amount that can be refunded in a single request is ' . $payment->amount
             );
         }
 
@@ -112,33 +107,32 @@ class Handler
     /**
      * Get buckaroo payments
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return array
      */
-    private function getBuckarooPayments(Order $order): array
+    private function getBuckarooPayments(\Order $order): array
     {
-        //todo: filter payments for only buckaroo requests 
-        return  $order->getOrderPayments();
+        // todo: filter payments for only buckaroo requests
+        return $order->getOrderPayments();
     }
 
     /**
-     * Get refund data 
+     * Get refund data
      *
-     * @param Order $order
+     * @param \Order $order
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand|IssueReturnProductCommand $command
      *
      * @return OrderRefundSummary
      */
-    public function getRefundSummary(Order $order, $command): OrderRefundSummary
+    public function getRefundSummary(\Order $order, $command): OrderRefundSummary
     {
-
         if ($command instanceof IssuePartialRefundCommand) {
             $shippingRefundAmount = $command->getShippingCostRefundAmount();
         } else {
             $shippingRefundAmount = new DecimalNumber((string) ($command->refundShippingCost() ? $order->total_shipping_tax_incl : 0));
         }
-        /** @var OrderRefundSummary $orderRefundSummary */
+        /* @var OrderRefundSummary $orderRefundSummary */
         return $this->orderRefundCalculator->computeOrderRefund(
             $order,
             $command->getOrderDetailRefunds(),

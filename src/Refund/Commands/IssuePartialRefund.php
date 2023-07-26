@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -24,5 +22,4 @@ use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 
 class IssuePartialRefund extends IssuePartialRefundCommand
 {
-
 }

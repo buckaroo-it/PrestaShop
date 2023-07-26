@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -27,40 +25,40 @@ class IssuersPayByBank
     {
         $savedBankIssuer = Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
 
-        $issuerArray =  array(
-            'ABNANL2A' => array(
+        $issuerArray = [
+            'ABNANL2A' => [
                 'name' => 'ABN AMRO',
                 'logo' => 'ABNAMRO.svg',
-            ),
-            'ASNBNL21' => array(
+            ],
+            'ASNBNL21' => [
                 'name' => 'ASN Bank',
                 'logo' => 'ASNBank.svg',
-            ),
-            'INGBNL2A' => array(
+            ],
+            'INGBNL2A' => [
                 'name' => 'ING',
                 'logo' => 'ING.svg',
-            ),
-            'RABONL2U' => array(
+            ],
+            'RABONL2U' => [
                 'name' => 'Rabobank',
                 'logo' => 'Rabobank.svg',
-            ),
-            'SNSBNL2A' => array(
+            ],
+            'SNSBNL2A' => [
                 'name' => 'SNS Bank',
                 'logo' => 'SNS.svg',
-            ),
-            'RBRBNL21' => array(
+            ],
+            'RBRBNL21' => [
                 'name' => 'RegioBank',
                 'logo' => 'RegioBank.svg',
-            ),
-            'KNABNL2H' => array(
+            ],
+            'KNABNL2H' => [
                 'name' => 'Knab',
                 'logo' => 'KNAB.svg',
-            ),
-            'NTSBDEB1' => array(
+            ],
+            'NTSBDEB1' => [
                 'name' => 'N26',
                 'logo' => 'n26.svg',
-            )
-        );
+            ],
+        ];
 
         $issuers = [];
 
@@ -76,6 +74,7 @@ class IssuersPayByBank
         $issuers = array_filter($issuers, function ($issuer) {
             return !$issuer['selected'];
         });
+
         return array_merge($savedIssuer, $issuers);
     }
 
@@ -87,7 +86,8 @@ class IssuersPayByBank
         });
         if (count($selectedIssuer) > 0) {
             $selectedIssuer = reset($selectedIssuer);
-            return 'paybybank/SVG/'.$selectedIssuer['logo'];
+
+            return 'paybybank/SVG/' . $selectedIssuer['logo'];
         } else {
             return 'buckaroo_paybybank.gif?v';
         }

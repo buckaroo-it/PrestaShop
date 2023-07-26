@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -23,7 +20,6 @@ namespace Buckaroo\Prestashop\Refund\Decorators;
 use Buckaroo\Prestashop\Refund\Handler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssueStandardRefundHandlerInterface;
-
 
 class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
 {

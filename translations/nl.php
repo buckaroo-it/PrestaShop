@@ -1,7 +1,7 @@
 <?php
 
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9b1d44d9910cef88c667f46cb63a21bf'] = 'Voor gebruik dient u de Buckaroo Module te configureren!';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_60741e153ff40c5a402b5eaee5e17345'] = 'Uw betaling was niet succesvol. Probeer het alstublieft opnieuw of kies een andere betaalmethode. ';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_fb077ecba55e5552916bde26d8b9e794'] = 'Order bevestiging';

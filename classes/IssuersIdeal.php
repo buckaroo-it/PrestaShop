@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -38,7 +36,7 @@ class IssuersIdeal
         'KNABNL2H' => 'KNAB.png',
         'BUNQNL2A' => 'Bunq.png',
         'REVOLT21' => 'Revolut.png',
-        'BITSNL2A' =>  'YourSafe.png',
+        'BITSNL2A' => 'YourSafe.png',
     ];
 
     public function get()
@@ -46,9 +44,10 @@ class IssuersIdeal
         $issuers = $this->getCacheIssuers();
         $cacheDate = $this->getCacheDate();
 
-        if(!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
+        if (!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
+
         return $issuers;
     }
 
@@ -64,13 +63,13 @@ class IssuersIdeal
         return array_map(
             function ($issuer) {
                 $logo = null;
-                if(
-                    isset($issuer['id']) &&
-                    isset(self::ISSUERS_IMAGES[$issuer['id']])
+                if (
+                    isset($issuer['id'], self::ISSUERS_IMAGES[$issuer['id']])
                 ) {
                     $logo = self::ISSUERS_IMAGES[$issuer['id']];
                 }
                 $issuer['logo'] = $logo;
+
                 return $issuer;
             },
             $issuers
@@ -88,10 +87,12 @@ class IssuersIdeal
             $this->requestIssuers()
         );
 
-        if(count($retrievedIssuers)) {
+        if (count($retrievedIssuers)) {
             $this->saveIssuers($retrievedIssuers);
+
             return $retrievedIssuers;
         }
+
         return $issuers;
     }
 
@@ -100,8 +101,9 @@ class IssuersIdeal
         $buckaroo = new BuckarooClient(
             Configuration::get('BUCKAROO_MERCHANT_KEY'),
             Configuration::get('BUCKAROO_SECRET_KEY'),
-            Config::getMode("ideal")
+            Config::getMode('ideal')
         );
+
         return $buckaroo->method('ideal')->issuers();
     }
 
@@ -114,7 +116,7 @@ class IssuersIdeal
      */
     private function saveIssuers($issuers)
     {
-        if(!is_array($issuers)) {
+        if (!is_array($issuers)) {
             return;
         }
         Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
@@ -124,14 +126,15 @@ class IssuersIdeal
     /**
      * Get cached issuers
      *
-     * @return null|array
+     * @return array|null
      */
     private function getCacheIssuers()
     {
         $issuersString = Configuration::get(self::CACHE_ISSUERS_KEY);
-        if(!is_string($issuersString)) {
+        if (!is_string($issuersString)) {
             return;
         }
+
         return json_decode($issuersString, true);
     }
 

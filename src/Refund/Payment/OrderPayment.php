@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -24,7 +21,6 @@ use OrderPayment as DefaultOrderPayment;
 
 class OrderPayment extends DefaultOrderPayment
 {
-
     public function __construct($id = null, $id_lang = null, $id_shop = null, $translator = null)
     {
         $this->updateValidationAllowNegativeAmount();

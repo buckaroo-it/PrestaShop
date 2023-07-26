@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,28 +17,25 @@
 
 namespace Buckaroo\Prestashop\Refund\Request;
 
-use Order;
-use Currency;
-use OrderPayment;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Symfony\Component\HttpFoundation\Request;
 
 abstract class AbstractBuilder
 {
-    protected function buildCommon(Order $order, OrderPayment $payment, float $refundAmount): array
+    protected function buildCommon(\Order $order, \OrderPayment $payment, float $refundAmount): array
     {
         return [
-            'order'                  => $payment->order_reference . '_' . $order->id_cart,
-            'invoice'                => $payment->order_reference . '_' . $order->id_cart,
-            'amountCredit'           => $refundAmount,
-            'currency'               => Currency::getIsoCodeById($order->id_currency),
-            'pushURL'                => $this->getPushUrl(),
-            'pushURLFailure'         => $this->getPushUrl(),
-            'clientIP'               => $this->getIp(),
-            'originalTransactionKey' => (string)$payment->transaction_id,
-            'additionalParameters'   => [
-                'orderId' => $order->id
-            ]
+            'order' => $payment->order_reference . '_' . $order->id_cart,
+            'invoice' => $payment->order_reference . '_' . $order->id_cart,
+            'amountCredit' => $refundAmount,
+            'currency' => \Currency::getIsoCodeById($order->id_currency),
+            'pushURL' => $this->getPushUrl(),
+            'pushURLFailure' => $this->getPushUrl(),
+            'clientIP' => $this->getIp(),
+            'originalTransactionKey' => (string) $payment->transaction_id,
+            'additionalParameters' => [
+                'orderId' => $order->id,
+            ],
         ];
     }
 
@@ -52,11 +46,11 @@ abstract class AbstractBuilder
      */
     private function getIp(): array
     {
-        $remoteIp = (Request::createFromGlobals())->getClientIp();
+        $remoteIp = Request::createFromGlobals()->getClientIp();
 
         return [
-            'address'       =>  $remoteIp,
-            'type'          => IPProtocolVersion::getVersion($remoteIp)
+            'address' => $remoteIp,
+            'type' => IPProtocolVersion::getVersion($remoteIp),
         ];
     }
 
@@ -67,33 +61,34 @@ abstract class AbstractBuilder
      */
     private function getPushUrl(): string
     {
-        return 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
+        return 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
     }
 
     /**
      * Build body for credit & debit cards
      *
-     * @param OrderPayment $payment
+     * @param \OrderPayment $payment
      *
      * @return array
      */
-    protected function buildIssuers(OrderPayment $payment): array
+    protected function buildIssuers(\OrderPayment $payment): array
     {
         if (in_array($payment->payment_method, [
             'creditcard', 'mastercard', 'visa',
             'amex', 'vpay', 'maestro',
             'visaelectron', 'cartebleuevisa',
             'cartebancaire', 'dankort', 'nexi',
-            'postepay'
+            'postepay',
         ])) {
             return [
-                "name" => $payment->payment_method,
-                "version" => 2
+                'name' => $payment->payment_method,
+                'version' => 2,
             ];
         }
+
         return [];
     }
-    
+
     /**
      * Round amount to 2 decimals for payment engine
      *
@@ -101,8 +96,8 @@ abstract class AbstractBuilder
      *
      * @return float
      */
-    protected function round(float $amount): float {
+    protected function round(float $amount): float
+    {
         return round($amount, 2);
     }
-    
 }

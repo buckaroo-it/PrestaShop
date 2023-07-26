@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,14 +18,12 @@
 
 namespace Buckaroo\Prestashop\Refund\Admin;
 
-use Order;
+use Buckaroo\Prestashop\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 use PrestaShopBundle\Service\Routing\Router;
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
 
 class Provider
 {
-
     /**
      * @var EntityManager
      */
@@ -46,27 +42,28 @@ class Provider
         $this->router = $router;
     }
 
-    public function get(Order $order): array
+    public function get(\Order $order): array
     {
         $refunds = $this->getRefundRequests($order->id);
+
         return [
-            "orderId" => $order->id,
-            "currencyId" => $order->id_currency,
-            "refunds" => $refunds,
-            "maxAvailableAmount" => $this->getAvailableRefundAmount($order, $refunds),
-            "ajaxUrl" => $this->router->generate('buckaroo_refund')
+            'orderId' => $order->id,
+            'currencyId' => $order->id_currency,
+            'refunds' => $refunds,
+            'maxAvailableAmount' => $this->getAvailableRefundAmount($order, $refunds),
+            'ajaxUrl' => $this->router->generate('buckaroo_refund'),
         ];
     }
 
     /**
      * Get avaliable amount for refund
      *
-     * @param Order $order
+     * @param \Order $order
      * @param array $refunds
      *
      * @return float
      */
-    private function getAvailableRefundAmount(Order $order, array $refunds): float
+    private function getAvailableRefundAmount(\Order $order, array $refunds): float
     {
         $refunded = array_sum(
             array_map(
@@ -81,19 +78,21 @@ class Provider
                 )
             )
         );
-        return  $order->total_paid - $refunded;
+
+        return $order->total_paid - $refunded;
     }
 
     /**
      * Get refund requests from databases
      *
-     * @param integer $orderId
+     * @param int $orderId
      *
      * @return array
      */
     private function getRefundRequests(int $orderId): array
     {
         $repository = $this->entityManager->getRepository(BkRefundRequest::class);
+
         return $repository->findBy(
             ['orderId' => $orderId],
             ['createdAt' => 'desc']

@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../../library/logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
@@ -26,15 +23,15 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 
 abstract class Response extends BuckarooAbstract
 {
-    //false if not received response
+    // false if not received response
     private $received = false;
-    //true if validated and securety checked
+    // true if validated and securety checked
     private $validated = false;
-    //request is test?
+    // request is test?
     private $test = true;
     private $signature;
     private $isPush;
-    //payment key
+    // payment key
     public $payment;
     public $payment_method;
     public $statuscode;
@@ -52,10 +49,10 @@ abstract class Response extends BuckarooAbstract
     public $brq_transaction_type;
     public $brq_relatedtransaction_partialpayment;
     public $brq_relatedtransaction_refund;
-    //transaction key
+    // transaction key
     public $transactions;
-    //if is errors, othervise = null
-    public $parameterError = null;
+    // if is errors, othervise = null
+    public $parameterError;
 
     protected TransactionResponse $response;
 
@@ -63,13 +60,11 @@ abstract class Response extends BuckarooAbstract
     {
         if ($response) {
             $this->response = $response;
-
         } else {
-            $this->isPush   = $this->isPushRequest();
+            $this->isPush = $this->isPushRequest();
             $this->received = true;
             $this->parsePushRequest();
         }
-
     }
 
     /**
@@ -84,6 +79,7 @@ abstract class Response extends BuckarooAbstract
         if ($configCode === 'Capayable') {
             return 'in3';
         }
+
         return $configCode;
     }
 
@@ -100,28 +96,28 @@ abstract class Response extends BuckarooAbstract
             $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_transaction_method'));
         }
 
-        $this->statuscode                            = $this->setPostVariable('brq_statuscode');
-        $this->statusmessage                         = $this->setPostVariable('brq_statusmessage');
-        $this->statuscode_detail                     = $this->setPostVariable('brq_statuscode_detail');
+        $this->statuscode = $this->setPostVariable('brq_statuscode');
+        $this->statusmessage = $this->setPostVariable('brq_statusmessage');
+        $this->statuscode_detail = $this->setPostVariable('brq_statuscode_detail');
         $this->brq_relatedtransaction_partialpayment = $this->setPostVariable('brq_relatedtransaction_partialpayment');
-        $this->brq_transaction_type                  = $this->setPostVariable('brq_transaction_type');
-        $this->brq_relatedtransaction_refund         = $this->setPostVariable('brq_relatedtransaction_refund');
-        $this->invoice                               = $this->setPostVariable('brq_invoicenumber');
-        $this->invoicenumber                         = $this->setPostVariable('brq_invoicenumber');
-        $this->amount                                = $this->setPostVariable('brq_amount');
+        $this->brq_transaction_type = $this->setPostVariable('brq_transaction_type');
+        $this->brq_relatedtransaction_refund = $this->setPostVariable('brq_relatedtransaction_refund');
+        $this->invoice = $this->setPostVariable('brq_invoicenumber');
+        $this->invoicenumber = $this->setPostVariable('brq_invoicenumber');
+        $this->amount = $this->setPostVariable('brq_amount');
         if (Tools::getValue('brq_amount_credit')) {
             $this->amount_credit = Tools::getValue('brq_amount_credit');
         }
 
-        $this->currency     = $this->setPostVariable('brq_currency');
-        $this->test        = $this->setPostVariable('brq_test');
-        $this->timestamp    = $this->setPostVariable('brq_timestamp');
+        $this->currency = $this->setPostVariable('brq_currency');
+        $this->test = $this->setPostVariable('brq_test');
+        $this->timestamp = $this->setPostVariable('brq_timestamp');
         $this->transactions = $this->setPostVariable('brq_transactions');
-        $this->signature   = $this->setPostVariable('brq_signature');
+        $this->signature = $this->setPostVariable('brq_signature');
 
         if (!empty($this->statuscode)) {
             $responseArray = $this->responseCodes[(int) $this->statuscode];
-            $this->status  = $responseArray['status'];
+            $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
     }
@@ -231,12 +227,13 @@ abstract class Response extends BuckarooAbstract
         return $this->response->isValidationFailure();
     }
 
-    //Determine if is buckaroo response or push
+    // Determine if is buckaroo response or push
     private function isPushRequest()
     {
         if (Tools::getValue('brq_statuscode')) {
             return true;
         }
+
         return false;
     }
 
@@ -267,7 +264,7 @@ abstract class Response extends BuckarooAbstract
 
     public function hasSucceeded()
     {
-        if(isset($this->response)) {
+        if (isset($this->response)) {
             if ($this->isValid()) {
                 if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
                     return true;
@@ -278,7 +275,6 @@ abstract class Response extends BuckarooAbstract
                 return true;
             }
         }
-
 
         return false;
     }
@@ -293,18 +289,17 @@ abstract class Response extends BuckarooAbstract
         return $this->response->getRedirectUrl();
     }
 
-
     public function getResponse()
     {
         return $this->response;
     }
 
-    //TODO - remove unused code
+    // TODO - remove unused code
     public function getData($key = null)
     {
         $data = $this->response->data();
 
-        if(isset($key) && isset($data[$key])) {
+        if (isset($key, $data[$key])) {
             return $data[$key];
         } else {
             return $data;
@@ -327,16 +322,17 @@ abstract class Response extends BuckarooAbstract
 
     public function getCartIdAndReferenceId($show = false)
     {
-        $e = explode("_", urldecode($this->invoicenumber));
+        $e = explode('_', urldecode($this->invoicenumber));
         if (!empty($e[1])) {
             list($reference, $cartId) = $e;
         } else {
-            $cartId    = 0;
+            $cartId = 0;
             $reference = $this->invoicenumber;
         }
         if ($show == 'cartId') {
             return (int) $cartId;
         }
+
         return $reference;
     }
 
@@ -349,5 +345,4 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->getCartIdAndReferenceId('reference');
     }
-
 }
