@@ -39,7 +39,7 @@ class OrderService
         $this->commandBus = $commandBus;
     }
 
-    public function refund(Order $order, float $amount)
+    public function refund(\Order $order, float $amount)
     {
         $refundData = $this->determineRefundData($order, $amount);
 
@@ -64,7 +64,7 @@ class OrderService
     /**
      * Determine refund data, products and shipping amounts
      *
-     * @param Order $order
+     * @param \Order $order
      * @param float $refundAmount
      *
      * @return array
@@ -125,11 +125,11 @@ class OrderService
     /**
      * Get shipping amount available for refund
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return float
      */
-    private function getShippingAmountAvailable(Order $order): float
+    private function getShippingAmountAvailable(\Order $order): float
     {
         $shippingMaxRefund = new DecimalNumber(
             $this->isTaxIncludedInOrder($order) ?
@@ -197,11 +197,11 @@ class OrderService
     }
 
     /**
-     * @param Order $order
+     * @param \Order $order
      *
      * @return bool
      */
-    private function isTaxIncludedInOrder(Order $order): bool
+    private function isTaxIncludedInOrder(\Order $order): bool
     {
         $customer = new \Customer($order->id_customer);
 
