@@ -1,0 +1,85 @@
+services:
+  buckaroo.refund_handler:
+    class: Buckaroo\Prestashop\Refund\Handler
+    arguments:
+      - "@prestashop.adapter.order.refund.order_refund_calculator"
+      - "@buckaroo.refund.request.handler"
+      - "@buckaroo.refund.request.builder"
+      - "@buckaroo.refund.request.response.handler"
+    public: true
+
+  buckaroo.refund_controller:
+    class: Buckaroo3\Prestashop\Controller\AdminRefundController
+    arguments:
+      - "@buckaroo.refund.request.quantity_based_builder"
+      - "@buckaroo.refund.request.handler"
+      - "@buckaroo.refund.request.response.handler"
+      - "@buckaroo.refund.order.service"
+    public: true
+
+  buckaroo.refund.request.handler:
+    class: Buckaroo\Prestashop\Refund\Request\Handler
+    public: true
+  
+  buckaroo.refund.settings:
+    class: Buckaroo\Prestashop\Refund\Settings
+    public: true
+
+  buckaroo.refund.request.builder:
+    class: Buckaroo\Prestashop\Refund\Request\Builder
+    public: true
+
+  buckaroo.refund.request.quantity_based_builder:
+    class: Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder
+    public: true
+
+  buckaroo.refund.payment.service:
+    class: Buckaroo\Prestashop\Refund\Payment\Service
+    public: true
+
+  buckaroo.refund.request.response.handler:
+    class: Buckaroo\Prestashop\Refund\Request\Response\Handler
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.refund.payment.service"
+    public: true
+
+  buckaroo.refund.push.handler:
+    class: Buckaroo\Prestashop\Refund\Request\Push\Handler
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.refund.order.service"
+    public: true
+
+  buckaroo.refund.order.service:
+    class: Buckaroo\Prestashop\Refund\OrderService
+    arguments:
+      - "@prestashop.core.command_bus"
+    public: true
+
+  buckaroo.refund.order.message:
+    class: Buckaroo\Prestashop\Refund\OrderMessage
+    public: true
+
+  buckaroo.refund.admin.provider:
+    class: Buckaroo\Prestashop\Refund\Admin\Provider
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@prestashop.router"
+    public: true
+
+  buckaroo.decorator.issue_partial_refund_handler:
+    class: Buckaroo\Prestashop\Refund\Decorators\IssuePartialRefundHandler
+    decorates: "prestashop.adapter.order.command_handler.issue_partial_refund_handler"
+    arguments:
+      - "@buckaroo.decorator.issue_partial_refund_handler.inner"
+      - "@buckaroo.refund_handler"
+    public: false
+
+  buckaroo.decorator.issue_standard_refund_handler:
+    class: Buckaroo\Prestashop\Refund\Decorators\IssueStandardRefundHandler
+    decorates: "prestashop.adapter.order.command_handler.issue_standard_refund_handler"
+    arguments:
+      - "@buckaroo.decorator.issue_standard_refund_handler.inner"
+      - "@buckaroo.refund_handler"
+    public: false

@@ -104,121 +104,17 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayAdminOrderMainBottom($params)
     {
-        $order         = new Order($params["id_order"]);
-        $payments      = $order->getOrderPaymentCollection();
-        $messages      = '';
-        $messageStatus = 0;
-        if (!empty($this->context->cookie->refundMessage)) {
-            $messages              = $this->context->cookie->refundMessage;
-            $messageStatus         = $this->context->cookie->refundStatus;
-            $this->context->cookie->__set('refundMessage', null);
-            $this->context->cookie->__set('refundStatus', null);
-            $this->context->cookie->write();
-        }
-        $paymentInfo = array();
-        $transactionIds = array();
+        $refundProvider = $this->get('buckaroo.refund.admin.provider');
 
-        foreach ($payments as $payment) {
-            $transactionIds[] = "'".$payment->transaction_id."'";
-        }
-        $transactionList = $this->getAllRefundedTransactions($transactionIds);
-
-        $payments = iterator_to_array($payments);
-        foreach ($payments as $payment) {
-            $availableAmount = $payment->amount;
-
-            if((float)$payment->amount > 0) {
-                $availableAmount = (float)$payment->amount - $this->getRefundedAmountForTransaction(
-                    $payment->transaction_id,
-                    $payments,
-                    $transactionList
-                );
-            }
-            /* @var $payment OrderPaymentCore */
-            $paymentInfo[$payment->id] = array(
-                "available_amount" =>  number_format($availableAmount, 2)
-            );
-        }
-        $buckarooFee = $this->getBuckarooFeeByCartId($order->id_cart);
-        $currency    = new Currency((int) $order->id_currency);
-        $buckarooFee = Tools::displayPrice($buckarooFee, $currency, false);
         $this->smarty->assign(
-            array(
-                'order'         => $order,
-                'payments'      => $payments,
-                'messages'      => $messages,
-                'paymentInfo'   => $paymentInfo,
-                'messageStatus' => $messageStatus,
-                'buckarooFee'   => $buckarooFee,
-                'refundLink'    => SymfonyContainer::getInstance()->get('router')->generate('buckaroo_refund')
+            $refundProvider->get(
+                new Order($params["id_order"])
             )
         );
+
         return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
-    /**
-     * Get all transaction_id grouped by original transaction
-     *
-     * @param array $transactionIds
-     *
-     * @return array
-     */
-    protected function getAllRefundedTransactions(array $transactionIds)
-    {
-        if(empty($transactionIds)){
-            return 0;
-        }
 
-        $transactionIds = implode(",",$transactionIds);
-        $transactions = Db::getInstance()->query(
-            'SELECT `transaction_id`, `original_transaction`
-            FROM `' . _DB_PREFIX_ . 'buckaroo_transactions`
-            WHERE `original_transaction` IN (' . $transactionIds . ')'
-        );
-
-        $refunds = [];
-        foreach ($transactions as $transaction) {
-            if (!isset($refunds[$transaction['original_transaction']])) {
-                $refunds[$transaction['original_transaction']] = array();
-            }
-            $refunds[$transaction['original_transaction']][] = $transaction['transaction_id'];
-        }
-        return $refunds;
-    }
-    /**
-     * Get refund done for transaction
-     *
-     * @param string $transactionId
-     * @param array $payments
-     * @param array $transactionList
-     *
-     * @return float
-     */
-    public function getRefundedAmountForTransaction(
-        string $transactionId,
-        $payments,
-        array $transactionList
-    )
-    {
-        if (!isset($transactionList[$transactionId])) {
-            return 0;
-        }
-        $refundsDone = [];
-
-        foreach ($payments as $payment) {
-            if (in_array($payment->transaction_id, $transactionList[$transactionId])) {
-                $refundsDone[] = $payment;
-            }
-        }
-
-        return (-1) * array_reduce(
-            $refundsDone,
-            function($carry, $payment) {
-                /** @var OrderPaymentCore $payment */
-                return $carry + (float)$payment->amount;
-            },
-            0
-        );
-    }
 
     public function hookDisplayOrderConfirmation(array $params)
     {
@@ -266,15 +162,9 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    public function createTransactionTable()
+    public function createRefundRequestTable()
     {
-        $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'buckaroo_transactions`(
-    `id_buckaroo_transaction` int(10) unsigned NOT NULL auto_increment,
-    `transaction_id` varchar(255) NOT NULL default \'\',
-    `original_transaction` varchar(255) NOT NULL default \'\',
-    PRIMARY KEY (`id_buckaroo_transaction`)
-    ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8';
-
+        $sql = "CREATE TABLE IF NOT EXISTS ". _DB_PREFIX_ ."bk_refund_request (id INT AUTO_INCREMENT NOT NULL, order_id INT NOT NULL, amount DOUBLE PRECISION NOT NULL, status VARCHAR(255) NOT NULL, refund_key VARCHAR(255) DEFAULT NULL, payment_key VARCHAR(255) DEFAULT NULL, payload LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)', data LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)', created_at DATETIME NOT NULL, INDEX order_id_index (order_id), INDEX key_index (refund_key), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = "._MYSQL_ENGINE_;
         return Db::getInstance()->execute($sql);
     }
 
@@ -325,7 +215,7 @@ class Buckaroo3 extends PaymentModule
             || !$this->registerHook('displayAdminOrderMainBottom')
             || !$this->registerHook('displayOrderConfirmation')
             || !$this->installTab()
-            || !$this->createTransactionTable()
+            || !$this->createRefundRequestTable()
             || !$this->registerHook('actionEmailSendBefore')
             || !$this->registerHook('displayPDFInvoice')
             || !$this->registerHook('displayBackOfficeHeader')
@@ -341,6 +231,8 @@ class Buckaroo3 extends PaymentModule
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
+        ($this->get('buckaroo.refund.settings'))->install();
+
         Configuration::updateValue('BUCKAROO_TEST', '1');
         Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
         Configuration::updateValue('BUCKAROO_SECRET_KEY', '');
@@ -636,6 +528,9 @@ class Buckaroo3 extends PaymentModule
         $this->unregisterHook('displayOrderConfirmation');
         $this->unregisterHook('actionEmailSendBefore');
         $this->unregisterHook('displayPDFInvoice');
+
+        
+        ($this->get('buckaroo.refund.settings'))->uninstall();
 
         // Clean configuration table
         Configuration::deleteByName('BUCKAROO_TEST');
