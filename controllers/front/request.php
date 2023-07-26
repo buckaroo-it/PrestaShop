@@ -68,7 +68,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if (!$authorized) {
             $logger->logError('Authorization Error', 'This payment method is not available.');
-            die($this->module->l('This payment method is not available.', 'validation'));
+            exit($this->module->l('This payment method is not available.', 'validation'));
         }
 
         $customer = new Customer($cart->id_customer);

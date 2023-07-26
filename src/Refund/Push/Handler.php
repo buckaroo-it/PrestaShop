@@ -77,11 +77,11 @@ class Handler
     /**
      * Attempt to do a prestashop refund
      *
-     * @param \Order $order
+     * @param Order $order
      *
      * @return void
      */
-    private function addRefundToOrder(\Order $order)
+    private function addRefundToOrder(Order $order)
     {
         try {
             $this->createRefundRequest($order->id);
@@ -98,11 +98,11 @@ class Handler
     /**
      * Create negative payment if enabled and the push is successful
      *
-     * @param \Order $order
+     * @param Order $order
      *
      * @return void
      */
-    private function createNegativePayment(\Order $order)
+    private function createNegativePayment(Order $order)
     {
         if (
             \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT) == true
@@ -229,7 +229,7 @@ class Handler
     /**
      * Get order by cart id from invoice number
      *
-     * @return \Order|null
+     * @return Order|null
      */
     private function getOrder()
     {
@@ -238,7 +238,7 @@ class Handler
             return null;
         }
 
-        return \Order::getByCartId($cartId);
+        return Order::getByCartId($cartId);
     }
 
     /**

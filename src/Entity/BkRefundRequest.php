@@ -21,7 +21,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(indexes={@ORM\Index(name="order_id_index", columns={"order_id"}), @ORM\Index(name="key_index", columns={"refund_key"})})
- *
  * @ORM\Entity()
  */
 class BkRefundRequest

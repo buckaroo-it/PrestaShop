@@ -23,6 +23,7 @@ use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
 use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
 use Currency;
 use Order;
+use OrderPayment;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -74,7 +75,7 @@ class AdminRefundController extends FrameworkBundleAdminController
             return $this->renderError('Invalid value for `refundAmount`');
         }
 
-        $order = new \Order($orderId);
+        $order = new Order($orderId);
 
         try {
             $totalRefundAmount = $this->sendRefundRequests($order, (float) $refundAmount);
@@ -90,12 +91,12 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Send refund request to payment engine, return total amount refunded
      *
-     * @param \Order $order
+     * @param Order $order
      * @param float $maxRefundAmount
      *
      * @return float
      */
-    private function sendRefundRequests(\Order $order, float $maxRefundAmount): float
+    private function sendRefundRequests(Order $order, float $maxRefundAmount): float
     {
         $refundAmount = $maxRefundAmount;
         $buckarooPayments = $this->getBuckarooPayments($order);
@@ -113,13 +114,13 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Refund individual payment with amount, return remaining amount to be refunded
      *
-     * @param \Order $order
-     * @param \OrderPayment $payment
+     * @param Order $order
+     * @param OrderPayment $payment
      * @param float $maxRefundAmount
      *
      * @return float
      */
-    private function sentRefundRequest(\Order $order, \OrderPayment $payment, float $maxRefundAmount): float
+    private function sentRefundRequest(Order $order, OrderPayment $payment, float $maxRefundAmount): float
     {
         $refundAmount = $maxRefundAmount;
         if ($maxRefundAmount > $payment->amount) {
@@ -149,11 +150,11 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Get buckaroo payments
      *
-     * @param \Order $order
+     * @param Order $order
      *
      * @return array
      */
-    private function getBuckarooPayments(\Order $order): array
+    private function getBuckarooPayments(Order $order): array
     {
         // todo: filter payments for only buckaroo requests
         return $order->getOrderPayments();
@@ -174,12 +175,12 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Format price based on order currency
      *
-     * @param \Order $order
+     * @param Order $order
      * @param float $price
      *
      * @return string
      */
-    private function formatPrice(\Order $order, float $price): string
+    private function formatPrice(Order $order, float $price): string
     {
         return \Tools::getContextLocale(\Context::getContext())->formatPrice(
             $price, \Currency::getIsoCodeById((int) $order->id_currency)

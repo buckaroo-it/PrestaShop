@@ -318,6 +318,6 @@ function checkoutautoload($payment_method)
     if (file_exists($path)) {
         require_once $path;
     } else {
-        die('Class not found!');
+        exit('Class not found!');
     }
 }
