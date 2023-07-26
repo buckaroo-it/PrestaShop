@@ -31,7 +31,7 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersPayByBank.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 
-use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
+use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Buckaroo3 extends PaymentModule
@@ -231,7 +231,7 @@ class Buckaroo3 extends PaymentModule
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
-        ($this->get('buckaroo.refund.settings'))->install();
+        (new RefundSettings())->install();
 
         Configuration::updateValue('BUCKAROO_TEST', '1');
         Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
