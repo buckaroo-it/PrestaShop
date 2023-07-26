@@ -13,7 +13,8 @@
     },
     "autoload": {
         "psr-4": {
-          "Buckaroo3\\Controller\\": "controllers/admin"
+          "Buckaroo\\Prestashop\\": "src",
+          "Buckaroo3\\Prestashop\\Controller\\": "controllers/admin"
         }
       },
     "config": {

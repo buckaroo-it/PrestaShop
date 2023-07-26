@@ -1,5 +1,5 @@
 buckaroo_refund:
     path: buckaroo3/refund
-    methods: [GET]
+    methods: [POST]
     defaults:
-      _controller: 'Buckaroo3\Controller\AdminRefundController::refundAction'
+      _controller: 'buckaroo.refund_controller::refund'

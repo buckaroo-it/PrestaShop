@@ -23,12 +23,30 @@
                 </div>
             </div>
         {/if}
+
+        {if $fieldset.name == 'REFUND'}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    {$fieldset.legend|escape:'html':'UTF-8'}
+                </div>
+                <div class="panel-body">
+                    {foreach from=$fieldset.input item=input}
+                        {include file="$dir/admin.input.tpl" input=$input enabled=$fieldset.enabled}
+                    {/foreach}
+                    <div class="form-group">
+                    </div>
+                    <div class="small">
+                        <sup>*</sup> {l s='Required field' mod='buckaroo3'}
+                    </div>
+                </div>
+            </div>
+        {/if}
     {/foreach}
 
     <!-- Apply sortable and collapse functionalities to the rest of the fieldsets -->
     <div id="sortable">
         {foreach from=$fields_form item=fieldset}
-            {if $fieldset.name != 'GLOBAL'}
+            {if !in_array($fieldset.name, ['GLOBAL', 'REFUND'])}
                 <div class="panel panel-default">
                     <div class="panel-heading" id="heading{$fieldset.name}">
                         <h2 class="mb-0">
