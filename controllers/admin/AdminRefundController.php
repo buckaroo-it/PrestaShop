@@ -1,17 +1,4 @@
 <?php
-
-namespace Buckaroo3\Prestashop\Controller;
-
-use Buckaroo\Prestashop\Refund\OrderService;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
-use Currency;
-use Order;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
-
 /**
  * NOTICE OF LICENSE
  *
@@ -27,6 +14,19 @@ use Symfony\Component\HttpFoundation\Request;
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
+namespace Buckaroo3\Prestashop\Controller;
+
+use Buckaroo\Prestashop\Refund\OrderService;
+use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
+use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use Currency;
+use Order;
+use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
 class AdminRefundController extends FrameworkBundleAdminController
 {
     /**
