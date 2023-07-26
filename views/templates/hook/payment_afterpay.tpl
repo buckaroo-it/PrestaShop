@@ -19,34 +19,22 @@
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
           method="post">
         {l s='Please provide additional data for Riverty | AfterPay.' mod='buckaroo3'}<br/><br/>
-        {if !$phone_afterpay_billing}
-            <div class="row row-padding">
-                <div class="col-sm-5">
-                    <label for="phone_afterpay_billing_digi"
-                           class="required">
-                        {l s='Invoice person phone number' mod='buckaroo3'}:
-                    </label>
-                </div>
-                <div class="col-sm-7">
-                    <input type="text"
-                           class="form-control form-control-large"
-                           id="phone_afterpay_billing_digi"
-                           name="phone_afterpay_billing"
-                           value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
-                    >
-                </div>
+        <div class="row row-padding">
+            <div class="col-sm-5">
+                <label for="phone_afterpay_billing_digi"
+                       class="required">
+                    {l s='Invoice person phone number' mod='buckaroo3'}:
+                </label>
             </div>
-        {else}
-            <div class="row row-padding">
-                <div class="col-sm-12">
-                    <input type="hidden"
-                           id="phone_afterpay_billing_digi"
-                           name="phone_afterpay_billing"
-                           value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
-                    >
-                </div>
+            <div class="col-sm-7">
+                <input type="text"
+                       class="form-control form-control-large"
+                       id="phone_afterpay_billing_digi"
+                       name="phone_afterpay_billing"
+                       value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
+                >
             </div>
-        {/if}
+        </div>
 
         <div class="row row-padding">
             <div class="col-xs-5">

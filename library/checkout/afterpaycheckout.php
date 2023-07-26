@@ -35,7 +35,7 @@ class AfterPayCheckout extends Checkout
         if (empty($phone) && !empty($this->invoice_address->phone)) {
             $phone = $this->invoice_address->phone;
         }
-        if (empty($phone) && !empty(Tools::getValue("phone_afterpay_billing"))) {
+        if (!empty(Tools::getValue("phone_afterpay_billing"))) {
             $phone = Tools::getValue("phone_afterpay_billing");
         }
 
