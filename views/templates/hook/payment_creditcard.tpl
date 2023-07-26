@@ -19,17 +19,14 @@
         <fieldset>
             {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
+                    <select name="BPE_CreditCard" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
                         {foreach $creditcardIssuers as $key => $issuer}
                             <div>
-                                <option value="{$key}"
-                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
-                                            selected
-                                        {/if}
-                                        id="bankMethod{$key}">
+                                <option value="{$key|escape:'html':'UTF-8'}"
+                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
                             </div>
@@ -41,7 +38,7 @@
                     {foreach $creditcardIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
-                                    name="BPE_Issuer"
+                                    name="BPE_CreditCard"
                                     id="creditcard_issuer_{$key}"
                                     value="{$key}"
                                     type="radio"
