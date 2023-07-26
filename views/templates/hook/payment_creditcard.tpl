@@ -19,16 +19,13 @@
         <fieldset>
             {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
+                    <select name="BPE_CreditCard" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
                         {foreach $creditcardIssuers as $key => $issuer}
                             <div>
                                 <option value="{$key|escape:'html':'UTF-8'}"
-                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
-                                            selected
-                                        {/if}
                                         id="bankMethod{$key|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
@@ -41,18 +38,18 @@
                     {foreach $creditcardIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
-                                    name="BPE_Issuer"
-                                    id="creditcard_issuer_{$key|escape:'html':'UTF-8'}"
+                                    name="BPE_CreditCard"
+                                    id="creditcard_issuer_{$key}"
                                     value="{$key}"
                                     type="radio"
                             />
-                            <label for="creditcard_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
+                            <label for="creditcard_issuer_{$key}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}

@@ -20,6 +20,11 @@ use Buckaroo\BuckarooClient;
 
 class Buckaroo3Admin
 {
+    /**
+     * @var Buckaroo3|PaymentModule
+     */
+    protected $module;
+
     private $error = '';
 
     public function __construct($module)
@@ -31,7 +36,7 @@ class Buckaroo3Admin
     public function postProcess()
     {
         if (Tools::getValue('refresh_module')) {
-            $this->module->createTransactionTable();
+            $this->module->createRefundRequestTable();
             $idTab = Tab::getIdFromClassName('AdminRefund');
             if ($idTab == 0) {
                 $this->module->installModuleTab('AdminRefund', array(1 => 'Buckaroo Refunds'), -1);
@@ -72,6 +77,7 @@ class Buckaroo3Admin
 
                 $this->updatePaymentSettings();
                 $this->updatePositionSettings();
+                ($this->module->get('buckaroo.refund.settings'))->updateAll();
             }
         }
         return null;
@@ -492,8 +498,8 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BILLINK_POSITION'] = Configuration::get('BUCKAROO_BILLINK_POSITION');
         $fields_value['BUCKAROO_APPLEPAY_POSITION'] = Configuration::get('BUCKAROO_APPLEPAY_POSITION');
 
-
-
+        $refundSetting = $this->module->get('buckaroo.refund.settings');
+        $fields_value  = array_merge($fields_value, $refundSetting->getValues());
 
         //Global Settings
         $i              = 0;
@@ -605,6 +611,8 @@ class Buckaroo3Admin
                 'value' => $value['id_category'],
             );
         }
+
+        $fields_form[$i++] = $refundSetting->getFormFields($this->module);
 
         $fields_form[$i++] = array(
             'legend'  => $this->module->l('iDIN verification Settings'),

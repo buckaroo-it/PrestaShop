@@ -17,7 +17,7 @@ return array(
     'Ramsey\\Uuid\\' => array($vendorDir . '/ramsey/uuid/src'),
     'Ramsey\\Collection\\' => array($vendorDir . '/ramsey/collection/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/src'),
-    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-message/src', $vendorDir . '/psr/http-factory/src'),
+    'Psr\\Http\\Message\\' => array($vendorDir . '/psr/http-factory/src', $vendorDir . '/psr/http-message/src'),
     'Psr\\Http\\Client\\' => array($vendorDir . '/psr/http-client/src'),
     'Psr\\Container\\' => array($vendorDir . '/psr/container/src'),
     'PrestaShop\\AutoIndex\\' => array($vendorDir . '/prestashop/autoindex/src'),
@@ -27,7 +27,8 @@ return array(
     'GuzzleHttp\\Promise\\' => array($vendorDir . '/guzzlehttp/promises/src'),
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
+    'Buckaroo\\Prestashop\\' => array($baseDir . '/src'),
     'Buckaroo\\' => array($vendorDir . '/buckaroo/sdk/src'),
-    'Buckaroo3\\Controller\\' => array($baseDir . '/controllers/admin'),
+    'Buckaroo3\\Prestashop\\Controller\\' => array($baseDir . '/controllers/admin'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
 );

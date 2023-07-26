@@ -60,8 +60,9 @@ class ComposerStaticInit24e2d313eab1c6574361dc9438a2ed13
         ),
         'B' => 
         array (
+            'Buckaroo\\Prestashop\\' => 20,
             'Buckaroo\\' => 9,
-            'Buckaroo3\\Controller\\' => 21,
+            'Buckaroo3\\Prestashop\\Controller\\' => 32,
             'Brick\\Math\\' => 11,
         ),
     );
@@ -113,8 +114,8 @@ class ComposerStaticInit24e2d313eab1c6574361dc9438a2ed13
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -152,11 +153,15 @@ class ComposerStaticInit24e2d313eab1c6574361dc9438a2ed13
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
+        'Buckaroo\\Prestashop\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
+        ),
         'Buckaroo\\' => 
         array (
             0 => __DIR__ . '/..' . '/buckaroo/sdk/src',
         ),
-        'Buckaroo3\\Controller\\' => 
+        'Buckaroo3\\Prestashop\\Controller\\' => 
         array (
             0 => __DIR__ . '/../..' . '/controllers/admin',
         ),

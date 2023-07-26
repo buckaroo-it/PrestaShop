@@ -104,38 +104,16 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 exit();
             }
             if ($response->brq_relatedtransaction_refund != null) {
-                $logger->logInfo('PUSH', "Refund payment PUSH received " . $response->status);
-                if ($response->hasSucceeded()) {
-                    $order                    = new Order($id_order);
-                    if (isset(OrderPayment::$definition['fields']['amount']['validate'])) {
-                        OrderPayment::$definition['fields']['amount']['validate'] = 'isAnything';
-                    }
-                    $payment                  = new OrderPayment();
-                    $payment->order_reference = $order->reference;
-                    $payment->id_currency     = $order->id_currency;
-                    $payment->transaction_id  = $response->transactions;
-                    $payment->amount          = urldecode($response->amount_credit) * (-1);
-                    $payment->payment_method  = $response->payment_method;
-                    $order->save();
-
-                    $new_status_code   = Configuration::get('PS_OS_REFUND');
-                    $history           = new OrderHistory();
-                    $history->id_order = $id_order;
-                    $history->date_add = date('Y-m-d H:i:s');
-                    $history->date_upd = date('Y-m-d H:i:s');
-                    $history->changeIdOrderState($new_status_code, $id_order);
-                    $history->addWithemail(false);
-
-                    $payment->conversion_rate = 1;
-                    $payment->save();
-
-                    $query = "INSERT INTO `" . _DB_PREFIX_ . "buckaroo_transactions` (transaction_id, original_transaction) VALUES('" . pSQL($response->transactions) . "', '" . pSQL($response->brq_relatedtransaction_refund) . "')";//phpcs:ignore
-                    Db::getInstance()->execute($query);
-
-                    $message           = new Message();
-                    $message->id_order = $id_order;
-                    $message->message  = 'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage;//phpcs:ignore
-                    $message->add();
+                try {
+                    $refundPushHandler = $this->container->get('buckaroo.refund.push.handler');
+                    $refundPushHandler->handle();
+                    $messageRepo = $this->container->get('buckaroo.refund.order.message');
+                    $messageRepo->add(
+                        $order,
+                        'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+                    );
+                } catch (\Throwable $th) {
+                    $logger->logInfo('PUSH', (string)$th);
                 }
                 exit();
             }

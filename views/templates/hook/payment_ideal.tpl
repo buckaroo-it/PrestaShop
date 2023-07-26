@@ -20,17 +20,14 @@
         <fieldset>
             {if $idealDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="buckaroo-method-issuer" id="buckaroo-method-issuer">
+                    <select name="BPE_Issuer" id="buckaroo-method-issuer">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
                         {foreach $idealIssuers as $key => $issuer}
                             <div>
-                                <option value="{$key|escape:'html':'UTF-8'}"
-                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
-                                            selected
-                                        {/if}
-                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
+                                <option value="{$issuer['id']|escape:'html':'UTF-8'}"
+                                        id="bankMethod{$issuer['id']|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
                             </div>
@@ -43,17 +40,17 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_Issuer"
-                                    id="ideal_issuer_{$key}"
-                                    value="{$key|escape:'html':'UTF-8'}"
+                                    id="ideal_issuer_{$issuer['id']}"
+                                    value="{$issuer['id']}"
                                     type="radio"
                             />
-                            <label for="ideal_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
+                            <label for="ideal_issuer_{$issuer['id']}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/{$issuer['logo']|escape:'url':'UTF-8'}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/{$issuer['logo']}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}
