@@ -39,17 +39,17 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_CreditCard"
-                                    id="creditcard_issuer_{$key}"
-                                    value="{$key}"
+                                    id="creditcard_issuer_{$key|escape:'html':'UTF-8'}"
+                                    value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
                             />
-                            <label for="creditcard_issuer_{$key}" class="bk-issuer-label">
+                            <label for="creditcard_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']|escape:'html':'UTF-8'}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}
