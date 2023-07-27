@@ -43,6 +43,7 @@ class QuantityBasedBuilder extends AbstractBuilder
 
         return [
             "articles" => [[
+                'refundType'        => 'Return',
                 'identifier'        => 'amount_refund',
                 'description'       => 'Refund amount of ' . $amount,
                 'quantity'          => 1,
