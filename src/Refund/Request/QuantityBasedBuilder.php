@@ -24,20 +24,25 @@ class QuantityBasedBuilder extends AbstractBuilder
         return array_merge(
             $this->buildCommon($order, $payment, $this->round($amount)),
             $this->buildIssuers($payment),
-            $this->buildArticles($this->round($amount))
+            $this->buildArticles($this->round($amount), $payment->payment_method)
         );
     }
 
-    private function buildArticles(float $amount)
+    private function buildArticles(float $amount, string $paymentCode): array
     {
+        if (!in_array($paymentCode, ["afterpay", "billink"])) {
+            return  [];
+        }
+
         return [
-            'articles' => [[
-                'identifier' => 'amount_refund',
-                'description' => 'Refund amount of ' . $amount,
-                'quantity' => 1,
-                'price' => $amount,
-                'vatPercentage' => 0,
-            ]],
+            "articles" => [[
+                'refundType'        => 'Return',
+                'identifier'        => 'amount_refund',
+                'description'       => 'Refund amount of ' . $amount,
+                'quantity'          => 1,
+                'price'             => $amount,
+                'vatPercentage'     => 0,
+            ]]
         ];
     }
 }

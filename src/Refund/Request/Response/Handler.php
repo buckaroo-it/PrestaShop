@@ -17,11 +17,14 @@
 
 namespace Buckaroo\Prestashop\Refund\Request\Response;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
-use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
-use Buckaroo\Prestashop\Refund\Settings;
-use Buckaroo\Transaction\Response\TransactionResponse;
+use Order;
+use Configuration;
 use Doctrine\ORM\EntityManager;
+use Buckaroo\Prestashop\Refund\Settings;
+use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\Prestashop\Refund\StatusService;
+use Buckaroo\Transaction\Response\TransactionResponse;
+use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
 class Handler
@@ -36,17 +39,26 @@ class Handler
      */
     private $paymentService;
 
+        /**
+     * @var StatusService
+     */
+    private $statusService;
+
     public function __construct(
         EntityManager $entityManager,
-        PaymentService $paymentService
+        PaymentService $paymentService,
+        StatusService $statusService
     ) {
         $this->entityManager = $entityManager;
         $this->paymentService = $paymentService;
+        $this->statusService = $statusService;
     }
 
     public function parse(TransactionResponse $response, array $body, int $orderId)
     {
+        $order = new Order($orderId);
         $this->createRefundRequest($response, $body, $orderId);
+        $this->statusService->setRefunded($order);
 
         if (!$response->isSuccess()) {
             $message = '';
@@ -58,7 +70,7 @@ class Handler
             }
             throw new OrderException($message);
         }
-        $this->createNegativePayment(new \Order($orderId), $response);
+        $this->createNegativePayment($order, $response);
     }
 
     private function createRefundRequest(TransactionResponse $response, array $body, int $orderId)
