@@ -1,0 +1,7 @@
+parameters:
+  paths:
+    - ../../src/
+    - ../../bin/autoindex
+  level: 7
+  inferPrivatePropertyTypeFromConstructor: true
+  ignoreErrors:
