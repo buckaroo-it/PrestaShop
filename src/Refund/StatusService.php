@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -21,11 +19,9 @@
 namespace Buckaroo\Prestashop\Refund;
 
 use Order;
-use OrderHistory;
-use Configuration;
+use PrestaShop\PrestaShop\Adapter\Order\QueryHandler\GetOrderForViewingHandler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Query\GetOrderForViewing;
 use PrestaShop\PrestaShop\Core\Domain\Order\QueryResult\OrderForViewing;
-use PrestaShop\PrestaShop\Adapter\Order\QueryHandler\GetOrderForViewingHandler;
 
 class StatusService
 {
@@ -42,21 +38,21 @@ class StatusService
     /**
      * Set order to refunded if its not already refunded
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return void
      */
-    public function setRefunded(Order $order)
+    public function setRefunded(\Order $order)
     {
         /** @var \PrestaShop\PrestaShop\Core\Domain\Order\QueryResult\OrderForViewing */
         $orderForViewing = $this->getOrderForViewingHandler->handle(
             new GetOrderForViewing((int) $order->id)
         );
 
-        $statusRefunded = Configuration::get('PS_OS_REFUND');
+        $statusRefunded = \Configuration::get('PS_OS_REFUND');
 
         $orderState = $order->getCurrentOrderState();
-        $isCurrentlyRefunded =  $orderState !== null && $orderState->id == $statusRefunded;
+        $isCurrentlyRefunded = $orderState !== null && $orderState->id == $statusRefunded;
 
         if ($this->isReadyToBeRefunded($orderForViewing) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
@@ -68,7 +64,7 @@ class StatusService
      *
      * @param OrderForViewing $orderForViewing
      *
-     * @return boolean
+     * @return bool
      */
     private function isReadyToBeRefunded(OrderForViewing $orderForViewing)
     {
@@ -79,21 +75,20 @@ class StatusService
             }
         }
 
-        return abs((float)(string)$orderForViewing->getPrices()->getShippingRefundableAmountRaw()) < 0.005;
+        return abs((float) (string) $orderForViewing->getPrices()->getShippingRefundableAmountRaw()) < 0.005;
     }
 
-
     /**
-     * Update order status 
+     * Update order status
      *
-     * @param integer $orderId
+     * @param int $orderId
      * @param int $status
      *
      * @return void
      */
     public function update(int $orderId, $status)
     {
-        $history           = new OrderHistory();
+        $history = new \OrderHistory();
         $history->id_order = $orderId;
         $history->date_add = date('Y-m-d H:i:s');
         $history->date_upd = date('Y-m-d H:i:s');

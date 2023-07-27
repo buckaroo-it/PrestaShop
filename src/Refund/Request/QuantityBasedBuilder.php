@@ -30,19 +30,19 @@ class QuantityBasedBuilder extends AbstractBuilder
 
     private function buildArticles(float $amount, string $paymentCode): array
     {
-        if (!in_array($paymentCode, ["afterpay", "billink"])) {
-            return  [];
+        if (!in_array($paymentCode, ['afterpay', 'billink'])) {
+            return [];
         }
 
         return [
-            "articles" => [[
-                'refundType'        => 'Return',
-                'identifier'        => 'amount_refund',
-                'description'       => 'Refund amount of ' . $amount,
-                'quantity'          => 1,
-                'price'             => $amount,
-                'vatPercentage'     => 0,
-            ]]
+            'articles' => [[
+                'refundType' => 'Return',
+                'identifier' => 'amount_refund',
+                'description' => 'Refund amount of ' . $amount,
+                'quantity' => 1,
+                'price' => $amount,
+                'vatPercentage' => 0,
+            ]],
         ];
     }
 }

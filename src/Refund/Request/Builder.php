@@ -33,9 +33,8 @@ class Builder extends AbstractBuilder
 
     private function buildArticles(OrderRefundSummary $refundSummary, string $paymentCode): array
     {
-
-        if (!in_array($paymentCode, ["afterpay", "billink"])) {
-            return  [];
+        if (!in_array($paymentCode, ['afterpay', 'billink'])) {
+            return [];
         }
 
         $articles = [];
@@ -46,12 +45,12 @@ class Builder extends AbstractBuilder
             $amount = $this->round($refundSummary->getVoucherAmount());
             $total += $amount;
             $articles[] = [
-                'refundType'        => 'Return',
-                'identifier'        => 'amount_refund',
-                'description'       => 'Refund amount of ' . $amount,
-                'quantity'          => 1,
-                'price'             => $amount,
-                'vatPercentage'     => 0,
+                'refundType' => 'Return',
+                'identifier' => 'amount_refund',
+                'description' => 'Refund amount of ' . $amount,
+                'quantity' => 1,
+                'price' => $amount,
+                'vatPercentage' => 0,
             ];
         } else {
             // create body for each product
@@ -69,12 +68,12 @@ class Builder extends AbstractBuilder
                 $total += $amount;
 
                 $articles[] = [
-                    'refundType'        => 'Return',
-                    'identifier'        => $orderDetail->product_id,
-                    'description'       => $orderDetail->product_name,
-                    'quantity'          => $productRefund['quantity'],
-                    'price'             => $amount,
-                    'vatPercentage'     => $this->getVatPercentage($orderDetail),
+                    'refundType' => 'Return',
+                    'identifier' => $orderDetail->product_id,
+                    'description' => $orderDetail->product_name,
+                    'quantity' => $productRefund['quantity'],
+                    'price' => $amount,
+                    'vatPercentage' => $this->getVatPercentage($orderDetail),
                 ];
             }
 
@@ -83,12 +82,12 @@ class Builder extends AbstractBuilder
                 $amount = $this->round($refundSummary->getVoucherAmount());
                 $total -= $amount;
                 $articles[] = [
-                    'refundType'        => 'Return',
-                    'identifier'        => 'amount_discount',
-                    'description'       => 'Discount amount of ' . $amount,
-                    'quantity'          => 1,
-                    'price'             => (-1) * $amount,
-                    'vatPercentage'     => 0,
+                    'refundType' => 'Return',
+                    'identifier' => 'amount_discount',
+                    'description' => 'Discount amount of ' . $amount,
+                    'quantity' => 1,
+                    'price' => (-1) * $amount,
+                    'vatPercentage' => 0,
                 ];
             }
         }
@@ -98,12 +97,12 @@ class Builder extends AbstractBuilder
             $total += $amount;
 
             $articles[] = [
-                'refundType'        => 'Return',
-                'identifier'        => 'shipping',
-                'description'       => 'Shipping',
-                'quantity'          => 1,
-                'price'             => $amount,
-                'vatPercentage'     => 0,
+                'refundType' => 'Return',
+                'identifier' => 'shipping',
+                'description' => 'Shipping',
+                'quantity' => 1,
+                'price' => $amount,
+                'vatPercentage' => 0,
             ];
         }
 
@@ -111,12 +110,12 @@ class Builder extends AbstractBuilder
         $errors = $this->round($refundSummary->getRefundedAmount()) - $total;
         if (abs($errors) >= 0.01) {
             $articles[] = [
-                'refundType'        => 'Return',
-                'identifier'        => 'rounding_errors',
-                'description'       => 'Rounding errors',
-                'quantity'          => 1,
-                'price'             => $errors,
-                'vatPercentage'     => 0,
+                'refundType' => 'Return',
+                'identifier' => 'rounding_errors',
+                'description' => 'Rounding errors',
+                'quantity' => 1,
+                'price' => $errors,
+                'vatPercentage' => 0,
             ];
         }
 

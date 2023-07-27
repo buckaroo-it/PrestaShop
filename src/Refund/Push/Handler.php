@@ -18,16 +18,15 @@
 
 namespace Buckaroo\Prestashop\Refund\Push;
 
-use Order;
-use Configuration;
-use Doctrine\ORM\EntityManager;
-use Buckaroo\Prestashop\Refund\Settings;
-use Buckaroo\Prestashop\Refund\OrderService;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Prestashop\Refund\StatusService;
 use Buckaroo\Prestashop\Entity\BkRefundRequest;
-use Buckaroo\Resources\Constants\ResponseStatus;
+use Buckaroo\Prestashop\Refund\OrderService;
 use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
+use Buckaroo\Prestashop\Refund\Settings;
+use Buckaroo\Prestashop\Refund\StatusService;
+use Buckaroo\Resources\Constants\ResponseStatus;
+use Doctrine\ORM\EntityManager;
+use Order;
+use Symfony\Component\HttpFoundation\Request;
 
 class Handler
 {
@@ -81,6 +80,7 @@ class Handler
             return $this->addRefundToOrder($order);
         }
         $this->statusService->setRefunded($order);
+
         return $this->updateRefundRequest($refundRequest);
     }
 

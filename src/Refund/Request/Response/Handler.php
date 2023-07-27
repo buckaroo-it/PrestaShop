@@ -17,14 +17,12 @@
 
 namespace Buckaroo\Prestashop\Refund\Request\Response;
 
-use Order;
-use Configuration;
-use Doctrine\ORM\EntityManager;
-use Buckaroo\Prestashop\Refund\Settings;
 use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
+use Buckaroo\Prestashop\Refund\Settings;
 use Buckaroo\Prestashop\Refund\StatusService;
 use Buckaroo\Transaction\Response\TransactionResponse;
-use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
+use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
 class Handler
@@ -39,7 +37,7 @@ class Handler
      */
     private $paymentService;
 
-        /**
+    /**
      * @var StatusService
      */
     private $statusService;
@@ -56,7 +54,7 @@ class Handler
 
     public function parse(TransactionResponse $response, array $body, int $orderId)
     {
-        $order = new Order($orderId);
+        $order = new \Order($orderId);
         $this->createRefundRequest($response, $body, $orderId);
         $this->statusService->setRefunded($order);
 
