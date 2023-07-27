@@ -17,8 +17,12 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Buckaroo\Prestashop\Refund\Commands\IssuePartialRefund as IssuePartialRefundCommand;
+use Group;
 use Order;
+use Customer;
+use OrderSlip;
+use OrderDetail;
+use Configuration;
 use PrestaShop\Decimal\DecimalNumber;
 use Buckaroo\Prestashop\Refund\Settings;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;

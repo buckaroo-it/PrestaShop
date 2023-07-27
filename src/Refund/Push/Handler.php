@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,7 +18,10 @@
 
 namespace Buckaroo\Prestashop\Refund\Push;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Order;
+use Configuration;
+use Doctrine\ORM\EntityManager;
+use Buckaroo\Prestashop\Refund\Settings;
 use Buckaroo\Prestashop\Refund\OrderService;
 use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Prestashop\Refund\StatusService;
