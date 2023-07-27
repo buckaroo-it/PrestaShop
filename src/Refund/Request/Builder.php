@@ -34,12 +34,17 @@ class Builder extends AbstractBuilder
         return array_merge(
             $this->buildCommon($order, $payment, $this->round($refundSummary->getRefundedAmount())),
             $this->buildIssuers($payment),
-            $this->buildArticles($refundSummary)
+            $this->buildArticles($refundSummary, $payment->payment_method)
         );
     }
 
-    private function buildArticles(OrderRefundSummary $refundSummary)
+    private function buildArticles(OrderRefundSummary $refundSummary, string $paymentCode): array
     {
+
+        if (!in_array($paymentCode, ["afterpay", "billink"])) {
+            return  [];
+        }
+
         $articles = [];
         $total = 0;
 

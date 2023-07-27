@@ -28,9 +28,10 @@ use OrderDetail;
 use Configuration;
 use PrestaShop\Decimal\DecimalNumber;
 use Buckaroo\Prestashop\Refund\Settings;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\Order\VoucherRefundType;
-use Buckaroo\Prestashop\Refund\Commands\IssuePartialRefund as IssuePartialRefundCommand;
+use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 
 class OrderService
 {
@@ -41,13 +42,20 @@ class OrderService
     private $commandBus;
 
     /**
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * @param CommandBusInterface $commandBus
      */
     public function __construct(
-        CommandBusInterface $commandBus
+        CommandBusInterface $commandBus,
+        SessionInterface $session
     )
     {
         $this->commandBus = $commandBus;
+        $this->session = $session;
     }
 
     public function refund(Order $order, float $amount)
@@ -69,7 +77,10 @@ class OrderService
             VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
         );
 
+        $this->session->set('buckaroo_skip_refund', true);
         $this->commandBus->handle($command);
+        $this->session->remove('buckaroo_skip_refund');
+
     }
 
     /**
@@ -92,8 +103,10 @@ class OrderService
             $unitPrice = $this->getProductUnitPrice($orderDetail, $this->isTaxIncludedInOrder($order));
 
             $product = $this->getProductQuantityForRefund($quantityAvailable, $unitPrice, $remainingRefundAmount);
-            $remainingRefundAmount -= $product['amount'];
-            $refundItems[$orderDetail['id_order_detail']] = $product;
+            if($product['amount'] > 0) {
+                $remainingRefundAmount -= $product['amount'];
+                $refundItems[$orderDetail['id_order_detail']] = $product;
+            }
 
             if ($remainingRefundAmount < 0.005) {
                 break;

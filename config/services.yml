@@ -37,11 +37,18 @@ services:
     class: Buckaroo\Prestashop\Refund\Payment\Service
     public: true
 
+  buckaroo.refund.status.service:
+    class: Buckaroo\Prestashop\Refund\StatusService
+    arguments:
+      - '@prestashop.adapter.order.query_handler.get_order_for_viewing_handler'
+    public: true
+
   buckaroo.refund.request.response.handler:
     class: Buckaroo\Prestashop\Refund\Request\Response\Handler
     arguments:
       - "@doctrine.orm.entity_manager"
       - "@buckaroo.refund.payment.service"
+      - "@buckaroo.refund.status.service"
     public: true
 
   buckaroo.refund.push.handler:
@@ -49,12 +56,14 @@ services:
     arguments:
       - "@doctrine.orm.entity_manager"
       - "@buckaroo.refund.order.service"
+      - "@buckaroo.refund.status.service"
     public: true
 
   buckaroo.refund.order.service:
     class: Buckaroo\Prestashop\Refund\OrderService
     arguments:
       - "@prestashop.core.command_bus"
+      - "@session"
     public: true
 
   buckaroo.refund.order.message:
@@ -74,6 +83,7 @@ services:
     arguments:
       - "@buckaroo.decorator.issue_partial_refund_handler.inner"
       - "@buckaroo.refund_handler"
+      - "@session"
     public: false
 
   buckaroo.decorator.issue_standard_refund_handler:

@@ -136,7 +136,7 @@ class AdminRefundController extends FrameworkBundleAdminController
         try {
             $this->orderService->refund($order, $refundAmount);
         } catch (\Throwable $th) { // phpcs:ignore
-            //throw $th;
+            // throw $th;
         }
 
         $body = $this->refundBuilder->create($order, $payment, $refundAmount);

@@ -29,7 +29,6 @@ use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
-use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueReturnProductCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
 
@@ -126,7 +125,7 @@ class Handler
      * Get refund data 
      *
      * @param Order $order
-     * @param IssueStandardRefundCommand|IssuePartialRefundCommand|IssueReturnProductCommand $command
+     * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      *
      * @return OrderRefundSummary
      */
