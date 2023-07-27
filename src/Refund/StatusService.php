@@ -17,7 +17,6 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Order;
 use PrestaShop\PrestaShop\Adapter\Order\QueryHandler\GetOrderForViewingHandler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Query\GetOrderForViewing;
 use PrestaShop\PrestaShop\Core\Domain\Order\QueryResult\OrderForViewing;

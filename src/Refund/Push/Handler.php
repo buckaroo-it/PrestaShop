@@ -24,7 +24,6 @@ use Buckaroo\Prestashop\Refund\Settings;
 use Buckaroo\Prestashop\Refund\StatusService;
 use Buckaroo\Resources\Constants\ResponseStatus;
 use Doctrine\ORM\EntityManager;
-use Order;
 use Symfony\Component\HttpFoundation\Request;
 
 class Handler

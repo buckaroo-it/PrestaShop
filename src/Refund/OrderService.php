@@ -17,7 +17,6 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Order;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
