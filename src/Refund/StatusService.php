@@ -56,7 +56,7 @@ class StatusService
         $statusRefunded = Configuration::get('PS_OS_REFUND');
 
         $orderState = $order->getCurrentOrderState();
-        $isCurrentlyRefunded =  $orderState !== null && $orderState->id === $statusRefunded;
+        $isCurrentlyRefunded =  $orderState !== null && $orderState->id == $statusRefunded;
 
         if ($this->isReadyToBeRefunded($orderForViewing) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
