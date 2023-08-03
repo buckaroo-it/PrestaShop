@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -58,7 +55,7 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
      */
     public function handle(IssuePartialRefundCommand $command): void
     {
-        if(
+        if (
             !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)
         ) {
             $this->refundHandler->execute($command);

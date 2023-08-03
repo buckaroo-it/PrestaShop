@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,30 +14,31 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class ApplePay extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type    = "applepay";
+        $this->type = 'applepay';
         $this->version = 1;
-        $this->mode    = Config::getMode($this->type);
+        $this->mode = Config::getMode($this->type);
     }
 
     public function getPayload()
     {
         $payload = [
-            'servicesSelectableByClient'=> $this->type,
-            'continueOnIncomplete'=> '1'
+            'servicesSelectableByClient' => $this->type,
+            'continueOnIncomplete' => '1',
         ];
+
         return $payload;
     }
 
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         $this->payload = $this->getPayload();
+
         return parent::executeCustomPayAction('payRedirect');
     }
 }

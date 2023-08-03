@@ -1,25 +1,20 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
-
-require_once(dirname(__FILE__) . '/../paymentmethod.php');
-
-use Buckaroo\Resources\Constants\RecipientCategory;
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class Klarna extends PaymentMethod
 {
@@ -58,113 +53,113 @@ class Klarna extends PaymentMethod
 
     public function __construct()
     {
-        $this->type = "klarnakp";
+        $this->type = 'klarnakp';
         $this->version = '0';
         $this->mode = Config::getMode('KLARNA');
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = Array())
+    public function pay($customVars = [])
     {
-    // @codingStandardsIgnoreEnd
+        // @codingStandardsIgnoreEnd
         return null;
     }
 
     public function getPayload($products)
     {
-        $payload = array(
-                        'gender'            => $this->BillingGender,
-                        'operatingCountry'  => $this->BillingCountry,
-                        'billing'           => [
-                            'recipient'        => [
-                                'firstName'             => $this->BillingFirstName,
-                                'lastName'              => $this->BillingLastName,
-                            ],
-                            'address'       => [
-                                'street'                => $this->BillingStreet,
-                                'houseNumber'           => $this->BillingHouseNumber,
-                                'zipcode'               => $this->BillingPostalCode,
-                                'city'                  => $this->BillingCity,
-                                'country'               => $this->BillingCountry,
-                            ],
-                            'phone'         => [
-                                'mobile'        => ($this->BillingPhoneNumber) ? $this->BillingPhoneNumber : $this->ShippingPhoneNumber
-                            ],
-                            'email'         => $this->BillingEmail
-                        ],
-                        'articles'          => $this->getArticles($products)
-                    );
-                    //Add shipping address if is different
-                    if ($this->addShippingIfDifferent()) {
-                        $payload['shipping'] = $this->addShippingIfDifferent();
-                    }
+        $payload = [
+            'gender' => $this->BillingGender,
+            'operatingCountry' => $this->BillingCountry,
+            'billing' => [
+                'recipient' => [
+                    'firstName' => $this->BillingFirstName,
+                    'lastName' => $this->BillingLastName,
+                ],
+                'address' => [
+                    'street' => $this->BillingStreet,
+                    'houseNumber' => $this->BillingHouseNumber,
+                    'zipcode' => $this->BillingPostalCode,
+                    'city' => $this->BillingCity,
+                    'country' => $this->BillingCountry,
+                ],
+                'phone' => [
+                    'mobile' => ($this->BillingPhoneNumber) ? $this->BillingPhoneNumber : $this->ShippingPhoneNumber,
+                ],
+                'email' => $this->BillingEmail,
+            ],
+            'articles' => $this->getArticles($products),
+        ];
+        // Add shipping address if is different
+        if ($this->addShippingIfDifferent()) {
+            $payload['shipping'] = $this->addShippingIfDifferent();
+        }
+
         return $payload;
     }
 
     private function getArticles($products)
     {
         // Merge products with same SKU
-        $mergedProducts = array();
+        $mergedProducts = [];
         foreach ($products as $product) {
-            if (! isset($mergedProducts[$product['ArticleId']])) {
+            if (!isset($mergedProducts[$product['ArticleId']])) {
                 $mergedProducts[$product['ArticleId']] = $product;
             } else {
-                $mergedProducts[$product['ArticleId']]["ArticleQuantity"] += 1;
+                ++$mergedProducts[$product['ArticleId']]['ArticleQuantity'];
             }
         }
 
         $products = $mergedProducts;
 
-        foreach($products as $item)
-        {
+        foreach ($products as $item) {
             $productsArr[] = [
-                'identifier'    => $item['ArticleId'],
-                'description'   => $item['ArticleDescription'],
-                'vatPercentage' => isset($item["ArticleVatcategory"]) ? $item["ArticleVatcategory"] : 0,
-                'quantity'      => $item['ArticleQuantity'],
-                'price'         => $item['ArticleUnitprice']
+                'identifier' => $item['ArticleId'],
+                'description' => $item['ArticleDescription'],
+                'vatPercentage' => isset($item['ArticleVatcategory']) ? $item['ArticleVatcategory'] : 0,
+                'quantity' => $item['ArticleQuantity'],
+                'price' => $item['ArticleUnitprice'],
             ];
         }
 
-
-        //Add shipping costs
+        // Add shipping costs
         if ($this->ShippingCosts > 0) {
-            $productsArr[] = [                
-                'identifier'    => 'shipping',
-                'description'   => 'Shipping Costs',
+            $productsArr[] = [
+                'identifier' => 'shipping',
+                'description' => 'Shipping Costs',
                 'vatPercentage' => $this->ShippingCostsTax,
-                'quantity'      => 1,
-                'price'         => $this->ShippingCosts
+                'quantity' => 1,
+                'price' => $this->ShippingCosts,
             ];
         }
 
-        return $productsArr;        
+        return $productsArr;
     }
-    
+
     private function addShippingIfDifferent()
     {
-        if($this->AddressesDiffer == 'TRUE')
-        {
+        if ($this->AddressesDiffer == 'TRUE') {
             return [
-                'recipient'        => [
-                    'firstName'             => $this->ShippingFirstName,
-                    'lastName'              => $this->ShippingLastName
+                'recipient' => [
+                    'firstName' => $this->ShippingFirstName,
+                    'lastName' => $this->ShippingLastName,
                 ],
-                'address'       => [
-                    'street'                => $this->ShippingStreet,
-                    'houseNumber'           => $this->ShippingHouseNumber,
-                    'zipcode'               => $this->ShippingPostalCode,
-                    'city'                  => $this->ShippingCity,
-                    'country'               => $this->ShippingCountryCode
+                'address' => [
+                    'street' => $this->ShippingStreet,
+                    'houseNumber' => $this->ShippingHouseNumber,
+                    'zipcode' => $this->ShippingPostalCode,
+                    'city' => $this->ShippingCity,
+                    'country' => $this->ShippingCountryCode,
                 ],
-                'email'         => $this->ShippingEmail
+                'email' => $this->ShippingEmail,
             ];
         }
     }
+
     // @codingStandardsIgnoreStart
-    public function payKlarna($products = array(), $customVars = array())
+    public function payKlarna($products = [], $customVars = [])
     {
         $this->payload = $this->getPayload($products);
+
         return parent::executeCustomPayAction('reserve');
     }
 }

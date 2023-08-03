@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,22 +17,14 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Group;
-use Order;
-use Customer;
-use OrderSlip;
-use OrderDetail;
-use Configuration;
 use PrestaShop\Decimal\DecimalNumber;
-use Buckaroo\Prestashop\Refund\Settings;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use PrestaShop\PrestaShop\Core\CommandBus\CommandBusInterface;
-use PrestaShop\PrestaShop\Core\Domain\Order\VoucherRefundType;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
+use PrestaShop\PrestaShop\Core\Domain\Order\VoucherRefundType;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OrderService
 {
-
     /**
      * @var CommandBusInterface
      */
@@ -52,17 +41,16 @@ class OrderService
     public function __construct(
         CommandBusInterface $commandBus,
         SessionInterface $session
-    )
-    {
+    ) {
         $this->commandBus = $commandBus;
         $this->session = $session;
     }
 
-    public function refund(Order $order, float $amount)
+    public function refund(\Order $order, float $amount)
     {
         $refundData = $this->determineRefundData($order, $amount);
 
-        $createCreditSlipValue = Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
+        $createCreditSlipValue = \Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
         if (!is_scalar($createCreditSlipValue)) {
             $createCreditSlipValue = true;
         }
@@ -71,22 +59,21 @@ class OrderService
             $order->id,
             $refundData['products'],
             $refundData['shipping_amount'],
-            Configuration::get(Settings::LABEL_REFUND_RESTOCK) == true,
-            (bool)$createCreditSlipValue,
-            Configuration::get(Settings::LABEL_REFUND_VOUCHER) == true,
+            \Configuration::get(Settings::LABEL_REFUND_RESTOCK) == true,
+            (bool) $createCreditSlipValue,
+            \Configuration::get(Settings::LABEL_REFUND_VOUCHER) == true,
             VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
         );
 
         $this->session->set('buckaroo_skip_refund', true);
         $this->commandBus->handle($command);
         $this->session->remove('buckaroo_skip_refund');
-
     }
 
     /**
      * Determine refund data, products and shipping amounts
      *
-     * @param Order $order
+     * @param \Order $order
      * @param float $refundAmount
      *
      * @return array
@@ -95,7 +82,7 @@ class OrderService
     {
         $refundItems = [];
 
-        $orderDetails  = OrderDetail::getList($order->id);
+        $orderDetails = \OrderDetail::getList($order->id);
 
         $remainingRefundAmount = $refundAmount;
         foreach ($orderDetails as $orderDetail) {
@@ -103,7 +90,7 @@ class OrderService
             $unitPrice = $this->getProductUnitPrice($orderDetail, $this->isTaxIncludedInOrder($order));
 
             $product = $this->getProductQuantityForRefund($quantityAvailable, $unitPrice, $remainingRefundAmount);
-            if($product['amount'] > 0) {
+            if ($product['amount'] > 0) {
                 $remainingRefundAmount -= $product['amount'];
                 $refundItems[$orderDetail['id_order_detail']] = $product;
             }
@@ -122,8 +109,8 @@ class OrderService
         }
 
         return [
-            "products" => $refundItems,
-            "shipping_amount" => $shippingAmount,
+            'products' => $refundItems,
+            'shipping_amount' => $shippingAmount,
         ];
     }
 
@@ -142,17 +129,18 @@ class OrderService
         if ($remainingRefundAmount > $availableShippingAmount) {
             return $availableShippingAmount;
         }
+
         return $remainingRefundAmount;
     }
 
     /**
      * Get shipping amount available for refund
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return float
      */
-    private function getShippingAmountAvailable(Order $order): float
+    private function getShippingAmountAvailable(\Order $order): float
     {
         $shippingMaxRefund = new DecimalNumber(
             $this->isTaxIncludedInOrder($order) ?
@@ -160,15 +148,16 @@ class OrderService
                 (string) $order->total_shipping_tax_excl
         );
 
-        $shippingSlipResume = OrderSlip::getShippingSlipResume($order->id);
+        $shippingSlipResume = \OrderSlip::getShippingSlipResume($order->id);
         $shippingSlipTotalTaxIncl = new DecimalNumber((string) ($shippingSlipResume['total_shipping_tax_incl'] ?? 0));
+
         return (float) (string) $shippingMaxRefund->minus($shippingSlipTotalTaxIncl);
     }
 
     /**
      * Get product quantity and amount, full quantity or partial quantity
      *
-     * @param integer $quantityAvailable
+     * @param int $quantityAvailable
      * @param float $unitPrice
      * @param float $remainingRefundAmount
      *
@@ -182,13 +171,13 @@ class OrderService
         $productMaxRefund = $quantityAvailable * $unitPrice;
         if ($productMaxRefund <= $remainingRefundAmount) {
             return [
-                "amount" => $productMaxRefund,
-                "quantity" => $quantityAvailable
+                'amount' => $productMaxRefund,
+                'quantity' => $quantityAvailable,
             ];
         } else {
             return [
-                "amount" => $remainingRefundAmount,
-                "quantity" => ceil($remainingRefundAmount / $unitPrice)
+                'amount' => $remainingRefundAmount,
+                'quantity' => ceil($remainingRefundAmount / $unitPrice),
             ];
         }
     }
@@ -198,18 +187,18 @@ class OrderService
      *
      * @param array $orderDetail
      *
-     * @return integer
+     * @return int
      */
     protected function getProductQuantityAvailable(array $orderDetail): int
     {
-        return (int)$orderDetail['product_quantity'] - (int)$orderDetail['product_quantity_return'] - (int)$orderDetail['product_quantity_refunded'];
+        return (int) $orderDetail['product_quantity'] - (int) $orderDetail['product_quantity_return'] - (int) $orderDetail['product_quantity_refunded'];
     }
 
     /**
      * Get unit price for order item
      *
      * @param array $orderDetail
-     * @param boolean $isTaxIncluded
+     * @param bool $isTaxIncluded
      *
      * @return float
      */
@@ -219,15 +208,15 @@ class OrderService
     }
 
     /**
-     * @param Order $order
+     * @param \Order $order
      *
      * @return bool
      */
-    private function isTaxIncludedInOrder(Order $order): bool
+    private function isTaxIncludedInOrder(\Order $order): bool
     {
-        $customer = new Customer($order->id_customer);
+        $customer = new \Customer($order->id_customer);
 
-        $taxCalculationMethod = Group::getPriceDisplayMethod((int) $customer->id_default_group);
+        $taxCalculationMethod = \Group::getPriceDisplayMethod((int) $customer->id_default_group);
 
         return $taxCalculationMethod === PS_TAX_INC;
     }

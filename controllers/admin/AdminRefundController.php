@@ -1,23 +1,5 @@
 <?php
-
-namespace Buckaroo3\Prestashop\Controller;
-
-use Order;
-use Context;
-use Currency;
-use OrderPayment;
-use Tools;
-use Buckaroo\Prestashop\Refund\OrderService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -33,14 +15,24 @@ use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+namespace Buckaroo3\Prestashop\Controller;
+
+use Buckaroo\Prestashop\Refund\OrderService;
+use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
+use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use Currency;
+use Order;
+use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
 class AdminRefundController extends FrameworkBundleAdminController
 {
-
     /**
      * @var QuantityBasedBuilder
      */
     private $refundBuilder;
-
 
     /**
      * @var RefundRequestHandler
@@ -75,34 +67,35 @@ class AdminRefundController extends FrameworkBundleAdminController
         $refundAmount = $request->get('refundAmount');
 
         if (!is_scalar($orderId) || $orderId === null) {
-            return $this->renderError("Invalid value for `orderId`");
+            return $this->renderError('Invalid value for `orderId`');
         }
 
         if (!is_scalar($refundAmount) || $refundAmount === null) {
-            return $this->renderError("Invalid value for `refundAmount`");
+            return $this->renderError('Invalid value for `refundAmount`');
         }
 
-        $order = new Order($orderId);
+        $order = new \Order($orderId);
 
         try {
-            $totalRefundAmount = $this->sendRefundRequests($order, (float)$refundAmount);
+            $totalRefundAmount = $this->sendRefundRequests($order, (float) $refundAmount);
+
             return new JsonResponse(
-                ["error" =>false, "message" => "Successfully refunded amount of ". $this->formatPrice($order, $totalRefundAmount)]
+                ['error' => false, 'message' => 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount)]
             );
         } catch (\Throwable $th) {
             return $this->renderError($th->getMessage());
         }
     }
-    
+
     /**
      * Send refund request to payment engine, return total amount refunded
      *
-     * @param Order $order
+     * @param \Order $order
      * @param float $maxRefundAmount
      *
      * @return float
      */
-    private function sendRefundRequests(Order $order, float $maxRefundAmount): float
+    private function sendRefundRequests(\Order $order, float $maxRefundAmount): float
     {
         $refundAmount = $maxRefundAmount;
         $buckarooPayments = $this->getBuckarooPayments($order);
@@ -113,26 +106,27 @@ class AdminRefundController extends FrameworkBundleAdminController
                 }
             }
         }
+
         return $maxRefundAmount - $refundAmount;
     }
 
     /**
      * Refund individual payment with amount, return remaining amount to be refunded
      *
-     * @param Order $order
-     * @param OrderPayment $payment
+     * @param \Order $order
+     * @param \OrderPayment $payment
      * @param float $maxRefundAmount
      *
      * @return float
      */
-    private function sentRefundRequest(Order $order, OrderPayment $payment, float $maxRefundAmount): float
+    private function sentRefundRequest(\Order $order, \OrderPayment $payment, float $maxRefundAmount): float
     {
         $refundAmount = $maxRefundAmount;
         if ($maxRefundAmount > $payment->amount) {
             $refundAmount = $payment->amount;
         }
         $maxRefundAmount = $maxRefundAmount - $refundAmount;
- 
+
         try {
             $this->orderService->refund($order, $refundAmount);
         } catch (\Throwable $th) { // phpcs:ignore
@@ -149,22 +143,20 @@ class AdminRefundController extends FrameworkBundleAdminController
             $order->id
         );
 
-       
-    
         return $maxRefundAmount;
     }
 
     /**
      * Get buckaroo payments
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return array
      */
-    private function getBuckarooPayments(Order $order): array
+    private function getBuckarooPayments(\Order $order): array
     {
-        //todo: filter payments for only buckaroo requests 
-        return  $order->getOrderPayments();
+        // todo: filter payments for only buckaroo requests
+        return $order->getOrderPayments();
     }
 
     /**
@@ -176,21 +168,21 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private function renderError(string $message): JsonResponse
     {
-        return new JsonResponse(['error' => true, "message" => $message]);
+        return new JsonResponse(['error' => true, 'message' => $message]);
     }
 
     /**
      * Format price based on order currency
      *
-     * @param Order $order
+     * @param \Order $order
      * @param float $price
      *
      * @return string
      */
-    private function formatPrice(Order $order, float $price): string
+    private function formatPrice(\Order $order, float $price): string
     {
-         return Tools::getContextLocale(Context::getContext())->formatPrice(
-            $price, Currency::getIsoCodeById((int)$order->id_currency)
+        return \Tools::getContextLocale(\Context::getContext())->formatPrice(
+            $price, \Currency::getIsoCodeById((int) $order->id_currency)
         );
     }
 }

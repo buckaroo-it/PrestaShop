@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 class AdminBuckaroologController extends AdminControllerCore
 {
     public function __construct()
@@ -33,11 +30,11 @@ class AdminBuckaroologController extends AdminControllerCore
 
     public function renderList()
     {
-        $file       = dirname(__FILE__) . '/../../api/log/report_log.txt';
-        $returndata = array();
+        $file = dirname(__FILE__) . '/../../api/log/report_log.txt';
+        $returndata = [];
         if (file_exists($file)) {
-            $data   = array();
-            $handle = @fopen($file, "r");
+            $data = [];
+            $handle = @fopen($file, 'r');
             if ($handle) {
                 while (($buffer = fgets($handle, 4096)) !== false) {
                     $data[] = $buffer;
@@ -46,23 +43,24 @@ class AdminBuckaroologController extends AdminControllerCore
             }
             if (!empty($data)) {
                 $data = array_reverse($data);
-                $i    = 1;
+                $i = 1;
                 foreach ($data as $d) {
-                    $tmp = explode("|||", $d);
+                    $tmp = explode('|||', $d);
                     if (!empty($tmp[1])) {
                         list($time, $value) = $tmp;
                     } else {
-                        $time  = 'unknown';
+                        $time = 'unknown';
                         $value = $d;
                     }
-                    $returndata[$i]["id"]    = $i;
-                    $returndata[$i]["time"]  = $time;
-                    $returndata[$i]["value"] = $value;
-                    $i++;
+                    $returndata[$i]['id'] = $i;
+                    $returndata[$i]['time'] = $time;
+                    $returndata[$i]['value'] = $value;
+                    ++$i;
                 }
             }
         }
-        $this->context->smarty->assign(array("data" => $returndata));
+        $this->context->smarty->assign(['data' => $returndata]);
+
         return $this->context->smarty->fetch(dirname(__FILE__) . '/../../views/templates/admin/buckaroolog.tpl');
     }
 }

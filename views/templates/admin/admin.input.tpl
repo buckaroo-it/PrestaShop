@@ -31,7 +31,7 @@
                 {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}selected="selected"{/if}>{l s='Yes' mod='buckaroo3'}</option>
     </select>
     {if isset($input.description)}
-        <span class="help-block">{$input.description}</span>
+        <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
     {/if}
 </div>
 {elseif $input.type == 'submit'}
@@ -48,7 +48,7 @@
         {/foreach}
     </select>
     {if isset($input.description)}
-        <span class="help-block">{$input.description}</span>
+        <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
     {/if}
 </div>
 {elseif $input.type == 'select'}
@@ -61,7 +61,7 @@
         {/foreach}
     </select>
     {if isset($input.description)}
-        <span class="help-block">{$input.description}</span>
+        <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
     {/if}
 </div>
 {elseif $input.type == 'text'}
@@ -71,7 +71,7 @@
            size="{if $input.size}{$input.size|escape:'quotes':'UTF-8'}{else}25{/if}" value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
 
     {if isset($input.description)}
-        <span class="help-block">{$input.description}</span>
+        <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
     {/if}
 </div>
 {elseif $input.type == 'number'}
@@ -80,7 +80,7 @@
     <input id="{$input.name|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" {if isset($input.class)}class="{$input.class|escape:'html':'UTF-8'} form-control"{/if} type="number"
             {if isset($input.step)}step="{$input.step|escape:'html':'UTF-8'}"{/if} {if isset($input.min)}min="{$input.min|escape:'html':'UTF-8'}"{/if} {if isset($input.max)}max="{$input.max|escape:'html':'UTF-8'}"{/if} value="{$fields_value[$input.name]|escape:'html':'UTF-8'}"/>
             {if isset($input.description)}
-                <span class="help-block">{$input.description}</span>
+                <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
             {/if}
 </div>
 {elseif $input.type == 'taxrate'}

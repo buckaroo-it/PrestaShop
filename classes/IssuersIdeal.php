@@ -1,5 +1,19 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 use Buckaroo\BuckarooClient;
 
 require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
@@ -9,7 +23,7 @@ class IssuersIdeal
 {
     protected const CACHE_ISSUERS_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE';
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE_DATE';
-    
+
     protected const ISSUERS_IMAGES = [
         'ABNANL2A' => 'ABNAMRO.png',
         'ASNBNL21' => 'ASNBANK.png',
@@ -22,7 +36,7 @@ class IssuersIdeal
         'KNABNL2H' => 'KNAB.png',
         'BUNQNL2A' => 'Bunq.png',
         'REVOLT21' => 'Revolut.png',
-        'BITSNL2A' =>  'YourSafe.png',
+        'BITSNL2A' => 'YourSafe.png',
     ];
 
     public function get()
@@ -30,9 +44,10 @@ class IssuersIdeal
         $issuers = $this->getCacheIssuers();
         $cacheDate = $this->getCacheDate();
 
-        if(!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
+        if (!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
+
         return $issuers;
     }
 
@@ -46,15 +61,15 @@ class IssuersIdeal
     private function addLogos($issuers)
     {
         return array_map(
-            function($issuer) {
+            function ($issuer) {
                 $logo = null;
-                if(
-                    isset($issuer['id']) && 
-                    isset(self::ISSUERS_IMAGES[$issuer['id']])
+                if (
+                    isset($issuer['id'], self::ISSUERS_IMAGES[$issuer['id']])
                 ) {
                     $logo = self::ISSUERS_IMAGES[$issuer['id']];
                 }
                 $issuer['logo'] = $logo;
+
                 return $issuer;
             },
             $issuers
@@ -72,10 +87,12 @@ class IssuersIdeal
             $this->requestIssuers()
         );
 
-        if(count($retrievedIssuers)) {
+        if (count($retrievedIssuers)) {
             $this->saveIssuers($retrievedIssuers);
+
             return $retrievedIssuers;
         }
+
         return $issuers;
     }
 
@@ -84,12 +101,13 @@ class IssuersIdeal
         $buckaroo = new BuckarooClient(
             Configuration::get('BUCKAROO_MERCHANT_KEY'),
             Configuration::get('BUCKAROO_SECRET_KEY'),
-            Config::getMode("ideal")
+            Config::getMode('ideal')
         );
+
         return $buckaroo->method('ideal')->issuers();
     }
 
-    /** 
+    /**
      * Save issuers to cache with new date
      *
      * @param array $issuers
@@ -98,7 +116,7 @@ class IssuersIdeal
      */
     private function saveIssuers($issuers)
     {
-        if(!is_array($issuers)) {
+        if (!is_array($issuers)) {
             return;
         }
         Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
@@ -108,20 +126,21 @@ class IssuersIdeal
     /**
      * Get cached issuers
      *
-     * @return null|array
+     * @return array|null
      */
     private function getCacheIssuers()
     {
         $issuersString = Configuration::get(self::CACHE_ISSUERS_KEY);
-        if(!is_string($issuersString)) {
-           return;
+        if (!is_string($issuersString)) {
+            return;
         }
+
         return json_decode($issuersString, true);
     }
 
     /**
      * Get cached date
-     * 
+     *
      * @return bool|string
      */
     private function getCacheDate()

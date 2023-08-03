@@ -1,3 +1,17 @@
+{*
+*
+ *
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * @author Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
+*}
 <form action="{$form_action|escape:'quotes':'UTF-8'}" method="post" class="clear" id="buckaroo3settings_form" method="post"
       enctype="multipart/form-data">
     <!-- Always display the 'GLOBAL' fieldset first and keep it open -->
@@ -48,23 +62,23 @@
         {foreach from=$fields_form item=fieldset}
             {if !in_array($fieldset.name, ['GLOBAL', 'REFUND'])}
                 <div class="panel panel-default">
-                    <div class="panel-heading" id="heading{$fieldset.name}">
+                    <div class="panel-heading" id="heading{$fieldset.name|escape:'html':'UTF-8'}">
                         <h2 class="mb-0">
                             <span class="handle" style="cursor: move;">☰ </span>
                             {foreach from=$fieldset.input item=input}
                                 {if $input.type == 'enabled'}
                                     <label class="switch buckaroo-switch">
                                         <input type="hidden" name="{$input.name|escape:'quotes':'UTF-8'}" value="{if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}1{else}0{/if}">
-                                        <input type="checkbox" data-target="#collapse{$fieldset.name}" class="toggle-switch buckaroo-toggle-switch" {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}checked{/if}>
+                                        <input type="checkbox" data-target="#collapse{$fieldset.name|escape:'html':'UTF-8'}" class="toggle-switch buckaroo-toggle-switch" {if !empty($fields_value[$input.name]) && ($fields_value[$input.name] == 1)}checked{/if}>
                                         <span class="slider buckaroo-slider round"></span>
                                     </label>
                                 {/if}
                             {/foreach}
-                            <img src="{$fieldset.image}" alt="Icon"> <!-- insert your image here -->
+                            <img src="{$fieldset.image|escape:'html':'UTF-8'}" alt="Icon">
                             {$fieldset.legend|escape:'html':'UTF-8'}
                         </h2>
                     </div>
-                    <div id="collapse{$fieldset.name}" class="collapse" aria-labelledby="heading{$fieldset.name}">
+                    <div id="collapse{$fieldset.name|escape:'html':'UTF-8'}" class="collapse" aria-labelledby="heading{$fieldset.name|escape:'html':'UTF-8'}">
                         <div class="panel-body">
                             {foreach from=$fieldset.input item=input}
                                 <div class="form-group">

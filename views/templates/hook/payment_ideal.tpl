@@ -40,17 +40,17 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_Issuer"
-                                    id="ideal_issuer_{$issuer['id']}"
-                                    value="{$issuer['id']}"
+                                    id="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}"
+                                    value="{$issuer['id']|escape:'html':'UTF-8'}"
                                     type="radio"
                             />
-                            <label for="ideal_issuer_{$issuer['id']}" class="bk-issuer-label">
+                            <label for="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/{$issuer['logo']}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/{$issuer['logo']|escape:'html':'UTF-8'}"
                                     />
                                 {/if}
                                 {l s=$issuer['name'] mod='buckaroo3'}

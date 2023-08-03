@@ -1,8 +1,5 @@
 <?php
-
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -24,6 +21,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(indexes={@ORM\Index(name="order_id_index", columns={"order_id"}), @ORM\Index(name="key_index", columns={"refund_key"})})
+ *
  * @ORM\Entity()
  */
 class BkRefundRequest
@@ -31,12 +29,13 @@ class BkRefundRequest
     public const STATUS_SUCCESS = 'success';
     public const STATUS_FAILED = 'failed';
 
-
     /**
      * @var int
      *
      * @ORM\Id
+     *
      * @ORM\Column(name="id", type="integer")
+     *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
@@ -69,7 +68,6 @@ class BkRefundRequest
      */
     private $key;
 
-
     /**
      * @var string
      *
@@ -101,48 +99,56 @@ class BkRefundRequest
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
         return $this;
     }
 
     public function setOrderId(int $orderId): self
     {
         $this->orderId = $orderId;
+
         return $this;
     }
 
     public function setAmount(float $amount): self
     {
         $this->amount = $amount;
+
         return $this;
     }
 
     public function setKey(string $key): self
     {
         $this->key = $key;
+
         return $this;
     }
 
     public function setPaymentKey(string $paymentKey): self
     {
         $this->paymentKey = $paymentKey;
+
         return $this;
     }
 
     public function setPayload(array $payload): self
     {
         $this->payload = $payload;
+
         return $this;
     }
 
     public function setData(array $data): self
     {
         $this->data = $data;
+
         return $this;
     }
 
     public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 

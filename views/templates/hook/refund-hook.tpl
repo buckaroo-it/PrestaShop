@@ -23,13 +23,13 @@
         <label for="bk-refund-amount">{l s='Refund amount' mod='buckaroo3'}</label>
         <div class="input-group mb-3">
             <input type="number" name="refund-amount" id="bk-refund-amount" class="form-control"
-                placeholder="{$maxAvailableAmount}">
+                placeholder="{$maxAvailableAmount|escape:'html':'UTF-8'}">
             <div class="input-group-append">
                 <button type="button" class="btn btn-primary" id="bk-btn-refund">{l s='Refund' mod='buckaroo3'}</button>
             </div>
         </div>
-        <input type="hidden" id="bk-order-id" value="{$orderId}" />
-        <small>{l s='Max amount available' mod='buckaroo3'} <strong>{$maxAvailableAmount}</strong></small>
+        <input type="hidden" id="bk-order-id" value="{$orderId|escape:'html':'UTF-8'}" />
+        <small>{l s='Max amount available' mod='buckaroo3'} <strong>{$maxAvailableAmount|escape:'html':'UTF-8'}</strong></small>
         <hr>
 
         <h4>{l s='Previous Refunds' mod='buckaroo3'}</h4>
@@ -46,16 +46,16 @@
                 {foreach from=$refunds item=refund}
                     <tr>
 
-                        <td><a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey={$refund->getKey()}"
-                                target="_blank">{$refund->getKey()}<a></td>
+                        <td><a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey={$refund->getKey()|escape:'html':'UTF-8'}"
+                                target="_blank">{$refund->getKey()|escape:'html':'UTF-8'}<a></td>
                         <td class="text-center">
                             <div
                                 class="badge{if ($refund->getStatus() === 'success')} badge-success {else} badge-danger {/if}">
-                                {$refund->getStatus()}
+                                {$refund->getStatus()|escape:'html':'UTF-8'}
                             </div>
                         </td>
                         <td class="text-right">
-                            {Tools::getContextLocale(Context::getContext())->formatPrice($refund->getAmount(), Currency::getIsoCodeById($currencyId))}
+                            {Tools::getContextLocale(Context::getContext())->formatPrice($refund->getAmount(), Currency::getIsoCodeById($currencyId))|escape:'html':'UTF-8'}
                         </td>
                         <td class="text-right">{dateFormat date=$refund->getCreatedAt()->format('Y-m-d H:i:s') full=true}
                         </td>
@@ -81,7 +81,7 @@
                 buckarooToggleRefundButton(true);
                 $.ajax({
                     type: 'POST',
-                    url: '{$ajaxUrl}',
+                    url: '{$ajaxUrl|escape:'html':'UTF-8'}',
                     data: {
                         orderId: $('#bk-order-id').val(),
                         refundAmount: refundAmount

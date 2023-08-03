@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,22 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class TrustlyCheckout extends Checkout
 {
-
-    protected $customVars = array();
+    protected $customVars = [];
 
     final public function setCheckout()
     {
         parent::setCheckout();
-        
+
         $this->customVars = [
             'first_name' => $this->invoice_address->firstname,
-            'last_name'  => $this->invoice_address->lastname,
-            'country'    => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
+            'last_name' => $this->invoice_address->lastname,
+            'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
         ];
     }
 

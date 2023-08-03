@@ -1,2 +1,5 @@
 /api/log
 composer.lock
+.php-cs-fixer.cache
+var
+tools

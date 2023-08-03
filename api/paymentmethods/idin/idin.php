@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class Idin extends PaymentMethod
@@ -26,12 +23,12 @@ class Idin extends PaymentMethod
 
     public function __construct()
     {
-        $this->type    = "idin";
+        $this->type = 'idin';
         $this->version = 0;
-        $this->mode    = Config::getMode($this->type);
+        $this->mode = Config::getMode($this->type);
     }
 
-    public function verify($customVars = array())
+    public function verify($customVars = [])
     {
         $this->data['customVars'][$this->type]['issuerId'] = $this->getIssuer($this->issuer);
         if (isset($customVars['cid'])) {
@@ -42,7 +39,7 @@ class Idin extends PaymentMethod
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
         return null;

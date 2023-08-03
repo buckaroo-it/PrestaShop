@@ -1,57 +1,71 @@
 <?php
-
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
 class IssuersCreditCard
 {
     public function getIssuerList()
     {
-        $issuerArray =  array(
-            'amex' => array(
+        $issuerArray = [
+            'amex' => [
                 'name' => 'American Express',
                 'logo' => 'AMEX.svg',
-            ),
-            'cartebancaire' => array(
+            ],
+            'cartebancaire' => [
                 'name' => 'CarteBancaire',
                 'logo' => 'CarteBancaire.svg',
-            ),
-            'cartebleue' => array(
+            ],
+            'cartebleue' => [
                 'name' => 'CarteBleue',
                 'logo' => 'CarteBleue.svg',
-            ),
-            'dankort' => array(
+            ],
+            'dankort' => [
                 'name' => 'Dankort',
                 'logo' => 'Dankort.svg',
-            ),
-            'maestro' => array(
+            ],
+            'maestro' => [
                 'name' => 'Maestro',
                 'logo' => 'Maestro.svg',
-            ),
-            'mastercard' => array(
+            ],
+            'mastercard' => [
                 'name' => 'Mastercard',
                 'logo' => 'MasterCard.svg',
-            ),
-            'nexi' => array(
+            ],
+            'nexi' => [
                 'name' => 'Nexi',
                 'logo' => 'Nexi.svg',
-            ),
-            'postepay' => array(
+            ],
+            'postepay' => [
                 'name' => 'PostePay',
                 'logo' => 'Postepay.svg',
-            ),
-            'visa' => array(
+            ],
+            'visa' => [
                 'name' => 'VISA',
                 'logo' => 'Visa.svg',
-            ),
-            'visaelectron' => array(
+            ],
+            'visaelectron' => [
                 'name' => 'VISA Electron',
                 'logo' => 'VisaElectron.svg',
-            ),
-            'vpay' => array(
+            ],
+            'vpay' => [
                 'name' => 'VPAY',
                 'logo' => 'VPay.svg',
-            ),
-        );
+            ],
+        ];
 
         return $issuerArray;
     }

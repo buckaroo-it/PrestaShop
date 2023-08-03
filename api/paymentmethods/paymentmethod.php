@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 require_once dirname(__FILE__) . '/../../library/logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
@@ -38,13 +35,12 @@ abstract class PaymentMethod extends BuckarooAbstract
     public $mode;
     public $version;
     public $usecreditmanagment = 0;
-    protected $data            = array();
-    protected $payload         = array();
-
+    protected $data = [];
+    protected $payload = [];
 
     public function getBuckarooClient()
     {
-      return new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'), $this->mode);
+        return new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'), $this->mode);
     }
 
     public function executeCustomPayAction($action)
@@ -53,10 +49,10 @@ abstract class PaymentMethod extends BuckarooAbstract
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
-        $this->data['services'][$this->type]['action']  = 'Pay';
+        $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
         return $this->payGlobal();
@@ -64,7 +60,7 @@ abstract class PaymentMethod extends BuckarooAbstract
 
     public function refund()
     {
-        $this->data['services'][$this->type]['action']  = 'Refund';
+        $this->data['services'][$this->type]['action'] = 'Refund';
         $this->data['services'][$this->type]['version'] = $this->version;
 
         return $this->refundGlobal();
@@ -73,67 +69,67 @@ abstract class PaymentMethod extends BuckarooAbstract
     public function payGlobal($customPayAction = null)
     {
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
-        $this->payload['currency']     = $this->currency;
-        $this->payload['amountDebit']  = $this->amountDebit;
-        $this->payload['invoice']      = $this->invoiceId;
-        $this->payload['order']        = $this->orderId;
-        $this->payload['returnURL']    = $this->returnUrl;
-        $this->payload['pushURL']      = $this->pushUrl;
+        $this->payload['currency'] = $this->currency;
+        $this->payload['amountDebit'] = $this->amountDebit;
+        $this->payload['invoice'] = $this->invoiceId;
+        $this->payload['order'] = $this->orderId;
+        $this->payload['returnURL'] = $this->returnUrl;
+        $this->payload['pushURL'] = $this->pushUrl;
 
         $buckaroo = $this->getBuckarooClient();
-        //Pay
+        // Pay
         $response = $buckaroo->method($this->type)->$payAction($this->payload);
 
-       return ResponseFactory::getResponse($response);
+        return ResponseFactory::getResponse($response);
     }
 
     public function refundGlobal()
-    {//TODO - remove unused code
-
+    {// TODO - remove unused code
         $refund_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
-        if (in_array($this->type , ["afterpay","klarnakp", "billink"])) {
+        if (in_array($this->type, ['afterpay', 'klarnakp', 'billink'])) {
             $this->data['articles'] = [[
-                'refundType'        => 'Return',
-                'identifier'        => 1,
-                'description'       => 'Refund',
-                'quantity'          => 1,
-                'price'             =>  round($refund_amount, 2),
-                'vatPercentage'     => 0,
+                'refundType' => 'Return',
+                'identifier' => 1,
+                'description' => 'Refund',
+                'quantity' => 1,
+                'price' => round($refund_amount, 2),
+                'vatPercentage' => 0,
             ]];
         }
 
-        $this->data['currency']               = $this->currency;
-        $this->data['amountDebit']            = $this->amountDebit;
-        $this->data['amountCredit']           = $refund_amount;
-        $this->data['invoice']                = $this->invoiceId;
-        $this->data['order']                  = $this->orderId;
-        $this->data['description']            = $this->description;
+        $this->data['currency'] = $this->currency;
+        $this->data['amountDebit'] = $this->amountDebit;
+        $this->data['amountCredit'] = $refund_amount;
+        $this->data['invoice'] = $this->invoiceId;
+        $this->data['order'] = $this->orderId;
+        $this->data['description'] = $this->description;
         $this->data['originalTransactionKey'] = $this->OriginalTransactionKey;
-        $this->data['returnURL']              = $this->returnUrl;
-        //$this->data['pushURL']                = $this->pushUrl;
-        $this->data['mode']                   = $this->mode;
+        $this->data['returnURL'] = $this->returnUrl;
+        // $this->data['pushURL']                = $this->pushUrl;
+        $this->data['mode'] = $this->mode;
         $buckaroo = $this->getBuckarooClient();
-        //Refund
+        // Refund
         $response = $buckaroo->method($this->type)->refund($this->data);
 
         return ResponseFactory::getResponse($response);
     }
 
     // @codingStandardsIgnoreStart
-    public function verify($customVars = array())
+    public function verify($customVars = [])
     {
         // @codingStandardsIgnoreEnd
-        $this->data['services'][$this->type]['action']  = 'verify';
+        $this->data['services'][$this->type]['action'] = 'verify';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        $this->data['returnUrl']    = $this->returnUrl;
-        $this->data['mode']         = $this->mode;
+        $this->data['returnUrl'] = $this->returnUrl;
+        $this->data['mode'] = $this->mode;
 
         $buckaroo = $this->getBuckarooClient();
-        //Verify
+        // Verify
         $response = $buckaroo->method('idin')->identify([
-            'issuer' => $this->data['customVars']["idin"]['issuerId']
+            'issuer' => $this->data['customVars']['idin']['issuerId'],
         ]);
+
         return ResponseFactory::getResponse($response);
     }
 }
