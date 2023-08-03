@@ -297,20 +297,28 @@ class BuckarooCheckout {
             textElement.text(textElement.attr('text-more'));
         }
 
-        jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).toggle(isDown);
+        this.getElementToToggle().toggle(isDown);
     }
 
     initMethod() {
-        jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+        this.getElementToToggle().hide();
         this.showAllIssuers();
     }
+
+    getElementToToggle() {
+        const hasSelected = jQuery(".bk-method-selector input:checked").length > 0;
+        if (hasSelected) {
+          return jQuery(".bk-method-selector input:not(:checked)").closest(".bk-method-issuer");
+        }
+        return  jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`);
+      }
 
     showAllIssuers() {
         if (jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH) {
             jQuery('.bk-toggle-wrap').hide();
             if (jQuery('.bk-toggle-down').length) {
                 jQuery('.bk-toggle-down').addClass('bk-toggle-up').removeClass('bk-toggle-down');
-                jQuery(`.bk-method-selector .bk-method-issuer:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).show();
+                this.getElementToToggle().show();
                 jQuery('.bk-toggle-text').text(jQuery('.bk-toggle-text').attr('text-less'));
             } else {
                 jQuery('.bk-toggle-wrap').show();
