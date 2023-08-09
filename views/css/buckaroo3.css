@@ -443,8 +443,8 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
         min-width: 55px;
     }
     .bk-method-selector input:checked + .bk-issuer-label {
-        background-color: #b2b2b2;
-        color: #fff;
+        background-color: #EDEDED;
+        color: #000;
         border-radius: 5px;
     }
     .bk-method-selector .bk-issuer-label{
