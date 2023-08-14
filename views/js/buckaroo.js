@@ -320,18 +320,15 @@ class BuckarooCheckout {
     }
 
     showAllIssuers = () => {
-        this.toggleTextElements = jQuery('.bk-toggle-text');
-
         if (jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH) {
-            const isDown = jQuery('.bk-toggle-down').length;
-            jQuery('.bk-toggle-wrap').toggle(!isDown);
-            jQuery('.bk-toggle-down').toggleClass('bk-toggle-up bk-toggle-down');
-            jQuery('.bk-method-selector').children().show();
-
-            this.toggleTextElements.each(function() {
-                const element = jQuery(this);
-                element.text(element.attr('text-less'));
-            });
+            jQuery('.bk-toggle-wrap').hide();
+            if (jQuery('.bk-toggle-down').length) {
+                jQuery('.bk-toggle-down').addClass('bk-toggle-up').removeClass('bk-toggle-down');
+                jQuery('.bk-method-selector').children().show();
+                jQuery('.bk-toggle-text').text(jQuery('.bk-toggle-text').attr('text-less'));
+            } else {
+                jQuery('.bk-toggle-wrap').show();
+            }
         }
     }
 }
