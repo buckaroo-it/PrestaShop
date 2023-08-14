@@ -272,7 +272,6 @@ class BuckarooCheckout {
 
     listen() {
         this.toggleMethods();
-        jQuery("body").on("updated_checkout", () => this.initMethod());
     }
 
     toggleMethods() {
@@ -293,6 +292,7 @@ class BuckarooCheckout {
             textElement.text(textElement.attr('text-less'));
             parentSelector.children().show();
         } else {
+            textElement.text(textElement.attr('text-more'));
             this.hideExcessIssuers(parentSelector);
         }
 
@@ -303,7 +303,7 @@ class BuckarooCheckout {
         const isPayByBank = selector.hasClass('bk-paybybank-selector');
         const selectedIssuer = isPayByBank ? selector.find('input:checked') : null;
 
-        if (isPayByBank && selectedIssuer.length) {
+        if (isPayByBank && selectedIssuer && selectedIssuer.length) {
             selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
         } else {
             selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
@@ -327,7 +327,11 @@ class BuckarooCheckout {
             jQuery('.bk-toggle-wrap').toggle(!isDown);
             jQuery('.bk-toggle-down').toggleClass('bk-toggle-up bk-toggle-down');
             jQuery('.bk-method-selector').children().show();
-            this.toggleTextElements.text(this.toggleTextElements.attr('text-less'));
+
+            this.toggleTextElements.each(function() {
+                const element = jQuery(this);
+                element.text(element.attr('text-less'));
+            });
         }
     }
 }
