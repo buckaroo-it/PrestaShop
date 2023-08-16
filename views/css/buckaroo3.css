@@ -410,8 +410,7 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 }
 @media screen and (max-width: 768px) {
     .bk-method-selector .bk-issuer-label img {
-        max-height: 25px;
-        width: auto;
+        max-width: 25px;
         margin: 0 5px;
     }
     .bk-method-selector .bk-method-issuer {
@@ -442,9 +441,21 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
         flex: 25% 0;
         min-width: 55px;
     }
+
+    .bk-method-selector .bk-issuer-label strong {
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        flex: 100% 0 0;
+        color: #6d6d6d;
+    }
+
+    .bk-method-selector input:checked + .bk-issuer-label strong {
+        color: #000;
+    }
+
     .bk-method-selector input:checked + .bk-issuer-label {
         background-color: #EDEDED;
-        color: #000;
         border-radius: 5px;
     }
     .bk-method-selector .bk-issuer-label{
@@ -455,9 +466,11 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
         padding-top: 5px;
         text-align: center;
     }
+
+
     .bk-method-selector .bk-issuer-label img {
         padding: 10px 20px;
-        width: 100%;
+        width: 70px;
     }
 
     .bk-method-selector input {

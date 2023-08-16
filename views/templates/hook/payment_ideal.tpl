@@ -53,7 +53,7 @@
                                             src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/ideal/{$issuer['logo']|escape:'html':'UTF-8'}"
                                     />
                                 {/if}
-                                {l s=$issuer['name'] mod='buckaroo3'}
+                                <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>
                             </label>
                         </div>
                     {/foreach}

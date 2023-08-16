@@ -39,7 +39,7 @@
                     </select>
                 </p>
             {else}
-                <div class="bk-method-selector">
+                <div class="bk-method-selector bk-paybybank-selector">
                     {foreach $paybybankIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
@@ -60,7 +60,7 @@
                                             src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
                                     />
                                 {/if}
-                                {l s=$issuer['name'] mod='buckaroo3'}
+                                <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>
                             </label>
                         </div>
                     {/foreach}
