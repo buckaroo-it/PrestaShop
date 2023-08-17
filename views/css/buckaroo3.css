@@ -422,6 +422,15 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     }
 }
 @media screen and (min-width: 768px) {
+    .bk-creditcard-selector img, .bk-ideal-selector img{
+        max-width: 25px;
+        margin: 0 5px;
+    }
+
+    .bk-creditcard-selector .bk-issuer-label, .bk-ideal-selector .bk-issuer-label {
+        flex: 1;
+        text-align: left;
+    }
     .bk-method-toggle-list {
         display: flex;
         justify-content: center;
@@ -433,16 +442,16 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
         margin-left: 10px;
         font-weight: bold;
     }
-    .bk-method-selector {
+    .bk-paybybank-selector {
         display: flex;
         flex-wrap: wrap;
     }
-    .bk-method-selector .bk-method-issuer  {
+    .bk-paybybank-selector .bk-method-issuer  {
         flex: 25% 0;
         min-width: 55px;
     }
 
-    .bk-method-selector .bk-issuer-label strong {
+    .bk-paybybank-selector .bk-issuer-label strong {
         display: block;
         text-align: center;
         font-size: 12px;
@@ -450,15 +459,15 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
         color: #6d6d6d;
     }
 
-    .bk-method-selector input:checked + .bk-issuer-label strong {
+    .bk-paybybank-selector input:checked + .bk-issuer-label strong {
         color: #000;
     }
 
-    .bk-method-selector input:checked + .bk-issuer-label {
+    .bk-paybybank-selector input:checked + .bk-issuer-label {
         background-color: #EDEDED;
         border-radius: 5px;
     }
-    .bk-method-selector .bk-issuer-label{
+    .bk-paybybank-selector .bk-issuer-label{
         padding-bottom: 5px;
         cursor: pointer;
         display: flex;
@@ -468,12 +477,12 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     }
 
 
-    .bk-method-selector .bk-issuer-label img {
+    .bk-paybybank-selector .bk-issuer-label img {
         padding: 10px 20px;
         width: 70px;
     }
 
-    .bk-method-selector input {
+    .bk-paybybank-selector input {
         display:none;
     }
 }
