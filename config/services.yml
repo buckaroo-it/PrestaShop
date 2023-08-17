@@ -40,7 +40,7 @@ services:
   buckaroo.refund.status.service:
     class: Buckaroo\Prestashop\Refund\StatusService
     arguments:
-      - '@prestashop.adapter.order.query_handler.get_order_for_viewing_handler'
+      - "@doctrine.orm.entity_manager"
     public: true
 
   buckaroo.refund.request.response.handler:
@@ -52,10 +52,10 @@ services:
     public: true
 
   buckaroo.refund.push.handler:
-    class: Buckaroo\Prestashop\Refund\Request\Push\Handler
+    class: Buckaroo\Prestashop\Refund\Push\Handler
     arguments:
       - "@doctrine.orm.entity_manager"
-      - "@buckaroo.refund.order.service"
+      - "@buckaroo.refund.payment.service"
       - "@buckaroo.refund.status.service"
     public: true
 

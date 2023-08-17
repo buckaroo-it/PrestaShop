@@ -46,7 +46,7 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
      */
     public function handle(IssueStandardRefundCommand $command): void
     {
-        $this->refundHandler->execute($command);
         $this->handler->handle($command);
+        $this->refundHandler->execute($command);
     }
 }
