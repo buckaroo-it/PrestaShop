@@ -17,14 +17,14 @@
 
 namespace Buckaroo\Prestashop\Refund\Push;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
-use Buckaroo\Prestashop\Refund\OrderService;
-use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
-use Buckaroo\Prestashop\Refund\Settings;
-use Buckaroo\Prestashop\Refund\StatusService;
-use Buckaroo\Resources\Constants\ResponseStatus;
+use Order;
 use Doctrine\ORM\EntityManager;
+use Buckaroo\Prestashop\Refund\Settings;
 use Symfony\Component\HttpFoundation\Request;
+use Buckaroo\Prestashop\Refund\StatusService;
+use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\Resources\Constants\ResponseStatus;
+use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
 
 class Handler
 {
@@ -44,24 +44,17 @@ class Handler
     protected $paymentService;
 
     /**
-     * @var OrderService
-     */
-    protected $refundOrderService;
-
-    /**
      * @var StatusService
      */
     protected $statusService;
 
     public function __construct(
         EntityManager $entityManager,
-        OrderService $refundOrderService,
         PaymentService $paymentService,
         StatusService $statusService
     ) {
         $this->request = Request::createFromGlobals();
         $this->entityManager = $entityManager;
-        $this->refundOrderService = $refundOrderService;
         $this->paymentService = $paymentService;
         $this->statusService = $statusService;
     }
@@ -94,10 +87,6 @@ class Handler
         try {
             $this->createRefundRequest($order->id);
             $this->createNegativePayment($order);
-            $this->refundOrderService->refund(
-                $order,
-                $this->getRefundAmount(),
-            );
         } catch (\Throwable $th) {
             throw new \Exception('Cannot update order with refund', 0, $th);
         }
@@ -185,6 +174,7 @@ class Handler
         $refundRequest->setKey($this->getRefundKey());
         $refundRequest->setPaymentKey($paymentKey);
         $refundRequest->setCreatedAt(new \DateTime());
+        $refundRequest->setPayload([]);
 
         $this->entityManager->persist($refundRequest);
         $this->entityManager->flush();

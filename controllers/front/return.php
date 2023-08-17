@@ -22,6 +22,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
 
+    private $symContainer;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setContainer();
+    }
     /**
      * @see FrontController::initContent()
      */
@@ -96,11 +103,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 }
                 exit;
             }
+
             if ($response->brq_relatedtransaction_refund != null) {
                 try {
-                    $refundPushHandler = $this->container->get('buckaroo.refund.push.handler');
+                    $refundPushHandler = $this->symContainer->get('buckaroo.refund.push.handler');
                     $refundPushHandler->handle();
-                    $messageRepo = $this->container->get('buckaroo.refund.order.message');
+                    $messageRepo = $this->symContainer->get('buckaroo.refund.order.message');
                     $messageRepo->add(
                         $order,
                         'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
@@ -206,5 +214,16 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         }
 
         exit;
+    }
+
+    private function setContainer() {
+        global $kernel;
+
+        if(!$kernel){
+            require_once _PS_ROOT_DIR_.'/app/AppKernel.php';
+            $kernel = new \AppKernel('prod', false);
+            $kernel->boot();
+        }
+        $this->symContainer = $kernel->getContainer();
     }
 }

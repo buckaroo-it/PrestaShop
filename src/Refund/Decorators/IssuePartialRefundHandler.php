@@ -55,12 +55,13 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
      */
     public function handle(IssuePartialRefundCommand $command): void
     {
-        if (
+        $this->handler->handle($command);
+        if(
             !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)
         ) {
             $this->refundHandler->execute($command);
+            $this->session->remove(self::KEY_SKIP_REFUND_REQUEST);
         }
 
-        $this->handler->handle($command);
     }
 }

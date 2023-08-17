@@ -17,20 +17,21 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use PrestaShop\PrestaShop\Adapter\Order\QueryHandler\GetOrderForViewingHandler;
-use PrestaShop\PrestaShop\Core\Domain\Order\Query\GetOrderForViewing;
-use PrestaShop\PrestaShop\Core\Domain\Order\QueryResult\OrderForViewing;
+use Order;
+use Configuration;
+use Doctrine\ORM\EntityManager;
+use Buckaroo\Prestashop\Entity\BkRefundRequest;
 
 class StatusService
 {
     /**
-     * @var GetOrderForViewingHandler
+     * @var EntityManager
      */
-    private $getOrderForViewingHandler;
+    private $entityManager;
 
-    public function __construct(GetOrderForViewingHandler $getOrderForViewingHandler)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->getOrderForViewingHandler = $getOrderForViewingHandler;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -42,38 +43,40 @@ class StatusService
      */
     public function setRefunded(\Order $order)
     {
-        /** @var \PrestaShop\PrestaShop\Core\Domain\Order\QueryResult\OrderForViewing */
-        $orderForViewing = $this->getOrderForViewingHandler->handle(
-            new GetOrderForViewing((int) $order->id)
-        );
-
-        $statusRefunded = \Configuration::get('PS_OS_REFUND');
+    
+        $statusRefunded = Configuration::get('PS_OS_REFUND');
 
         $orderState = $order->getCurrentOrderState();
-        $isCurrentlyRefunded = $orderState !== null && $orderState->id == $statusRefunded;
+        $isCurrentlyRefunded =  $orderState !== null && $orderState->id == $statusRefunded;
 
-        if ($this->isReadyToBeRefunded($orderForViewing) && !$isCurrentlyRefunded) {
+        if ($this->isReadyToBeRefunded($order) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
         }
     }
 
     /**
-     * Check prestashop to see if order is ready to be refunded
+     * Check to see if order is ready to be refunded
      *
-     * @param OrderForViewing $orderForViewing
+     * @param Order $order
      *
      * @return bool
      */
-    private function isReadyToBeRefunded(OrderForViewing $orderForViewing)
+    private function isReadyToBeRefunded(Order $order)
     {
-        /** @var OrderProductForViewing $product */
-        foreach ($orderForViewing->getProducts()->getProducts() as $product) {
-            if ($product->getQuantity() > $product->getQuantityRefunded()) {
-                return false;
-            }
-        }
+        $refundRequestRepository = $this->entityManager->getRepository(BkRefundRequest::class);
+        $refunds = $refundRequestRepository->findBy([
+            "orderId" => $order->id,
+            "status" => BkRefundRequest::STATUS_SUCCESS
+        ]);
 
-        return abs((float) (string) $orderForViewing->getPrices()->getShippingRefundableAmountRaw()) < 0.005;
+        $refunded = array_sum(array_map(
+            function ($refund) {
+                return $refund->getAmount();
+            },
+            $refunds
+        ));
+
+        return abs($order->total_paid - $refunded) < 0.005;
     }
 
     /**
