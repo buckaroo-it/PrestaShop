@@ -90,10 +90,12 @@
                         buckarooAlert(response.message, response.error === true ? 'danger' :
                             'success');
                         buckarooToggleRefundButton(false);
+                        location.replace(location.href);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         buckarooAlert('{l s="An ajax error occured while refunding" mod="buckaroo3"}');
                         buckarooToggleRefundButton(false);
+                        location.replace(location.href);
                     }
                 })
             }

@@ -14,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 namespace Buckaroo\Prestashop\Refund\Push;
 
 use Order;
@@ -68,11 +67,12 @@ class Handler
 
         $refundRequest = $this->getRefundRequest();
         if ($refundRequest === null) {
-            return $this->addRefundToOrder($order);
+            $this->addRefundToOrder($order);
+        } else {
+            $this->updateRefundRequest($refundRequest);
         }
+        
         $this->statusService->setRefunded($order);
-
-        return $this->updateRefundRequest($refundRequest);
     }
 
     /**
@@ -186,7 +186,7 @@ class Handler
      *
      * @param BkRefundRequest $refundRequest
      *
-     * @return void
+     * @return BkRefundRequest $refundRequest
      */
     private function updateRefundRequest(BkRefundRequest $refundRequest)
     {
