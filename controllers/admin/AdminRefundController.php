@@ -79,8 +79,10 @@ class AdminRefundController extends FrameworkBundleAdminController
         try {
             $totalRefundAmount = $this->sendRefundRequests($order, (float) $refundAmount);
 
+            $message = 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount);
+            $this->addFlash('success', $message);
             return new JsonResponse(
-                ['error' => false, 'message' => 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount)]
+                ['error' => false, 'message' => $message]
             );
         } catch (\Throwable $th) {
             return $this->renderError($th->getMessage());
@@ -168,6 +170,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private function renderError(string $message): JsonResponse
     {
+        $this->addFlash('error', $message);
         return new JsonResponse(['error' => true, 'message' => $message]);
     }
 

@@ -68,12 +68,11 @@ class Handler
      *
      * @return void
      */
-    public function execute($command)
+    public function execute($command, $refundSummary)
     {
-        $order = new \Order($command->getOrderId()->getValue());
+        $order = $this->getOrder($command);
         $buckarooPayments = $this->getBuckarooPayments($order);
         if (count($buckarooPayments)) {
-            $refundSummary = $this->getRefundSummary($order, $command);
             foreach ($buckarooPayments as $payment) {
                 $this->refund($order, $payment, $refundSummary);
             }
@@ -115,6 +114,18 @@ class Handler
     }
 
     /**
+     * Get order from command
+     *
+     * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
+     *
+     * @return \Order
+     */
+    private function getOrder($command): \Order
+    {
+        return new \Order($command->getOrderId()->getValue());
+    }
+
+    /**
      * Get refund data
      *
      * @param Order $order
@@ -122,8 +133,10 @@ class Handler
      *
      * @return OrderRefundSummary
      */
-    public function getRefundSummary(\Order $order, $command): OrderRefundSummary
+    public function getRefundSummary($command): OrderRefundSummary
     {
+        $order = $this->getOrder($command);
+
         if ($command instanceof IssuePartialRefundCommand) {
             $shippingRefundAmount = $command->getShippingCostRefundAmount();
         } else {
