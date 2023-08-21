@@ -34,7 +34,7 @@
                     </select>
                 </p>
             {else}
-                <div class="bk-method-selector">
+                <div class="bk-method-selector bk-creditcard-selector">
                     {foreach $creditcardIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input

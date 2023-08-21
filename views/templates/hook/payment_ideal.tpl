@@ -35,7 +35,7 @@
                     </select>
                 </p>
             {else}
-                <div class="bk-method-selector">
+                <div class="bk-method-selector bk-ideal-selector">
                     {foreach $idealIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
@@ -68,6 +68,5 @@
                 </div>
             {/if}
         </fieldset>
-
     </form>
 </section>
