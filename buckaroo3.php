@@ -831,7 +831,7 @@ class Buckaroo3 extends PaymentModule
         libxml_use_internal_errors(true);
         if (Config::get('BUCKAROO_IDEAL_ENABLED') && $this->isPaymentMethodAvailable($cart, 'IDEAL')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('IDEAL', 'iDeal'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('IDEAL', 'iDEAL'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_ideal.png?v')
@@ -840,7 +840,7 @@ class Buckaroo3 extends PaymentModule
         }
         if (Config::get('BUCKAROO_PAYBYBANK_ENABLED') && $this->isPaymentMethodAvailable($cart, 'PAYBYBANK')) {
             $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('PAYBYBANK', 'Pay by bank'))
+            $newOption->setCallToActionText($this->getBuckarooLabel('PAYBYBANK', 'PayByBank'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paybybank.tpl'))
                 ->setLogo($this->_path . 'views/img/buckaroo_images/' . (new IssuersPayByBank())->getSelectedIssuerLogo())
@@ -1166,7 +1166,7 @@ class Buckaroo3 extends PaymentModule
                 $payment_method_tr = $this->l('Sepa Direct Debit');
                 break;
             case 'ideal':
-                $payment_method_tr = $this->l('iDeal');
+                $payment_method_tr = $this->l('iDEAL');
                 break;
             case 'giropay':
                 $payment_method_tr = $this->l('Giro Pay');
@@ -1230,6 +1230,9 @@ class Buckaroo3 extends PaymentModule
                 break;
             case 'payconiq':
                 $payment_method_tr = $this->l('Payconiq');
+                break;
+            case 'paybybank':
+                $payment_method_tr = $this->l('PayByBank');
                 break;
             default:
                 $payment_method_tr = $this->l($payment_method);
