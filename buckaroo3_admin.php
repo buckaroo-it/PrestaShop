@@ -136,6 +136,8 @@ class Buckaroo3Admin
             'CATEGORY',
             'BUSINESS',
             'DISPLAY_TYPE',
+            'PAYMENT_LOGO',
+            'API_VERSION',
         ];
 
         foreach ($paymentMethods as $method) {
@@ -407,6 +409,8 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_IN3_ENABLED'] = Configuration::get('BUCKAROO_IN3_ENABLED');
         $fields_value['BUCKAROO_IN3_TEST'] = Configuration::get('BUCKAROO_IN3_TEST');
+        $fields_value['BUCKAROO_IN3_API_VERSION'] = Configuration::get('BUCKAROO_IN3_API_VERSION');
+        $fields_value['BUCKAROO_IN3_PAYMENT_LOGO'] = Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO');
         $fields_value['BUCKAROO_IN3_LABEL'] = Configuration::get('BUCKAROO_IN3_LABEL');
         $fields_value['BUCKAROO_IN3_FEE'] = Configuration::get('BUCKAROO_IN3_FEE');
         $fields_value['BUCKAROO_IN3_MIN_VALUE'] = (float) Configuration::get('BUCKAROO_IN3_MIN_VALUE');
@@ -2379,6 +2383,41 @@ class Buckaroo3Admin
                 [
                     'type' => 'mode',
                     'name' => 'BUCKAROO_IN3_TEST',
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'BUCKAROO_IN3_API_VERSION',
+                    'label' => $this->module->l('API version'),
+                    'options' => [
+                        [
+                            'text' => $this->module->l('V3 (In3)'),
+                            'value' => 'V3',
+                        ],
+                        [
+                            'text' => $this->module->l('V2 (Capayable/In2)'),
+                            'value' => 'V2',
+                        ],
+                    ],
+                    'description' => $this->module->l('Choose the API version for this payment method.'),
+
+                ],
+                [
+                    'type' => 'radio',
+                    'label' => $this->module->l('Payment logo'),
+                    'name' => 'BUCKAROO_IN3_PAYMENT_LOGO',
+                    'options' => [
+                        [
+                            'value' => '0',
+                            'text' => 'IN3',
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png?v'
+                        ],
+                        [
+                            'value' => '1',
+                            'text' => 'iDEAL In3',
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/iDEAL_In3_icon.png?v'
+                        ],
+                    ],
+                    'description' => $this->module->l('Determines the logo that will be shown in the checkout'),
                 ],
                 [
                     'type' => 'text',
