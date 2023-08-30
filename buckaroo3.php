@@ -30,6 +30,7 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 
 use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+use Buckaroo\Classes\JWTAuth;
 
 class Buckaroo3 extends PaymentModule
 {
@@ -39,12 +40,12 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '3.4.0';
+        $this->version = '3.5.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = ['min' => '1.', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
 
         parent::__construct();
 
@@ -208,31 +209,73 @@ class Buckaroo3 extends PaymentModule
 
     public function install()
     {
-        if (!parent::install() || !$this->registerHook(
-            'header'
-        ) || !$this->registerHook('paymentReturn')
-            || !$this->registerHook('paymentOptions')
-            || !$this->registerHook('displayAdminOrderMainBottom')
-            || !$this->registerHook('displayOrderConfirmation')
-            || !$this->installTab()
-            || !$this->createRefundRequestTable()
-            || !$this->registerHook('actionEmailSendBefore')
-            || !$this->registerHook('displayPDFInvoice')
-            || !$this->registerHook('displayBackOfficeHeader')
-        ) {
-            return false;
-        }
-        $this->registerHook('displayBeforeCarrier');
-        $this->registerHook('actionAdminCustomersListingFieldsModifier');
-        $this->registerHook('displayAdminProductsMainStepLeftColumnMiddle');
-        $this->registerHook('displayProductExtraContent');
-        $this->addBuckarooIdin();
-
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
+
+        if (!parent::install() || !$this->registerHooks()) {
+            return false;
+        }
+        $this->addBuckarooIdin();
+
+        $this->addBuckarooIdin();
+
         (new RefundSettings())->install();
 
+        $this->setDefaultConfigurations();
+
+        $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
+
+        $currentStates = [];
+        foreach ($states as $state) {
+            $state = (object) $state;
+            $currentStates[$state->id_order_state] = $state->name;
+        }
+
+        $state_id = 0;
+        if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
+            // Add the custom order state
+            $defaultOrderState = new OrderState();
+            $defaultOrderState->name = [
+                Configuration::get('PS_LANG_DEFAULT') => $this->l(
+                    'Awaiting for Remote payment'
+                ),
+            ];
+            $defaultOrderState->module_name = $this->name;
+            $defaultOrderState->send_mail = 0;
+            $defaultOrderState->template = '';
+            $defaultOrderState->invoice = 0;
+            $defaultOrderState->color = '#FFF000';
+            $defaultOrderState->unremovable = false;
+            $defaultOrderState->logable = 0;
+            if ($defaultOrderState->add()) {
+                $source = dirname(__FILE__) . '/logo.gif';
+                $destination = dirname(__FILE__) . '/../../img/os/' . (int) $defaultOrderState->id . '.gif';
+                if (!file_exists($destination)) {
+                    copy($source, $destination);
+                }
+            }
+        } else {
+            $defaultOrderState = new stdClass();
+            $defaultOrderState->id = $state_id;
+        }
+
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
+        $this->addBuckarooFeeTable();
+
+        // Cookie SameSite fix
+        Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
+
+        // override
+        $this->overrideClasses();
+
+        return true;
+    }
+
+    private function setDefaultConfigurations()
+    {
         Configuration::updateValue('BUCKAROO_TEST', '1');
         Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
         Configuration::updateValue('BUCKAROO_SECRET_KEY', '');
@@ -438,54 +481,27 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_BILLINK_POSITION', 23);
         Configuration::updateValue('BUCKAROO_IDIN_POSITION', 24);
 
-        $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
-
-        $currentStates = [];
-        foreach ($states as $state) {
-            $state = (object) $state;
-            $currentStates[$state->id_order_state] = $state->name;
-        }
-
-        $state_id = 0;
-        if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
-            // Add the custom order state
-            $defaultOrderState = new OrderState();
-            $defaultOrderState->name = [
-                Configuration::get('PS_LANG_DEFAULT') => $this->l(
-                    'Awaiting for Remote payment'
-                ),
-            ];
-            $defaultOrderState->module_name = $this->name;
-            $defaultOrderState->send_mail = 0;
-            $defaultOrderState->template = '';
-            $defaultOrderState->invoice = 0;
-            $defaultOrderState->color = '#FFF000';
-            $defaultOrderState->unremovable = false;
-            $defaultOrderState->logable = 0;
-            if ($defaultOrderState->add()) {
-                $source = dirname(__FILE__) . '/logo.gif';
-                $destination = dirname(__FILE__) . '/../../img/os/' . (int) $defaultOrderState->id . '.gif';
-                if (!file_exists($destination)) {
-                    copy($source, $destination);
-                }
-            }
-        } else {
-            $defaultOrderState = new stdClass();
-            $defaultOrderState->id = $state_id;
-        }
-
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
-        $this->addBuckarooFeeTable();
-
-        // Cookie SameSite fix
-        Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
-
-        // override
-        $this->overrideClasses();
-
         return true;
+    }
+
+    private function registerHooks()
+    {
+        return (
+            $this->registerHook('header')
+            && $this->registerHook('paymentReturn')
+            && $this->registerHook('paymentOptions')
+            && $this->registerHook('displayAdminOrderMainBottom')
+            && $this->registerHook('displayOrderConfirmation')
+            && $this->installTab()
+            && $this->createRefundRequestTable()
+            && $this->registerHook('actionEmailSendBefore')
+            && $this->registerHook('displayPDFInvoice')
+            && $this->registerHook('displayBackOfficeHeader')
+            && $this->registerHook('displayBeforeCarrier')
+            && $this->registerHook('actionAdminCustomersListingFieldsModifier')
+            && $this->registerHook('displayAdminProductsMainStepLeftColumnMiddle')
+            && $this->registerHook('displayProductExtraContent')
+        );
     }
 
     protected function overrideClasses()
@@ -730,12 +746,37 @@ class Buckaroo3 extends PaymentModule
 
     public function getContent()
     {
-        $this->context->controller->addJS($this->_path . 'views/js/buckaroo.admin.js');
-        $this->context->controller->addJS($this->_path . 'views/js/jquery-ui.min.js');
-        include_once _PS_MODULE_DIR_ . '/' . $this->name . '/buckaroo3_admin.php';
-        $buckaroo_admin = new Buckaroo3Admin($this);
+//        $this->context->controller->addJS($this->_path . 'views/js/buckaroo.admin.js');
+//        $this->context->controller->addJS($this->_path . 'views/js/jquery-ui.min.js');
+//        include_once _PS_MODULE_DIR_ . '/' . $this->name . '/buckaroo3_admin.php';
+//        $buckaroo_admin = new Buckaroo3Admin($this);
+//
+//        return $buckaroo_admin->postProcess() . $buckaroo_admin->displayForm();
 
-        return $buckaroo_admin->postProcess() . $buckaroo_admin->displayForm();
+        $jwt = new JWTAuth();
+        $token = $this->generateToken($jwt);
+
+        $this->context->smarty->assign([
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.fc2f6025.js',
+            'pathCss' => $this->getPathUri() . 'dev/assets/main.64836fbd.css',
+            'jwt' => $token
+        ]);
+
+        return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
+    }
+
+    private function generateToken($jwt)
+    {
+        $context = Context::getContext();
+        $data = [];
+
+        if ($context->employee->isLoggedBack()) {
+            $data = ['employee_id' => $context->employee->id];
+        } elseif ($context->customer->isLogged()) {
+            $data = ['user_id' => $context->customer->id];
+        }
+
+        return $jwt->encode($data);
     }
 
     public function hookPaymentOptions($params)
