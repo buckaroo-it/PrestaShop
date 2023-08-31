@@ -39,38 +39,58 @@
                     </select>
                 </p>
             {else}
-                <div class="bk-method-selector bk-paybybank-selector">
-                    {foreach $paybybankIssuers as $key => $issuer}
-                        <div rel="booRow" class="bk-method-issuer">
-                            <input
-                                    name="BPE_Issuer"
-                                    id="paybybank_issuer_{$key|escape:'html':'UTF-8'}"
-                                    value="{$key|escape:'html':'UTF-8'}"
-                                    type="radio"
-                                    {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
-                                        checked
+                <p class="form-row form-row-wide bk-paybybank-mobile" style="display: none;">
+                    <select id="buckaroo-method-issuer" class="form-control">
+                        <option value="0" style="color: grey !important">
+                            <p> {l s='Select your bank' mod='buckaroo3'}</p>
+                        </option>
+                        {foreach $paybybankIssuers as $key => $issuer}
+                            <div>
+                                <option value="{$key|escape:'html':'UTF-8'}"
+                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
+                                            selected
+                                        {/if}
+                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
+                                    {l s=$issuer['name'] mod='buckaroo3'}
+                                </option>
+                            </div>
+                        {/foreach}
+                    </select>
+                </p>
+                <div class="bk-paybybank-not-mobile">
+                    <div class="bk-method-selector bk-paybybank-selector">
+                        {foreach $paybybankIssuers as $key => $issuer}
+                            <div rel="booRow" class="bk-method-issuer">
+                                <input
+                                        name="BPE_Issuer"
+                                        id="paybybank_issuer_{$key|escape:'html':'UTF-8'}"
+                                        value="{$key|escape:'html':'UTF-8'}"
+                                        type="radio"
+                                        {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
+                                            checked
+                                        {/if}
+                                />
+                                <label for="paybybank_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
+                                    {if isset($issuer['logo']) && $issuer['logo'] !== null}
+                                        <img
+                                                class=""
+                                                alt="{l s=$issuer['name'] mod='buckaroo3'}"
+                                                title="{l s=$issuer['name'] mod='buckaroo3'}"
+                                                src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
+                                        />
                                     {/if}
-                            />
-                            <label for="paybybank_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
-                                {if isset($issuer['logo']) && $issuer['logo'] !== null}
-                                    <img
-                                            class=""
-                                            alt="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
-                                    />
-                                {/if}
-                                <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>
-                            </label>
+                                    <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>
+                                </label>
+                            </div>
+                        {/foreach}
+                    </div>
+                    <div class="bk-method-toggle-list">
+                        <div class="bk-toggle-wrap">
+                            <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
+                                {l s='More banks' mod='buckaroo3'}
+                            </div>
+                            <div class="bk-toggle bk-toggle-down"></div>
                         </div>
-                    {/foreach}
-                </div>
-                <div class="bk-method-toggle-list">
-                    <div class="bk-toggle-wrap">
-                        <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
-                            {l s='More banks' mod='buckaroo3'}
-                        </div>
-                        <div class="bk-toggle bk-toggle-down"></div>
                     </div>
                 </div>
             {/if}

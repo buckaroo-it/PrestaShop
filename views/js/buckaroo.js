@@ -264,6 +264,7 @@ $(document).ready(function () {
     })
 
     new BuckarooCheckout().listen();
+    new BuckarooPayByBank().init();
 });
 
 class BuckarooCheckout {
@@ -330,5 +331,60 @@ class BuckarooCheckout {
                 jQuery('.bk-toggle-wrap').show();
             }
         }
+    }
+}
+
+class BuckarooPayByBank {
+
+    isMobile = jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH;
+
+    init() {
+        this.showInput();
+        this.startListeners();
+    }
+
+    startListeners() {
+        jQuery(window).on('resize', this.toggleInputToShow.bind(this));
+        jQuery('.bk-paybybank-mobile select').on('change', this.syncWithRadioGroup.bind(this));
+        jQuery('.bk-paybybank-not-mobile input').on('change', this.syncWithSelect.bind(this));
+    }
+
+    toggleInputToShow() {
+        let isMobile = jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH;
+
+        if (this.isMobile !== isMobile) {
+            this.isMobile = isMobile;
+            this.showInput();
+        }
+    }
+
+    showInput() {
+        jQuery('.bk-paybybank-mobile').toggle(this.isMobile);
+        jQuery('.bk-paybybank-not-mobile').toggle(!this.isMobile);
+    }
+
+    syncWithRadioGroup() {
+        const value = jQuery('.bk-paybybank-mobile select').val();
+        if(value === "0") {
+            return;
+        }
+        const radioWithValue = jQuery(`.bk-paybybank-selector input[value="${value}"]`);
+        radioWithValue.prop('checked', true);
+        this.changeIcon(value);
+    }
+    syncWithSelect() {
+        const value = jQuery('.bk-paybybank-not-mobile input:checked').val();
+        jQuery('.bk-paybybank-mobile select').val(value);
+        this.changeIcon(value);
+    }
+
+    changeIcon(issuer) {
+        const img = $(`.bk-paybybank-not-mobile #paybybank_issuer_${issuer}`)
+            .closest('.bk-method-issuer')
+            .find('img').attr('src');
+
+        jQuery('[data-module-name="PAYBYBANK"]')
+            .closest('.payment-option')
+            .find('img').attr('src', img)
     }
 }
