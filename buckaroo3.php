@@ -401,6 +401,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IN3_API_VERSION', 'V3');
         Configuration::updateValue('BUCKAROO_IN3_PAYMENT_LOGO', '0');
         Configuration::updateValue('BUCKAROO_IN3_FEE', '');
+        Configuration::updateValue('BUCKAROO_IN3OLD_FEE', '');
         Configuration::updateValue('BUCKAROO_IN3_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_IN3_MAX_VALUE', '');
 
@@ -702,6 +703,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IN3_API_VERSION');
         Configuration::deleteByName('BUCKAROO_IN3_PAYMENT_LOGO');
         Configuration::deleteByName('BUCKAROO_IN3_FEE');
+        Configuration::deleteByName('BUCKAROO_IN3OLD_FEE');
         Configuration::deleteByName('BUCKAROO_IN3_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_IN3_MAX_VALUE');
 
@@ -829,6 +831,7 @@ class Buckaroo3 extends PaymentModule
                 'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
                 'creditcardIssuers' => (new IssuersCreditCard())->getIssuerList(),
                 'creditCardDisplayMode' => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
+                'in3Method' => (new CapayableIn3())->getMethod()
             ]
         );
 
@@ -973,7 +976,7 @@ class Buckaroo3 extends PaymentModule
         if (Config::get('BUCKAROO_IN3_ENABLED') && $this->isPaymentMethodAvailable($cart, 'IN3') && $this->isIn3Available($cart)) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('IN3', 'In3'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'in3'])) // phpcs:ignore
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => (new CapayableIn3())->getMethod()])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('IN3'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_in3.tpl')) // phpcs:ignore
                 ->setLogo($this->_path . 'views/img/buckaroo_images/' . (new CapayableIn3())->getLogo())

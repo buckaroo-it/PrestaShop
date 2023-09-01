@@ -18,6 +18,28 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class In3 extends PaymentMethod
 {
+    public $BillingInitials;
+    public $BillingFirstName;
+    public $BillingLastName;
+    public $BillingBirthDate;
+    public $BillingStreet;
+    public $BillingHouseNumber;
+    public $BillingHouseNumberSuffix;
+    public $BillingPostalCode;
+    public $BillingCity;
+    public $BillingCountry;
+    public $BillingEmail;
+    public $BillingPhoneNumber;
+    public $AddressesDiffer;
+    public $ShippingStreet;
+    public $ShippingHouseNumber;
+    public $ShippingHouseNumberSuffix;
+    public $ShippingPostalCode;
+    public $ShippingCity;
+    public $ShippingCountryCode;
+    public $ShippingPhoneNumber;
+    public $CustomerNumber;
+
     public function __construct()
     {
         $this->type = 'in3';
@@ -28,23 +50,69 @@ class In3 extends PaymentMethod
     {
         $this->payload = $this->getPayload($customVars);
 
-        return parent::executeCustomPayAction('payInInstallments');
+        return parent::executeCustomPayAction('pay');
     }
 
     public function getPayload($data)
     {
         $payload = [
-            'version' => $this->version,
-            'description' => $data['description'],
+            'description' => $this->description,
             'invoiceDate' => date('d-m-Y'),
-            'customerType' => 'Debtor',
-            'email' => $data['email'],
-            'phone' => ['mobile' => $data['phone']],
+            'version' => $this->version,
+            'billing' => [
+                'recipient' => [
+                    'category'              => 'B2C',
+                    'initials'              => $this->BillingInitials,
+                    'firstName'             => $this->BillingFirstName,
+                    'lastName'              => $this->BillingLastName,
+                    'birthDate'             => $this->BillingBirthDate,
+                    'customerNumber'        => $this->CustomerNumber,
+                    'phone'                 => $this->BillingPhoneNumber,
+                    'country'               => $this->BillingCountry,
+                ],
+                'address' => [
+                    'street'                => $this->BillingStreet,
+                    'houseNumber'           => $this->BillingHouseNumber,
+                    'zipcode'               => $this->BillingPostalCode,
+                    'city'                  => $this->BillingCity,
+                    'country'               => $this->BillingCountry,
+                ],
+                'phone' => [
+                    'phone' => $this->BillingPhoneNumber,
+                ],
+                'email' => $this->BillingEmail,
+            ],
             'articles' => $data['articles'],
-            'customer' => $data['customer'],
-            'address' => $data['address'],
         ];
+        if ($this->BillingHouseNumberSuffix) {
+            $payload['billing']['address']['houseNumberAdditional'] = $this->BillingHouseNumberSuffix;
+        }
+        // Add shipping address if is different
+        if ($this->addShippingIfDifferent()) {
+            $payload['shipping'] = $this->addShippingIfDifferent();
+        }
 
         return $payload;
+    }
+
+    private function addShippingIfDifferent()
+    {
+        if ($this->AddressesDiffer) {
+            $payload = [
+                'address' => [
+                    'street' => $this->ShippingStreet,
+                    'houseNumber' => $this->ShippingHouseNumber,
+                    'zipcode' => $this->ShippingPostalCode,
+                    'city' => $this->ShippingCity,
+                    'country' => $this->ShippingCountryCode,
+                ],
+            ];
+
+            if ($this->BillingHouseNumberSuffix) {
+                $payload['address']['houseNumberAdditional'] = $this->ShippingHouseNumberSuffix;
+            }
+
+            return $payload;
+        }
     }
 }

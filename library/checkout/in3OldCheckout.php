@@ -10,13 +10,13 @@
  *
  * Do not edit or add to this file if you wish to upgrade this file
  *
- *  @author    Buckaroo.nl <plugins@buckaroo.nl>
- *  @copyright Copyright (c) Buckaroo B.V.
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @author    Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-class In3Checkout extends Checkout
+class In3OldCheckout extends Checkout
 {
     protected $customVars = [];
 
@@ -25,52 +25,14 @@ class In3Checkout extends Checkout
         parent::setCheckout();
 
         $this->addRequiredDescription();
-        $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
-        $this->payment_request->BillingLastName = $this->invoice_address->lastname;
-        $this->payment_request->BillingInitials = initials($this->invoice_address->firstname);
-        $this->payment_request->BillingBirthDate = date(
-            'Y-m-d',
-            strtotime(
-                Tools::getValue('customerbirthdate_y_billing') . '-' .
-                Tools::getValue('customerbirthdate_m_billing') . '-' .
-                Tools::getValue('customerbirthdate_d_billing')
-            )
-        );
-        $this->payment_request->CustomerNumber = ($this->cart->id_customer) ?: 'guest';
-        $this->payment_request->BillingPhoneNumber = $this->getPhone();
-        $address_components = $this->getAddressComponents($this->invoice_address->address1);
-        if (empty($address_components['house_number'])) {
-            $address_components['house_number'] = $this->invoice_address->address2;
-        }
-        $this->payment_request->BillingStreet = $address_components['street'];
-        $this->payment_request->BillingHouseNumber = $address_components['house_number'];
-        if (!empty($address_components['number_addition'])) {
-            $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
-        }
-        $this->payment_request->BillingPostalCode = $this->invoice_address->postcode;
-        $this->payment_request->BillingCity = $this->invoice_address->city;
-        $this->payment_request->BillingCountry = Tools::strtoupper(
-            (new Country($this->invoice_address->id_country))->iso_code
-        );
-        $this->payment_request->BillingEmail = $this->customer->email;
-
-        $this->payment_request->AddressesDiffer = false;
-        if (!empty($this->shipping_address)) {
-            $this->payment_request->AddressesDiffer = true;
-            $this->payment_request->ShippingStreet = $address_components['street'];
-            $this->payment_request->ShippingHouseNumber = $address_components['house_number'];
-            if (!empty($address_components['number_addition'])) {
-                $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
-            }
-            $this->payment_request->ShippingPostalCode = $this->shipping_address->postcode;
-            $this->payment_request->ShippingCity = $this->shipping_address->city;
-            $this->payment_request->ShippingCountryCode = Tools::strtoupper(
-                (new Country($this->shipping_address->id_country))->iso_code
-            );
-        }
 
         $this->customVars = [
+            'description' => $this->payment_request->invoiceId,
+            'customer' => $this->getCustomer(),
+            'address' => $this->getAddress(),
             'articles' => $this->getArticles(),
+            'phone' => $this->getPhone(),
+            'email' => $this->customer->email,
         ];
     }
 
@@ -91,7 +53,7 @@ class In3Checkout extends Checkout
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_IN3);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_IN3OLD);
     }
 
     protected function addRequiredDescription()
@@ -99,6 +61,61 @@ class In3Checkout extends Checkout
         if (empty($this->payment_request->description)) {
             $this->payment_request->description = $this->payment_request->invoiceId;
         }
+    }
+
+    /**
+     * Get customer data
+     *
+     * @return array
+     */
+    protected function getCustomer()
+    {
+        return [
+            'lastName' => $this->invoice_address->lastname,
+            'culture' => 'nl-NL',
+            'initials' => initials($this->invoice_address->firstname),
+            'phone' => $this->getPhone(),
+            'email' => $this->customer->email,
+            'birthDate' => date(
+                'Y-m-d',
+                strtotime(
+                    Tools::getValue('customerbirthdate_y_billing') . '-' .
+                    Tools::getValue('customerbirthdate_m_billing') . '-' .
+                    Tools::getValue('customerbirthdate_d_billing')
+                )
+            ),
+        ];
+    }
+
+    /**
+     * Get customer address
+     *
+     * @return array
+     */
+    protected function getAddress()
+    {
+        $address_components = $this->getAddressComponents($this->invoice_address->address1);
+        if (empty($address_components['house_number'])) {
+            $address_components['house_number'] = $this->invoice_address->address2;
+        }
+        $data = [
+            'street' => $address_components['street'],
+            'houseNumber' => $address_components['house_number'],
+            'zipcode' => $this->invoice_address->postcode,
+            'city' => $this->invoice_address->city,
+            'country' => Tools::strtoupper(
+                (new Country($this->invoice_address->id_country))->iso_code
+            ),
+        ];
+
+        if (!empty($address_components['number_addition'])) {
+            return array_merge(
+                $data,
+                ['houseNumberAdditional' => $address_components['number_addition']]
+            );
+        }
+
+        return $data;
     }
 
     /**
@@ -110,7 +127,7 @@ class In3Checkout extends Checkout
     {
         $phone = Tools::getValue('customer_phone');
         if (is_scalar($phone)) {
-            return (string) $phone;
+            return (string)$phone;
         }
 
         return '';
@@ -131,7 +148,6 @@ class In3Checkout extends Checkout
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
                 'price' => round($item['price_wt'], 2),
-                'vatPercentage' => $item['rate'],
             ];
 
             $total += round($item['price_wt'], 2);

@@ -18,7 +18,7 @@
     </div>
         <input type="hidden" name="buckarooKey" value="IN3">
         <form name="booIn3Form" id="booIn3Form"
-              action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'in3'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
+              action="{$link->getModuleLink('buckaroo3', 'request', ['method' => {$in3Method|escape:'html':'UTF-8'}])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
 
             <div class="row row-padding">
                 <div class="col-xs-3">

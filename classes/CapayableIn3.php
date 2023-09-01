@@ -31,7 +31,7 @@ class CapayableIn3
             return 'buckaroo_in3.png?v';
         }
 
-        return 'iDEAL_In3_icon.png?v';
+        return 'buckaroo_in3_ideal.svg?v1';
     }
     public function getSelectedIssuerLogo()
     {
@@ -46,5 +46,13 @@ class CapayableIn3
         } else {
             return 'buckaroo_paybybank.gif?v';
         }
+    }
+
+    public function getMethod(): string
+    {
+        if($this->isV3()) {
+            return 'in3';
+        }
+        return 'in3Old';
     }
 }

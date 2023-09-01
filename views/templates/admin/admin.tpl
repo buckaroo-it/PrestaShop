@@ -74,7 +74,7 @@
                                     </label>
                                 {/if}
                             {/foreach}
-                            <img src="{$fieldset.image|escape:'html':'UTF-8'}" alt="Icon">
+                            <img src="{$fieldset.image|escape:'html':'UTF-8'}" alt="Icon" width="32">
                             {$fieldset.legend|escape:'html':'UTF-8'}
                         </h2>
                     </div>

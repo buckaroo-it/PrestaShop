@@ -106,7 +106,7 @@
         <div class="col-lg-12">
             {foreach from=$input.options item=option}
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-9 text-center">
-                    <img src="{$option.image|escape:'quotes':'UTF-8'}" alt="{$option.text|escape:'html':'UTF-8'}" />
+                    <img src="{$option.image|escape:'quotes':'UTF-8'}" alt="{$option.text|escape:'html':'UTF-8'}" width="96"/>
                     <label>
                         <input type="radio" id="{$input.name|escape:'quotes':'UTF-8'}_{$option.value|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" value="{$option.value|escape:'quotes':'UTF-8'}" {if isset($fields_value[$input.name]) && ($fields_value[$input.name] === $option.value)}checked="checked"{/if}/>
                     </label>

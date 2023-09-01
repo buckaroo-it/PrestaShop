@@ -413,6 +413,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_IN3_PAYMENT_LOGO'] = Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO');
         $fields_value['BUCKAROO_IN3_LABEL'] = Configuration::get('BUCKAROO_IN3_LABEL');
         $fields_value['BUCKAROO_IN3_FEE'] = Configuration::get('BUCKAROO_IN3_FEE');
+        $fields_value['BUCKAROO_IN3OLD_FEE'] = Configuration::get('BUCKAROO_IN3_FEE');
         $fields_value['BUCKAROO_IN3_MIN_VALUE'] = (float) Configuration::get('BUCKAROO_IN3_MIN_VALUE');
         $fields_value['BUCKAROO_IN3_MAX_VALUE'] = (float) Configuration::get('BUCKAROO_IN3_MAX_VALUE');
 
@@ -2414,7 +2415,7 @@ class Buckaroo3Admin
                         [
                             'value' => '1',
                             'text' => 'iDEAL In3',
-                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/iDEAL_In3_icon.png?v'
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3_ideal.svg?v'
                         ],
                     ],
                     'description' => $this->module->l('Determines the logo that will be shown in the checkout'),
