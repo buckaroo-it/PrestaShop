@@ -25,10 +25,10 @@ class In3Checkout extends Checkout
         parent::setCheckout();
 
         $this->addRequiredDescription();
-        $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
-        $this->payment_request->BillingLastName = $this->invoice_address->lastname;
-        $this->payment_request->BillingInitials = initials($this->invoice_address->firstname);
-        $this->payment_request->BillingBirthDate = date(
+        $this->payment_request->billingFirstName = $this->invoice_address->firstname;
+        $this->payment_request->billingLastName = $this->invoice_address->lastname;
+        $this->payment_request->billingInitials = initials($this->invoice_address->firstname);
+        $this->payment_request->billingBirthDate = date(
             'Y-m-d',
             strtotime(
                 Tools::getValue('customerbirthdate_y_billing') . '-' .
@@ -36,35 +36,35 @@ class In3Checkout extends Checkout
                 Tools::getValue('customerbirthdate_d_billing')
             )
         );
-        $this->payment_request->CustomerNumber = ($this->cart->id_customer) ?: 'guest';
-        $this->payment_request->BillingPhoneNumber = $this->getPhone();
+        $this->payment_request->customerNumber = ($this->cart->id_customer) ?: 'guest';
+        $this->payment_request->billingPhoneNumber = $this->getPhone();
         $address_components = $this->getAddressComponents($this->invoice_address->address1);
         if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->invoice_address->address2;
         }
-        $this->payment_request->BillingStreet = $address_components['street'];
-        $this->payment_request->BillingHouseNumber = $address_components['house_number'];
+        $this->payment_request->billingStreet = $address_components['street'];
+        $this->payment_request->billingHouseNumber = $address_components['house_number'];
         if (!empty($address_components['number_addition'])) {
-            $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
+            $this->payment_request->billingHouseNumberSuffix = $address_components['number_addition'];
         }
-        $this->payment_request->BillingPostalCode = $this->invoice_address->postcode;
-        $this->payment_request->BillingCity = $this->invoice_address->city;
-        $this->payment_request->BillingCountry = Tools::strtoupper(
+        $this->payment_request->billingPostalCode = $this->invoice_address->postcode;
+        $this->payment_request->billingCity = $this->invoice_address->city;
+        $this->payment_request->billingCountry = Tools::strtoupper(
             (new Country($this->invoice_address->id_country))->iso_code
         );
-        $this->payment_request->BillingEmail = $this->customer->email;
+        $this->payment_request->billingEmail = $this->customer->email;
 
-        $this->payment_request->AddressesDiffer = false;
+        $this->payment_request->addressesDiffer = false;
         if (!empty($this->shipping_address)) {
-            $this->payment_request->AddressesDiffer = true;
-            $this->payment_request->ShippingStreet = $address_components['street'];
-            $this->payment_request->ShippingHouseNumber = $address_components['house_number'];
+            $this->payment_request->addressesDiffer = true;
+            $this->payment_request->shippingStreet = $address_components['street'];
+            $this->payment_request->shippingHouseNumber = $address_components['house_number'];
             if (!empty($address_components['number_addition'])) {
-                $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
+                $this->payment_request->shippingHouseNumberSuffix = $address_components['number_addition'];
             }
-            $this->payment_request->ShippingPostalCode = $this->shipping_address->postcode;
-            $this->payment_request->ShippingCity = $this->shipping_address->city;
-            $this->payment_request->ShippingCountryCode = Tools::strtoupper(
+            $this->payment_request->shippingPostalCode = $this->shipping_address->postcode;
+            $this->payment_request->shippingCity = $this->shipping_address->city;
+            $this->payment_request->shippingCountryCode = Tools::strtoupper(
                 (new Country($this->shipping_address->id_country))->iso_code
             );
         }

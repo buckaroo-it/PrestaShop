@@ -2408,12 +2408,12 @@ class Buckaroo3Admin
                     'name' => 'BUCKAROO_IN3_PAYMENT_LOGO',
                     'options' => [
                         [
-                            'value' => '0',
+                            'value' => 'in3',
                             'text' => 'IN3',
                             'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png?v'
                         ],
                         [
-                            'value' => '1',
+                            'value' => 'in3_ideal',
                             'text' => 'iDEAL In3',
                             'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3_ideal.svg?v'
                         ],

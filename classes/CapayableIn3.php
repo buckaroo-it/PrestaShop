@@ -27,27 +27,12 @@ class CapayableIn3
     {
         $logo = Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO');
 
-        if ($logo == '0') {
-            return 'buckaroo_in3.png?v';
+        if ($logo == 'in3_ideal') {
+            return 'buckaroo_in3_ideal.svg?v1';
         }
 
-        return 'buckaroo_in3_ideal.svg?v1';
+        return 'buckaroo_in3.png?v';
     }
-    public function getSelectedIssuerLogo()
-    {
-        $issuers = $this->getIssuerList();
-        $selectedIssuer = array_filter($issuers, function ($issuer) {
-            return $issuer['selected'];
-        });
-        if (count($selectedIssuer) > 0) {
-            $selectedIssuer = reset($selectedIssuer);
-
-            return 'paybybank/SVG/' . $selectedIssuer['logo'];
-        } else {
-            return 'buckaroo_paybybank.gif?v';
-        }
-    }
-
     public function getMethod(): string
     {
         if($this->isV3()) {
