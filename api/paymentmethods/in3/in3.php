@@ -37,60 +37,15 @@ class In3 extends PaymentMethod
             'description' => $this->description,
             'invoiceDate' => date('d-m-Y'),
             'version' => $this->version,
-            'billing' => [
-                'recipient' => [
-                    'category'              => 'B2C',
-                    'initials'              => $this->billingInitials,
-                    'firstName'             => $this->billingFirstName,
-                    'lastName'              => $this->billingLastName,
-                    'birthDate'             => $this->billingBirthDate,
-                    'customerNumber'        => $this->customerNumber,
-                    'phone'                 => $this->billingPhoneNumber,
-                    'country'               => $this->billingCountry,
-                ],
-                'address' => [
-                    'street'                => $this->billingStreet,
-                    'houseNumber'           => $this->billingHouseNumber,
-                    'zipcode'               => $this->billingPostalCode,
-                    'city'                  => $this->billingCity,
-                    'country'               => $this->billingCountry,
-                ],
-                'phone' => [
-                    'phone' => $this->billingPhoneNumber,
-                ],
-                'email' => $this->billingEmail,
-            ],
+            'billing' => $data['billing'],
             'articles' => $data['articles'],
         ];
-        if (isset($this->billingHouseNumberSuffix)) {
-            $payload['billing']['address']['houseNumberAdditional'] = $this->billingHouseNumberSuffix;
-        }
+
         // Add shipping address if is different
-        if ($this->addShippingIfDifferent()) {
-            $payload['shipping'] = $this->addShippingIfDifferent();
+        if ($data['shipping']) {
+            $payload['shipping'] = $data['shipping'];
         }
 
         return $payload;
-    }
-
-    private function addShippingIfDifferent()
-    {
-        if ($this->addressesDiffer) {
-            $payload = [
-                'address' => [
-                    'street' => $this->shippingStreet,
-                    'houseNumber' => $this->shippingHouseNumber,
-                    'zipcode' => $this->shippingPostalCode,
-                    'city' => $this->shippingCity,
-                    'country' => $this->shippingCountryCode,
-                ],
-            ];
-
-            if ($this->billingHouseNumberSuffix) {
-                $payload['address']['houseNumberAdditional'] = $this->shippingHouseNumberSuffix;
-            }
-
-            return $payload;
-        }
     }
 }

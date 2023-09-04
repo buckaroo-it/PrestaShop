@@ -810,7 +810,6 @@ class Buckaroo3 extends PaymentModule
         $capayableIn3 = new CapayableIn3();
         $issuersPayByBank = new IssuersPayByBank();
         $issuersCreditCard = new IssuersCreditCard();
-        $issuersIdeal = new IssuersIdeal();
 
         $this->context->smarty->assign(
             [
@@ -830,7 +829,7 @@ class Buckaroo3 extends PaymentModule
                 'country' => Country::getIsoById(Tools::getCountry()),
                 'afterpay_show_coc' => $this->showAfterpayCoc($cart),
                 'billink_show_coc' => $this->showBillinkCoc($cart),
-                'idealIssuers' => $issuersIdeal->get(),
+                'idealIssuers' => (new IssuersIdeal())->get(),
                 'idealDisplayMode' => Config::get('BUCKAROO_IDEAL_DISPLAY_TYPE'),
                 'paybybankIssuers' => $issuersPayByBank->getIssuerList(),
                 'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
