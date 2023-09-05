@@ -870,7 +870,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('GIROPAY', 'GiroPay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giropay.png?v')
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giropay.svg?v')
                 ->setModuleName('GIROPAY');
             $payment_options[] = $newOption;
         }
