@@ -302,7 +302,7 @@
     <div class="row">
         <div class="col-xs-12 col-md-6">
             <p class="payment_module">
-                <a id="giropay_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_giropay.png)"
+                <a id="giropay_enabled" style="background-image: url({$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/buckaroo_giropay.svg)"
                    class="buckaroo_paylink" onclick="paymentMethodValidation.init(this); return false;" rel="booAnimLnk"
                    href="#"
                    title="{l s='Pay by GiroPay' mod='buckaroo3'}">

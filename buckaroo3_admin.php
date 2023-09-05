@@ -962,7 +962,7 @@ class Buckaroo3Admin
         $fields_form[$i++] = [
             'legend' => $this->module->l('Giropay settings'),
             'name' => 'GIROPAY',
-            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.png',
+            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.svg',
             'test' => Configuration::get('BUCKAROO_GIROPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIROPAY_ENABLED'),
             'position' => Configuration::get('BUCKAROO_GIROPAY_POSITION'),
