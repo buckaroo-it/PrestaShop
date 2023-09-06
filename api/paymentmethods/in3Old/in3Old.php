@@ -16,11 +16,11 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
-class In3 extends PaymentMethod
+class In3Old extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'in3';
+        $this->type = 'in3Old';
         $this->mode = Config::getMode($this->type);
     }
 
@@ -28,23 +28,22 @@ class In3 extends PaymentMethod
     {
         $this->payload = $this->getPayload($customVars);
 
-        return parent::executeCustomPayAction('pay');
+        return parent::executeCustomPayAction('payInInstallments');
     }
 
     public function getPayload($data)
     {
         $payload = [
-            'description' => $this->description,
-            'invoiceDate' => date('d-m-Y'),
             'version' => $this->version,
-            'billing' => $data['billing'],
+            'description' => $data['description'],
+            'invoiceDate' => date('d-m-Y'),
+            'customerType' => 'Debtor',
+            'email' => $data['email'],
+            'phone' => ['mobile' => $data['phone']],
             'articles' => $data['articles'],
+            'customer' => $data['customer'],
+            'address' => $data['address'],
         ];
-
-        // Add shipping address if is different
-        if ($data['shipping']) {
-            $payload['shipping'] = $data['shipping'];
-        }
 
         return $payload;
     }

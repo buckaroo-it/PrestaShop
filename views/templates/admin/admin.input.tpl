@@ -100,6 +100,23 @@
             {/foreach}
         </table>
     </div>
+{elseif $input.type == 'radio'}
+    <div class="form-group">
+        <label for="{$input.name|escape:'quotes':'UTF-8'}">{$input.label|escape:'html':'UTF-8'}</label>
+        <div class="col-lg-12">
+            {foreach from=$input.options item=option}
+                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-9 text-center">
+                    <img src="{$option.image|escape:'quotes':'UTF-8'}" alt="{$option.text|escape:'html':'UTF-8'}" width="96"/>
+                    <label>
+                        <input type="radio" id="{$input.name|escape:'quotes':'UTF-8'}_{$option.value|escape:'quotes':'UTF-8'}" name="{$input.name|escape:'quotes':'UTF-8'}" value="{$option.value|escape:'quotes':'UTF-8'}" {if isset($fields_value[$input.name]) && ($fields_value[$input.name] === $option.value)}checked="checked"{/if}/>
+                    </label>
+                </div>
+            {/foreach}
+        </div>
+        {if isset($input.description)}
+            <span class="help-block">{$input.description|escape:'html':'UTF-8'}</span>
+        {/if}
+    </div>
 {elseif $input.type == 'simpletext'}
     <div class="form-group">
         <span>{$input.name|escape:'html':'UTF-8'}</span>

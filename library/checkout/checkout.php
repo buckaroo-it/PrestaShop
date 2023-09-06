@@ -40,6 +40,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_BELFIUS = 'belfius';
     public const CHECKOUT_TYPE_IDIN = 'idin';
     public const CHECKOUT_TYPE_IN3 = 'in3';
+    public const CHECKOUT_TYPE_IN3Old = 'in3Old';
     public const CHECKOUT_TYPE_BILLINK = 'billink';
     public const CHECKOUT_TYPE_EPS = 'eps';
     public const CHECKOUT_TYPE_PAYCONIQ = 'payconiq';
@@ -67,6 +68,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_BELFIUS => 'Belfius',
         Checkout::CHECKOUT_TYPE_IDIN => 'Idin',
         Checkout::CHECKOUT_TYPE_IN3 => 'In3',
+        Checkout::CHECKOUT_TYPE_IN3Old => 'In3Old',
         Checkout::CHECKOUT_TYPE_BILLINK => 'Billink',
         Checkout::CHECKOUT_TYPE_EPS => 'Eps',
         Checkout::CHECKOUT_TYPE_PAYCONIQ => 'Payconiq',
