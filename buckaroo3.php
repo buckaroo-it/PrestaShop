@@ -22,8 +22,8 @@ require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/billink/billink.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/afterpaycheckout.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/billinkcheckout.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersPayByBank.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
@@ -1620,9 +1620,9 @@ class Buckaroo3 extends PaymentModule
             $shippingCountry = Country::getIsoById($shippingAddress->id_country);
         }
 
-        return AfterPay::CUSTOMER_TYPE_B2B === $afterpay_customer_type
+        return AfterPayCheckout::CUSTOMER_TYPE_B2B === $afterpay_customer_type
         || (
-            AfterPay::CUSTOMER_TYPE_B2C !== $afterpay_customer_type
+            AfterPayCheckout::CUSTOMER_TYPE_B2C !== $afterpay_customer_type
             && (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
@@ -1648,9 +1648,9 @@ class Buckaroo3 extends PaymentModule
             $shippingCountry = Country::getIsoById($shippingAddress->id_country);
         }
 
-        return Billink::CUSTOMER_TYPE_B2B === $billink_customer_type
+        return BillinkCheckout::CUSTOMER_TYPE_B2B === $billink_customer_type
         || (
-            Billink::CUSTOMER_TYPE_B2C !== $billink_customer_type
+                BillinkCheckout::CUSTOMER_TYPE_B2C !== $billink_customer_type
             && (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
@@ -1693,11 +1693,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         $customerType = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
-        if (AfterPay::CUSTOMER_TYPE_B2C !== $customerType) {
+        if (AfterPayCheckout::CUSTOMER_TYPE_B2C !== $customerType) {
             $nlCompanyExists =
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL');
-            if (AfterPay::CUSTOMER_TYPE_B2B === $customerType) {
+            if (AfterPayCheckout::CUSTOMER_TYPE_B2B === $customerType) {
                 return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3), 'AFTERPAY') && $nlCompanyExists;
             }
 

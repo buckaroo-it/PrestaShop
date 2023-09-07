@@ -15,8 +15,11 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="BILLINK">
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
-        {l s='Please select gender:' mod='buckaroo3'}<br/><br/>
-            <div class="col-xs-12">
+        <div class="row row-padding">
+            <div class="col-xs-5">
+                <label class="required">{l s='Please select gender:' mod='buckaroo3'}</label>
+            </div>
+            <div class="col-xs-7">
                 <select name="bpe_billink_person_gender"
                                            id="bpe_billink_person_gender"
                                            class="required-entry form-control form-control-large custom-select">
@@ -26,8 +29,7 @@
                     <option value="Unknown">{l s='I prefer not to say' mod='buckaroo3'}</option>
                 </select>
             </div>
-        <br/>
-        <br/>
+        </div>
         <div class="row row-padding">
             <div class="col-xs-5"><label
                         class="required">{l s='Date of birth' mod='buckaroo3'} :</label></div>
@@ -51,10 +53,10 @@
                 <div class="col-xs-5">
                     <label class="required">{l s='CoC-number' mod='buckaroo3'}:</label>
                 </div>
-                <div class="col-xs-4">
+                <div class="col-xs-7">
                     <input title="customerbillink-coc" name="customerbillink-coc"
                            id="customerbillink-coc" type="text" value="" required
-                           class="form-control" autocomplete="off"/>
+                           class="form-control form-control-large" autocomplete="off"/>
                 </div>
             </div>
         {/if}

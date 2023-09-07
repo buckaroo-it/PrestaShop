@@ -16,112 +16,23 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
+use Buckaroo\Resources\Constants\RecipientCategory;
 class BillinkCheckout extends Checkout
 {
     protected $customVars = [];
-
+    public const CUSTOMER_TYPE_B2C = 'B2C';
+    public const CUSTOMER_TYPE_B2B = 'B2B';
+    public const CUSTOMER_TYPE_BOTH = 'both';
     final public function setCheckout()
     {
         parent::setCheckout();
 
-        $phone = '';
-        if (!empty($this->invoice_address->phone_mobile)) {
-            $phone = $this->invoice_address->phone_mobile;
-        }
-        if (empty($phone) && !empty($this->invoice_address->phone)) {
-            $phone = $this->invoice_address->phone;
-        }
-
-        $ShippingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
-        if ($ShippingCost > 0) {
-            $this->payment_request->ShippingCosts = round($ShippingCost, 2);
-        }
-        $birthDate = date(
-            'd-m-Y',
-            strtotime(
-                Tools::getValue('customerbirthdate_y_billing_billink') . '-' . Tools::getValue(
-                    'customerbirthdate_m_billing_billink'
-                ) . '-' . Tools::getValue('customerbirthdate_d_billing_billink')
-            )
-        );
-        $this->payment_request->VatNumber = $this->invoice_address->vat_number;
-        $this->payment_request->BillingInitials = initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname);
-        $this->payment_request->BillingFirstName = $this->invoice_address->firstname;
-        $this->payment_request->BillingLastName = $this->invoice_address->lastname;
-        $this->payment_request->BillingBirthDate = $birthDate;
-        $this->payment_request->BillingGender = Tools::getValue('bpe_billink_person_gender');
-        $address_components = $this->getAddressComponents($this->invoice_address->address1); // phpcs:ignore
-        if (empty($address_components['house_number'])) {
-            $address_components['house_number'] = $this->invoice_address->address2;
-        }
-        $this->payment_request->BillingStreet = $address_components['street'];
-        $this->payment_request->BillingHouseNumber = $address_components['house_number'];
-        $this->payment_request->BillingHouseNumberSuffix = $address_components['number_addition'];
-        $this->payment_request->BillingPostalCode = $this->invoice_address->postcode;
-        $this->payment_request->BillingCity = $this->invoice_address->city;
-        $country = new Country($this->invoice_address->id_country);
-        $this->payment_request->BillingCountry = Tools::strtoupper($country->iso_code);
-        $this->payment_request->BillingEmail = !empty($this->customer->email) ? $this->customer->email : '';
-        $this->payment_request->BillingPhoneNumber = $phone;
-        $this->payment_request->BillingCompanyName = $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null;
-        $this->payment_request->CustomerType = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
-        $Discount = $this->cart->getOrderTotal(true, Cart::ONLY_DISCOUNTS);
-        if ($Discount > 0) {
-            $this->payment_request->Discount = round($Discount, 2);
-        }
-
-        $this->payment_request->AddressesDiffer = 'FALSE';
-        if (!empty($this->shipping_address)) {
-            $this->payment_request->AddressesDiffer = 'TRUE';
-            $this->payment_request->ShippingInitials = initials($this->shipping_address->firstname . ' ' . $this->shipping_address->lastname);
-            $this->payment_request->ShippingInitials = initials($this->shipping_address->firstname);
-            $this->payment_request->ShippingFirstName = $this->shipping_address->firstname;
-            $this->payment_request->ShippingLastName = $this->shipping_address->lastname;
-            $this->payment_request->ShippingCompanyName = $this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null;
-            $this->payment_request->ShippingBirthDate = $birthDate;
-            $this->payment_request->ShippingGender = Tools::getValue('bpe_billink_person_gender');
-            $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
-            $this->payment_request->ShippingStreet = $address_components['street'];
-            $this->payment_request->ShippingHouseNumber = $address_components['house_number'];
-            $this->payment_request->ShippingHouseNumberSuffix = $address_components['number_addition'];
-            $this->payment_request->ShippingPostalCode = $this->shipping_address->postcode;
-            $this->payment_request->ShippingCity = $this->shipping_address->city;
-            $country = new Country($this->shipping_address->id_country);
-            $this->payment_request->ShippingCountryCode = Tools::strtoupper($country->iso_code);
-            $this->payment_request->ShippingEmail = Tools::getIsset(
-                $this->customer->email
-            ) ? $this->customer->email : '';
-            $phone = '';
-            if (!empty($this->shipping_address->phone_mobile)) {
-                $phone = $this->shipping_address->phone_mobile;
-            }
-            if (empty($phone) && !empty($this->shipping_address->phone)) {
-                $phone = $this->shipping_address->phone;
-            }
-            $this->payment_request->ShippingPhoneNumber = $phone;
-        }
-
-        $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
-
-        $this->payment_request->ShippingCostsTax = $carrier->getTaxesRate();
-
-        if ($carrier->external_module_name == 'sendcloud') {
-            $sendCloudClassName = 'SendcloudServicePoint';
-            $service_point = $sendCloudClassName::getFromCart($this->cart->id);
-            $point = $service_point->getDetails();
-            $this->payment_request->ShippingStreet = $point->street;
-            $this->payment_request->ShippingHouseNumber = $point->house_number;
-            $this->payment_request->ShippingHouseNumberSuffix = '';
-            $this->payment_request->ShippingPostalCode = $point->postal_code;
-            $this->payment_request->ShippingCity = $point->city;
-            $country = $point->country;
-        }
-
-        $cocNumber = Tools::getValue('customerbillink-coc');
-
-        if (!empty($cocNumber) && strlen(trim($cocNumber)) !== 0) {
-            $this->payment_request->CompanyCOCRegistration = $cocNumber;
-        }
+        $this->customVars = [
+            'vATNumber' => $this->invoice_address->vat_number,
+            'billing' => $this->getBillingAddress(),
+            'articles' => $this->getArticles(),
+            'shipping' => $this->getShippingAddress()
+        ];
     }
 
     public function isRedirectRequired()
@@ -136,17 +47,80 @@ class BillinkCheckout extends Checkout
 
     public function startPayment()
     {
-        $logger = new Logger(Logger::INFO, 'return');
+        $this->payment_response = $this->payment_request->payBillink($this->customVars);
+    }
 
-        $logger->logInfo('Products', $this->products);
+    protected function initialize()
+    {
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_BILLINK);
+    }
 
-        $products = [];
-        $taxvalues = Configuration::get('BUCKAROO_BILLINK_TAXRATE');
-        if (!$taxvalues) {
-            $taxvalues = [];
-        } else {
-            $taxvalues = unserialize($taxvalues);
+    public function getBillingAddress(){
+        $customerType = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+
+        $birthDate = $this->getBirthDate();
+
+        $address_components = $this->getAddressComponents($this->invoice_address->address1); // phpcs:ignore
+        if (empty($address_components['house_number'])) {
+            $address_components['house_number'] = $this->invoice_address->address2;
         }
+        $country = new Country($this->invoice_address->id_country);
+
+        $category = ($customerType == self::CUSTOMER_TYPE_B2C) ? self::CUSTOMER_TYPE_B2C
+            : (($customerType == self::CUSTOMER_TYPE_B2B) ? self::CUSTOMER_TYPE_B2B
+                : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : self::CUSTOMER_TYPE_B2C));
+
+        $payload = [
+            'recipient'        => [
+                'category'      => $category,
+                'careOf'        => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
+                'firstName'      => $this->invoice_address->firstname,
+                'lastName'      => $this->invoice_address->lastname,
+                'birthDate'     => $birthDate,
+                'title'        => Tools::getValue('bpe_billink_person_gender'),
+                'initials'      => initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname)
+            ],
+            'address' => [
+                'street' => $address_components['street'],
+                'houseNumber' => $address_components['house_number'],
+                'houseNumberAdditional' => $address_components['number_addition'],
+                'zipcode' => $this->invoice_address->postcode,
+                'city' => $this->invoice_address->city,
+                'country' => Tools::strtoupper($country->iso_code)
+            ],
+            'phone' => [
+                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address)
+            ],
+            'email' => !empty($this->customer->email) ? $this->customer->email : '',
+        ];
+
+        if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE')) {
+            if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
+                $payload['recipient']['careOf'] = $this->invoice_address->company;
+                $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
+            }
+        }
+        return $payload;
+    }
+
+    public function getArticles()
+    {
+        $products = $this->prepareProductArticles();
+        $products = array_merge($products, $this->prepareWrappingArticle());
+        $products = array_merge($products, $this->prepareBuckarooFeeArticle());
+        $mergedProducts = $this->mergeProductsBySKU($products);
+
+        $shippingCostArticle = $this->prepareShippingCostArticle();
+        if ($shippingCostArticle) {
+            $mergedProducts[] = $shippingCostArticle;
+        }
+
+        return $mergedProducts;
+    }
+
+    protected function prepareProductArticles()
+    {
+        $articles = [];
         foreach ($this->products as $item) {
             $tmp = [];
             $tmp['ArticleDescription'] = $item['name'];
@@ -155,55 +129,140 @@ class BillinkCheckout extends Checkout
             $tmp['ArticleUnitPriceIncl'] = round($item['price_with_reduction'], 2);
             $tmp['ArticleUnitPriceExcl'] = round($item['price_with_reduction_without_tax'], 2);
             $tmp['ArticleVatcategory'] = $item['rate'];
-            $products[] = $tmp;
+            $articles[] = $tmp;
         }
 
-        $Wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
-        if ($Wrapping > 0) {
-            $tmp = [];
-            $tmp['ArticleDescription'] = 'Wrapping';
-            $tmp['ArticleId'] = '0';
-            $tmp['ArticleQuantity'] = '1';
-            $tmp['ArticleUnitPriceIncl'] = $Wrapping;
-            $tmp['ArticleUnitPriceExcl'] = $Wrapping;
-            $tmp['ArticleVatcategory'] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
-            $products[] = $tmp;
+        return $articles;
+    }
+
+    protected function prepareWrappingArticle()
+    {
+        $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+        if ($wrappingCost <= 0) {
+            return [];
         }
 
+        return [
+            'ArticleDescription' => 'Wrapping',
+            'ArticleId' => '0',
+            'ArticleQuantity' => '1',
+            'ArticleUnitPriceIncl' => $wrappingCost,
+            'ArticleUnitPriceExcl' => $wrappingCost,
+            'ArticleVatcategory' => Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT')
+        ];
+    }
+
+    private function prepareBuckarooFeeArticle()
+    {
         $buckarooFee = $this->getBuckarooFee();
-
-        if ($buckarooFee > 0) {
-            $tmp = [];
-            $tmp['ArticleDescription'] = 'buckaroo_fee';
-            $tmp['ArticleId'] = '0';
-            $tmp['ArticleQuantity'] = '1';
-            $tmp['ArticleUnitPriceIncl'] = round($buckarooFee, 2);
-            $tmp['ArticleUnitPriceExcl'] = round($buckarooFee, 2);
-            $tmp['ArticleVatcategory'] = 0;
-            $products[] = $tmp;
+        if ($buckarooFee <= 0) {
+            return [];
         }
 
-        $this->payment_response = $this->payment_request->payBillink($products, $this->customVars);
+        return [
+            'ArticleDescription' => 'buckaroo_fee',
+            'ArticleId' => '0',
+            'ArticleQuantity' => '1',
+            'ArticleUnitPriceIncl' => round($buckarooFee, 2),
+            'ArticleUnitPriceExcl' => round($buckarooFee, 2),
+            'ArticleVatcategory' => 0
+        ];
     }
 
-    protected function initialize()
+    protected function prepareShippingCostArticle()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_BILLINK);
-    }
-
-    /**
-     * Check if company exists
-     *
-     * @param mixed $company
-     *
-     * @return bool
-     */
-    protected function companyExists($company)
-    {
-        if (!is_string($company)) {
-            return false;
+        $shippingCost = round($this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING), 2);
+        if ($shippingCost <= 0) {
+            return null;
         }
 
-        return strlen(trim($company)) !== 0;
+        $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+
+        $shippingCostsTax = (version_compare(_PS_VERSION_, '1.7.6.0', '<='))
+            ? $carrier->getTaxesRate(Address::initialize())
+            : $carrier->getTaxesRate();
+
+        return [
+            'identifier' => 'shipping',
+            'description' => 'Shipping Costs',
+            'vatPercentage' => $shippingCostsTax,
+            'quantity' => 1,
+            'price' => $shippingCost,
+            'priceExcl' => $shippingCost
+        ];
+    }
+
+    public function getBirthDate(){
+        return date(
+            'd-m-Y',
+            strtotime(
+                Tools::getValue('customerbirthdate_y_billing_billink') . '-' . Tools::getValue(
+                    'customerbirthdate_m_billing_billink'
+                ) . '-' . Tools::getValue('customerbirthdate_d_billing_billink')
+            )
+        );
+    }
+
+    public function getShippingAddress()
+    {
+        if (!empty($this->shipping_address)) {
+            $country = new Country($this->shipping_address->id_country);
+            $carrier = new Carrier((int)$this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+
+            $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
+            $street = $address_components['street'];
+            if (empty($address_components['house_number'])) {
+                $houseNumber = $this->invoice_address->address2;
+            } else {
+                $houseNumber = $address_components['house_number'];
+            }
+            $houseNumberSuffix = $address_components['number_addition'];
+            $birthDate = $this->getBirthDate();
+            $zipcode = $this->shipping_address->postcode;
+            $city = $this->shipping_address->city;
+
+            if ($carrier->external_module_name == 'sendcloud') {
+                $sendCloudClassName = 'SendcloudServicePoint';
+                $service_point = $sendCloudClassName::getFromCart($this->cart->id);
+                $point = $service_point->getDetails();
+                $street = $point->street;
+                $houseNumber = $point->house_number;
+                $houseNumberSuffix = '';
+                $zipcode = $point->postal_code;
+                $city = $point->city;
+                $country = $point->country;
+            }
+
+            $payload = [
+                'recipient' => [
+                    'category' => RecipientCategory::PERSON,
+                    'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
+                    'firstName' => $this->shipping_address->firstname,
+                    'lastName' => $this->shipping_address->lastname,
+                    'birthDate' => $birthDate,
+                    'title' => Tools::getValue('bpe_billink_person_gender'),
+                    'initials' => initials($this->shipping_address->firstname . ' ' . $this->shipping_address->lastname),
+                ],
+                'address' => [
+                    'street' => $street,
+                    'houseNumber' => $houseNumber,
+                    'houseNumberAdditional' => $houseNumberSuffix,
+                    'zipcode' => $zipcode,
+                    'city' => $city,
+                    'country' => Tools::strtoupper($country->iso_code),
+                ],
+            ];
+
+            if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE')) {
+                if ($this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null) {
+                    $payload['recipient']['careOf'] = $this->shipping_address->company;
+                    $payload['recipient']['category'] = 'B2B';
+                }
+            }
+
+            return $payload;
+        }
+
+        return null;
     }
 }
