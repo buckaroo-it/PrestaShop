@@ -68,11 +68,15 @@ $(document).ready(function () {
 
     updatePositions();
 
-    var $apiVersion = $('#BUCKAROO_IN3_API_VERSION');
-    var $nextElement = $apiVersion.parent().parent().next();
+    var in3ApiVersion = $('#BUCKAROO_IN3_API_VERSION');
+    var in3NextElement = in3ApiVersion.parent().parent().next();
 
-    $apiVersion.on('change', function() {
-        var shouldHide = $apiVersion.val() === 'V3';
-        $nextElement.toggle(!shouldHide);
-    });
+    function toggleNextElement() {
+        var shouldHide = in3ApiVersion.val() === 'V3';
+        in3NextElement.toggle(!shouldHide);
+    }
+
+    toggleNextElement();
+
+    in3ApiVersion.on('change', toggleNextElement);
 });
