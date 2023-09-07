@@ -67,4 +67,12 @@ $(document).ready(function () {
     });
 
     updatePositions();
+
+    var $apiVersion = $('#BUCKAROO_IN3_API_VERSION');
+    var $nextElement = $apiVersion.parent().parent().next();
+
+    $apiVersion.on('change', function() {
+        var shouldHide = $apiVersion.val() === 'V3';
+        $nextElement.toggle(!shouldHide);
+    });
 });
