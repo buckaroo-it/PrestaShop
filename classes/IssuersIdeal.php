@@ -37,6 +37,7 @@ class IssuersIdeal
         'BUNQNL2A' => 'Bunq.png',
         'REVOLT21' => 'Revolut.png',
         'BITSNL2A' => 'YourSafe.png',
+        'NTSBDEB1' => 'n26.svg'
     ];
 
     public function get()
