@@ -40,17 +40,6 @@ class Billink extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'vATNumber' => $data['vATNumber'],
-            'billing' => $data['billing'],
-            'articles' => $data['articles'],
-        ];
-
-        // Add shipping address if is different
-        if ($data['shipping']) {
-            $payload['shipping'] = $data['shipping'];
-        }
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

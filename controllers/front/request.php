@@ -270,7 +270,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->context->cookie->id_cart = $duplication['cart']->id;
                 $this->context->cookie->write();
             }
-            $error = $response->getServiceParameters();
+
+            $error = null;
+            if ($response->hasSomeError()) {
+                $error = $response->getSomeError();
+            }
+
             if (isset($error['errorresponsemessage']) && is_array($error)) {
                 $this->displayError(null, $error['errorresponsemessage']);
             } else {

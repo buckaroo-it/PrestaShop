@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
 use Buckaroo\Resources\Constants\RecipientCategory;
 class BillinkCheckout extends Checkout
@@ -123,12 +124,12 @@ class BillinkCheckout extends Checkout
         $articles = [];
         foreach ($this->products as $item) {
             $tmp = [];
-            $tmp['ArticleDescription'] = $item['name'];
-            $tmp['ArticleId'] = $item['id_product'];
-            $tmp['ArticleQuantity'] = $item['quantity'];
-            $tmp['ArticleUnitPriceIncl'] = round($item['price_with_reduction'], 2);
-            $tmp['ArticleUnitPriceExcl'] = round($item['price_with_reduction_without_tax'], 2);
-            $tmp['ArticleVatcategory'] = $item['rate'];
+            $tmp['description'] = $item['name'];
+            $tmp['identifier'] = $item['id_product'];
+            $tmp['quantity'] = $item['quantity'];
+            $tmp['price'] = round($item['price_with_reduction'], 2);
+            $tmp['priceExcl'] = round($item['price_with_reduction_without_tax'], 2);
+            $tmp['vatPercentage'] = $item['rate'];
             $articles[] = $tmp;
         }
 
@@ -143,12 +144,12 @@ class BillinkCheckout extends Checkout
         }
 
         return [
-            'ArticleDescription' => 'Wrapping',
-            'ArticleId' => '0',
-            'ArticleQuantity' => '1',
-            'ArticleUnitPriceIncl' => $wrappingCost,
-            'ArticleUnitPriceExcl' => $wrappingCost,
-            'ArticleVatcategory' => Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT')
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => $wrappingCost,
+            'priceExcl' => $wrappingCost,
+            'vatPercentage' => Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT'),
+            'description' => 'Wrapping'
         ];
     }
 
@@ -160,12 +161,12 @@ class BillinkCheckout extends Checkout
         }
 
         return [
-            'ArticleDescription' => 'buckaroo_fee',
-            'ArticleId' => '0',
-            'ArticleQuantity' => '1',
-            'ArticleUnitPriceIncl' => round($buckarooFee, 2),
-            'ArticleUnitPriceExcl' => round($buckarooFee, 2),
-            'ArticleVatcategory' => 0
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => round($buckarooFee, 2),
+            'priceExcl' => round($buckarooFee, 2),
+            'vatPercentage' => 0,
+            'description' => 'buckaroo_fee'
         ];
     }
 
@@ -207,7 +208,6 @@ class BillinkCheckout extends Checkout
     {
         if (!empty($this->shipping_address)) {
             $country = new Country($this->shipping_address->id_country);
-            $carrier = new Carrier((int)$this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
 
             $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
             $street = $address_components['street'];
@@ -221,16 +221,16 @@ class BillinkCheckout extends Checkout
             $zipcode = $this->shipping_address->postcode;
             $city = $this->shipping_address->city;
 
-            if ($carrier->external_module_name == 'sendcloud') {
-                $sendCloudClassName = 'SendcloudServicePoint';
-                $service_point = $sendCloudClassName::getFromCart($this->cart->id);
-                $point = $service_point->getDetails();
-                $street = $point->street;
-                $houseNumber = $point->house_number;
-                $houseNumberSuffix = '';
-                $zipcode = $point->postal_code;
-                $city = $point->city;
-                $country = $point->country;
+            $carrierHandler = new CarrierHandler($this->cart);
+            $sendCloudData = $carrierHandler->handleSendCloud();
+
+            if ($sendCloudData) {
+                $street = $sendCloudData['street'];
+                $houseNumber = $sendCloudData['houseNumber'];
+                $houseNumberSuffix = $sendCloudData['houseNumberSuffix'];
+                $zipcode = $sendCloudData['zipcode'];
+                $city = $sendCloudData['city'];
+                $country = $sendCloudData['country'];
             }
 
             $payload = [

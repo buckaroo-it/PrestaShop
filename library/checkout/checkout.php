@@ -349,11 +349,11 @@ abstract class Checkout
         }
 
         return [
-            'ArticleDescription' => 'Wrapping',
-            'ArticleId' => '0',
-            'ArticleQuantity' => '1',
-            'ArticleUnitprice' => $wrappingCost,
-            'ArticleVatcategory' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT')
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => $wrappingCost,
+            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
+            'description' => 'Wrapping'
         ];
     }
 
@@ -362,11 +362,11 @@ abstract class Checkout
         $articles = [];
         foreach ($this->products as $item) {
             $tmp = [];
-            $tmp['ArticleDescription'] = $item['name'];
-            $tmp['ArticleId'] = $item['id_product'];
-            $tmp['ArticleQuantity'] = $item['quantity'];
-            $tmp['ArticleUnitprice'] = round($item['price_wt'], 2);
-            $tmp['ArticleVatcategory'] = $item['rate'];
+            $tmp['identifier'] = $item['id_product'];
+            $tmp['quantity'] = $item['quantity'];
+            $tmp['price'] = round($item['price_wt'], 2);
+            $tmp['vatPercentage'] = $item['rate'];
+            $tmp['description'] = $item['name'];
             $articles[] = $tmp;
         }
 
@@ -377,24 +377,14 @@ abstract class Checkout
     {
         $mergeProducts = [];
         foreach ($products as $item) {
-            if (!isset($mergeProducts[$item['ArticleId']])) {
-                $mergeProducts[$item['ArticleId']] = $item;
+            if (!isset($mergeProducts[$item['identifier']])) {
+                $mergeProducts[$item['identifier']] = $item;
             } else {
-                ++$mergeProducts[$item['ArticleId']]['ArticleQuantity'];
+                ++$mergeProducts[$item['identifier']]['quantity'];
             }
         }
 
-        $merged = [];
-        foreach ($mergeProducts as $item) {
-            $merged[] = [
-                'identifier' => $item['ArticleId'],
-                'description' => $item['ArticleDescription'],
-                'vatPercentage' => isset($item['ArticleVatcategory']) ?? 0,
-                'quantity' => $item['ArticleQuantity'],
-                'price' => $item['ArticleUnitprice'],
-            ];
-        }
-        return $merged;
+        return $mergeProducts;
     }
 
 

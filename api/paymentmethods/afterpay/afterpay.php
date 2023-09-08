@@ -40,17 +40,6 @@ class AfterPay extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'clientIP' => $data['clientIP'],
-            'billing' => $data['billing'],
-            'articles' => $data['articles'],
-        ];
-
-        // Add shipping address if is different
-        if ($data['shipping']) {
-            $payload['shipping'] = $data['shipping'];
-        }
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

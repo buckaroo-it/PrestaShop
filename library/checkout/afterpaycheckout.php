@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
 use Buckaroo\Resources\Constants\RecipientCategory;
 
@@ -136,11 +137,11 @@ class AfterPayCheckout extends Checkout
         }
 
         return [
-            'ArticleDescription' => 'buckaroo_fee',
-            'ArticleId' => '0',
-            'ArticleQuantity' => '1',
-            'ArticleUnitprice' => round($buckarooFee, 2),
-            'ArticleVatcategory' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT')
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => round($buckarooFee, 2),
+            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
+            'description' => 'buckaroo_fee'
         ];
     }
 
@@ -148,7 +149,6 @@ class AfterPayCheckout extends Checkout
     {
         if (!empty($this->shipping_address)) {
             $country = new Country($this->invoice_address->id_country);
-            $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
 
             $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
             $street = $address_components['street'];
@@ -163,16 +163,16 @@ class AfterPayCheckout extends Checkout
 
             $phone = $this->getPhone($this->shipping_address);
 
-            if ($carrier->external_module_name == 'sendcloud') {
-                $sendCloudClassName = 'SendcloudServicePoint';
-                $service_point = $sendCloudClassName::getFromCart($this->cart->id);
-                $point = $service_point->getDetails();
-                $street = $point->street;
-                $houseNumber = $point->house_number;
-                $houseNumberSuffix = '';
-                $zipcode = $point->postal_code;
-                $city = $point->city;
-                $country = $point->country;
+            $carrierHandler = new CarrierHandler($this->cart);
+            $sendCloudData = $carrierHandler->handleSendCloud();
+
+            if ($sendCloudData) {
+                $street = $sendCloudData['street'];
+                $houseNumber = $sendCloudData['houseNumber'];
+                $houseNumberSuffix = $sendCloudData['houseNumberSuffix'];
+                $zipcode = $sendCloudData['zipcode'];
+                $city = $sendCloudData['city'];
+                $country = $sendCloudData['country'];
             }
 
             $payload = [
