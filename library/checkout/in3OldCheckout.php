@@ -31,7 +31,7 @@ class In3OldCheckout extends Checkout
             'customer' => $this->getCustomer(),
             'address' => $this->getAddress(),
             'articles' => $this->getArticles(),
-            'phone' => $this->getPhone(),
+            'phone' => $this->getPhone($this->invoice_address),
             'email' => $this->customer->email,
         ];
     }
@@ -74,7 +74,7 @@ class In3OldCheckout extends Checkout
             'lastName' => $this->invoice_address->lastname,
             'culture' => 'nl-NL',
             'initials' => initials($this->invoice_address->firstname),
-            'phone' => $this->getPhone(),
+            'phone' => $this->getPhone($this->invoice_address),
             'email' => $this->customer->email,
             'birthDate' => date(
                 'Y-m-d',
@@ -121,16 +121,25 @@ class In3OldCheckout extends Checkout
     /**
      * Get customer phone
      *
+     * @param $address
      * @return string
      */
-    public function getPhone()
+    public function getPhone($address)
     {
+        // First check if 'customer_phone' value is available.
         $phone = Tools::getValue('customer_phone');
-        if (is_scalar($phone)) {
-            return (string)$phone;
+
+        // If it's not available, then check for 'phone_mobile' in the address.
+        if (empty($phone) && !empty($address->phone_mobile)) {
+            $phone = $address->phone_mobile;
         }
 
-        return '';
+        // If both above are not available, then check for 'phone' in the address.
+        if (empty($phone) && !empty($address->phone)) {
+            $phone = $address->phone;
+        }
+
+        return $phone;
     }
 
     /**

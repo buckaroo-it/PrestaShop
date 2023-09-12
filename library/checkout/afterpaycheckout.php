@@ -224,16 +224,17 @@ class AfterPayCheckout extends Checkout
 
     public function getPhone($address)
     {
-        $phone = '';
-        if (!empty($address->phone_mobile)) {
+        // First check if 'phone_afterpay_billing' value is available.
+        $phone = Tools::getValue('phone_afterpay_billing');
+
+        // If it's not available, then check for 'phone_mobile' in the address.
+        if (empty($phone) && !empty($address->phone_mobile)) {
             $phone = $address->phone_mobile;
         }
+
+        // If both above are not available, then check for 'phone' in the address.
         if (empty($phone) && !empty($address->phone)) {
             $phone = $address->phone;
-        }
-
-        if (empty($phone) && !empty(Tools::getValue('phone_afterpay_billing'))) {
-            $phone = Tools::getValue('phone_afterpay_billing');
         }
 
         return $phone;
