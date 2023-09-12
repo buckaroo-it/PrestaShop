@@ -35,6 +35,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_BELFIUS = 'belfius';
     public const REQUEST_TYPE_IDIN = 'idin';
     public const REQUEST_TYPE_IN3 = 'in3';
+    public const REQUEST_TYPE_IN3OLD = 'in3Old';
     public const REQUEST_TYPE_BILLINK = 'billink';
     public const REQUEST_TYPE_EPS = 'eps';
     public const REQUEST_TYPE_PAYCONIQ = 'payconiq';
@@ -62,6 +63,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_BELFIUS => 'Belfius',
         PaymentRequestFactory::REQUEST_TYPE_IDIN => 'Idin',
         PaymentRequestFactory::REQUEST_TYPE_IN3 => 'In3',
+        PaymentRequestFactory::REQUEST_TYPE_IN3OLD => 'In3Old',
         PaymentRequestFactory::REQUEST_TYPE_BILLINK => 'Billink',
         PaymentRequestFactory::REQUEST_TYPE_EPS => 'Eps',
         PaymentRequestFactory::REQUEST_TYPE_PAYCONIQ => 'Payconiq',
@@ -75,6 +77,7 @@ class PaymentRequestFactory
     {
         $class_name = self::$valid_request_types[$request_type_id];
         autoload($class_name); // Try to find class in api directory
+
         if (!class_exists($class_name)) {
             throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
         }

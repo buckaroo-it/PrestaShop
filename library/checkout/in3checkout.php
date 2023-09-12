@@ -25,14 +25,10 @@ class In3Checkout extends Checkout
         parent::setCheckout();
 
         $this->addRequiredDescription();
-
         $this->customVars = [
-            'description' => $this->payment_request->invoiceId,
-            'customer' => $this->getCustomer(),
-            'address' => $this->getAddress(),
+            'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
-            'phone' => $this->getPhone(),
-            'email' => $this->customer->email,
+            'shipping' => $this->getShippingAddress(),
         ];
     }
 
@@ -64,73 +60,27 @@ class In3Checkout extends Checkout
     }
 
     /**
-     * Get customer data
-     *
-     * @return array
-     */
-    protected function getCustomer()
-    {
-        return [
-            'lastName' => $this->invoice_address->lastname,
-            'culture' => 'nl-NL',
-            'initials' => initials($this->invoice_address->firstname),
-            'phone' => $this->getPhone(),
-            'email' => $this->customer->email,
-            'birthDate' => date(
-                'Y-m-d',
-                strtotime(
-                    Tools::getValue('customerbirthdate_y_billing') . '-' .
-                    Tools::getValue('customerbirthdate_m_billing') . '-' .
-                    Tools::getValue('customerbirthdate_d_billing')
-                )
-            ),
-        ];
-    }
-
-    /**
-     * Get customer address
-     *
-     * @return array
-     */
-    protected function getAddress()
-    {
-        $address_components = $this->getAddressComponents($this->invoice_address->address1);
-        if (empty($address_components['house_number'])) {
-            $address_components['house_number'] = $this->invoice_address->address2;
-        }
-        $data = [
-            'street' => $address_components['street'],
-            'houseNumber' => $address_components['house_number'],
-            'zipcode' => $this->invoice_address->postcode,
-            'city' => $this->invoice_address->city,
-            'country' => Tools::strtoupper(
-                (new Country($this->invoice_address->id_country))->iso_code
-            ),
-        ];
-
-        if (!empty($address_components['number_addition'])) {
-            return array_merge(
-                $data,
-                ['houseNumberAdditional' => $address_components['number_addition']]
-            );
-        }
-
-        return $data;
-    }
-
-    /**
      * Get customer phone
      *
+     * @param $address
      * @return string
      */
-    public function getPhone()
+    public function getPhone($address)
     {
+        // First check if 'customer_phone' value is available.
         $phone = Tools::getValue('customer_phone');
-        if (is_scalar($phone)) {
-            return (string) $phone;
+
+        // If it's not available, then check for 'phone_mobile' in the address.
+        if (empty($phone) && !empty($address->phone_mobile)) {
+            $phone = $address->phone_mobile;
         }
 
-        return '';
+        // If both above are not available, then check for 'phone' in the address.
+        if (empty($phone) && !empty($address->phone)) {
+            $phone = $address->phone;
+        }
+
+        return $phone;
     }
 
     /**
@@ -148,6 +98,7 @@ class In3Checkout extends Checkout
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
                 'price' => round($item['price_wt'], 2),
+                'vatPercentage' => $item['rate'],
             ];
 
             $total += round($item['price_wt'], 2);
@@ -196,5 +147,86 @@ class In3Checkout extends Checkout
         }
 
         return $products;
+    }
+
+    /**
+     * Get billing address
+     *
+     * @return array
+     */
+    protected function getBillingAddress()
+    {
+        $data = [
+            'recipient' => [
+                'category'              => 'B2C',
+                'initials'              => initials($this->invoice_address->firstname),
+                'firstName'             => $this->invoice_address->firstname,
+                'lastName'              => $this->invoice_address->lastname,
+                'birthDate'             => date(
+                    'Y-m-d',
+                    strtotime(
+                        Tools::getValue('customerbirthdate_y_billing') . '-' .
+                        Tools::getValue('customerbirthdate_m_billing') . '-' .
+                        Tools::getValue('customerbirthdate_d_billing')
+                    )
+                ),
+                'customerNumber'        => ($this->cart->id_customer) ?: 'guest',
+                'phone'                 => $this->getPhone($this->invoice_address),
+                'country'               => Tools::strtoupper(
+                    (new Country($this->invoice_address->id_country))->iso_code
+                ),
+            ],
+            'phone' => [
+                'phone' => $this->getPhone($this->invoice_address),
+            ],
+            'email' => $this->customer->email,
+        ];
+
+
+        $data['address'] = $this->getAddressData($this->invoice_address);
+
+
+        return $data;
+    }
+
+
+    protected function getAddressData($address)
+    {
+        $address_components = $this->getAddressComponents($address->address1);
+
+        if (empty($address_components['house_number'])) {
+            $address_components['house_number'] = $address->address2;
+        }
+
+        $data = [
+            'street'                => $address_components['street'],
+            'houseNumber'           => $address_components['house_number'],
+            'zipcode'               => $address->postcode,
+            'city'                  => $address->city,
+            'country'               => Tools::strtoupper(
+                (new Country($address->id_country))->iso_code
+            ),
+        ];
+
+        if (!empty($address_components['number_addition'])) {
+            $data['houseNumberAdditional'] = $address_components['number_addition'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get shipping address
+     *
+     * @return array|null
+     */
+    private function getShippingAddress()
+    {
+        if (!empty($this->shipping_address)) {
+            return [
+                'address' => $this->getAddressData($this->shipping_address)
+            ];
+        }
+        return null;
     }
 }

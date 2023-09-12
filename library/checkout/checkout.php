@@ -40,6 +40,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_BELFIUS = 'belfius';
     public const CHECKOUT_TYPE_IDIN = 'idin';
     public const CHECKOUT_TYPE_IN3 = 'in3';
+    public const CHECKOUT_TYPE_IN3Old = 'in3Old';
     public const CHECKOUT_TYPE_BILLINK = 'billink';
     public const CHECKOUT_TYPE_EPS = 'eps';
     public const CHECKOUT_TYPE_PAYCONIQ = 'payconiq';
@@ -67,6 +68,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_BELFIUS => 'Belfius',
         Checkout::CHECKOUT_TYPE_IDIN => 'Idin',
         Checkout::CHECKOUT_TYPE_IN3 => 'In3',
+        Checkout::CHECKOUT_TYPE_IN3Old => 'In3Old',
         Checkout::CHECKOUT_TYPE_BILLINK => 'Billink',
         Checkout::CHECKOUT_TYPE_EPS => 'Eps',
         Checkout::CHECKOUT_TYPE_PAYCONIQ => 'Payconiq',
@@ -244,10 +246,10 @@ abstract class Checkout
     /**
      * Given an checkout_type_id, return an instance of that subclass.
      *
-     * @param int checkout_type_id
-     * @param array $data
-     *
+     * @param $payment_method
+     * @param $cart
      * @return Address subclass
+     * @throws Exception
      */
     final public static function getInstance($payment_method, $cart)
     {
@@ -308,6 +310,104 @@ abstract class Checkout
         }
 
         return $result;
+    }
+
+    /**
+     * Check if company exists
+     *
+     * @param mixed $company
+     *
+     * @return bool
+     */
+    protected function companyExists($company)
+    {
+        if (!is_string($company)) {
+            return false;
+        }
+
+        return strlen(trim($company)) !== 0;
+    }
+
+    public function getPhone($address)
+    {
+        $phone = '';
+        if (!empty($address->phone_mobile)) {
+            $phone = $address->phone_mobile;
+        }
+        if (empty($phone) && !empty($address->phone)) {
+            $phone = $address->phone;
+        }
+
+        return $phone;
+    }
+
+    protected function prepareWrappingArticle()
+    {
+        $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+        if ($wrappingCost <= 0) {
+            return [];
+        }
+
+        return [
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => $wrappingCost,
+            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
+            'description' => 'Wrapping'
+        ];
+    }
+
+    protected function prepareProductArticles()
+    {
+        $articles = [];
+        foreach ($this->products as $item) {
+            $tmp = [];
+            $tmp['identifier'] = $item['id_product'];
+            $tmp['quantity'] = $item['quantity'];
+            $tmp['price'] = round($item['price_wt'], 2);
+            $tmp['vatPercentage'] = $item['rate'];
+            $tmp['description'] = $item['name'];
+            $articles[] = $tmp;
+        }
+
+        return $articles;
+    }
+
+    protected function mergeProductsBySKU($products)
+    {
+        $mergeProducts = [];
+        foreach ($products as $item) {
+            if (!isset($mergeProducts[$item['identifier']])) {
+                $mergeProducts[$item['identifier']] = $item;
+            } else {
+                ++$mergeProducts[$item['identifier']]['quantity'];
+            }
+        }
+
+        return $mergeProducts;
+    }
+
+
+    protected function prepareShippingCostArticle()
+    {
+        $shippingCost = round($this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING), 2);
+        if ($shippingCost <= 0) {
+            return null;
+        }
+
+        $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+
+        $shippingCostsTax = (version_compare(_PS_VERSION_, '1.7.6.0', '<='))
+            ? $carrier->getTaxesRate(Address::initialize())
+            : $carrier->getTaxesRate();
+
+        return [
+            'identifier' => 'shipping',
+            'description' => 'Shipping Costs',
+            'vatPercentage' => $shippingCostsTax,
+            'quantity' => 1,
+            'price' => $shippingCost,
+        ];
     }
 }
 

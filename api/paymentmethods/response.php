@@ -311,6 +311,16 @@ abstract class Response extends BuckarooAbstract
         return $this->response->getServiceParameters();
     }
 
+    public function hasSomeError()
+    {
+        return $this->response->hasSomeError();
+    }
+
+    public function getSomeError()
+    {
+        return $this->response->getSomeError();
+    }
+
     private function setPostVariable($key)
     {
         if (Tools::getValue($key)) {

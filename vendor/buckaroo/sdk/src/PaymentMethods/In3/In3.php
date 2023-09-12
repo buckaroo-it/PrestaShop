@@ -31,12 +31,7 @@ class In3 extends PayablePaymentMethod
     /**
      * @var string
      */
-    protected string $paymentName = 'Capayable';
-
-    /**
-     * @var string
-     */
-    protected string $payModel = PayPayload::class;
+    protected string $paymentName = 'In3';
 
     /**
      * @param Model|null $model
@@ -45,19 +40,5 @@ class In3 extends PayablePaymentMethod
     public function pay(?Model $model = null): TransactionResponse
     {
         return parent::pay($model ?? new Pay($this->payload));
-    }
-
-    /**
-     * @return In3|mixed
-     */
-    public function payInInstallments()
-    {
-        $pay = new Pay($this->payload);
-
-        $this->setPayPayload();
-
-        $this->setServiceList('PayInInstallments', $pay);
-
-        return $this->postRequest();
     }
 }

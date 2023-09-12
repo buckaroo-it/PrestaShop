@@ -28,22 +28,23 @@ class In3 extends PaymentMethod
     {
         $this->payload = $this->getPayload($customVars);
 
-        return parent::executeCustomPayAction('payInInstallments');
+        return parent::executeCustomPayAction('pay');
     }
 
     public function getPayload($data)
     {
         $payload = [
-            'version' => $this->version,
-            'description' => $data['description'],
+            'description' => $this->description,
             'invoiceDate' => date('d-m-Y'),
-            'customerType' => 'Debtor',
-            'email' => $data['email'],
-            'phone' => ['mobile' => $data['phone']],
+            'version' => $this->version,
+            'billing' => $data['billing'],
             'articles' => $data['articles'],
-            'customer' => $data['customer'],
-            'address' => $data['address'],
         ];
+
+        // Add shipping address if is different
+        if ($data['shipping']) {
+            $payload['shipping'] = $data['shipping'];
+        }
 
         return $payload;
     }

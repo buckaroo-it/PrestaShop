@@ -136,6 +136,8 @@ class Buckaroo3Admin
             'CATEGORY',
             'BUSINESS',
             'DISPLAY_TYPE',
+            'PAYMENT_LOGO',
+            'API_VERSION',
         ];
 
         foreach ($paymentMethods as $method) {
@@ -407,8 +409,11 @@ class Buckaroo3Admin
 
         $fields_value['BUCKAROO_IN3_ENABLED'] = Configuration::get('BUCKAROO_IN3_ENABLED');
         $fields_value['BUCKAROO_IN3_TEST'] = Configuration::get('BUCKAROO_IN3_TEST');
+        $fields_value['BUCKAROO_IN3_API_VERSION'] = Configuration::get('BUCKAROO_IN3_API_VERSION');
+        $fields_value['BUCKAROO_IN3_PAYMENT_LOGO'] = Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO');
         $fields_value['BUCKAROO_IN3_LABEL'] = Configuration::get('BUCKAROO_IN3_LABEL');
         $fields_value['BUCKAROO_IN3_FEE'] = Configuration::get('BUCKAROO_IN3_FEE');
+        $fields_value['BUCKAROO_IN3OLD_FEE'] = Configuration::get('BUCKAROO_IN3_FEE');
         $fields_value['BUCKAROO_IN3_MIN_VALUE'] = (float) Configuration::get('BUCKAROO_IN3_MIN_VALUE');
         $fields_value['BUCKAROO_IN3_MAX_VALUE'] = (float) Configuration::get('BUCKAROO_IN3_MAX_VALUE');
 
@@ -431,7 +436,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_AFTERPAY_WRAPPING_VAT'] = Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT');
         $fields_value['BUCKAROO_AFTERPAY_TAXRATE'] = unserialize(Configuration::get('BUCKAROO_AFTERPAY_TAXRATE'));
         $afterpayCustomerType = Configuration::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
-        $fields_value['BUCKAROO_AFTERPAY_CUSTOMER_TYPE'] = strlen($afterpayCustomerType) === 0 ? AfterPay::CUSTOMER_TYPE_BOTH : $afterpayCustomerType;
+        $fields_value['BUCKAROO_AFTERPAY_CUSTOMER_TYPE'] = strlen($afterpayCustomerType) === 0 ? AfterPayCheckout::CUSTOMER_TYPE_BOTH : $afterpayCustomerType;
         $fields_value['BUCKAROO_AFTERPAY_B2B_MIN_VALUE'] = (float) Configuration::get('BUCKAROO_AFTERPAY_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_AFTERPAY_B2B_MAX_VALUE'] = (float) Configuration::get('BUCKAROO_AFTERPAY_B2B_MAX_VALUE');
 
@@ -463,7 +468,7 @@ class Buckaroo3Admin
         $fields_value['BUCKAROO_BILLINK_WRAPPING_VAT'] = Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT');
         $fields_value['BUCKAROO_BILLINK_TAXRATE'] = unserialize(Configuration::get('BUCKAROO_BILLINK_TAXRATE'));
         $billinkCustomerType = Configuration::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
-        $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? Billink::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
+        $fields_value['BUCKAROO_BILLINK_CUSTOMER_TYPE'] = strlen($billinkCustomerType) === 0 ? BillinkCheckout::CUSTOMER_TYPE_BOTH : $billinkCustomerType;
         $fields_value['BUCKAROO_BILLINK_B2B_MIN_VALUE'] = (float) Configuration::get('BUCKAROO_BILLINK_B2B_MIN_VALUE');
         $fields_value['BUCKAROO_BILLINK_B2B_MAX_VALUE'] = (float) Configuration::get('BUCKAROO_BILLINK_B2B_MAX_VALUE');
 
@@ -962,7 +967,7 @@ class Buckaroo3Admin
         $fields_form[$i++] = [
             'legend' => $this->module->l('Giropay settings'),
             'name' => 'GIROPAY',
-            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.png',
+            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_giropay.svg',
             'test' => Configuration::get('BUCKAROO_GIROPAY_TEST'),
             'enabled' => Configuration::get('BUCKAROO_GIROPAY_ENABLED'),
             'position' => Configuration::get('BUCKAROO_GIROPAY_POSITION'),
@@ -1933,11 +1938,11 @@ class Buckaroo3Admin
                         ],
                         [
                             'text' => $this->module->l('B2B (Business-to-Business)'),
-                            'value' => 'b2b',
+                            'value' => 'B2B',
                         ],
                         [
                             'text' => $this->module->l('B2C (Business-to-consumer)'),
-                            'value' => 'b2c',
+                            'value' => 'B2C',
                         ],
                     ],
                 ],
@@ -2181,6 +2186,22 @@ class Buckaroo3Admin
                 ],
                 [
                     'type' => 'select',
+                    'name' => 'BUCKAROO_KLARNA_BUSINESS',
+                    'label' => $this->module->l('Klarna payment method'),
+                    'description' => $this->module->l('Select which paymethod must be used at Klarna.'),
+                    'options' => [
+                        [
+                            'text' => $this->module->l('B2C'),
+                            'value' => 'B2C',
+                        ],
+                        [
+                            'text' => $this->module->l('B2B'),
+                            'value' => 'B2B',
+                        ],
+                    ],
+                ],
+                [
+                    'type' => 'select',
                     'name' => 'BUCKAROO_KLARNA_DEFAULT_VAT',
                     'label' => $this->module->l('Default product Vat type'),
                     'description' => $this->module->l('Please select default vat type for your products'),
@@ -2264,22 +2285,6 @@ class Buckaroo3Admin
                         ],
                     ],
                     'required' => true,
-                ],
-                [
-                    'type' => 'select',
-                    'name' => 'BUCKAROO_KLARNA_BUSINESS',
-                    'label' => $this->module->l('Klarna payment method'),
-                    'description' => $this->module->l('Select which paymethod must be used at Klarna.'),
-                    'options' => [
-                        [
-                            'text' => $this->module->l('B2C'),
-                            'value' => 'B2C',
-                        ],
-                        [
-                            'text' => $this->module->l('B2B'),
-                            'value' => 'B2B',
-                        ],
-                    ],
                 ],
                 [
                     'type' => 'hidearea_end',
@@ -2379,6 +2384,41 @@ class Buckaroo3Admin
                 [
                     'type' => 'mode',
                     'name' => 'BUCKAROO_IN3_TEST',
+                ],
+                [
+                    'type' => 'select',
+                    'name' => 'BUCKAROO_IN3_API_VERSION',
+                    'label' => $this->module->l('API version'),
+                    'options' => [
+                        [
+                            'text' => $this->module->l('V3 (In3)'),
+                            'value' => 'V3',
+                        ],
+                        [
+                            'text' => $this->module->l('V2 (Capayable/In2)'),
+                            'value' => 'V2',
+                        ],
+                    ],
+                    'description' => $this->module->l('Choose the API version for this payment method.'),
+
+                ],
+                [
+                    'type' => 'radio',
+                    'label' => $this->module->l('Payment logo'),
+                    'name' => 'BUCKAROO_IN3_PAYMENT_LOGO',
+                    'options' => [
+                        [
+                            'value' => 'in3',
+                            'text' => 'IN3',
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png?v'
+                        ],
+                        [
+                            'value' => 'in3_ideal',
+                            'text' => 'iDEAL In3',
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3_ideal.svg?v'
+                        ],
+                    ],
+                    'description' => $this->module->l('Determines the logo that will be shown in the checkout'),
                 ],
                 [
                     'type' => 'text',
@@ -2505,11 +2545,11 @@ class Buckaroo3Admin
                         ],
                         [
                             'text' => $this->module->l('B2B (Business-to-Business)'),
-                            'value' => 'b2b',
+                            'value' => 'B2B',
                         ],
                         [
                             'text' => $this->module->l('B2C (Business-to-consumer)'),
-                            'value' => 'b2c',
+                            'value' => 'B2C',
                         ],
                     ],
                 ],

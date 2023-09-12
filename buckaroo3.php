@@ -22,11 +22,12 @@ require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/afterpay/afterpay.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/billink/billink.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/afterpaycheckout.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/billinkcheckout.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersPayByBank.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -440,7 +441,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IN3_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IN3_TEST', '1');
         Configuration::updateValue('BUCKAROO_IN3_LABEL', '');
+        Configuration::updateValue('BUCKAROO_IN3_API_VERSION', 'V3');
+        Configuration::updateValue('BUCKAROO_IN3_PAYMENT_LOGO', 'in3');
         Configuration::updateValue('BUCKAROO_IN3_FEE', '');
+        Configuration::updateValue('BUCKAROO_IN3OLD_FEE', '');
         Configuration::updateValue('BUCKAROO_IN3_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_IN3_MAX_VALUE', '');
 
@@ -712,7 +716,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IN3_ENABLED');
         Configuration::deleteByName('BUCKAROO_IN3_TEST');
         Configuration::deleteByName('BUCKAROO_IN3_LABEL');
+        Configuration::deleteByName('BUCKAROO_IN3_API_VERSION');
+        Configuration::deleteByName('BUCKAROO_IN3_PAYMENT_LOGO');
         Configuration::deleteByName('BUCKAROO_IN3_FEE');
+        Configuration::deleteByName('BUCKAROO_IN3OLD_FEE');
         Configuration::deleteByName('BUCKAROO_IN3_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_IN3_MAX_VALUE');
 
@@ -841,6 +848,10 @@ class Buckaroo3 extends PaymentModule
         }
         require_once dirname(__FILE__) . '/config.php';
 
+        $capayableIn3 = new CapayableIn3();
+        $issuersPayByBank = new IssuersPayByBank();
+        $issuersCreditCard = new IssuersCreditCard();
+
         $this->context->smarty->assign(
             [
                 'address_differ' => $address_differ,
@@ -861,10 +872,11 @@ class Buckaroo3 extends PaymentModule
                 'billink_show_coc' => $this->showBillinkCoc($cart),
                 'idealIssuers' => (new IssuersIdeal())->get(),
                 'idealDisplayMode' => Config::get('BUCKAROO_IDEAL_DISPLAY_TYPE'),
-                'paybybankIssuers' => (new IssuersPayByBank())->getIssuerList(),
+                'paybybankIssuers' => $issuersPayByBank->getIssuerList(),
                 'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
-                'creditcardIssuers' => (new IssuersCreditCard())->getIssuerList(),
+                'creditcardIssuers' => $issuersCreditCard->getIssuerList(),
                 'creditCardDisplayMode' => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
+                'in3Method' => $capayableIn3->getMethod()
             ]
         );
 
@@ -884,7 +896,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('PAYBYBANK', 'PayByBank'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paybybank.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/' . (new IssuersPayByBank())->getSelectedIssuerLogo())
+                ->setLogo($this->_path . 'views/img/buckaroo_images/' . $issuersPayByBank->getSelectedIssuerLogo())
                 ->setModuleName('PAYBYBANK');
             $payment_options[] = $newOption;
         }
@@ -911,7 +923,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('GIROPAY', 'GiroPay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giropay.png?v')
+                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giropay.svg?v')
                 ->setModuleName('GIROPAY');
             $payment_options[] = $newOption;
         }
@@ -1009,10 +1021,10 @@ class Buckaroo3 extends PaymentModule
         if (Config::get('BUCKAROO_IN3_ENABLED') && $this->isPaymentMethodAvailable($cart, 'IN3') && $this->isIn3Available($cart)) {
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('IN3', 'In3'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'in3'])) // phpcs:ignore
+                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $capayableIn3->getMethod()])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('IN3'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_in3.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_in3.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/img/buckaroo_images/' . $capayableIn3->getLogo())
                 ->setModuleName('IN3');
             $payment_options[] = $newOption;
         }
@@ -1649,9 +1661,9 @@ class Buckaroo3 extends PaymentModule
             $shippingCountry = Country::getIsoById($shippingAddress->id_country);
         }
 
-        return AfterPay::CUSTOMER_TYPE_B2B === $afterpay_customer_type
+        return AfterPayCheckout::CUSTOMER_TYPE_B2B === $afterpay_customer_type
         || (
-            AfterPay::CUSTOMER_TYPE_B2C !== $afterpay_customer_type
+            AfterPayCheckout::CUSTOMER_TYPE_B2C !== $afterpay_customer_type
             && (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
@@ -1677,9 +1689,9 @@ class Buckaroo3 extends PaymentModule
             $shippingCountry = Country::getIsoById($shippingAddress->id_country);
         }
 
-        return Billink::CUSTOMER_TYPE_B2B === $billink_customer_type
+        return BillinkCheckout::CUSTOMER_TYPE_B2B === $billink_customer_type
         || (
-            Billink::CUSTOMER_TYPE_B2C !== $billink_customer_type
+                BillinkCheckout::CUSTOMER_TYPE_B2C !== $billink_customer_type
             && (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
@@ -1722,11 +1734,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         $customerType = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
-        if (AfterPay::CUSTOMER_TYPE_B2C !== $customerType) {
+        if (AfterPayCheckout::CUSTOMER_TYPE_B2C !== $customerType) {
             $nlCompanyExists =
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL');
-            if (AfterPay::CUSTOMER_TYPE_B2B === $customerType) {
+            if (AfterPayCheckout::CUSTOMER_TYPE_B2B === $customerType) {
                 return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3), 'AFTERPAY') && $nlCompanyExists;
             }
 
