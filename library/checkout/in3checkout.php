@@ -62,16 +62,25 @@ class In3Checkout extends Checkout
     /**
      * Get customer phone
      *
+     * @param $address
      * @return string
      */
-    public function getPhone()
+    public function getPhone($address)
     {
+        // First check if 'customer_phone' value is available.
         $phone = Tools::getValue('customer_phone');
-        if (is_scalar($phone)) {
-            return (string) $phone;
+
+        // If it's not available, then check for 'phone_mobile' in the address.
+        if (empty($phone) && !empty($address->phone_mobile)) {
+            $phone = $address->phone_mobile;
         }
 
-        return '';
+        // If both above are not available, then check for 'phone' in the address.
+        if (empty($phone) && !empty($address->phone)) {
+            $phone = $address->phone;
+        }
+
+        return $phone;
     }
 
     /**
@@ -162,13 +171,13 @@ class In3Checkout extends Checkout
                     )
                 ),
                 'customerNumber'        => ($this->cart->id_customer) ?: 'guest',
-                'phone'                 => $this->getPhone(),
+                'phone'                 => $this->getPhone($this->invoice_address),
                 'country'               => Tools::strtoupper(
                     (new Country($this->invoice_address->id_country))->iso_code
                 ),
             ],
             'phone' => [
-                'phone' => $this->getPhone(),
+                'phone' => $this->getPhone($this->invoice_address),
             ],
             'email' => $this->customer->email,
         ];
