@@ -764,7 +764,7 @@ class Buckaroo3 extends PaymentModule
         $token = $this->generateToken($jwt);
 
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.fc2f6025.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.c21eb666.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.64836fbd.css',
             'jwt' => $token
         ]);

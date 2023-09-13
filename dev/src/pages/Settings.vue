@@ -254,6 +254,8 @@
 import { ref, inject, computed } from 'vue'
 import { useApi } from "../lib/api.ts";
 import { useToastr } from "../lib/toastr.ts"
+import { useI18n } from 'vue-i18n';
+
 
 import CustomScriptsInput from '../components/CustomScriptsInput.vue'
 import ToggleField from '../components/fields/ToggleField.vue'
@@ -275,7 +277,7 @@ export default {
     }
   },
   setup(props) {
-
+    const { t } = useI18n();
     const showWebsiteKey = ref(false)
     const showSecretKey = ref(false)
     const settings = ref(null)
@@ -299,7 +301,7 @@ export default {
         if (data.value.status) {
           settings.value = data.value.app
 
-          toastr.success(this.$t('dashboard.pages.settings.settings_successfully_updated'))
+          toastr.success(t('dashboard.pages.settings.settings_successfully_updated'))
         }
       })
     }
