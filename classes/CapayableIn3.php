@@ -29,7 +29,7 @@ class CapayableIn3
     }
     public function getLogo(): string
     {
-        if ($this->isV3()) {
+        if (!$this->isV3()) {
             return self::LOGO_DEFAULT;
         }
 

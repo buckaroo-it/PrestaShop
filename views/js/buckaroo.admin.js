@@ -72,7 +72,7 @@ $(document).ready(function () {
     var in3NextElement = in3ApiVersion.parent().parent().next();
 
     function toggleNextElement() {
-        var shouldHide = in3ApiVersion.val() === 'V3';
+        var shouldHide = in3ApiVersion.val() === 'V2';
         in3NextElement.toggle(!shouldHide);
     }
 
