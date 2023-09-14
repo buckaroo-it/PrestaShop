@@ -12,8 +12,8 @@ class Buckaroo3SettingsModuleFrontController extends ModuleFrontController
         $data = [
             "status" => true,
             "settings"=> [
-                "is_enabled"=> Configuration::get('BUCKAROO_IS_ENABLED'),
-                "is_live"=> Configuration::get('BUCKAROO_TEST'),
+                "is_enabled" => 1,
+                "is_live" => (int)Configuration::get('BUCKAROO_TEST'),
                 "website_key"=> Configuration::get('BUCKAROO_MERCHANT_KEY'),
                 "secret_key"=> Configuration::get('BUCKAROO_SECRET_KEY'),
                 "display_discount_field"=> true,
@@ -37,7 +37,7 @@ class Buckaroo3SettingsModuleFrontController extends ModuleFrontController
         header('Content-Type: application/json');
 
         if ($_POST) {
-            Configuration::updateValue('BUCKAROO_IS_ENABLED', $_POST['is_enabled']);
+//            Configuration::updateValue('BUCKAROO_IS_ENABLED', $_POST['is_enabled']);
             Configuration::updateValue('BUCKAROO_MERCHANT_KEY', $_POST['website_key']);
             Configuration::updateValue('BUCKAROO_SECRET_KEY', $_POST['secret_key']);
             Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', $_POST['transaction_description']);

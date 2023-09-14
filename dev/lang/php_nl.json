@@ -355,7 +355,7 @@
   "payment_methods.sofort": "Sofort",
   "payment_methods.giropay": "Giropay",
   "payment_methods.payconiq": "Payconiq",
-  "payment_methods.klarnakp": "Klarna",
+  "payment_methods.klarna": "Klarna",
   "payment_methods.afterpay": "Riverty",
   "payment_methods.trustly": "Trustly"
 }

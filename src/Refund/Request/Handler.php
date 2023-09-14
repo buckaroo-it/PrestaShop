@@ -64,7 +64,7 @@ class Handler
     {
         $key = \Tools::strtoupper($method);
         if (
-            \Configuration::get('BUCKAROO_TEST') == '0'
+            \Configuration::get('BUCKAROO_TEST') == 0
             && \Configuration::get('BUCKAROO_' . $key . '_TEST') == '0'
         ) {
             return 'live';

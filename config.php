@@ -38,7 +38,7 @@ class Config extends ConfigCore
     public static function getMode($key)
     {
         $key = Tools::strtoupper($key);
-        if (Config::get('BUCKAROO_TEST') == '0' && Config::get('BUCKAROO_' . $key . '_TEST') == '0') {
+        if (Config::get('BUCKAROO_TEST') == 0 && Config::get('BUCKAROO_' . $key . '_TEST') == '0') {
             return 'live';
         }
 

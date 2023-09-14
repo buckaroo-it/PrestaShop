@@ -299,7 +299,7 @@ export default {
     const updateSettings = () => {
       post(settings.value).then(() => {
         if (data.value.status) {
-          settings.value = data.value.app
+          settings.value = data.value.settings
 
           toastr.success(t('dashboard.pages.settings.settings_successfully_updated'))
         }

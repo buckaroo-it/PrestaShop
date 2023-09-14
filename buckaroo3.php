@@ -277,20 +277,13 @@ class Buckaroo3 extends PaymentModule
 
     private function setDefaultConfigurations()
     {
-        Configuration::updateValue('BUCKAROO_TEST', '1');
+        Configuration::updateValue('BUCKAROO_TEST', 1);
         Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
         Configuration::updateValue('BUCKAROO_SECRET_KEY', '');
         Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', '');
         Configuration::updateValue('BUCKAROO_TRANSACTION_FEE', '');
 
-        Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
-        Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_MAX_VALUE', '');
-
+        Configuration::updateValue('BUCKAROO_IDEAL_MODE', 'off');
         Configuration::updateValue('BUCKAROO_IDEAL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IDEAL_TEST', '1');
         Configuration::updateValue('BUCKAROO_IDEAL_LABEL', '');
@@ -299,6 +292,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IDEAL_MAX_VALUE', '');
         Configuration::updateValue('BUCKAROO_IDEAL_DISPLAY_TYPE', 'radio');
 
+        Configuration::updateValue('BUCKAROO_PAYBYBANK_MODE', 'off');
         Configuration::updateValue('BUCKAROO_PAYBYBANK_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYBYBANK_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYBYBANK_LABEL', '');
@@ -306,6 +300,24 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYBYBANK_MAX_VALUE', '');
         Configuration::updateValue('BUCKAROO_PAYBYBANK_DISPLAY_TYPE', 'radio');
 
+        Configuration::updateValue('BUCKAROO_PAYPAL_MODE', 'off');
+        Configuration::updateValue('BUCKAROO_PAYPAL_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_PAYPAL_TEST', '1');
+        Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_FEE', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_MIN_VALUE', '');
+        Configuration::updateValue('BUCKAROO_PAYPAL_MAX_VALUE', '');
+
+        Configuration::updateValue('BUCKAROO_SDD_MODE', 'off');
+        Configuration::updateValue('BUCKAROO_SDD_ENABLED', '0');
+        Configuration::updateValue('BUCKAROO_SDD_TEST', '1');
+        Configuration::updateValue('BUCKAROO_SDD_LABEL', '');
+        Configuration::updateValue('BUCKAROO_SDD_FEE', '');
+        Configuration::updateValue('BUCKAROO_SDD_MIN_VALUE', '');
+        Configuration::updateValue('BUCKAROO_SDD_MAX_VALUE', '');
+
+        Configuration::updateValue('BUCKAROO_GIROPAY_MODE', 'off');
         Configuration::updateValue('BUCKAROO_GIROPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_GIROPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', '');
@@ -313,6 +325,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_GIROPAY_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_GIROPAY_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_KBC_MODE', 'off');
         Configuration::updateValue('BUCKAROO_KBC_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_KBC_TEST', '1');
         Configuration::updateValue('BUCKAROO_KBC_LABEL', '');
@@ -320,6 +333,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_KBC_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_KBC_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_EPS_MODE', 'off');
         Configuration::updateValue('BUCKAROO_EPS_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_EPS_TEST', '1');
         Configuration::updateValue('BUCKAROO_EPS_LABEL', '');
@@ -327,6 +341,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_EPS_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_EPS_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_PRZELEWY24_MODE', 'off');
         Configuration::updateValue('BUCKAROO_PRZELEWY24_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PRZELEWY24_TEST', '1');
         Configuration::updateValue('BUCKAROO_PRZELEWY24_LABEL', '');
@@ -334,6 +349,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PRZELEWY24_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_PRZELEWY24_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_TRUSTLY_MODE', 'off');
         Configuration::updateValue('BUCKAROO_TRUSTLY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_TRUSTLY_TEST', '1');
         Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', '');
@@ -341,6 +357,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_TRUSTLY_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_TRUSTLY_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_TINKA_MODE', 'off');
         Configuration::updateValue('BUCKAROO_TINKA_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_TINKA_TEST', '1');
         Configuration::updateValue('BUCKAROO_TINKA_LABEL', '');
@@ -348,6 +365,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_TINKA_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_TINKA_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_MODE', 'off');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', '');
@@ -358,6 +376,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', '7');
         Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', 'ideal');
 
+        Configuration::updateValue('BUCKAROO_PAYCONIQ_MODE', 'off');
         Configuration::updateValue('BUCKAROO_PAYCONIQ_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_PAYCONIQ_TEST', '1');
         Configuration::updateValue('BUCKAROO_PAYCONIQ_LABEL', '');
@@ -365,6 +384,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_PAYCONIQ_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_PAYCONIQ_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_MISTERCASH_MODE', 'off');
         Configuration::updateValue('BUCKAROO_MISTERCASH_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_MISTERCASH_TEST', '1');
         Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
@@ -372,6 +392,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_MISTERCASH_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_MISTERCASH_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_GIFTCARD_MODE', 'off');
         Configuration::updateValue('BUCKAROO_GIFTCARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_GIFTCARD_TEST', '1');
         Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', '');
@@ -379,6 +400,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_GIFTCARD_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_GIFTCARD_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_CREDITCARD_MODE', 'off');
         Configuration::updateValue('BUCKAROO_CREDITCARD_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_CREDITCARD_TEST', '1');
         Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', '');
@@ -387,6 +409,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_CREDITCARD_MAX_VALUE', '');
         Configuration::updateValue('BUCKAROO_CREDITCARD_DISPLAY_TYPE', 'radio');
 
+        Configuration::updateValue('BUCKAROO_SOFORTBANKING_MODE', 'off');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_TEST', '1');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL', '');
@@ -394,13 +417,15 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_SOFORTBANKING_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_BELFIUS_MODE', 'off');
         Configuration::updateValue('BUCKAROO_BELFIUS_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_BELFIUS_TEST', '1');
         Configuration::updateValue('BUCKAROO_BELFIUS_LABEL', '');
         Configuration::updateValue('BUCKAROO_BELFIUS_FEE', '');
-        Configuration::updateValue('BUCKAROO_BELFIUSMIN_VALUE', '');
+        Configuration::updateValue('BUCKAROO_BELFIUS_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_BELFIUS_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_TRANSFER_MODE', 'off');
         Configuration::updateValue('BUCKAROO_TRANSFER_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_TRANSFER_TEST', '1');
         Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', '');
@@ -410,6 +435,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_TRANSFER_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_TRANSFER_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_AFTERPAY_MODE', 'off');
         Configuration::updateValue('BUCKAROO_AFTERPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_AFTERPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', '');
@@ -421,6 +447,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize([]));
         Configuration::updateValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE', 'both');
 
+        Configuration::updateValue('BUCKAROO_KLARNA_MODE', 'off');
         Configuration::updateValue('BUCKAROO_KLARNA_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_KLARNA_TEST', '1');
         Configuration::updateValue('BUCKAROO_KLARNA_LABEL', '');
@@ -431,6 +458,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_KLARNA_WRAPPING_VAT', '2');
         Configuration::updateValue('BUCKAROO_KLARNA_TAXRATE', serialize([]));
 
+        Configuration::updateValue('BUCKAROO_APPLEPAY_MODE', 'off');
         Configuration::updateValue('BUCKAROO_APPLEPAY_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_APPLEPAY_TEST', '1');
         Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', '');
@@ -438,6 +466,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_APPLEPAY_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_APPLEPAY_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_IN3_MODE', 'off');
         Configuration::updateValue('BUCKAROO_IN3_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_IN3_TEST', '1');
         Configuration::updateValue('BUCKAROO_IN3_LABEL', '');
@@ -448,6 +477,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_IN3_MIN_VALUE', '');
         Configuration::updateValue('BUCKAROO_IN3_MAX_VALUE', '');
 
+        Configuration::updateValue('BUCKAROO_BILLINK_MODE', 'off');
         Configuration::updateValue('BUCKAROO_BILLINK_ENABLED', '0');
         Configuration::updateValue('BUCKAROO_BILLINK_TEST', '1');
         Configuration::updateValue('BUCKAROO_BILLINK_LABEL', '');
@@ -557,6 +587,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_TRANSACTION_LABEL');
         Configuration::deleteByName('BUCKAROO_TRANSACTION_FEE');
         // paypal
+        Configuration::deleteByName('BUCKAROO_PAYPAL_MODE');
         Configuration::deleteByName('BUCKAROO_PAYPAL_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYPAL_TEST');
@@ -564,6 +595,7 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_PAYPAL_MAX_VALUE');
 
         // sepadirectdebit
+        Configuration::deleteByName('BUCKAROO_SDD_MODE');
         Configuration::deleteByName('BUCKAROO_SDD_ENABLED');
         Configuration::deleteByName('BUCKAROO_SDD_TEST');
         Configuration::deleteByName('BUCKAROO_SDD_LABEL');
@@ -571,6 +603,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_SDD_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_SDD_MAX_VALUE');
 
+        // ideal
+        Configuration::deleteByName('BUCKAROO_IDEAL_MODE');
         Configuration::deleteByName('BUCKAROO_IDEAL_ENABLED');
         Configuration::deleteByName('BUCKAROO_IDEAL_TEST');
         Configuration::deleteByName('BUCKAROO_IDEAL_LABEL');
@@ -579,6 +613,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IDEAL_MAX_VALUE');
         Configuration::deleteByName('BUCKAROO_IDEAL_DISPLAY_TYPE');
 
+        // payperemail
+        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MODE');
         Configuration::deleteByName('BUCKAROO_PAYBYBANK_ENABLED');
         Configuration::deleteByName('BUCKAROO_PAYBYBANK_TEST');
         Configuration::deleteByName('BUCKAROO_PAYBYBANK_LABEL');
@@ -586,6 +622,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_PAYBYBANK_MAX_VALUE');
         Configuration::deleteByName('BUCKAROO_PAYBYBANK_DISPLAY_TYPE');
 
+        // Giropay
+        Configuration::deleteByName('BUCKAROO_GIROPAY_MODE');
         Configuration::deleteByName('BUCKAROO_GIROPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIROPAY_TEST');
         Configuration::deleteByName('BUCKAROO_GIROPAY_LABEL');
@@ -593,6 +631,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_GIROPAY_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_GIROPAY_MAX_VALUE');
 
+        // KBC
+        Configuration::deleteByName('BUCKAROO_KBC_MODE');
         Configuration::deleteByName('BUCKAROO_KBC_ENABLED');
         Configuration::deleteByName('BUCKAROO_KBC_TEST');
         Configuration::deleteByName('BUCKAROO_KBC_LABEL');
@@ -600,51 +640,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_KBC_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_KBC_MAX_VALUE');
 
-        Configuration::deleteByName('BUCKAROO_EPS_ENABLED');
-        Configuration::deleteByName('BUCKAROO_EPS_TEST');
-        Configuration::deleteByName('BUCKAROO_EPS_LABEL');
-        Configuration::deleteByName('BUCKAROO_EPS_FEE');
-        Configuration::deleteByName('BUCKAROO_EPS__MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_EPS__MAX_VALUE');
-
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_TEST');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_LABEL');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_FEE');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MAX_VALUE');
-
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_ENABLED');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_TEST');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_LABEL');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_FEE');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_MAX_VALUE');
-
-        Configuration::deleteByName('BUCKAROO_TINKA_ENABLED');
-        Configuration::deleteByName('BUCKAROO_TINKA_TEST');
-        Configuration::deleteByName('BUCKAROO_TINKA_LABEL');
-        Configuration::deleteByName('BUCKAROO_TINKA_FEE');
-        Configuration::deleteByName('BUCKAROO_TINKA_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_TINKA_MAX_VALUE');
-
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_FEE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
-
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_TEST');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_FEE');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MAX_VALUE');
-
+        // MISTERCASH
+        Configuration::deleteByName('BUCKAROO_MISTERCASH_MODE');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_ENABLED');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_TEST');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_LABEL');
@@ -652,6 +649,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_MISTERCASH_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_MISTERCASH_MAX_VALUE');
 
+        // GIFTCARD
+        Configuration::deleteByName('BUCKAROO_GIFTCARD_MODE');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_TEST');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_LABEL');
@@ -659,6 +658,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_GIFTCARD_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_GIFTCARD_MAX_VALUE');
 
+        // CREDITCARD
+        Configuration::deleteByName('BUCKAROO_CREDITCARD_MODE');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_ENABLED');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_TEST');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_LABEL');
@@ -667,6 +668,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_CREDITCARD_MAX_VALUE');
         Configuration::deleteByName('BUCKAROO_CREDITCARD_DISPLAY_TYPE');
 
+        // SOFORTBANKING
+        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MODE');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_ENABLED');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_TEST');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_LABEL');
@@ -674,6 +677,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MAX_VALUE');
 
+        // BELFIUS
+        Configuration::deleteByName('BUCKAROO_BELFIUS_MODE');
         Configuration::deleteByName('BUCKAROO_BELFIUS_ENABLED');
         Configuration::deleteByName('BUCKAROO_BELFIUS_TEST');
         Configuration::deleteByName('BUCKAROO_BELFIUS_LABEL');
@@ -681,6 +686,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_BELFIUS_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_BELFIUS_MAX_VALUE');
 
+        // Afterpay
+        Configuration::deleteByName('BUCKAROO_AFTERPAY_MODE');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TEST');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_LABEL');
@@ -692,6 +699,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
         Configuration::deleteByName('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
 
+        // Klarna
+        Configuration::deleteByName('BUCKAROO_KLARNA_MODE');
         Configuration::deleteByName('BUCKAROO_KLARNA_ENABLED');
         Configuration::deleteByName('BUCKAROO_KLARNA_TEST');
         Configuration::deleteByName('BUCKAROO_KLARNA_LABEL');
@@ -702,10 +711,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_KLARNA_WRAPPING_VAT');
         Configuration::deleteByName('BUCKAROO_KLARNA_TAXRATE');
 
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
-
+        // Applepay
+        Configuration::deleteByName('BUCKAROO_APPLEPAY_MODE');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_ENABLED');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_TEST');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_LABEL');
@@ -713,6 +720,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_APPLEPAY_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_APPLEPAY_MAX_VALUE');
 
+        // IN3
+        Configuration::deleteByName('BUCKAROO_IN3_MODE');
         Configuration::deleteByName('BUCKAROO_IN3_ENABLED');
         Configuration::deleteByName('BUCKAROO_IN3_TEST');
         Configuration::deleteByName('BUCKAROO_IN3_LABEL');
@@ -723,6 +732,8 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_IN3_MIN_VALUE');
         Configuration::deleteByName('BUCKAROO_IN3_MAX_VALUE');
 
+        // BILLINK
+        Configuration::deleteByName('BUCKAROO_BILLINK_MODE');
         Configuration::deleteByName('BUCKAROO_BILLINK_ENABLED');
         Configuration::deleteByName('BUCKAROO_BILLINK_TEST');
         Configuration::deleteByName('BUCKAROO_BILLINK_LABEL');
@@ -734,6 +745,65 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_BILLINK_TAXRATE');
         Configuration::deleteByName('BUCKAROO_BILLINK_CUSTOMER_TYPE');
 
+        // EPS
+        Configuration::deleteByName('BUCKAROO_EPS_MODE');
+        Configuration::deleteByName('BUCKAROO_EPS_ENABLED');
+        Configuration::deleteByName('BUCKAROO_EPS_TEST');
+        Configuration::deleteByName('BUCKAROO_EPS_LABEL');
+        Configuration::deleteByName('BUCKAROO_EPS_FEE');
+        Configuration::deleteByName('BUCKAROO_EPS__MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_EPS__MAX_VALUE');
+
+        // PRZELEWY24
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MODE');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_TEST');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_LABEL');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_FEE');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MAX_VALUE');
+
+        // TRUSTLY
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_MODE');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_ENABLED');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_TEST');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_LABEL');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_FEE');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_TRUSTLY_MAX_VALUE');
+
+        // TINKA
+        Configuration::deleteByName('BUCKAROO_TINKA_MODE');
+        Configuration::deleteByName('BUCKAROO_TINKA_ENABLED');
+        Configuration::deleteByName('BUCKAROO_TINKA_TEST');
+        Configuration::deleteByName('BUCKAROO_TINKA_LABEL');
+        Configuration::deleteByName('BUCKAROO_TINKA_FEE');
+        Configuration::deleteByName('BUCKAROO_TINKA_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_TINKA_MAX_VALUE');
+
+        // PAYPEREMAIL
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MODE');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_LABEL');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_FEE');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MAX_VALUE');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
+        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
+
+        // PAYCONIQ
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MODE');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_ENABLED');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_TEST');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_LABEL');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_FEE');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MIN_VALUE');
+        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MAX_VALUE');
+
+        // TRANSFER
+        Configuration::deleteByName('BUCKAROO_TRANSFER_MODE');
         Configuration::deleteByName('BUCKAROO_TRANSFER_ENABLED');
         Configuration::deleteByName('BUCKAROO_TRANSFER_TEST');
         Configuration::deleteByName('BUCKAROO_TRANSFER_LABEL');
@@ -742,6 +812,10 @@ class Buckaroo3 extends PaymentModule
         Configuration::deleteByName('BUCKAROO_TRANSFER_MAX_VALUE');
         Configuration::deleteByName('BUCKAROO_TRANSFER_DATEDUE');
         Configuration::deleteByName('BUCKAROO_TRANSFER_SENDMAIL');
+
+        Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
+        Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
+        Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
 
         return true;
     }
@@ -764,7 +838,7 @@ class Buckaroo3 extends PaymentModule
         $token = $this->generateToken($jwt);
 
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.c21eb666.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.51c16cf8.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.64836fbd.css',
             'jwt' => $token
         ]);
