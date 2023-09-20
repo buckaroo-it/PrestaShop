@@ -187,6 +187,7 @@ export default {
                 }
 
                 this.config.payment_fee = parseFloat(value.toString().match( /\d+/g ).join(''))
+                return;
             }
 
             this.config.payment_fee = ''
