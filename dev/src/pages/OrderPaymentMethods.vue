@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import {ref, computed, inject } from "vue"
+import {ref, inject } from "vue"
 import { useApi } from "../lib/api.ts"
 import { useToastr } from "../lib/toastr"
 
@@ -112,7 +112,7 @@ export default {
     selectedCountry(value, oldValue) {
       this.getOrdering()
     },
-    selectedChannel(value) {
+    selectedChannel() {
       this.setEndpoint(`/index.php?fc=module&module=buckaroo3&controller=api&action=orderings`)
       this.getOrdering()
     }

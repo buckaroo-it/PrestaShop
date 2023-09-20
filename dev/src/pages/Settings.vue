@@ -256,7 +256,6 @@ import { useApi } from "../lib/api.ts";
 import { useToastr } from "../lib/toastr.ts"
 import { useI18n } from 'vue-i18n';
 
-
 import CustomScriptsInput from '../components/CustomScriptsInput.vue'
 import ToggleField from '../components/fields/ToggleField.vue'
 
@@ -276,14 +275,13 @@ export default {
       }
     }
   },
-  setup(props) {
+  setup() {
     const { t } = useI18n();
     const showWebsiteKey = ref(false)
     const showSecretKey = ref(false)
     const settings = ref(null)
     const showAdvanceSettings = ref(false)
 
-    const app = inject('app')
     const {get, post, data, loading} = useApi('/index.php?fc=module&module=buckaroo3&controller=settings')
     const testCredentialsApi = useApi(`/index.php?fc=module&module=buckaroo3&controller=api`);
     const {toastr} = useToastr()
@@ -346,7 +344,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import {ref, computed, inject} from "vue";
+import { ref } from "vue";
 import { useApi } from "../lib/api.ts"
 
 import CountrySelect from "../components/CountrySelect.vue";
@@ -101,7 +101,3 @@ export default {
   }
 }
 </script>
-
-
-
-
