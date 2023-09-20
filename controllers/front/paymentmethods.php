@@ -43,12 +43,12 @@ class Buckaroo3PaymentmethodsModuleFrontController extends BaseApiController
             ['id' => 13, 'name' => 'klarna', 'icon' => 'Klarna.svg', 'mode' => Config::get('BUCKAROO_KLARNA_MODE')],
             ['id' => 14, 'name' => 'applepay', 'icon' => 'ApplePay.svg', 'mode' => Config::get('BUCKAROO_APPLEPAY_MODE')],
             ['id' => 15, 'name' => 'in3', 'icon' => 'In3.svg', 'mode' => Config::get('BUCKAROO_IN3_MODE')],
-            ['id' => 16, 'name' => 'billink', 'icon' => 'billink.svg', 'mode' => Config::get('BUCKAROO_BILLINK_MODE')],
-            ['id' => 17, 'name' => 'eps', 'icon' => 'eps.svg', 'mode' => Config::get('BUCKAROO_EPS_MODE')],
-            ['id' => 18, 'name' => 'przelewy24', 'icon' => 'przelewy24.svg', 'mode' => Config::get('BUCKAROO_PRZELEWY24_MODE')],
-            ['id' => 19, 'name' => 'payperemail', 'icon' => 'payperemail.svg', 'mode' => Config::get('BUCKAROO_PAYPEREMAIL_MODE')],
+            ['id' => 16, 'name' => 'billink', 'icon' => 'Billink.svg', 'mode' => Config::get('BUCKAROO_BILLINK_MODE')],
+            ['id' => 17, 'name' => 'eps', 'icon' => 'EPS.svg', 'mode' => Config::get('BUCKAROO_EPS_MODE')],
+            ['id' => 18, 'name' => 'przelewy24', 'icon' => 'Przelewy24.svg', 'mode' => Config::get('BUCKAROO_PRZELEWY24_MODE')],
+            ['id' => 19, 'name' => 'payperemail', 'icon' => 'PayPerEmail.svg', 'mode' => Config::get('BUCKAROO_PAYPEREMAIL_MODE')],
             ['id' => 20, 'name' => 'payconiq', 'icon' => 'Payconiq.svg', 'mode' => Config::get('BUCKAROO_PAYCONIQ_MODE')],
-            ['id' => 21, 'name' => 'tinka', 'icon' => 'tinka.svg', 'mode' => Config::get('BUCKAROO_TINKA_MODE')],
+            ['id' => 21, 'name' => 'tinka', 'icon' => 'Tinka.svg', 'mode' => Config::get('BUCKAROO_TINKA_MODE')],
             ['id' => 22, 'name' => 'trustly', 'icon' => 'Trustly.svg', 'mode' => Config::get('BUCKAROO_TRUSTLY_MODE')]
         ];
     }
