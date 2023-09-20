@@ -1,7 +1,7 @@
 <?php
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
-class Buckaroo3PaymentmethodsModuleFrontController extends BaseApiController
+class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 {
     public function initContent()
     {

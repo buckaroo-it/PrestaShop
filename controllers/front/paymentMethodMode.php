@@ -1,7 +1,7 @@
 <?php
 include dirname(__FILE__) . '/BaseApiController.php';
 
-class Buckaroo3PaymentmethodmodeModuleFrontController extends BaseApiController
+class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
 {
     private const PAYMENT_MAPPING = [
         'bancontact' => 'MISTERCASH',
