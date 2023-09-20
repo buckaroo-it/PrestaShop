@@ -25,16 +25,21 @@ class Buckaroo3ApiModuleFrontController extends BaseApiController
 
     public function postProcess()
     {
-        header('Content-Type: application/json');
+        // Get the raw POST data
+        $rawData = file_get_contents("php://input");
 
-        if (empty(Tools::getValue('website_key')) || empty(Tools::getValue('secret_key'))) {
+        // Decode the JSON into a PHP array
+        $data = json_decode($rawData, true);
+
+
+        if (empty($data['website_key']) || empty($data['secret_key'])) {
             $this->ajaxDie(json_encode([
                 'status' => false,
                 'message' => 'Missing website_key or secret_key'
             ]));
         }
 
-        $buckarooClient = new BuckarooClient(Tools::getValue('website_key'), Tools::getValue('secret_key'));
+        $buckarooClient = new BuckarooClient($data['website_key'], $data['secret_key']);
         $status = $buckarooClient->confirmCredential();
 
         $this->ajaxDie(json_encode(['status' => $status]));

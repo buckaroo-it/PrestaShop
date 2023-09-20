@@ -6,6 +6,7 @@ class Buckaroo3PaymentmethodsModuleFrontController extends BaseApiController
     public function initContent()
     {
         parent::initContent();
+        $this->authenticate();
 
         $data = $this->getAllPaymentMethods();
 
@@ -14,7 +15,19 @@ class Buckaroo3PaymentmethodsModuleFrontController extends BaseApiController
 
     public function getAllPaymentMethods()
     {
-        $payments = [
+        $payments = $this->getPaymentConfigurations();
+
+        $data = [
+            'status' => true,
+            'payments' => $payments
+        ];
+
+        return $data;
+    }
+
+    private function getPaymentConfigurations()
+    {
+        return [
             ['id' => 1, 'name' => 'ideal', 'icon' => 'iDEAL.svg', 'mode' => Config::get('BUCKAROO_IDEAL_MODE')],
             ['id' => 2, 'name' => 'paybybank', 'icon' => 'paybybank.gif', 'mode' => Config::get('BUCKAROO_PAYBYBANK_MODE')],
             ['id' => 3, 'name' => 'paypal', 'icon' => 'PayPal.svg', 'mode' => Config::get('BUCKAROO_PAYPAL_MODE')],
@@ -38,13 +51,6 @@ class Buckaroo3PaymentmethodsModuleFrontController extends BaseApiController
             ['id' => 21, 'name' => 'tinka', 'icon' => 'tinka.svg', 'mode' => Config::get('BUCKAROO_TINKA_MODE')],
             ['id' => 22, 'name' => 'trustly', 'icon' => 'Trustly.svg', 'mode' => Config::get('BUCKAROO_TRUSTLY_MODE')]
         ];
-
-        $data = [
-            'status' => true,
-            'payments' => $payments
-        ];
-
-        return $data;
     }
 
 }

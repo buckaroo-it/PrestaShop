@@ -38,4 +38,9 @@ class BaseApiController extends ModuleFrontController
     {
         $this->sendResponse(['error' => $message], $status);
     }
+
+    protected function getJsonInput() {
+        $rawData = file_get_contents("php://input");
+        return json_decode($rawData, true);
+    }
 }

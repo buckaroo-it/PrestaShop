@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'buckaroo/prestashop',
-        'pretty_version' => 'dev-develop',
-        'version' => 'dev-develop',
-        'reference' => '838674593a54c7bc5cec284303300fcc8e1f1dc5',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => NULL,
         'type' => 'prestashop-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'buckaroo/prestashop' => array(
-            'pretty_version' => 'dev-develop',
-            'version' => 'dev-develop',
-            'reference' => '838674593a54c7bc5cec284303300fcc8e1f1dc5',
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => NULL,
             'type' => 'prestashop-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

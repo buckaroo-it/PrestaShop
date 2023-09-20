@@ -54,7 +54,7 @@ export default {
     setup(props) {
         const { toastr } = useToastr()
         // const { post, data, loading, setEndpoint } = useApi(`buckaroo3/${ props.payment.name }/config`)
-        const { post, data, loading, setEndpoint } = useApi('/index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig')
+        const { post, data, loading, setEndpoint } = useApi('/index.php?fc=module&module=buckaroo3&controller=paymentMethodMode')
         const paymentState = ref((props.payment.config)? (props.payment.config.value.enabled ?? 0) : 0)
 
         return {

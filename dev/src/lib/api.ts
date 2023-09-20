@@ -1,11 +1,7 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import { computed, ref, watch, inject } from 'vue';
-// Uncomment this if you want to use the router for redirects
-// import { useRouter } from 'vue-router';
 
 export const useApi = (endpoint: string, access_token?: string) => {
-    // If you want to use redirection based on error codes
-    // const router = useRouter();
     const signedJWT = inject('signedJWT')
 
     var endPoint = endpoint
@@ -58,31 +54,16 @@ export const useApi = (endpoint: string, access_token?: string) => {
         loading.value = true
         error.value = undefined
 
-        // Convert payload to URL encoded form data
-        const formData = new URLSearchParams();
-        if (payload) {
-            Object.entries(payload).forEach(([key, value]) => {
-                formData.append(key, value);
-            });
-        }
-
-        // Adjust headers for form data
-        const formHeaders = {
-            ...headers,
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-
         return api
-            .post(endPoint, formData.toString(), {
-                headers: formHeaders
+            .post(endPoint, payload, {
+                headers: headers
             })
             .then((res) => (data.value = res.data))
             .catch((e) => {
-                error.value = e
-
-                throw e
+                error.value = e;
+                throw e;
             })
-            .finally(() => (loading.value = false))
+            .finally(() => (loading.value = false));
     };
 
 

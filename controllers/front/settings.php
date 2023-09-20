@@ -2,47 +2,64 @@
 if (!defined('_PS_VERSION_')) {
     return;
 }
+include dirname(__FILE__) . '/BaseApiController.php';
+use Buckaroo\Prestashop\Service\BuckarooSettingsService;
 
-class Buckaroo3SettingsModuleFrontController extends ModuleFrontController
+class Buckaroo3SettingsModuleFrontController extends BaseApiController
 {
+    private $settingsService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->settingsService = new BuckarooSettingsService();
+    }
+
     public function initContent()
     {
         parent::initContent();
+        $this->authenticate();
 
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'GET':
+                $this->handleGet();
+                break;
+            case 'POST':
+                $this->handlePost();
+                break;
+        }
+    }
+    private function handleGet(){
         $data = [
             "status" => true,
-            "settings"=> [
-                "is_enabled" => 1,
-                "is_live" => (int)Configuration::get('BUCKAROO_TEST'),
-                "website_key"=> Configuration::get('BUCKAROO_MERCHANT_KEY'),
-                "secret_key"=> Configuration::get('BUCKAROO_SECRET_KEY'),
-                "display_discount_field"=> true,
-                "transaction_description"=> Configuration::get('BUCKAROO_TRANSACTION_LABEL'),
-                "refund_enabled"=> true,
-                "refund_label"=> null,
-                "return_url"=> 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn',
-                "checkout_url"=> null,
-                "response_url"=> null,
-                "custom_scripts"=> []
-            ]
+            "settings" => $this->settingsService->getSettings()
         ];
 
-        // Return as JSON
-        header('Content-Type: application/json');
-        die(json_encode($data));
+        $this->sendResponse($data);
     }
 
-    public function postProcess()
+    private function getReturnUrl()
     {
-        header('Content-Type: application/json');
-
-        if ($_POST) {
-//            Configuration::updateValue('BUCKAROO_IS_ENABLED', $_POST['is_enabled']);
-            Configuration::updateValue('BUCKAROO_MERCHANT_KEY', $_POST['website_key']);
-            Configuration::updateValue('BUCKAROO_SECRET_KEY', $_POST['secret_key']);
-            Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', $_POST['transaction_description']);
-            Configuration::updateValue('BUCKAROO_TEST', $_POST['is_live']);
-        }
-
+        $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http');
+        return $protocol . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
     }
+
+    private function handlePost()
+    {
+        $data = $this->getJsonInput();
+
+        if ($this->settingsService->isValidData($data)) {
+            $this->settingsService->updateSettings($data);
+
+            $data = [
+                "status" => true,
+                "settings" => $this->settingsService->getSettings()
+            ];
+
+            $this->sendResponse($data);
+        }else{
+            $this->sendErrorResponse('Invalid input data', 400);
+        }
+    }
+
 }

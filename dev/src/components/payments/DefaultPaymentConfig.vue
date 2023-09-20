@@ -6,7 +6,7 @@
             </div>
 
             <div>
-                <h2 class="font-bold">{{ $t(`payment_methods.${ payment.name }`) }}</h2>
+                <h2 class="font-bold h2-title">{{ $t(`payment_methods.${ payment.name }`) }}</h2>
                 <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.settings`) }}</div>
             </div>
         </div>
@@ -26,7 +26,7 @@
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">
-                        <h3 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.mode`) }}</h3>
+                        <h3 class="font-semibold text-sm modal-title">{{ $t(`dashboard.pages.payments.mode`) }}</h3>
                         <div class="text-gray-400 text-xs">
                             {{ $t(`dashboard.pages.payments.mode_label`) }}
                         </div>
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="relative">
-                        <input type="number" id="fee" min="0" max="999" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
+                        <input type="number" id="fee" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
                         <label for="fee" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
                             {{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}
                         </label>
@@ -199,7 +199,8 @@ export default {
     },
     setup(props) {
 
-        const { get, data, loading, post, setEndpoint } = useApi(`buckaroo3/${ props.payment.name }/config`)
+        // const { get, data, loading, post, setEndpoint } = useApi(`buckaroo3/${ props.payment.name }/config`)
+        const { get, data, loading, post, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
         const { toastr } = useToastr()
         const { countries } = useCountries()
         const selectCountry = ref(null)
@@ -218,14 +219,14 @@ export default {
 
         const getConfig = () => {
             get().then(() => {
-                if(data.value.status) {
+              if(data.value.status) {
                     if(data.value.config) {
                         config.value = data.value.config.value
 
                         return
                     }
 
-                    config.value ={
+                    config.value = {
                         mode: 'off',
                         frontend_label: '',
                         payment_fee: null,
