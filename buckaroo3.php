@@ -30,13 +30,22 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
+    use Buckaroo\Prestashop\Service\BuckarooCountriesService;
+    use Buckaroo\Prestashop\Service\BuckarooCountriesService as CountriesService;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 use Buckaroo\Classes\JWTAuth;
+use Buckaroo\Prestashop\ServiceProvider\LeagueServiceContainerProvider;
+use Buckaroo\Prestashop\Install\Installer;
+use Buckaroo\Prestashop\Install\Uninstall;
+use Buckaroo\Prestashop\Install\DatabaseTableInstaller;
+use Buckaroo\Prestashop\Install\DatabaseTableUninstaller;
 
 class Buckaroo3 extends PaymentModule
 {
     public $context;
 
+    /** @var LeagueServiceContainerProvider */
+    private $containerProvider;
     public function __construct()
     {
         $this->name = 'buckaroo3';
@@ -47,7 +56,6 @@ class Buckaroo3 extends PaymentModule
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
-
         parent::__construct();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
@@ -162,56 +170,6 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    public function createRefundRequestTable()
-    {
-        $sql = 'CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX_ . "bk_refund_request (id INT AUTO_INCREMENT NOT NULL, order_id INT NOT NULL, amount DOUBLE PRECISION NOT NULL, status VARCHAR(255) NOT NULL, refund_key VARCHAR(255) DEFAULT NULL, payment_key VARCHAR(255) DEFAULT NULL, payload LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)', data LONGTEXT NOT NULL COMMENT '(DC2Type:json_array)', created_at DATETIME NOT NULL, INDEX order_id_index (order_id), INDEX key_index (refund_key), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = " . _MYSQL_ENGINE_;
-
-        return Db::getInstance()->execute($sql);
-    }
-
-    public function createPaymentMethodsTable()
-    {
-        $sql = 'CREATE TABLE IF NOT EXISTS ' . _DB_PREFIX . 'bk_payment_methods (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, image VARCHAR(255) NOT NULL, status VARCHAR(255) NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
-    }
-
-    private function installTab()
-    {
-        $parent_tab = new Tab();
-        $parent_tab->name[$this->context->language->id] = $this->l('Buckaroo Payments');
-        $parent_tab->class_name = 'AdminBuckaroo';
-        $parent_tab->id_parent = Tab::getIdFromClassName('IMPROVE');
-        $parent_tab->module = 'buckaroo3';
-        $parent_tab->icon = 'buckaroo';
-        $parent_tab->add();
-
-        // Config
-        $tab = new Tab();
-        $tab->name[$this->context->language->id] = $this->l('Configure');
-        $tab->class_name = 'AdminBuckaroo';
-        $tab->id_parent = $parent_tab->id;
-        $tab->module = 'buckaroo3';
-        $tab->add();
-
-        // Logs
-        $tab = new Tab();
-        $tab->name[$this->context->language->id] = $this->l('Logs');
-        $tab->class_name = 'AdminBuckaroolog';
-        $tab->id_parent = $parent_tab->id;
-        $tab->module = 'buckaroo3';
-        $tab->add();
-
-        return true;
-    }
-
-    private function uninstallTab()
-    {
-        $moduleTabs = Tab::getCollectionFromModule('buckaroo3');
-        if (!empty($moduleTabs)) {
-            foreach ($moduleTabs as $moduleTab) {
-                $moduleTab->delete();
-            }
-        }
-    }
 
     public function install()
     {
@@ -219,16 +177,26 @@ class Buckaroo3 extends PaymentModule
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        if (!parent::install() || !$this->registerHooks()) {
+        if (!parent::install()) {
+            $this->_errors[] = $this->l('Unable to install module');
+
             return false;
         }
-        $this->addBuckarooIdin();
+
+        $databaseTableInstaller = new DatabaseTableInstaller();
+
+        $coreInstaller = new Installer($databaseTableInstaller);
+
+        if (!$coreInstaller->install()) {
+            $this->_errors = array_merge($this->_errors, $coreInstaller->getErrors());
+
+            return false;
+        }
 
         $this->addBuckarooIdin();
 
         (new RefundSettings())->install();
 
-        $this->setDefaultConfigurations();
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
@@ -269,487 +237,34 @@ class Buckaroo3 extends PaymentModule
         Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
         Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
         Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
-        $this->addBuckarooFeeTable();
 
         // Cookie SameSite fix
         Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
 
-        // override
-        $this->overrideClasses();
 
         return true;
-    }
-
-    private function setDefaultConfigurations()
-    {
-        Configuration::updateValue('BUCKAROO_TEST', 1);
-        Configuration::updateValue('BUCKAROO_MERCHANT_KEY', '');
-        Configuration::updateValue('BUCKAROO_SECRET_KEY', '');
-        Configuration::updateValue('BUCKAROO_TRANSACTION_LABEL', '');
-        Configuration::updateValue('BUCKAROO_TRANSACTION_FEE', '');
-
-        Configuration::updateValue('BUCKAROO_IDEAL_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_IDEAL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_IDEAL_FEE', '');
-        Configuration::updateValue('BUCKAROO_IDEAL_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_IDEAL_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_IDEAL_DISPLAY_TYPE', 'radio');
-
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_DISPLAY_TYPE', 'radio');
-
-        Configuration::updateValue('BUCKAROO_PAYPAL_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED', '0');
-        Configuration::updateValue('BUCKAROO_PAYPAL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYPAL_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_SDD_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_SDD_LABEL', '');
-        Configuration::updateValue('BUCKAROO_SDD_FEE', '');
-        Configuration::updateValue('BUCKAROO_SDD_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_SDD_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_GIROPAY_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_GIROPAY_LABEL', '');
-        Configuration::updateValue('BUCKAROO_GIROPAY_FEE', '');
-        Configuration::updateValue('BUCKAROO_GIROPAY_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_GIROPAY_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_KBC_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_KBC_LABEL', '');
-        Configuration::updateValue('BUCKAROO_KBC_FEE', '');
-        Configuration::updateValue('BUCKAROO_KBC_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_KBC_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_EPS_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_EPS_LABEL', '');
-        Configuration::updateValue('BUCKAROO_EPS_FEE', '');
-        Configuration::updateValue('BUCKAROO_EPS_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_EPS_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_FEE', '');
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_TRUSTLY_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_TRUSTLY_LABEL', '');
-        Configuration::updateValue('BUCKAROO_TRUSTLY_FEE', '');
-        Configuration::updateValue('BUCKAROO_TRUSTLY_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_TRUSTLY_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_TINKA_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_TINKA_LABEL', '');
-        Configuration::updateValue('BUCKAROO_TINKA_FEE', '');
-        Configuration::updateValue('BUCKAROO_TINKA_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_TINKA_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_SEND_EMAIL', '1');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS', '7');
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS', 'ideal');
-
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_LABEL', '');
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_FEE', '');
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_MISTERCASH_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_LABEL', '');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_FEE', '');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_MISTERCASH_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_BANCONTACT_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_BANCONTACT_LABEL', '');
-        Configuration::updateValue('BUCKAROO_BANCONTACT_FEE', '');
-        Configuration::updateValue('BUCKAROO_BANCONTACT_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_BANCONTACT_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_GIFTCARD_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_GIFTCARD_LABEL', '');
-        Configuration::updateValue('BUCKAROO_GIFTCARD_FEE', '');
-        Configuration::updateValue('BUCKAROO_GIFTCARD_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_GIFTCARD_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_CREDITCARD_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_LABEL', '');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_FEE', '');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_CREDITCARD_DISPLAY_TYPE', 'radio');
-
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_LABEL', '');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_FEE', '');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_SOFORT_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_SOFORT_LABEL', '');
-        Configuration::updateValue('BUCKAROO_SOFORT_FEE', '');
-        Configuration::updateValue('BUCKAROO_SOFORT_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_SOFORT_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_BELFIUS_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_BELFIUS_LABEL', '');
-        Configuration::updateValue('BUCKAROO_BELFIUS_FEE', '');
-        Configuration::updateValue('BUCKAROO_BELFIUS_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_BELFIUS_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_TRANSFER_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_TRANSFER_LABEL', '');
-        Configuration::updateValue('BUCKAROO_TRANSFER_FEE', '');
-        Configuration::updateValue('BUCKAROO_TRANSFER_DATEDUE', '14');
-        Configuration::updateValue('BUCKAROO_TRANSFER_SENDMAIL', '0');
-        Configuration::updateValue('BUCKAROO_TRANSFER_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_TRANSFER_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_AFTERPAY_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_LABEL', '');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_FEE', '');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_DEFAULT_VAT', '2');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
-        Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize([]));
-        Configuration::updateValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE', 'both');
-
-        Configuration::updateValue('BUCKAROO_KLARNA_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_KLARNA_LABEL', '');
-        Configuration::updateValue('BUCKAROO_KLARNA_FEE', '');
-        Configuration::updateValue('BUCKAROO_KLARNA_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_KLARNA_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_KLARNA_DEFAULT_VAT', '2');
-        Configuration::updateValue('BUCKAROO_KLARNA_WRAPPING_VAT', '2');
-        Configuration::updateValue('BUCKAROO_KLARNA_TAXRATE', serialize([]));
-
-        Configuration::updateValue('BUCKAROO_APPLEPAY_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_APPLEPAY_LABEL', '');
-        Configuration::updateValue('BUCKAROO_APPLEPAY_FEE', '');
-        Configuration::updateValue('BUCKAROO_APPLEPAY_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_APPLEPAY_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_IN3_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_IN3_LABEL', '');
-        Configuration::updateValue('BUCKAROO_IN3_API_VERSION', 'V3');
-        Configuration::updateValue('BUCKAROO_IN3_PAYMENT_LOGO', 'in3');
-        Configuration::updateValue('BUCKAROO_IN3_FEE', '');
-        Configuration::updateValue('BUCKAROO_IN3OLD_FEE', '');
-        Configuration::updateValue('BUCKAROO_IN3_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_IN3_MAX_VALUE', '');
-
-        Configuration::updateValue('BUCKAROO_BILLINK_MODE', 'off');
-        Configuration::updateValue('BUCKAROO_BILLINK_LABEL', '');
-        Configuration::updateValue('BUCKAROO_BILLINK_FEE', '');
-        Configuration::updateValue('BUCKAROO_BILLINK_MIN_VALUE', '');
-        Configuration::updateValue('BUCKAROO_BILLINK_MAX_VALUE', '');
-        Configuration::updateValue('BUCKAROO_BILLINK_DEFAULT_VAT', '2');
-        Configuration::updateValue('BUCKAROO_BILLINK_WRAPPING_VAT', '2');
-        Configuration::updateValue('BUCKAROO_BILLINK_TAXRATE', serialize([]));
-        Configuration::updateValue('BUCKAROO_BILLINK_CUSTOMER_TYPE', 'both');
-
-        Configuration::updateValue('BUCKAROO_GLOBAL_POSITION', 0);
-        Configuration::updateValue('BUCKAROO_PAYBYBANK_POSITION', 1);
-        Configuration::updateValue('BUCKAROO_PAYPAL_POSITION', 2);
-        Configuration::updateValue('BUCKAROO_SDD_POSITION', 3);
-        Configuration::updateValue('BUCKAROO_IDEAL_POSITION', 4);
-        Configuration::updateValue('BUCKAROO_GIROPAY_POSITION', 5);
-        Configuration::updateValue('BUCKAROO_KBC_POSITION', 6);
-        Configuration::updateValue('BUCKAROO_EPS_POSITION', 7);
-        Configuration::updateValue('BUCKAROO_PAYPEREMAIL_POSITION', 8);
-        Configuration::updateValue('BUCKAROO_PAYCONIQ_POSITION', 9);
-        Configuration::updateValue('BUCKAROO_PRZELEWY24_POSITION', 10);
-        Configuration::updateValue('BUCKAROO_TINKA_POSITION', 11);
-        Configuration::updateValue('BUCKAROO_TRUSTLY_POSITION', 12);
-        Configuration::updateValue('BUCKAROO_MISTERCASH_POSITION', 13);
-        Configuration::updateValue('BUCKAROO_GIFTCARD_POSITION', 14);
-        Configuration::updateValue('BUCKAROO_CREDITCARD_POSITION', 15);
-        Configuration::updateValue('BUCKAROO_SOFORTBANKING_POSITION', 16);
-        Configuration::updateValue('BUCKAROO_TRANSFER_POSITION', 17);
-        Configuration::updateValue('BUCKAROO_AFTERPAY_POSITION', 18);
-        Configuration::updateValue('BUCKAROO_APPLEPAY_POSITION', 19);
-        Configuration::updateValue('BUCKAROO_KLARNA_POSITION', 20);
-        Configuration::updateValue('BUCKAROO_BELFIUS_POSITION', 21);
-        Configuration::updateValue('BUCKAROO_IN3_POSITION', 22);
-        Configuration::updateValue('BUCKAROO_BILLINK_POSITION', 23);
-        Configuration::updateValue('BUCKAROO_IDIN_POSITION', 24);
-
-        return true;
-    }
-
-    private function registerHooks()
-    {
-        return (
-            $this->registerHook('header')
-            && $this->registerHook('paymentReturn')
-            && $this->registerHook('paymentOptions')
-            && $this->registerHook('displayAdminOrderMainBottom')
-            && $this->registerHook('displayOrderConfirmation')
-            && $this->installTab()
-            && $this->createRefundRequestTable()
-            && $this->registerHook('actionEmailSendBefore')
-            && $this->registerHook('displayPDFInvoice')
-            && $this->registerHook('displayBackOfficeHeader')
-            && $this->registerHook('displayBeforeCarrier')
-            && $this->registerHook('actionAdminCustomersListingFieldsModifier')
-            && $this->registerHook('displayAdminProductsMainStepLeftColumnMiddle')
-            && $this->registerHook('displayProductExtraContent')
-        );
-    }
-
-    protected function overrideClasses()
-    {
-        $source = _PS_ROOT_DIR_ . '/modules/buckaroo3/classes/Mail.php';
-        $destinationDir = _PS_ROOT_DIR_ . '/override/classes/';
-        $destinationFile = $destinationDir . 'Mail.php';
-
-        // Check if destination directory exists, create it if necessary
-        if (!is_dir($destinationDir)) {
-            if (!mkdir($destinationDir, 0755, true)) {
-                throw new Exception("Failed to create destination directory '{$destinationDir}'");
-            }
-        }
-
-        // Attempt to copy the file
-        if (!copy($source, $destinationFile)) {
-            throw new Exception("Failed to copy file from '{$source}' to '{$destinationFile}'");
-        }
-    }
-
-    protected function addBuckarooFeeTable()
-    {
-        $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee`
-        ( `id` INT NOT NULL AUTO_INCREMENT , `reference` TEXT NOT NULL , `id_cart` TEXT NOT NULL , `buckaroo_fee` FLOAT,
-         `currency` TEXT NOT NULL ,  PRIMARY KEY (id) )';
-
-        Db::getInstance()->execute($sql);
     }
 
     public function uninstall()
     {
-        if (!parent::uninstall()) {
+
+        $databaseTableUninstaller = new DatabaseTableUninstaller();
+        $uninstall = new Uninstall($databaseTableUninstaller);
+
+        if (!$uninstall->uninstall()) {
+            $this->_errors[] = $uninstall->getErrors();
+
             return false;
         }
-        $this->uninstallTab();
+
         $this->unregisterHook('displayBackOfficeHeader');
         $this->unregisterHook('displayAdminOrderMainBottom');
         $this->unregisterHook('displayOrderConfirmation');
         $this->unregisterHook('actionEmailSendBefore');
         $this->unregisterHook('displayPDFInvoice');
 
-        $this->get('buckaroo.refund.settings')->uninstall();
-
-        // Clean configuration table
-        Configuration::deleteByName('BUCKAROO_TEST');
-        Configuration::deleteByName('BUCKAROO_MERCHANT_KEY');
-        Configuration::deleteByName('BUCKAROO_SECRET_KEY');
-        Configuration::deleteByName('BUCKAROO_TRANSACTION_LABEL');
-        Configuration::deleteByName('BUCKAROO_TRANSACTION_FEE');
-        // paypal
-        Configuration::deleteByName('BUCKAROO_PAYPAL_MODE');
-        Configuration::deleteByName('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED');
-        Configuration::deleteByName('BUCKAROO_PAYPAL_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYPAL_MAX_VALUE');
-
-        // sepadirectdebit
-        Configuration::deleteByName('BUCKAROO_SDD_MODE');
-        Configuration::deleteByName('BUCKAROO_SDD_LABEL');
-        Configuration::deleteByName('BUCKAROO_SDD_FEE');
-        Configuration::deleteByName('BUCKAROO_SDD_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_SDD_MAX_VALUE');
-
-        // sepadirectdebit
-        Configuration::deleteByName('BUCKAROO_SEPADIRECTDEBIT_MODE');
-        Configuration::deleteByName('BUCKAROO_SEPADIRECTDEBIT_LABEL');
-        Configuration::deleteByName('BUCKAROO_SEPADIRECTDEBIT_FEE');
-        Configuration::deleteByName('BUCKAROO_SEPADIRECTDEBIT_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_SEPADIRECTDEBIT_MAX_VALUE');
-
-        // ideal
-        Configuration::deleteByName('BUCKAROO_IDEAL_MODE');
-        Configuration::deleteByName('BUCKAROO_IDEAL_LABEL');
-        Configuration::deleteByName('BUCKAROO_IDEAL_FEE');
-        Configuration::deleteByName('BUCKAROO_IDEAL_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_IDEAL_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_IDEAL_DISPLAY_TYPE');
-
-        // payperemail
-        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MODE');
-        Configuration::deleteByName('BUCKAROO_PAYBYBANK_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYBYBANK_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYBYBANK_DISPLAY_TYPE');
-
-        // Giropay
-        Configuration::deleteByName('BUCKAROO_GIROPAY_MODE');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_LABEL');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_FEE');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_GIROPAY_MAX_VALUE');
-
-        // KBC
-        Configuration::deleteByName('BUCKAROO_KBC_MODE');
-        Configuration::deleteByName('BUCKAROO_KBC_LABEL');
-        Configuration::deleteByName('BUCKAROO_KBC_FEE');
-        Configuration::deleteByName('BUCKAROO_KBC_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_KBC_MAX_VALUE');
-
-        // MISTERCASH
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_MODE');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_LABEL');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_FEE');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_MISTERCASH_MAX_VALUE');
-
-        // GIFTCARD
-        Configuration::deleteByName('BUCKAROO_GIFTCARD_MODE');
-        Configuration::deleteByName('BUCKAROO_GIFTCARD_LABEL');
-        Configuration::deleteByName('BUCKAROO_GIFTCARD_FEE');
-        Configuration::deleteByName('BUCKAROO_GIFTCARD_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_GIFTCARD_MAX_VALUE');
-
-        // CREDITCARD
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_MODE');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_LABEL');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_FEE');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_CREDITCARD_DISPLAY_TYPE');
-
-        // SOFORTBANKING
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MODE');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_LABEL');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_FEE');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_SOFORTBANKING_MAX_VALUE');
-
-        // BELFIUS
-        Configuration::deleteByName('BUCKAROO_BELFIUS_MODE');
-        Configuration::deleteByName('BUCKAROO_BELFIUS_LABEL');
-        Configuration::deleteByName('BUCKAROO_BELFIUS_FEE');
-        Configuration::deleteByName('BUCKAROO_BELFIUS_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_BELFIUS_MAX_VALUE');
-
-        // Afterpay
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_MODE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_LABEL');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_FEE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_DEFAULT_VAT');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_WRAPPING_VAT');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_TAXRATE');
-        Configuration::deleteByName('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
-
-        // Klarna
-        Configuration::deleteByName('BUCKAROO_KLARNA_MODE');
-        Configuration::deleteByName('BUCKAROO_KLARNA_LABEL');
-        Configuration::deleteByName('BUCKAROO_KLARNA_FEE');
-        Configuration::deleteByName('BUCKAROO_KLARNA_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_KLARNA_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_KLARNA_DEFAULT_VAT');
-        Configuration::deleteByName('BUCKAROO_KLARNA_WRAPPING_VAT');
-        Configuration::deleteByName('BUCKAROO_KLARNA_TAXRATE');
-
-        // Applepay
-        Configuration::deleteByName('BUCKAROO_APPLEPAY_MODE');
-        Configuration::deleteByName('BUCKAROO_APPLEPAY_LABEL');
-        Configuration::deleteByName('BUCKAROO_APPLEPAY_FEE');
-        Configuration::deleteByName('BUCKAROO_APPLEPAY_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_APPLEPAY_MAX_VALUE');
-
-        // IN3
-        Configuration::deleteByName('BUCKAROO_IN3_MODE');
-        Configuration::deleteByName('BUCKAROO_IN3_LABEL');
-        Configuration::deleteByName('BUCKAROO_IN3_API_VERSION');
-        Configuration::deleteByName('BUCKAROO_IN3_PAYMENT_LOGO');
-        Configuration::deleteByName('BUCKAROO_IN3_FEE');
-        Configuration::deleteByName('BUCKAROO_IN3OLD_FEE');
-        Configuration::deleteByName('BUCKAROO_IN3_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_IN3_MAX_VALUE');
-
-        // BILLINK
-        Configuration::deleteByName('BUCKAROO_BILLINK_MODE');
-        Configuration::deleteByName('BUCKAROO_BILLINK_LABEL');
-        Configuration::deleteByName('BUCKAROO_BILLINK_FEE');
-        Configuration::deleteByName('BUCKAROO_BILLINK_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_BILLINK_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_BILLINK_DEFAULT_VAT');
-        Configuration::deleteByName('BUCKAROO_BILLINK_WRAPPING_VAT');
-        Configuration::deleteByName('BUCKAROO_BILLINK_TAXRATE');
-        Configuration::deleteByName('BUCKAROO_BILLINK_CUSTOMER_TYPE');
-
-        // EPS
-        Configuration::deleteByName('BUCKAROO_EPS_MODE');
-        Configuration::deleteByName('BUCKAROO_EPS_LABEL');
-        Configuration::deleteByName('BUCKAROO_EPS_FEE');
-        Configuration::deleteByName('BUCKAROO_EPS__MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_EPS__MAX_VALUE');
-
-        // PRZELEWY24
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MODE');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_LABEL');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_FEE');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PRZELEWY24_MAX_VALUE');
-
-        // TRUSTLY
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_MODE');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_LABEL');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_FEE');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_TRUSTLY_MAX_VALUE');
-
-        // TINKA
-        Configuration::deleteByName('BUCKAROO_TINKA_MODE');
-        Configuration::deleteByName('BUCKAROO_TINKA_LABEL');
-        Configuration::deleteByName('BUCKAROO_TINKA_FEE');
-        Configuration::deleteByName('BUCKAROO_TINKA_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_TINKA_MAX_VALUE');
-
-        // PAYPEREMAIL
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MODE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_FEE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_SEND_EMAIL');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS');
-        Configuration::deleteByName('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS');
-
-        // PAYCONIQ
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MODE');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_LABEL');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_FEE');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_PAYCONIQ_MAX_VALUE');
-
-        // TRANSFER
-        Configuration::deleteByName('BUCKAROO_TRANSFER_MODE');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_LABEL');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_FEE');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_MIN_VALUE');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_MAX_VALUE');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_DATEDUE');
-        Configuration::deleteByName('BUCKAROO_TRANSFER_SENDMAIL');
-
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_DEFAULT');
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_SUCCESS');
-        Configuration::deleteByName('BUCKAROO_ORDER_STATE_FAILED');
-
-        return true;
+//        $this->get('buckaroo.refund.settings')->uninstall();
+        return parent::uninstall();
     }
 
     public function hookDisplayBackOfficeHeader()
@@ -766,6 +281,7 @@ class Buckaroo3 extends PaymentModule
             'pathCss' => $this->getPathUri() . 'dev/assets/main.c2123d82.css',
             'jwt' => $token
         ]);
+
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
     }
@@ -1580,6 +1096,12 @@ class Buckaroo3 extends PaymentModule
         ];
     }
 
+//    public function hookActionModuleInstallAfter($params)
+//    {
+//        $entityManager = $this->get('doctrine.orm.entity_manager');
+//        (new BuckarooCountriesService($entityManager))->createCountries();
+//    }
+
     public function hookDisplayProductExtraContent($params)
     {
         if ($this->isIdinProductBoxShow($params)) {
@@ -1816,4 +1338,6 @@ class Buckaroo3 extends PaymentModule
     {
         return $this->getBillingCountryIso($cart) === 'NL';
     }
+
+
 }

@@ -1,8 +1,20 @@
 <?php
 include dirname(__FILE__) . '/BaseApiController.php';
+use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
+use Buckaroo\Prestashop\Repository\ConfigurationRepository;
 
 class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
 {
+    private $paymentMethodRepository;
+    private $configurationRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
+        $this->configurationRepository = new ConfigurationRepository();
+    }
     private const PAYMENT_MAPPING = [
         'bancontact' => 'MISTERCASH',
         'sofort' => 'SOFORTBANKING',
@@ -30,6 +42,7 @@ class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
 
     private function updatePaymentMode($name, $mode)
     {
+        $this->configurationRepository->updatePaymentMethodMode($name, $mode);  // Call the repository to update the data
         $paymentName = $this->getPaymentConfigName($name);
         Configuration::updateValue('BUCKAROO_' . $paymentName . '_MODE', $mode);
     }

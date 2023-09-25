@@ -60,7 +60,7 @@ input:checked + .buckaroo-slider:before {
     border-radius: 50%;
 }
 
-#subtab-AdminBuckaroo > a > i.mi-buckaroo {
+#subtab-AdminBuckaroo_B > a > i.mi-buckaroo {
     background: url(../img/buckaroo-menu-logo.png) no-repeat scroll center center / contain transparent;
     width: 16px;
 }

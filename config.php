@@ -44,16 +44,4 @@ class Config extends ConfigCore
 
         return 'test';
     }
-
-    public static function getSoftware()
-    {
-        $Software = new Software();
-        $Software->PlatformName = 'Prestashop';
-        $Software->PlatformVersion = _PS_VERSION_;
-        $Software->ModuleSupplier = 'Buckaroo';
-        $Software->ModuleName = Config::PLUGIN_NAME;
-        $Software->ModuleVersion = Config::VERSION;
-
-        return $Software;
-    }
 }
