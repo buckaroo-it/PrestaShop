@@ -1,9 +1,11 @@
 <?php
+
 include dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\Prestashop\Service\PaymentMethodConfigService;
-use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
 use Buckaroo\Prestashop\Repository\ConfigurationRepository;
+use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
+use Buckaroo\Prestashop\Service\PaymentMethodConfigService;
+
 class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
 {
     private $paymentService;
@@ -18,11 +20,11 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
 
         $this->paymentService = new PaymentMethodConfigService();
     }
+
     public function initContent()
     {
         parent::initContent();
         $this->authenticate();
-
 
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
@@ -34,32 +36,35 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
         }
     }
 
-    private function handleGet(){
-
+    private function handleGet()
+    {
         // Fetch the parameter from the GET request
         $paymentName = Tools::getValue('paymentName');
 
         if (!$paymentName) {
-            $this->sendErrorResponse("Payment name is missing.", 400);
+            $this->sendErrorResponse('Payment name is missing.', 400);
+
             return;
         }
 
         $data = [
-            "status" => true,
-            "config" => [
-                "value" => $this->configurationRepository->getPaymentMethodConfig($paymentName)  // Call the repository to fetch the data
-            ]
+            'status' => true,
+            'config' => [
+                'value' => $this->configurationRepository->getPaymentMethodConfig($paymentName),  // Call the repository to fetch the data
+            ],
         ];
 
         $this->sendResponse($data);
     }
 
-    private function handlePost(){
+    private function handlePost()
+    {
         $data = $this->getJsonInput();
 
         $paymentName = Tools::getValue('paymentName');
         if (!$paymentName || !$data) {
-            $this->sendErrorResponse("Invalid data provided.", 400);
+            $this->sendErrorResponse('Invalid data provided.', 400);
+
             return;
         }
         $result = $this->configurationRepository->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data

@@ -16,6 +16,7 @@
  */
 include dirname(__FILE__) . '/BaseApiController.php';
 use Buckaroo\BuckarooClient;
+
 class Buckaroo3ApiModuleFrontController extends BaseApiController
 {
     public function initContent()
@@ -26,16 +27,15 @@ class Buckaroo3ApiModuleFrontController extends BaseApiController
     public function postProcess()
     {
         // Get the raw POST data
-        $rawData = file_get_contents("php://input");
+        $rawData = file_get_contents('php://input');
 
         // Decode the JSON into a PHP array
         $data = json_decode($rawData, true);
 
-
         if (empty($data['website_key']) || empty($data['secret_key'])) {
             $this->ajaxDie(json_encode([
                 'status' => false,
-                'message' => 'Missing website_key or secret_key'
+                'message' => 'Missing website_key or secret_key',
             ]));
         }
 
@@ -44,5 +44,4 @@ class Buckaroo3ApiModuleFrontController extends BaseApiController
 
         $this->ajaxDie(json_encode(['status' => $status]));
     }
-
 }

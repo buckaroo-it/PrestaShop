@@ -2400,7 +2400,6 @@ class Buckaroo3Admin
                         ],
                     ],
                     'description' => $this->module->l('Choose the API version for this payment method.'),
-
                 ],
                 [
                     'type' => 'radio',
@@ -2410,12 +2409,12 @@ class Buckaroo3Admin
                         [
                             'value' => 'in3',
                             'text' => 'IN3',
-                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png?v'
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3.png?v',
                         ],
                         [
                             'value' => 'in3_ideal',
                             'text' => 'iDEAL In3',
-                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3_ideal.svg?v'
+                            'image' => $this->module->getPathUri() . 'views/img/buckaroo_images/buckaroo_in3_ideal.svg?v',
                         ],
                     ],
                     'description' => $this->module->l('Determines the logo that will be shown in the checkout'),

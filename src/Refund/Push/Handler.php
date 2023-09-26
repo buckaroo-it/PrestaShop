@@ -14,16 +14,17 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 namespace Buckaroo\Prestashop\Refund\Push;
 
-use Order;
-use Doctrine\ORM\EntityManager;
-use Buckaroo\Prestashop\Refund\Settings;
-use Symfony\Component\HttpFoundation\Request;
-use Buckaroo\Prestashop\Refund\StatusService;
 use Buckaroo\Prestashop\Entity\BkRefundRequest;
-use Buckaroo\Resources\Constants\ResponseStatus;
 use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
+use Buckaroo\Prestashop\Refund\Settings;
+use Buckaroo\Prestashop\Refund\StatusService;
+use Buckaroo\Resources\Constants\ResponseStatus;
+use Doctrine\ORM\EntityManager;
+use Order;
+use Symfony\Component\HttpFoundation\Request;
 
 class Handler
 {
@@ -71,7 +72,7 @@ class Handler
         } else {
             $this->updateRefundRequest($refundRequest);
         }
-        
+
         $this->statusService->setRefunded($order);
     }
 

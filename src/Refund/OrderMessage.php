@@ -1,8 +1,6 @@
 <?php
 
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -20,16 +18,13 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Order;
-use Message;
-
 class OrderMessage
 {
-    public function add(Order $order, string $description)
+    public function add(\Order $order, string $description)
     {
-        $message           = new Message();
+        $message = new \Message();
         $message->id_order = $order->id;
-        $message->message  = $description;
+        $message->message = $description;
         $message->add();
     }
 }

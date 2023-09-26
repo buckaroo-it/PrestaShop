@@ -1,13 +1,9 @@
 <?php
+
 namespace Buckaroo\Prestashop\Service;
 
-use Doctrine\ORM\EntityManager;
-use Order;
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\Prestashop\Entity\BkCountries;
-use Context;
-use Country;
-use Tools;
+use Doctrine\ORM\EntityManager;
 
 class BuckarooCountriesService
 {
@@ -15,19 +11,20 @@ class BuckarooCountriesService
      * @var EntityManager
      */
     protected $entityManager;
+
     public function __construct(
         EntityManager $entityManager,
     ) {
         $this->entityManager = $entityManager;
     }
+
     public function createCountries()
     {
-        $context = Context::getContext();
+        $context = \Context::getContext();
         $langId = $context->language->id;
-        $rawCountries = Country::getCountries($langId, true);
+        $rawCountries = \Country::getCountries($langId, true);
 
         $processedCountries = $this->processCountries($rawCountries);
-
 
         foreach ($processedCountries as $countryData) {
             $countries = new BkCountries();
@@ -52,16 +49,15 @@ class BuckarooCountriesService
 
         foreach ($countries as $country) {
             $result[] = [
-                "id" => $country['id_country'],
-                "name" => strtolower($country['name']),
-                "iso_code_2" => $country['iso_code'],
-                "iso_code_3" => Country::getIsoById($country['id_country']),
-                "call_prefix" => $country['call_prefix'],
-                "icon" => Tools::strtolower($country['iso_code']) . '.jpg'
+                'id' => $country['id_country'],
+                'name' => strtolower($country['name']),
+                'iso_code_2' => $country['iso_code'],
+                'iso_code_3' => \Country::getIsoById($country['id_country']),
+                'call_prefix' => $country['call_prefix'],
+                'icon' => \Tools::strtolower($country['iso_code']) . '.jpg',
             ];
         }
 
         return $result;
     }
-
 }

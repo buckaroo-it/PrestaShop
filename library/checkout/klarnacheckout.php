@@ -53,11 +53,10 @@ class KlarnaCheckout extends Checkout
                 ),
             ],
             'phone' => [
-                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address)
+                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address),
             ],
             'email' => $this->customer->email,
         ];
-
     }
 
     public function getShippingAddress()
@@ -132,7 +131,7 @@ class KlarnaCheckout extends Checkout
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
             'vatPercentage' => Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT'),
-            'description' => 'buckaroo_fee'
+            'description' => 'buckaroo_fee',
         ];
     }
 

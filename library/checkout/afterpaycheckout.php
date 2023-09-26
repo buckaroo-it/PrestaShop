@@ -39,7 +39,8 @@ class AfterPayCheckout extends Checkout
         ];
     }
 
-    public function getCocNumber(){
+    public function getCocNumber()
+    {
         $customerIdentificationNumber = Tools::getValue('customerIdentificationNumber');
         if (!empty($customerIdentificationNumber)) {
             $identificationNumber = $customerIdentificationNumber;
@@ -103,7 +104,6 @@ class AfterPayCheckout extends Checkout
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
 
-
         if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')) {
             if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
                 $payload['recipient']['companyName'] = $this->invoice_address->company;
@@ -141,7 +141,7 @@ class AfterPayCheckout extends Checkout
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
             'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
-            'description' => 'buckaroo_fee'
+            'description' => 'buckaroo_fee',
         ];
     }
 
@@ -211,7 +211,8 @@ class AfterPayCheckout extends Checkout
         return null;
     }
 
-    public function getBirthDate(){
+    public function getBirthDate()
+    {
         return date(
             'd-m-Y',
             strtotime(

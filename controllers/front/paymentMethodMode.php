@@ -1,7 +1,8 @@
 <?php
+
 include dirname(__FILE__) . '/BaseApiController.php';
-use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
 use Buckaroo\Prestashop\Repository\ConfigurationRepository;
+use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
 
 class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
 {
@@ -18,8 +19,9 @@ class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
     private const PAYMENT_MAPPING = [
         'bancontact' => 'MISTERCASH',
         'sofort' => 'SOFORTBANKING',
-        'sepadirectdebit' => 'SDD'
+        'sepadirectdebit' => 'SDD',
     ];
+
     public function initContent()
     {
         parent::initContent();
@@ -27,12 +29,14 @@ class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $this->sendErrorResponse('Invalid request method', 405); // 405: Method Not Allowed
+
             return;
         }
 
         $data = $this->getJsonInput();
         if (!isset($data['name'], $data['mode'])) {
             $this->sendErrorResponse('Required data not provided', 400); // 400: Bad Request
+
             return;
         }
 

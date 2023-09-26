@@ -17,10 +17,9 @@
 
 namespace Buckaroo\Prestashop\Refund;
 
-use Order;
-use Configuration;
-use Doctrine\ORM\EntityManager;
 use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Doctrine\ORM\EntityManager;
+use Order;
 
 class StatusService
 {
@@ -43,11 +42,10 @@ class StatusService
      */
     public function setRefunded(\Order $order)
     {
-    
-        $statusRefunded = Configuration::get('PS_OS_REFUND');
+        $statusRefunded = \Configuration::get('PS_OS_REFUND');
 
         $orderState = $order->getCurrentOrderState();
-        $isCurrentlyRefunded =  $orderState !== null && $orderState->id == $statusRefunded;
+        $isCurrentlyRefunded = $orderState !== null && $orderState->id == $statusRefunded;
 
         if ($this->isReadyToBeRefunded($order) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
@@ -57,16 +55,16 @@ class StatusService
     /**
      * Check to see if order is ready to be refunded
      *
-     * @param Order $order
+     * @param \Order $order
      *
      * @return bool
      */
-    private function isReadyToBeRefunded(Order $order)
+    private function isReadyToBeRefunded(\Order $order)
     {
         $refundRequestRepository = $this->entityManager->getRepository(BkRefundRequest::class);
         $refunds = $refundRequestRepository->findBy([
-            "orderId" => $order->id,
-            "status" => BkRefundRequest::STATUS_SUCCESS
+            'orderId' => $order->id,
+            'status' => BkRefundRequest::STATUS_SUCCESS,
         ]);
 
         $refunded = array_sum(array_map(

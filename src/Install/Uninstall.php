@@ -1,8 +1,8 @@
 <?php
+
 namespace Buckaroo\Prestashop\Install;
 
 use Buckaroo\Prestashop\Config\Config;
-use Tab;
 
 class Uninstall
 {
@@ -17,7 +17,7 @@ class Uninstall
     private $databaseUninstaller;
 
     public function __construct(
-        UninstallerInterface $databaseUninstaller,
+        UninstallerInterface $databaseUninstaller
     ) {
         $this->databaseUninstaller = $databaseUninstaller;
     }
@@ -56,7 +56,7 @@ class Uninstall
 
     private function uninstallTabs()
     {
-        $moduleTabs = Tab::getCollectionFromModule('buckaroo3');
+        $moduleTabs = \Tab::getCollectionFromModule('buckaroo3');
         if (!empty($moduleTabs)) {
             foreach ($moduleTabs as $moduleTab) {
                 $moduleTab->delete();

@@ -1,7 +1,9 @@
 <?php
+
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
 use Buckaroo\Prestashop\Repository\OrderingRepository;
+
 class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 {
     private $orderingRepository;
@@ -12,6 +14,7 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 
         $this->orderingRepository = new OrderingRepository();  // Instantiate the repository
     }
+
     public function initContent()
     {
         parent::initContent();
@@ -32,8 +35,8 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
         $ordering = $this->getOrdering();
 
         $data = [
-            "status" => true,
-            "orderings" => $ordering
+            'status' => true,
+            'orderings' => $ordering,
         ];
 
         $this->sendResponse($data);
@@ -50,11 +53,10 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 
         // Send response instead of var_dump
         $response = [
-            "status" => true,
-            "message" => "Data received successfully",
-            "received_data" => $data
+            'status' => true,
+            'message' => 'Data received successfully',
+            'received_data' => $data,
         ];
         $this->sendResponse($response);
     }
-
 }

@@ -29,21 +29,23 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersPayByBank.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
-use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+use Buckaroo\BuckarooClient;
 use Buckaroo\Classes\JWTAuth;
-use Buckaroo\Prestashop\ServiceProvider\LeagueServiceContainerProvider;
-use Buckaroo\Prestashop\Install\Installer;
-use Buckaroo\Prestashop\Install\Uninstall;
 use Buckaroo\Prestashop\Install\DatabaseTableInstaller;
 use Buckaroo\Prestashop\Install\DatabaseTableUninstaller;
-use Buckaroo\BuckarooClient;
+use Buckaroo\Prestashop\Install\Installer;
+use Buckaroo\Prestashop\Install\Uninstall;
+use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
+use Buckaroo\Prestashop\ServiceProvider\LeagueServiceContainerProvider;
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+
 class Buckaroo3 extends PaymentModule
 {
     public $context;
 
     /** @var LeagueServiceContainerProvider */
     private $containerProvider;
+
     public function __construct()
     {
         $this->name = 'buckaroo3';
@@ -169,7 +171,6 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-
     public function install()
     {
         if (Shop::isFeatureActive()) {
@@ -195,7 +196,6 @@ class Buckaroo3 extends PaymentModule
         $this->addBuckarooIdin();
 
         (new RefundSettings())->install();
-
 
         $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
 
@@ -240,13 +240,11 @@ class Buckaroo3 extends PaymentModule
         // Cookie SameSite fix
         Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
 
-
         return true;
     }
 
     public function uninstall()
     {
-
         $databaseTableUninstaller = new DatabaseTableUninstaller();
         $uninstall = new Uninstall($databaseTableUninstaller);
 
@@ -262,7 +260,7 @@ class Buckaroo3 extends PaymentModule
         $this->unregisterHook('actionEmailSendBefore');
         $this->unregisterHook('displayPDFInvoice');
 
-//        $this->get('buckaroo.refund.settings')->uninstall();
+        $this->get('buckaroo.refund.settings')->uninstall();
         return parent::uninstall();
     }
 
@@ -278,9 +276,8 @@ class Buckaroo3 extends PaymentModule
         $this->context->smarty->assign([
             'pathApp' => $this->getPathUri() . 'dev/assets/main.d4b19757.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.0c1fb0b4.css',
-            'jwt' => $token
+            'jwt' => $token,
         ]);
-
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
     }
@@ -304,7 +301,6 @@ class Buckaroo3 extends PaymentModule
         $websiteKey = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $secretKey = Configuration::get('BUCKAROO_SECRET_KEY');
 
-        // Perform your key check, assuming checkKeys() returns true if keys are valid
         return $this->checkKeys($websiteKey, $secretKey);
     }
 
@@ -314,6 +310,7 @@ class Buckaroo3 extends PaymentModule
             return false;
         }
         $buckarooClient = new BuckarooClient($websiteKey, $secretKey);
+
         return $buckarooClient->confirmCredential();
     }
 
@@ -413,10 +410,10 @@ class Buckaroo3 extends PaymentModule
                     'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
                     'creditcardIssuers' => $issuersCreditCard->getIssuerList(),
                     'creditCardDisplayMode' => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
-                    'in3Method' => $capayableIn3->getMethod()
+                    'in3Method' => $capayableIn3->getMethod(),
                 ]
             );
-        }catch (Exception $e){
+        } catch (Exception $e) {
             $logger = new Logger(Logger::INFO, 'error');
             $logger->logInfo('Buckaroo3::hookPaymentOptions - ' . $e->getMessage());
         }
@@ -1232,7 +1229,7 @@ class Buckaroo3 extends PaymentModule
 
         return BillinkCheckout::CUSTOMER_TYPE_B2B === $billink_customer_type
         || (
-                BillinkCheckout::CUSTOMER_TYPE_B2C !== $billink_customer_type
+            BillinkCheckout::CUSTOMER_TYPE_B2C !== $billink_customer_type
             && (
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
                 || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
@@ -1295,7 +1292,7 @@ class Buckaroo3 extends PaymentModule
     /**
      * Check if payment is available by amount
      *
-     * @param float $cartTotal
+     * @param float  $cartTotal
      * @param string $paymentMethod
      *
      * @return bool
@@ -1359,6 +1356,4 @@ class Buckaroo3 extends PaymentModule
     {
         return $this->getBillingCountryIso($cart) === 'NL';
     }
-
-
 }

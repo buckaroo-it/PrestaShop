@@ -58,7 +58,7 @@ class Provider
      * Get available amount for refund
      *
      * @param \Order $order
-     * @param array $refunds
+     * @param array  $refunds
      *
      * @return float
      */
@@ -79,9 +79,10 @@ class Provider
         );
 
         $amount = $order->total_paid - $refunded;
-        if(abs($amount) <= 0.005) {
+        if (abs($amount) <= 0.005) {
             return 0;
         }
+
         return round($amount, 2);
     }
 

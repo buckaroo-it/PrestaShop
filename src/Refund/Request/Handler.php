@@ -25,7 +25,7 @@ class Handler
     /**
      * Execute refund request
      *
-     * @param array $body
+     * @param array  $body
      * @param string $method
      *
      * @return TransactionResponse

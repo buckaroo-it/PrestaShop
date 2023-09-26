@@ -1,7 +1,6 @@
 <?php
 
 namespace Buckaroo\Prestashop\Repository;
-use Db;
 
 final class ConfigurationRepository
 {
@@ -11,13 +10,14 @@ final class ConfigurationRepository
     {
         $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
     }
+
     public function updatePaymentMethodConfig($name, $data)
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
-        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int)$paymentId;
+        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int) $paymentId;
         $existingConfig = $db->getValue($query);
 
         if ($existingConfig === false) {
@@ -48,10 +48,10 @@ final class ConfigurationRepository
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
-            configurable_id = " . (int)$paymentId;
+            configurable_id = " . (int) $paymentId;
 
         if ($db->execute($query)) {
-           return true;
+            return true;
         } else {
             return false;
         }
@@ -59,12 +59,12 @@ final class ConfigurationRepository
 
     public function updatePaymentMethodMode($name, $mode)
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
 
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
-        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int)$paymentId;
+        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int) $paymentId;
         $existingConfig = $db->getValue($query);
 
         if ($existingConfig === false) {
@@ -95,16 +95,16 @@ final class ConfigurationRepository
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
-            id = " . (int)$paymentId;
+            id = " . (int) $paymentId;
 
         return $db->execute($query);
     }
 
     public function getPaymentMethodConfig($name)
     {
-        $db = Db::getInstance();
-        $query = "SELECT value FROM ps_bk_configuration WHERE configurable_id = " . $this->paymentMethodRepository->getPaymentMethodId($name);
+        $db = \Db::getInstance();
+        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . $this->paymentMethodRepository->getPaymentMethodId($name);
+
         return json_decode($db->getValue($query));
     }
 }
-

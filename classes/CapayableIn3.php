@@ -19,14 +19,16 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
 class CapayableIn3
 {
-    const VERSION_V2 = 'V2';
-    const LOGO_IN3_IDEAL = 'in3_ideal';
-    const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
-    const LOGO_DEFAULT = 'In3.svg?v';
+    public const VERSION_V2 = 'V2';
+    public const LOGO_IN3_IDEAL = 'in3_ideal';
+    public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
+    public const LOGO_DEFAULT = 'In3.svg?v';
+
     public function isV3(): bool
     {
         return Configuration::get('BUCKAROO_IN3_API_VERSION') !== self::VERSION_V2;
     }
+
     public function getLogo(): string
     {
         if (Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO') === self::LOGO_IN3_IDEAL) {
@@ -35,6 +37,7 @@ class CapayableIn3
 
         return self::LOGO_DEFAULT;
     }
+
     public function getMethod(): string
     {
         return $this->isV3() ? 'in3' : 'in3Old';

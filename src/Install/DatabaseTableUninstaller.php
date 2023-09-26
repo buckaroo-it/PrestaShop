@@ -1,14 +1,13 @@
 <?php
-namespace Buckaroo\Prestashop\Install;
 
-use Db;
+namespace Buckaroo\Prestashop\Install;
 
 final class DatabaseTableUninstaller implements UninstallerInterface
 {
     public function uninstall(): bool
     {
         foreach ($this->getCommands() as $query) {
-            if (false == Db::getInstance()->execute($query)) {
+            if (false == \Db::getInstance()->execute($query)) {
                 return false;
             }
         }

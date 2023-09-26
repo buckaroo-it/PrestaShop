@@ -18,12 +18,14 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
 use Buckaroo\Resources\Constants\RecipientCategory;
+
 class BillinkCheckout extends Checkout
 {
     protected $customVars = [];
     public const CUSTOMER_TYPE_B2C = 'B2C';
     public const CUSTOMER_TYPE_B2B = 'B2B';
     public const CUSTOMER_TYPE_BOTH = 'both';
+
     final public function setCheckout()
     {
         parent::setCheckout();
@@ -32,7 +34,7 @@ class BillinkCheckout extends Checkout
             'vATNumber' => $this->invoice_address->vat_number,
             'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
-            'shipping' => $this->getShippingAddress()
+            'shipping' => $this->getShippingAddress(),
         ];
     }
 
@@ -56,7 +58,8 @@ class BillinkCheckout extends Checkout
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_BILLINK);
     }
 
-    public function getBillingAddress(){
+    public function getBillingAddress()
+    {
         $customerType = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
 
         $birthDate = $this->getBirthDate();
@@ -72,14 +75,14 @@ class BillinkCheckout extends Checkout
                 : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : self::CUSTOMER_TYPE_B2C));
 
         $payload = [
-            'recipient'        => [
-                'category'      => $category,
-                'careOf'        => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
-                'firstName'      => $this->invoice_address->firstname,
-                'lastName'      => $this->invoice_address->lastname,
-                'birthDate'     => $birthDate,
-                'title'        => Tools::getValue('bpe_billink_person_gender'),
-                'initials'      => initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname)
+            'recipient' => [
+                'category' => $category,
+                'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
+                'firstName' => $this->invoice_address->firstname,
+                'lastName' => $this->invoice_address->lastname,
+                'birthDate' => $birthDate,
+                'title' => Tools::getValue('bpe_billink_person_gender'),
+                'initials' => initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
             ],
             'address' => [
                 'street' => $address_components['street'],
@@ -87,10 +90,10 @@ class BillinkCheckout extends Checkout
                 'houseNumberAdditional' => $address_components['number_addition'],
                 'zipcode' => $this->invoice_address->postcode,
                 'city' => $this->invoice_address->city,
-                'country' => Tools::strtoupper($country->iso_code)
+                'country' => Tools::strtoupper($country->iso_code),
             ],
             'phone' => [
-                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address)
+                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address),
             ],
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
@@ -101,6 +104,7 @@ class BillinkCheckout extends Checkout
                 $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
             }
         }
+
         return $payload;
     }
 
@@ -149,7 +153,7 @@ class BillinkCheckout extends Checkout
             'price' => $wrappingCost,
             'priceExcl' => $wrappingCost,
             'vatPercentage' => Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT'),
-            'description' => 'Wrapping'
+            'description' => 'Wrapping',
         ];
     }
 
@@ -166,7 +170,7 @@ class BillinkCheckout extends Checkout
             'price' => round($buckarooFee, 2),
             'priceExcl' => round($buckarooFee, 2),
             'vatPercentage' => 0,
-            'description' => 'buckaroo_fee'
+            'description' => 'buckaroo_fee',
         ];
     }
 
@@ -189,11 +193,12 @@ class BillinkCheckout extends Checkout
             'vatPercentage' => $shippingCostsTax,
             'quantity' => 1,
             'price' => $shippingCost,
-            'priceExcl' => $shippingCost
+            'priceExcl' => $shippingCost,
         ];
     }
 
-    public function getBirthDate(){
+    public function getBirthDate()
+    {
         return date(
             'd-m-Y',
             strtotime(

@@ -81,6 +81,7 @@ class AdminRefundController extends FrameworkBundleAdminController
 
             $message = 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount);
             $this->addFlash('success', $message);
+
             return new JsonResponse(
                 ['error' => false, 'message' => $message]
             );
@@ -93,7 +94,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Send refund request to payment engine, return total amount refunded
      *
      * @param \Order $order
-     * @param float $maxRefundAmount
+     * @param float  $maxRefundAmount
      *
      * @return float
      */
@@ -115,9 +116,9 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Refund individual payment with amount, return remaining amount to be refunded
      *
-     * @param \Order $order
+     * @param \Order        $order
      * @param \OrderPayment $payment
-     * @param float $maxRefundAmount
+     * @param float         $maxRefundAmount
      *
      * @return float
      */
@@ -127,7 +128,7 @@ class AdminRefundController extends FrameworkBundleAdminController
         if ($maxRefundAmount > $payment->amount) {
             $refundAmount = $payment->amount;
         }
-        $maxRefundAmount = $maxRefundAmount - $refundAmount;
+        $maxRefundAmount -= $refundAmount;
 
         try {
             $this->orderService->refund($order, $refundAmount);
@@ -171,6 +172,7 @@ class AdminRefundController extends FrameworkBundleAdminController
     private function renderError(string $message): JsonResponse
     {
         $this->addFlash('error', $message);
+
         return new JsonResponse(['error' => true, 'message' => $message]);
     }
 
@@ -178,7 +180,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Format price based on order currency
      *
      * @param \Order $order
-     * @param float $price
+     * @param float  $price
      *
      * @return string
      */

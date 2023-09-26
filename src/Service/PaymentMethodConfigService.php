@@ -1,13 +1,13 @@
 <?php
+
 namespace Buckaroo\Prestashop\Service;
 
-use Configuration;
 class PaymentMethodConfigService
 {
     private $paymentMapping = [
         'bancontact' => 'MISTERCASH',
         'sofort' => 'SOFORTBANKING',
-        'sepadirectdebit' => 'SDD'
+        'sepadirectdebit' => 'SDD',
     ];
 
     private $configKeyMap = [
@@ -25,7 +25,7 @@ class PaymentMethodConfigService
         $configData = [];
 
         foreach ($this->configKeyMap as $dataKey => $configKey) {
-            $configData[$dataKey] = Configuration::get('BUCKAROO_' . strtoupper($paymentMethod) . '_' . $configKey);
+            $configData[$dataKey] = \Configuration::get('BUCKAROO_' . strtoupper($paymentMethod) . '_' . $configKey);
         }
 
         return $configData;
@@ -37,7 +37,7 @@ class PaymentMethodConfigService
 
         foreach ($this->configKeyMap as $dataKey => $configKey) {
             if (isset($data[$dataKey])) {
-                Configuration::updateValue('BUCKAROO_' . strtoupper($paymentMethod) . '_' . $configKey, $data[$dataKey]);
+                \Configuration::updateValue('BUCKAROO_' . strtoupper($paymentMethod) . '_' . $configKey, $data[$dataKey]);
             }
         }
     }

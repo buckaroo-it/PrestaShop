@@ -1,4 +1,5 @@
 <?php
+
 namespace Buckaroo\Prestashop\Install;
 
 interface UninstallerInterface

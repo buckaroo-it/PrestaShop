@@ -15,8 +15,8 @@ class Buckaroo3CountriesModuleFrontController extends BaseApiController
         $countries = $countryRepository->checkAndInsertNewCountries();
 
         $data = [
-            "status" => true,
-            "countries" => $countries
+            'status' => true,
+            'countries' => $countries,
         ];
 
         $this->sendResponse($data);

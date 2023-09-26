@@ -29,7 +29,7 @@ class CarrierHandler
 
     private function initializeCarrier()
     {
-        $this->carrier = new Carrier((int)$this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+        $this->carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
     }
 
     public function handleSendCloud()

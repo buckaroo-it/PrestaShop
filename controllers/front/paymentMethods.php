@@ -1,4 +1,5 @@
 <?php
+
 include_once dirname(__FILE__) . '/BaseApiController.php';
 use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
 
@@ -12,6 +13,7 @@ class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 
         $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
     }
+
     public function initContent()
     {
         parent::initContent();
@@ -28,7 +30,7 @@ class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 
         $data = [
             'status' => true,
-            'payments' => $payments
+            'payments' => $payments,
         ];
 
         return $data;

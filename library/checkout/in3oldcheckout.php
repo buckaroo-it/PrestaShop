@@ -122,6 +122,7 @@ class In3OldCheckout extends Checkout
      * Get customer phone
      *
      * @param $address
+     *
      * @return string
      */
     public function getPhone($address)

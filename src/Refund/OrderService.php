@@ -74,7 +74,7 @@ class OrderService
      * Determine refund data, products and shipping amounts
      *
      * @param \Order $order
-     * @param float $refundAmount
+     * @param float  $refundAmount
      *
      * @return array
      */
@@ -157,7 +157,7 @@ class OrderService
     /**
      * Get product quantity and amount, full quantity or partial quantity
      *
-     * @param int $quantityAvailable
+     * @param int   $quantityAvailable
      * @param float $unitPrice
      * @param float $remainingRefundAmount
      *
@@ -198,7 +198,7 @@ class OrderService
      * Get unit price for order item
      *
      * @param array $orderDetail
-     * @param bool $isTaxIncluded
+     * @param bool  $isTaxIncluded
      *
      * @return float
      */

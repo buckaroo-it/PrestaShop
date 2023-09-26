@@ -37,7 +37,7 @@ class IssuersIdeal
         'BUNQNL2A' => 'Bunq.png',
         'REVOLT21' => 'Revolut.png',
         'BITSNL2A' => 'YourSafe.png',
-        'NTSBDEB1' => 'n26.svg'
+        'NTSBDEB1' => 'n26.svg',
     ];
 
     public function get()
@@ -99,7 +99,7 @@ class IssuersIdeal
 
     private function requestIssuers()
     {
-        if(Configuration::get('BUCKAROO_MERCHANT_KEY') || Configuration::get('BUCKAROO_SECRET_KEY')) {
+        if (Configuration::get('BUCKAROO_MERCHANT_KEY') || Configuration::get('BUCKAROO_SECRET_KEY')) {
             $buckaroo = new BuckarooClient(
                 Configuration::get('BUCKAROO_MERCHANT_KEY'),
                 Configuration::get('BUCKAROO_SECRET_KEY'),
@@ -107,7 +107,7 @@ class IssuersIdeal
             );
 
             return $buckaroo->method('ideal')->issuers();
-        }else {
+        } else {
             throw new Exception('Buckaroo master settings not found.');
         }
     }

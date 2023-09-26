@@ -248,7 +248,9 @@ abstract class Checkout
      *
      * @param $payment_method
      * @param $cart
+     *
      * @return Address subclass
+     *
      * @throws Exception
      */
     final public static function getInstance($payment_method, $cart)
@@ -353,7 +355,7 @@ abstract class Checkout
             'quantity' => '1',
             'price' => $wrappingCost,
             'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
-            'description' => 'Wrapping'
+            'description' => 'Wrapping',
         ];
     }
 
@@ -386,7 +388,6 @@ abstract class Checkout
 
         return $mergeProducts;
     }
-
 
     protected function prepareShippingCostArticle()
     {

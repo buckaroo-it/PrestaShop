@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('_PS_VERSION_')) {
     return;
 }
@@ -29,10 +30,12 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
                 break;
         }
     }
-    private function handleGet(){
+
+    private function handleGet()
+    {
         $data = [
-            "status" => true,
-            "settings" => $this->settingsService->getSettings()
+            'status' => true,
+            'settings' => $this->settingsService->getSettings(),
         ];
 
         $this->sendResponse($data);
@@ -41,6 +44,7 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
     private function getReturnUrl()
     {
         $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http');
+
         return $protocol . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
     }
 
@@ -52,14 +56,13 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
             $this->settingsService->updateSettings($data);
 
             $data = [
-                "status" => true,
-                "settings" => $this->settingsService->getSettings()
+                'status' => true,
+                'settings' => $this->settingsService->getSettings(),
             ];
 
             $this->sendResponse($data);
-        }else{
+        } else {
             $this->sendErrorResponse('Invalid input data', 400);
         }
     }
-
 }

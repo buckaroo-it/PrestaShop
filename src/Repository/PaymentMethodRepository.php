@@ -1,7 +1,6 @@
 <?php
 
 namespace Buckaroo\Prestashop\Repository;
-use Db;
 
 final class PaymentMethodRepository
 {
@@ -9,7 +8,7 @@ final class PaymentMethodRepository
     {
         $paymentMethodsData = $this->getPaymentMethodsData();
 
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
 
         foreach ($paymentMethodsData as $methodData) {
             $data = [
@@ -31,7 +30,7 @@ final class PaymentMethodRepository
             // Prepare the configuration data
             $configData = [
                 'configurable_id' => $paymentMethodId,  // assuming the column name is configurable_id
-                'value' => json_encode(['mode' => 'off'])
+                'value' => json_encode(['mode' => 'off']),
             ];
 
             // Insert the configuration data into the configuration table
@@ -70,35 +69,39 @@ final class PaymentMethodRepository
             ['name' => 'payperemail', 'icon' => 'PayPerEmail.svg'],
             ['name' => 'payconiq', 'icon' => 'Payconiq.svg'],
             ['name' => 'tinka', 'icon' => 'Tinka.svg'],
-            ['name' => 'trustly', 'icon' => 'Trustly.svg']
+            ['name' => 'trustly', 'icon' => 'Trustly.svg'],
         ];
     }
 
     public function getPaymentMethodsFromDB()
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
         $query = 'SELECT id, name, icon FROM ps_bk_payment_methods';
+
         return $db->executeS($query);
     }
 
     public function getPaymentMethodId($name)
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
         $query = "SELECT id FROM ps_bk_payment_methods WHERE name = '" . $name . "'";
+
         return $db->getValue($query);
     }
 
     public function getPaymentMethodsId()
     {
-        $db = Db::getInstance();
-        $query = "SELECT id FROM ps_bk_payment_methods";
+        $db = \Db::getInstance();
+        $query = 'SELECT id FROM ps_bk_payment_methods';
+
         return $db->executeS($query);
     }
+
     public function getPaymentMethodsFromDBWithConfig()
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
 
-        $sql = "
+        $sql = '
             SELECT 
                 p.name AS payment_name,
                 p.icon AS payment_icon,
@@ -109,7 +112,7 @@ final class PaymentMethodRepository
                 ps_bk_configuration c
             ON 
                 p.id = c.configurable_id
-        ";
+        ';
 
         $results = $db->executeS($sql);
 
@@ -143,7 +146,7 @@ final class PaymentMethodRepository
 
     private function insertPaymentMethodsToDB($paymentMethods)
     {
-        $db = Db::getInstance();
+        $db = \Db::getInstance();
 
         foreach ($paymentMethods as $methodData) {
             $data = [
@@ -163,4 +166,3 @@ final class PaymentMethodRepository
         }
     }
 }
-

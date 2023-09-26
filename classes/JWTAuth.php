@@ -1,9 +1,10 @@
 <?php
+
 namespace Buckaroo\Classes;
 
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
-use \Firebase\JWT\JWT;
+use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
 class JWTAuth

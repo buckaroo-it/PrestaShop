@@ -128,7 +128,7 @@ class Handler
     /**
      * Get refund data
      *
-     * @param Order $order
+     * @param Order                                                $order
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      *
      * @return OrderRefundSummary
@@ -142,6 +142,7 @@ class Handler
         } else {
             $shippingRefundAmount = new DecimalNumber((string) ($command->refundShippingCost() ? $order->total_shipping_tax_incl : 0));
         }
+
         /* @var OrderRefundSummary $orderRefundSummary */
         return $this->orderRefundCalculator->computeOrderRefund(
             $order,
