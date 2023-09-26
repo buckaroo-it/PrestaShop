@@ -15,14 +15,12 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo3\Prestashop\Controller;
+namespace Buckaroo\Controller;
 
-use Buckaroo\Prestashop\Refund\OrderService;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
-use Currency;
-use Order;
+use Buckaroo\Src\Refund\OrderService;
+use Buckaroo\Src\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\Src\Refund\Request\QuantityBasedBuilder;
+use Buckaroo\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;

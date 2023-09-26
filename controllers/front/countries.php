@@ -1,6 +1,6 @@
 <?php
 
-use Buckaroo\Prestashop\Repository\CountryRepository;
+use Buckaroo\Src\Repository\CountryRepository;
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 

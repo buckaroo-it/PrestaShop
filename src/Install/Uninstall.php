@@ -1,8 +1,8 @@
 <?php
 
-namespace Buckaroo\Prestashop\Install;
+namespace Buckaroo\Src\Install;
 
-use Buckaroo\Prestashop\Config\Config;
+use Buckaroo\Src\Config\Config;
 
 class Uninstall
 {

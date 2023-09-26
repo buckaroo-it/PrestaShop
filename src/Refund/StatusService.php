@@ -15,11 +15,10 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund;
+namespace Buckaroo\Src\Refund;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
-use Order;
 
 class StatusService
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Prestashop\Repository;
+namespace Buckaroo\Src\Repository;
 
 final class CountryRepository
 {

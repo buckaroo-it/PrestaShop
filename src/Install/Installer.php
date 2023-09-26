@@ -1,11 +1,11 @@
 <?php
 
-namespace Buckaroo\Prestashop\Install;
+namespace Buckaroo\Src\Install;
 
-use Buckaroo\Prestashop\Config\Config;
-use Buckaroo\Prestashop\Repository\CountryRepository;
-use Buckaroo\Prestashop\Repository\OrderingRepository;
-use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
+use Buckaroo\Src\Config\Config;
+use Buckaroo\Src\Repository\CountryRepository;
+use Buckaroo\Src\Repository\OrderingRepository;
+use Buckaroo\Src\Repository\PaymentMethodRepository;
 
 class Installer implements InstallerInterface
 {

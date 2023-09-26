@@ -1,8 +1,8 @@
 <?php
 
-namespace Buckaroo\Prestashop\Service;
+namespace Buckaroo\Src\Service;
 
-use Buckaroo\Prestashop\Entity\BkCountries;
+use Buckaroo\Src\Entity\BkCountries;
 use Doctrine\ORM\EntityManager;
 
 class BuckarooCountriesService

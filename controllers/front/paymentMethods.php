@@ -1,7 +1,7 @@
 <?php
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
-use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
+use Buckaroo\Src\Repository\PaymentMethodRepository;
 
 class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 {

@@ -15,11 +15,11 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund;
+namespace Buckaroo\Src\Refund;
 
-use Buckaroo\Prestashop\Refund\Request\Builder;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use Buckaroo\Src\Refund\Request\Builder;
+use Buckaroo\Src\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;

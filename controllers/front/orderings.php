@@ -2,7 +2,7 @@
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\Prestashop\Repository\OrderingRepository;
+use Buckaroo\Src\Repository\OrderingRepository;
 
 class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 {

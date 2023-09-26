@@ -31,12 +31,12 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\Classes\JWTAuth;
-use Buckaroo\Prestashop\Install\DatabaseTableInstaller;
-use Buckaroo\Prestashop\Install\DatabaseTableUninstaller;
-use Buckaroo\Prestashop\Install\Installer;
-use Buckaroo\Prestashop\Install\Uninstall;
-use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
-use Buckaroo\Prestashop\ServiceProvider\LeagueServiceContainerProvider;
+use Buckaroo\Src\Install\DatabaseTableInstaller;
+use Buckaroo\Src\Install\DatabaseTableUninstaller;
+use Buckaroo\Src\Install\Installer;
+use Buckaroo\Src\Install\Uninstall;
+use Buckaroo\Src\Refund\Settings as RefundSettings;
+use Buckaroo\Src\ServiceProvider\LeagueServiceContainerProvider;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Buckaroo3 extends PaymentModule
@@ -261,6 +261,7 @@ class Buckaroo3 extends PaymentModule
         $this->unregisterHook('displayPDFInvoice');
 
         $this->get('buckaroo.refund.settings')->uninstall();
+
         return parent::uninstall();
     }
 

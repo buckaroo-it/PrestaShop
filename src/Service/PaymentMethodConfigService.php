@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Prestashop\Service;
+namespace Buckaroo\Src\Service;
 
 class PaymentMethodConfigService
 {

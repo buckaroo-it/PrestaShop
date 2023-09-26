@@ -1,6 +1,6 @@
 <?php
 
-namespace Buckaroo\Prestashop\Config;
+namespace Buckaroo\Src\Config;
 
 class Config
 {

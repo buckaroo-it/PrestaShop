@@ -2,9 +2,9 @@
 
 include dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\Prestashop\Repository\ConfigurationRepository;
-use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
-use Buckaroo\Prestashop\Service\PaymentMethodConfigService;
+use Buckaroo\Src\Repository\ConfigurationRepository;
+use Buckaroo\Src\Repository\PaymentMethodRepository;
+use Buckaroo\Src\Service\PaymentMethodConfigService;
 
 class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
 {
