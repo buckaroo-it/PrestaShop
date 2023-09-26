@@ -99,13 +99,17 @@ class IssuersIdeal
 
     private function requestIssuers()
     {
-        $buckaroo = new BuckarooClient(
-            Configuration::get('BUCKAROO_MERCHANT_KEY'),
-            Configuration::get('BUCKAROO_SECRET_KEY'),
-            Config::getMode('ideal')
-        );
+        if(Configuration::get('BUCKAROO_MERCHANT_KEY') || Configuration::get('BUCKAROO_SECRET_KEY')) {
+            $buckaroo = new BuckarooClient(
+                Configuration::get('BUCKAROO_MERCHANT_KEY'),
+                Configuration::get('BUCKAROO_SECRET_KEY'),
+                Config::getMode('ideal')
+            );
 
-        return $buckaroo->method('ideal')->issuers();
+            return $buckaroo->method('ideal')->issuers();
+        }else {
+            throw new Exception('Buckaroo master settings not found.');
+        }
     }
 
     /**

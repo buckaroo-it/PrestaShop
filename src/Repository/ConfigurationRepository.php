@@ -14,7 +14,7 @@ final class ConfigurationRepository
     public function updatePaymentMethodConfig($name, $data)
     {
         $db = Db::getInstance();
-        $paymentId = $this->getPaymentMethodId($name);
+        $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
         $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int)$paymentId;
@@ -61,7 +61,7 @@ final class ConfigurationRepository
     {
         $db = Db::getInstance();
 
-        $paymentId = $this->getPaymentMethodId($name);
+        $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
         $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int)$paymentId;

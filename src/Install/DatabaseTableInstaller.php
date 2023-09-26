@@ -75,7 +75,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_ordering` (
 				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
-				`country_id`      INT(11) NOT NULL,
+				`country_id`      INT(11),
 				`value`           TEXT NOT NULL,
 				`created_at`      DATETIME NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = '. _MYSQL_ENGINE_;

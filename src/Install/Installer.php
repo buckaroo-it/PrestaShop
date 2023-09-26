@@ -4,6 +4,7 @@ namespace Buckaroo\Prestashop\Install;
 use Buckaroo\Prestashop\Config\Config;
 use Buckaroo\Prestashop\Repository\CountryRepository;
 use Buckaroo\Prestashop\Repository\PaymentMethodRepository;
+use Buckaroo\Prestashop\Repository\OrderingRepository;
 use Db;
 use DbQuery;
 use Exception;
@@ -87,6 +88,9 @@ class Installer implements InstallerInterface
 
         $paymentMethodRepository = new PaymentMethodRepository();
         $paymentMethodRepository->insertPaymentMethods();
+
+        $orderingRepository = new OrderingRepository();
+        $orderingRepository->insertCountryOrdering();
         return true;
     }
 

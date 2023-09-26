@@ -21,8 +21,8 @@ class CapayableIn3
 {
     const VERSION_V2 = 'V2';
     const LOGO_IN3_IDEAL = 'in3_ideal';
-    const LOGO_IN3_IDEAL_FILENAME = 'buckaroo_in3_ideal.svg?v1';
-    const LOGO_DEFAULT = 'buckaroo_in3.png?v';
+    const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
+    const LOGO_DEFAULT = 'In3.svg?v';
     public function isV3(): bool
     {
         return Configuration::get('BUCKAROO_IN3_API_VERSION') !== self::VERSION_V2;

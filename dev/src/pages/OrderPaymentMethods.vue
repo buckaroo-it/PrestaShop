@@ -127,7 +127,9 @@ export default {
     const { toastr } = useToastr()
 
     const getOrdering = () => {
-      get().then(() => {
+      get({
+        country: (selectedCountry.value)? selectedCountry.value.iso_code_2 : '',
+      }).then(() => {
         if(data.value.status) {
           paymentOrderings.value = data.value.orderings
         }

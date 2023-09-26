@@ -30,8 +30,6 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\Prestashop\Refund\Settings as RefundSettings;
-    use Buckaroo\Prestashop\Service\BuckarooCountriesService;
-    use Buckaroo\Prestashop\Service\BuckarooCountriesService as CountriesService;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 use Buckaroo\Classes\JWTAuth;
 use Buckaroo\Prestashop\ServiceProvider\LeagueServiceContainerProvider;
@@ -39,7 +37,7 @@ use Buckaroo\Prestashop\Install\Installer;
 use Buckaroo\Prestashop\Install\Uninstall;
 use Buckaroo\Prestashop\Install\DatabaseTableInstaller;
 use Buckaroo\Prestashop\Install\DatabaseTableUninstaller;
-
+use Buckaroo\BuckarooClient;
 class Buckaroo3 extends PaymentModule
 {
     public $context;
@@ -84,11 +82,12 @@ class Buckaroo3 extends PaymentModule
         }
 
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY')
+            || !Configuration::get('BUCKAROO_SECRET_KEY')
             || !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')
             || !Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS')
             || !Configuration::get('BUCKAROO_ORDER_STATE_FAILED')
         ) {
-            $this->warning = $this->l('You should configurate Buckaroo module before use!');
+            return '';
         }
 
         $translations = [];
@@ -277,7 +276,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.de58264d.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.253923c8.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.c2123d82.css',
             'jwt' => $token
         ]);
@@ -300,11 +299,34 @@ class Buckaroo3 extends PaymentModule
         return $jwt->encode($data);
     }
 
+    private function isActivated()
+    {
+        $websiteKey = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $secretKey = Configuration::get('BUCKAROO_SECRET_KEY');
+
+        // Perform your key check, assuming checkKeys() returns true if keys are valid
+        return $this->checkKeys($websiteKey, $secretKey);
+    }
+
+    private function checkKeys($websiteKey, $secretKey): bool
+    {
+        if (empty($websiteKey) || empty($secretKey)) {
+            return false;
+        }
+        $buckarooClient = new BuckarooClient($websiteKey, $secretKey);
+        return $buckarooClient->confirmCredential();
+    }
+
     public function hookPaymentOptions($params)
     {
         if (!$this->active) {
             return;
         }
+
+        if (!$this->isActivated()) {
+            return;
+        }
+
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
@@ -366,33 +388,38 @@ class Buckaroo3 extends PaymentModule
         $issuersPayByBank = new IssuersPayByBank();
         $issuersCreditCard = new IssuersCreditCard();
 
-        $this->context->smarty->assign(
-            [
-                'address_differ' => $address_differ,
-                'this_path' => $this->_path,
-                'customer_gender' => $customer->id_gender,
-                'customer_name' => $customer->firstname . ' ' . $customer->lastname,
-                'customer_email' => $customer->email,
-                'customer_birthday' => explode('-', $customer->birthday),
-                'customer_company' => $company,
-                'customer_vat' => $vat,
-                'phone' => $phone,
-                'phone_mobile' => $phone_mobile,
-                'phone_afterpay_shipping' => $phone_afterpay_shipping,
-                'phone_afterpay_billing' => $phone_afterpay_billing,
-                'total' => $cart->getOrderTotal(true, 3),
-                'country' => Country::getIsoById(Tools::getCountry()),
-                'afterpay_show_coc' => $this->showAfterpayCoc($cart),
-                'billink_show_coc' => $this->showBillinkCoc($cart),
-                'idealIssuers' => (new IssuersIdeal())->get(),
-                'idealDisplayMode' => Config::get('BUCKAROO_IDEAL_DISPLAY_TYPE'),
-                'paybybankIssuers' => $issuersPayByBank->getIssuerList(),
-                'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
-                'creditcardIssuers' => $issuersCreditCard->getIssuerList(),
-                'creditCardDisplayMode' => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
-                'in3Method' => $capayableIn3->getMethod()
-            ]
-        );
+        try {
+            $this->context->smarty->assign(
+                [
+                    'address_differ' => $address_differ,
+                    'this_path' => $this->_path,
+                    'customer_gender' => $customer->id_gender,
+                    'customer_name' => $customer->firstname . ' ' . $customer->lastname,
+                    'customer_email' => $customer->email,
+                    'customer_birthday' => explode('-', $customer->birthday),
+                    'customer_company' => $company,
+                    'customer_vat' => $vat,
+                    'phone' => $phone,
+                    'phone_mobile' => $phone_mobile,
+                    'phone_afterpay_shipping' => $phone_afterpay_shipping,
+                    'phone_afterpay_billing' => $phone_afterpay_billing,
+                    'total' => $cart->getOrderTotal(true, 3),
+                    'country' => Country::getIsoById(Tools::getCountry()),
+                    'afterpay_show_coc' => $this->showAfterpayCoc($cart),
+                    'billink_show_coc' => $this->showBillinkCoc($cart),
+                    'idealIssuers' => (new IssuersIdeal())->get(),
+                    'idealDisplayMode' => Config::get('BUCKAROO_IDEAL_DISPLAY_TYPE'),
+                    'paybybankIssuers' => $issuersPayByBank->getIssuerList(),
+                    'payByBankDisplayMode' => Config::get('BUCKAROO_PAYBYBANK_DISPLAY_TYPE'),
+                    'creditcardIssuers' => $issuersCreditCard->getIssuerList(),
+                    'creditCardDisplayMode' => Config::get('BUCKAROO_CREDITCARD_DISPLAY_TYPE'),
+                    'in3Method' => $capayableIn3->getMethod()
+                ]
+            );
+        }catch (Exception $e){
+            $logger = new Logger(Logger::INFO, 'error');
+            $logger->logInfo('Buckaroo3::hookPaymentOptions - ' . $e->getMessage());
+        }
 
         $payment_options = [];
         libxml_use_internal_errors(true);
@@ -401,7 +428,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('IDEAL', 'iDEAL'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_ideal.png?v')
+                ->setLogo($this->_path . 'views/images/payments/iDEAL.svg?v')
                 ->setModuleName('IDEAL');
             $payment_options[] = $newOption;
         }
@@ -410,7 +437,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('PAYBYBANK', 'PayByBank'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paybybank.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/' . $issuersPayByBank->getSelectedIssuerLogo())
+                ->setLogo($this->_path . 'views/images/payments/' . $issuersPayByBank->getSelectedIssuerLogo())
                 ->setModuleName('PAYBYBANK');
             $payment_options[] = $newOption;
         }
@@ -419,7 +446,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('PAYPAL', 'PayPal'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paypal']))
                 ->setInputs($this->getBuckarooFeeInputs('PAYPAL'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_paypal.png?v')
+                ->setLogo($this->_path . 'views/images/payments/PayPal.svg?v')
                 ->setModuleName('PAYPAL');
             $payment_options[] = $newOption;
         }
@@ -428,7 +455,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('SDD', 'SEPA Direct Debit'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sepadirectdebit'])) // phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_sepadirectdebit.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_sepa_dd.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/SEPA-directdebit.svg?v') // phpcs:ignore
                 ->setModuleName('SDD');
             $payment_options[] = $newOption;
         }
@@ -437,7 +464,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('GIROPAY', 'GiroPay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giropay.svg?v')
+                ->setLogo($this->_path . 'views/images/payments/Giropay.svg?v')
                 ->setModuleName('GIROPAY');
             $payment_options[] = $newOption;
         }
@@ -445,7 +472,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('KBC', 'KBC'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'kbc']))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_kbc.png?v')
+                ->setLogo($this->_path . 'views/images/payments/KBC.svg?v')
                 ->setModuleName('KBC');
             $payment_options[] = $newOption;
         }
@@ -454,7 +481,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('MISTERCASH', 'Bancontact / Mister Cash'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'bancontactmrcash'])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('MISTERCASH'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_mistercash.png?vv') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/Bancontact.svg?vv') // phpcs:ignore
                 ->setModuleName('MISTERCASH');
             $payment_options[] = $newOption;
         }
@@ -463,7 +490,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('GIFTCARD', 'Giftcards'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard']))
                 ->setInputs($this->getBuckarooFeeInputs('GIFTCARD'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_giftcards.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Giftcards.svg?v')
                 ->setModuleName('GIFTCARD');
             $payment_options[] = $newOption;
         }
@@ -473,7 +500,7 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
                 ->setInputs($this->getBuckarooFeeInputs('CREDITCARD'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_creditcard.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_cc.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Creditcards.svg?v')
                 ->setModuleName('CREDITCARD');
             $payment_options[] = $newOption;
         }
@@ -482,7 +509,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('SOFORTBANKING', 'Sofortbanking'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung'])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('SOFORTBANKING'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_sofort.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/Sofort.svg?v') // phpcs:ignore
                 ->setModuleName('SOFORTBANKING');
             $payment_options[] = $newOption;
         }
@@ -491,7 +518,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('BELFIUS', 'Belfius'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'belfius'])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('BELFIUS'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_belfius.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/Belfius.svg?v') // phpcs:ignore
                 ->setModuleName('BELFIUS');
             $payment_options[] = $newOption;
         }
@@ -500,7 +527,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('TRANSFER', 'Bank Transfer'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
                 ->setInputs($this->getBuckarooFeeInputs('TRANSFER'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_transfer.png?vv1')
+                ->setLogo($this->_path . 'views/images/payments/buckaroo_transfer.png?v')
                 ->setModuleName('TRANSFER');
             $payment_options[] = $newOption;
         }
@@ -509,7 +536,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('AFTERPAY', 'Riverty | AfterPay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay'])) // phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_afterpay.png?vv') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/AfterPay.svg?v') // phpcs:ignore
                 ->setModuleName('AFTERPAY');
             $payment_options[] = $newOption;
         }
@@ -518,7 +545,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('KLARNA', 'KlarnaKP'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])) // phpcs:ignore
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_klarna.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_klarna.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/Klarna.svg?v') // phpcs:ignore
                 ->setModuleName('KLARNA');
             $payment_options[] = $newOption;
         }
@@ -527,7 +554,7 @@ class Buckaroo3 extends PaymentModule
             $newOption->setCallToActionText($this->getBuckarooLabel('APPLEPAY', 'Apple Pay'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'applepay'])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('APPLEPAY'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_applepay.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/ApplePay.svg?v') // phpcs:ignore
                 ->setModuleName('APPLEPAY');
             $payment_options[] = $newOption;
         }
@@ -538,7 +565,7 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $capayableIn3->getMethod()])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('IN3'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_in3.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/' . $capayableIn3->getLogo())
+                ->setLogo($this->_path . 'views/images/payments/' . $capayableIn3->getLogo())
                 ->setModuleName('IN3');
             $payment_options[] = $newOption;
         }
@@ -549,7 +576,7 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])) // phpcs:ignore
                 ->setInputs($this->getBuckarooFeeInputs('BILLINK'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_billink.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_billink.png?v') // phpcs:ignore
+                ->setLogo($this->_path . 'views/images/payments/Billink.svg?v') // phpcs:ignore
                 ->setModuleName('BILLINK');
             $payment_options[] = $newOption;
         }
@@ -558,7 +585,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('EPS', 'EPS'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'eps']))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_eps.png?v')
+                ->setLogo($this->_path . 'views/images/payments/EPS.svg?v')
                 ->setModuleName('EPS');
             $payment_options[] = $newOption;
         }
@@ -567,7 +594,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('PRZELEWY24', 'Przelewy24'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'przelewy24']))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_przelewy24.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Przelewy24.svg?v')
                 ->setModuleName('PRZELEWY24');
             $payment_options[] = $newOption;
         }
@@ -578,7 +605,7 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail']))
                 ->setInputs($this->getBuckarooFeeInputs('PAYPEREMAIL'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_payperemail.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_payperemail.png?v')
+                ->setLogo($this->_path . 'views/images/payments/PayPerEmail.svg?v')
                 ->setModuleName('PAYPEREMAIL');
             $payment_options[] = $newOption;
         }
@@ -587,7 +614,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('PAYCONIQ', 'Payconiq'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payconiq']))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_payconiq.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Payconiq.svg?v')
                 ->setModuleName('PAYCONIQ');
             $payment_options[] = $newOption;
         }
@@ -598,7 +625,7 @@ class Buckaroo3 extends PaymentModule
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'tinka']))
                 ->setInputs($this->getBuckarooFeeInputs('TINKA'))
                 ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_tinka.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_tinka.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Tinka.svg?v')
                 ->setModuleName('TINKA');
             $payment_options[] = $newOption;
         }
@@ -607,7 +634,7 @@ class Buckaroo3 extends PaymentModule
             $newOption = new PaymentOption();
             $newOption->setCallToActionText($this->getBuckarooLabel('TRUSTLY', 'Trustly'))
                 ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'trustly']))
-                ->setLogo($this->_path . 'views/img/buckaroo_images/buckaroo_trustly.png?v')
+                ->setLogo($this->_path . 'views/images/payments/Trustly.svg?v')
                 ->setModuleName('TRUSTLY');
             $payment_options[] = $newOption;
         }
@@ -1095,12 +1122,6 @@ class Buckaroo3 extends PaymentModule
             'align' => 'center',
         ];
     }
-
-//    public function hookActionModuleInstallAfter($params)
-//    {
-//        $entityManager = $this->get('doctrine.orm.entity_manager');
-//        (new BuckarooCountriesService($entityManager))->createCountries();
-//    }
 
     public function hookDisplayProductExtraContent($params)
     {

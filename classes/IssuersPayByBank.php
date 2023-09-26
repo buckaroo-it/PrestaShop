@@ -89,7 +89,7 @@ class IssuersPayByBank
 
             return 'paybybank/SVG/' . $selectedIssuer['logo'];
         } else {
-            return 'buckaroo_paybybank.gif?v';
+            return 'paybybank.gif?v';
         }
     }
 }

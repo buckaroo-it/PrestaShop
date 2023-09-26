@@ -25,7 +25,7 @@
 
         <form id="booIdinForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'idin'])|escape:'quotes':'UTF-8'}"
               method="post" style="padding: 10px; background: #d4eded; display: inline-block; width: 100%; ">
-            <img src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/idin.png" class="middle" style="width: 70px;"/>{l s='To continue you must verify your age using iDIN' mod='buckaroo3'}
+            <img src="{$this_path|escape:'quotes':'UTF-8'}views/images/payments/iDIN.svg" class="middle" style="width: 70px;"/>{l s='To continue you must verify your age using iDIN' mod='buckaroo3'}
             <select name="BPE_Issuer" id="BPE_Issuer">
                 <option value="ABNAMRO">{l s='ABN AMRO' mod='buckaroo3'}</option>
                 <option value="INGBANK">{l s='ING' mod='buckaroo3'}</option>
