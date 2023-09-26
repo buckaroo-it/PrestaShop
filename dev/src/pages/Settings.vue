@@ -76,15 +76,6 @@
             </div>
           </div>
 
-          <ToggleField class="py-3 space-y-5" v-model="settings.display_discount_field">
-            <div>
-              <label for="client-side-mode" class="font-semibold text-sm">
-                {{ $t('dashboard.pages.settings.discount_field') }}
-              </label>
-              <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.discount_field_label') }}</div>
-            </div>
-          </ToggleField>
-
           <button v-if="!showAdvanceSettings" class="text-xs border border-orange-500 rounded text-orange-500 p-1 hover:bg-orange-500 hover:text-white hover:shadow-lg select-none" @click="showAdvanceSettings = true">{{ $t('dashboard.pages.settings.advance_settings') }} <i class="fas fa-chevron-down text-[10px]"></i></button>
           <button v-else class="text-xs border border-orange-500 rounded text-orange-500 p-1 hover:bg-orange-500 hover:text-white hover:shadow-lg select-none" @click="showAdvanceSettings = false">{{ $t('dashboard.pages.settings.hide_advance_settings') }} <i class="fas fa-chevron-up text-[10px]"></i></button>
         </div>
@@ -156,56 +147,6 @@
                 <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>
               </div>
             </div>
-
-            <CustomScriptsInput v-model="settings.custom_scripts" />
-
-            <div class="space-y-2">
-              <div class="space-y-2">
-                <div class="pt-3 space-y-5 flex justify-between items-center">
-                  <div>
-                    <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.return_url') }}</h2>
-                    <div class="text-gray-400 text-xs">
-                      {{ $t('dashboard.pages.settings.return_url_label') }}
-                    </div>
-                  </div>
-                </div>
-                <div class="space-y-1">
-                  <div class="relative">
-                    <input type="text" id="return_url" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="settings.return_url" />
-                    <label for="return_url" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                      {{ $t('dashboard.pages.settings.return_url') }}
-                    </label>
-                  </div>
-
-                  <div class="text-gray-400 text-xs">
-                    {{ $t('dashboard.pages.settings.return_url_explanation') }}
-                  </div>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <div class="pt-3 space-y-5 flex justify-between items-center">
-                  <div>
-                    <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.checkout_url') }}</h2>
-                    <div class="text-gray-400 text-xs">
-                      {{ $t('dashboard.pages.settings.checkout_url_label') }}
-                    </div>
-                  </div>
-                </div>
-                <div class="space-y-1">
-                  <div class="relative">
-                    <input type="text" id="checkout_url" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="settings.checkout_url" />
-                    <label for="checkout_url" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                      {{ $t('dashboard.pages.settings.checkout_url') }}
-                    </label>
-                  </div>
-
-                  <div class="text-gray-400 text-xs">
-                    {{ $t('dashboard.pages.settings.checkout_url_explanation') }}
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </Transition>
 
@@ -256,13 +197,11 @@ import { useApi } from "../lib/api.ts";
 import { useToastr } from "../lib/toastr.ts"
 import { useI18n } from 'vue-i18n';
 
-import CustomScriptsInput from '../components/CustomScriptsInput.vue'
 import ToggleField from '../components/fields/ToggleField.vue'
 
 export default {
   name: "Settings",
   components: {
-    CustomScriptsInput,
     ToggleField
   },
   props: [],

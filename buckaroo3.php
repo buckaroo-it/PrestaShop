@@ -276,8 +276,8 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.253923c8.js',
-            'pathCss' => $this->getPathUri() . 'dev/assets/main.c2123d82.css',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.d4b19757.js',
+            'pathCss' => $this->getPathUri() . 'dev/assets/main.0c1fb0b4.css',
             'jwt' => $token
         ]);
 
