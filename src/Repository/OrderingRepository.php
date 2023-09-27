@@ -28,23 +28,74 @@ class OrderingRepository
         $this->paymentMethodRepository = new PaymentMethodRepository();
     }
 
-    public function getOrdering()
+    public function updateOrdering($value, $countryId)
     {
-        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_ordering';
+        if (is_string($value)) {
+            $value = json_decode($value, true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                // Handle JSON decode error
+                return false;
+            }
+        }
+
+        $idArray = array();
+        foreach ($value as $item) {
+            if (isset($item['id'])) {
+                $idArray[] = $item['id'];
+            }
+        }
+        $value = json_encode($idArray);
+
+        // Note: pSQL is used for simple sanitization, but does not replace the security of prepared statements.
+        // Be sure to validate and sanitize all input.
+        $query = '
+        UPDATE 
+            ' . _DB_PREFIX_ . 'bk_ordering
+        SET 
+            value = "' . pSQL($value, true) . '"
+        WHERE 
+            country_id ' . ($countryId === null ? 'is NULL' : '= "' . pSQL($countryId, true) . '"')
+        ;
+
+        return $this->db->execute($query);
+    }
+
+    public function getOrdering($countryIsoCode)
+    {
+        if($countryIsoCode === null){
+            $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_ordering';
+        }else{
+            $query = '
+            SELECT ' . _DB_PREFIX_ . 'bk_ordering.* 
+            FROM ' . _DB_PREFIX_ . 'bk_ordering
+            JOIN ' . _DB_PREFIX_ . 'bk_countries ON ' . _DB_PREFIX_ . 'bk_ordering.country_id = ' . _DB_PREFIX_ . 'bk_countries.country_id
+            WHERE ' . _DB_PREFIX_ . 'bk_countries.iso_code_2 ' . ($countryIsoCode === null ? 'IS NULL' : '= "' . pSQL($countryIsoCode) . '"');
+        }
+
         $result = $this->db->executeS($query);
+        if (empty($result)) {
+            return null;  // or however you want to handle no results
+        }
         $row = $result[0];
 
         // Decode the JSON data in the 'value' column.
         $value = json_decode($row['value'], true);
 
-        // Now we'll construct the desired output format.
         $output = [
             'id' => $row['id'],
             'country_id' => $row['country_id'],
             'created_at' => $row['created_at'],
-            'value' => $value,
+            'value' => [],
             'status' => true,
         ];
+
+        // Iterate over the payment method IDs and fetch their data
+        foreach ($value as $id) {
+            $paymentMethodData = $this->paymentMethodRepository->getPaymentMethod($id);
+            if (!empty($paymentMethodData)) {
+                $output['value'][] = $paymentMethodData[0];  // Assumes getPaymentMethod() returns an array with the payment method data as the first element
+            }
+        }
 
         return $output;
     }
@@ -66,7 +117,7 @@ class OrderingRepository
             $paymentMethods = $this->paymentMethodRepository->getPaymentMethodsFromDB();
             $paymentMethodsArray = [];
             foreach ($paymentMethods as $row) {
-                $paymentMethodsArray[] = $row;
+                $paymentMethodsArray[] = $row['id'];
             }
         }
         $data = $this->prepareData($countryId, $paymentMethodsArray);

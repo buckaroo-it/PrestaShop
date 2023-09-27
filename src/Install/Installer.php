@@ -44,8 +44,6 @@ class Installer implements InstallerInterface
     public function __construct(
         DatabaseTableInstaller $databaseTableInstaller
     ) {
-        $this->setContainer();
-
         $this->module = \Module::getInstanceByName('buckaroo3');
 
         $this->databaseTableInstaller = $databaseTableInstaller;

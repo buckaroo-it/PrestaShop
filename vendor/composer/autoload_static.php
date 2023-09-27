@@ -64,9 +64,9 @@ class ComposerStaticInit17bd5b78a7e0aea62f931c870745e128
         ),
         'B' => 
         array (
-            'Buckaroo\\Src\\' => 13,
-            'Buckaroo\\Controller\\' => 20,
-            'Buckaroo\\Classes\\' => 17,
+            'Buckaroo\\PrestaShop\\Src\\' => 24,
+            'Buckaroo\\PrestaShop\\Controller\\' => 31,
+            'Buckaroo\\PrestaShop\\Classes\\' => 28,
             'Buckaroo\\' => 9,
             'Brick\\Math\\' => 11,
         ),
@@ -162,15 +162,15 @@ class ComposerStaticInit17bd5b78a7e0aea62f931c870745e128
         array (
             0 => __DIR__ . '/..' . '/composer/ca-bundle/src',
         ),
-        'Buckaroo\\Src\\' => 
+        'Buckaroo\\PrestaShop\\Src\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
         ),
-        'Buckaroo\\Controller\\' => 
+        'Buckaroo\\PrestaShop\\Controller\\' => 
         array (
             0 => __DIR__ . '/../..' . '/controllers/admin',
         ),
-        'Buckaroo\\Classes\\' => 
+        'Buckaroo\\PrestaShop\\Classes\\' => 
         array (
             0 => __DIR__ . '/../..' . '/classes',
         ),

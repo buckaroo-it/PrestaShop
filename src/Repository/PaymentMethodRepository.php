@@ -91,7 +91,7 @@ final class PaymentMethodRepository
     public function getPaymentMethodsFromDB()
     {
         $db = \Db::getInstance();
-        $query = 'SELECT id, name, icon FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
 
         return $db->executeS($query);
     }
@@ -104,10 +104,10 @@ final class PaymentMethodRepository
         return $db->getValue($query);
     }
 
-    public function getPaymentMethodsId()
+    public function getPaymentMethod($id)
     {
         $db = \Db::getInstance();
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE id = ' . (int) $id;
 
         return $db->executeS($query);
     }

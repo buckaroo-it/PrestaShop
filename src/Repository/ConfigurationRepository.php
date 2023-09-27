@@ -61,7 +61,7 @@ final class ConfigurationRepository
         // Update the configuration in the database
         $query = "
         UPDATE 
-            '._DB_PREFIX_.'bk_configuration 
+            " . _DB_PREFIX_ . "bk_configuration 
         SET 
             value = '$updatedConfigEscaped'
         WHERE 

@@ -46,7 +46,12 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 
     private function handleGet()
     {
-        $ordering = $this->getOrdering();
+        $countryCode = null;
+        if(Tools::getValue('country')){
+            $countryCode = Tools::getValue('country');  // Get
+        }
+
+        $ordering = $this->getOrdering($countryCode);
 
         $data = [
             'status' => true,
@@ -56,21 +61,43 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
         $this->sendResponse($data);
     }
 
-    private function getOrdering()
+    private function getOrdering($countryCode)
     {
-        return $this->orderingRepository->getOrdering();
+        return $this->orderingRepository->getOrdering($countryCode);
     }
 
     private function handlePost()
     {
         $data = $this->getJsonInput();
 
-        // Send response instead of var_dump
-        $response = [
-            'status' => true,
-            'message' => 'Data received successfully',
-            'received_data' => $data,
-        ];
+        $countryId = isset($data['country_id']) ? $data['country_id'] : null;
+        $value = isset($data['value']) ? json_encode($data['value']) : null;
+        $createdAt = isset($data['created_at']) ? $data['created_at'] : null;
+
+        // Check for missing or invalid data
+        if ($value === null) {
+            $response = [
+                'status' => false,
+                'message' => 'Missing or invalid data',
+            ];
+            $this->sendResponse($response);
+            return;
+        }
+
+        $result = $this->orderingRepository->updateOrdering($value, $countryId);
+
+        // Prepare and send the response
+        if ($result) {
+            $response = [
+                'status' => true,
+                'message' => 'Data updated successfully',
+            ];
+        } else {
+            $response = [
+                'status' => false,
+                'message' => 'Database error: Unable to update data',
+            ];
+        }
         $this->sendResponse($response);
     }
 }

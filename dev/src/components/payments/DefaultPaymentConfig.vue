@@ -123,7 +123,7 @@
                                 <i class="fas fa-times text-xs"></i>
                             </button>
                             <div class="flex items-center space-x-2">
-                                <img :src="`/modules/buckaroo/views/img/flags/${ country.icon }`" class="w-4" />
+                                <img :src="`/img/flags/${ country.icon }`" class="w-4" />
                                 <span class="block">{{ $t(`countries.${ country.name }`) }}</span>
                             </div>
                         </li>

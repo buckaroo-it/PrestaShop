@@ -28,9 +28,9 @@ return array(
     'GuzzleHttp\\' => array($vendorDir . '/guzzlehttp/guzzle/src'),
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
     'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
-    'Buckaroo\\Src\\' => array($baseDir . '/src'),
-    'Buckaroo\\Controller\\' => array($baseDir . '/controllers/admin'),
-    'Buckaroo\\Classes\\' => array($baseDir . '/classes'),
+    'Buckaroo\\PrestaShop\\Src\\' => array($baseDir . '/src'),
+    'Buckaroo\\PrestaShop\\Controller\\' => array($baseDir . '/controllers/admin'),
+    'Buckaroo\\PrestaShop\\Classes\\' => array($baseDir . '/classes'),
     'Buckaroo\\' => array($vendorDir . '/buckaroo/sdk/src'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
 );
