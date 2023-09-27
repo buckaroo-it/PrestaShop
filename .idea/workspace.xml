@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="fbba8eb2-73b1-4ecc-8f36-521351a35cee" name="Changes" comment="change namespace names" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerConfigs">
+    <option name="configs">
+      <option value="$PROJECT_DIR$/tools/php-cs-fixer/composer.json" />
+    </option>
+  </component>
+  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/guzzle" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/promises" />
+      <path value="$PROJECT_DIR$/vendor/guzzlehttp/psr7" />
+      <path value="$PROJECT_DIR$/vendor/prestashop/autoindex" />
+      <path value="$PROJECT_DIR$/vendor/firebase/php-jwt" />
+      <path value="$PROJECT_DIR$/vendor/ralouphie/getallheaders" />
+      <path value="$PROJECT_DIR$/vendor/buckaroo/sdk" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/collection" />
+      <path value="$PROJECT_DIR$/vendor/ramsey/uuid" />
+      <path value="$PROJECT_DIR$/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/vendor/brick/math" />
+      <path value="$PROJECT_DIR$/vendor/nikic/php-parser" />
+      <path value="$PROJECT_DIR$/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-client" />
+      <path value="$PROJECT_DIR$/vendor/psr/http-factory" />
+      <path value="$PROJECT_DIR$/vendor/composer" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/console" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/service-contracts" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/string" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/stopwatch" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-mbstring" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-intl-normalizer" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-php81" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-php80" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/options-resolver" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/finder" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-intl-grapheme" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/polyfill-ctype" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/event-dispatcher" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/composer" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/friendsofphp/php-cs-fixer" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/deprecation-contracts" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/filesystem" />
+      <path value="$PROJECT_DIR$/tools/php-cs-fixer/vendor/symfony/event-dispatcher-contracts" />
+    </include_path>
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="2Vwag2MlgnfjtAtHUvwSa24H6J2" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "true",
+    "git-widget-placeholder": "prestashop-plugin-vue",
+    "last_opened_file_path": "C:/Buckaroo/docker/prestashop8.1/modules/buckaroo3",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="fbba8eb2-73b1-4ecc-8f36-521351a35cee" name="Changes" comment="" />
+      <created>1695749703236</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1695749703236</updated>
+      <workItem from="1695749704282" duration="253000" />
+    </task>
+    <task id="LOCAL-00001" summary="change namespace names">
+      <option name="closed" value="true" />
+      <created>1695749938063</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1695749938063</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="change namespace names" />
+    <option name="LAST_COMMIT_MESSAGE" value="change namespace names" />
+  </component>
+</project>
