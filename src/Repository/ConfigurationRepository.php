@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Repository;
+namespace Buckaroo\PrestaShop\Src\Repository;
 
 final class ConfigurationRepository
 {
@@ -37,14 +37,16 @@ final class ConfigurationRepository
 
         if ($existingConfig === false) {
             // Handle error (e.g., configuration not found)
-            die('Configuration not found for payment id ' . $paymentId);
+            error_log('Configuration not found for payment id ' . $paymentId);
+            exit();
         }
 
         // Decode the existing configuration
         $configArray = json_decode($existingConfig, true);
         if ($configArray === null) {
             // Handle JSON decode error
-            die('JSON decode error: ' . json_last_error_msg());
+            error_log('JSON decode error: ' . json_last_error_msg());
+            exit();
         }
 
         // Merge the new data into the existing configuration
@@ -84,14 +86,16 @@ final class ConfigurationRepository
 
         if ($existingConfig === false) {
             // Handle error (e.g., configuration not found)
-            die('Configuration not found for payment id ' . $paymentId);
+            error_log('Configuration not found for payment id ' . $paymentId);
+            exit();
         }
 
         // Decode the existing configuration
         $configArray = json_decode($existingConfig, true);
         if ($configArray === null) {
             // Handle JSON decode error
-            die('JSON decode error: ' . json_last_error_msg());
+            error_log('JSON decode error: ' . json_last_error_msg());
+            exit();
         }
 
         // Update the mode

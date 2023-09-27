@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Service;
+namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\Src\Entity\BkCountries;
+use Buckaroo\PrestaShop\Src\Entity\BkCountries;
 use Doctrine\ORM\EntityManager;
 
 class BuckarooCountriesService

@@ -14,7 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-use Buckaroo\Src\Repository\CountryRepository;
+use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 

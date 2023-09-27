@@ -30,13 +30,13 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\Classes\JWTAuth;
-use Buckaroo\Src\Install\DatabaseTableInstaller;
-use Buckaroo\Src\Install\DatabaseTableUninstaller;
-use Buckaroo\Src\Install\Installer;
-use Buckaroo\Src\Install\Uninstall;
-use Buckaroo\Src\Refund\Settings as RefundSettings;
-use Buckaroo\Src\ServiceProvider\LeagueServiceContainerProvider;
+use Buckaroo\PrestaShop\Classes\JWTAuth;
+use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
+use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
+use Buckaroo\PrestaShop\Src\Install\Installer;
+use Buckaroo\PrestaShop\Src\Install\Uninstall;
+use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
+use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Buckaroo3 extends PaymentModule

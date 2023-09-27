@@ -14,9 +14,9 @@
     },
     "autoload": {
         "psr-4": {
-            "Buckaroo\\Src\\": "src",
-            "Buckaroo\\Classes\\": "classes",
-            "Buckaroo\\Controller\\": "controllers/admin"
+            "Buckaroo\\PrestaShop\\Src\\": "src",
+            "Buckaroo\\PrestaShop\\Classes\\": "classes",
+            "Buckaroo\\PrestaShop\\Controller\\": "controllers/admin"
         }
       },
     "config": {

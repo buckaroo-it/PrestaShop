@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Repository;
+namespace Buckaroo\PrestaShop\Src\Repository;
 
 final class PaymentMethodRepository
 {
@@ -149,6 +149,7 @@ final class PaymentMethodRepository
                 } else {
                     // Optionally, handle JSON decoding error
                     error_log('JSON decoding error: ' . json_last_error_msg());
+                    exit();
                 }
             }
 
@@ -176,7 +177,8 @@ final class PaymentMethodRepository
 
             if (!$result) {
                 // Handle error
-                die('Database error');
+                error_log('Database error');
+                exit();
             }
         }
     }

@@ -15,13 +15,13 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Refund\Push;
+namespace Buckaroo\PrestaShop\Src\Refund\Push;
 
 use Buckaroo\Resources\Constants\ResponseStatus;
-use Buckaroo\Src\Entity\BkRefundRequest;
-use Buckaroo\Src\Refund\Payment\Service as PaymentService;
-use Buckaroo\Src\Refund\Settings;
-use Buckaroo\Src\Refund\StatusService;
+use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
+use Buckaroo\PrestaShop\Src\Refund\Payment\Service as PaymentService;
+use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\PrestaShop\Src\Refund\StatusService;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
 

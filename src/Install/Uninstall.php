@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Install;
+namespace Buckaroo\PrestaShop\Src\Install;
 
-use Buckaroo\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Config\Config;
 
 class Uninstall
 {

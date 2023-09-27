@@ -15,12 +15,12 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Install;
+namespace Buckaroo\PrestaShop\Src\Install;
 
-use Buckaroo\Src\Config\Config;
-use Buckaroo\Src\Repository\CountryRepository;
-use Buckaroo\Src\Repository\OrderingRepository;
-use Buckaroo\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
+use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
+use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
 
 class Installer implements InstallerInterface
 {

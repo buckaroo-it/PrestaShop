@@ -18,7 +18,7 @@ if (!defined('_PS_VERSION_')) {
     return;
 }
 include dirname(__FILE__) . '/BaseApiController.php';
-use Buckaroo\Src\Service\BuckarooSettingsService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService;
 
 class Buckaroo3SettingsModuleFrontController extends BaseApiController
 {

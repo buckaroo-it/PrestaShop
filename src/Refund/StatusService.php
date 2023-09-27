@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Refund;
+namespace Buckaroo\PrestaShop\Src\Refund;
 
-use Buckaroo\Src\Entity\BkRefundRequest;
+use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 
 class StatusService

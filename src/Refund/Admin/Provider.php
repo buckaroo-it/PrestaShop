@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Src\Refund\Admin;
+namespace Buckaroo\PrestaShop\Src\Refund\Admin;
 
-use Buckaroo\Src\Entity\BkRefundRequest;
+use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 use PrestaShopBundle\Service\Routing\Router;
 
