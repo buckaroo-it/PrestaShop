@@ -2,7 +2,7 @@
     <div class="bg-gray-50 p-3 rounded">
         <div class="text-center space-y-2">
             <div class="flex justify-center">
-                <img :src="`/modules/buckaroo3/views/images/buckaroo/Payment methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
+                <img :src="`/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
             </div>
 
             <h3 class="font-bold text-lg modal-title">{{ $t(`payment_methods.${ payment.name }`) }}</h3>
