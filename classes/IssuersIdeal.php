@@ -25,18 +25,18 @@ class IssuersIdeal
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE_DATE';
 
     protected const ISSUERS_IMAGES = [
-        'ABNANL2A' => 'ABNAMRO.png',
-        'ASNBNL21' => 'ASNBANK.png',
-        'INGBNL2A' => 'ING.png',
-        'RABONL2U' => 'Rabobank.png',
-        'SNSBNL2A' => 'SNS.png',
-        'RBRBNL21' => 'Regiobank.png',
-        'TRIONL2U' => 'Triodos.png',
-        'FVLBNL22' => 'vanLanschot.png',
-        'KNABNL2H' => 'KNAB.png',
-        'BUNQNL2A' => 'Bunq.png',
-        'REVOLT21' => 'Revolut.png',
-        'BITSNL2A' => 'YourSafe.png',
+        'ABNANL2A' => 'ABNAMRO.svg',
+        'ASNBNL21' => 'ASNBANK.svg',
+        'INGBNL2A' => 'ING.svg',
+        'RABONL2U' => 'Rabobank.svg',
+        'SNSBNL2A' => 'SNS.svg',
+        'RBRBNL21' => 'Regiobank.svg',
+        'TRIONL2U' => 'Triodos.svg',
+        'FVLBNL22' => 'vanLanschot.svg',
+        'KNABNL2H' => 'KNAB.svg',
+        'BUNQNL2A' => 'Bunq.svg',
+        'REVOLT21' => 'Revolut.svg',
+        'BITSNL2A' => 'YourSafe.svg',
         'NTSBDEB1' => 'n26.svg',
     ];
 

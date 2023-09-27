@@ -2,7 +2,7 @@
     <div class="border-b h-16 flex justify-between items-center">
         <div class="px-5 space-y-1 flex items-center  space-x-3">
             <div class="w-8">
-                <img v-if="payment.icon" :src="`/modules/buckaroo3/views/images/payments/${ payment.icon }`" />
+                <img v-if="payment.icon" :src="`/modules/buckaroo3/views/images/buckaroo/Payment methods/SVG/${ payment.icon }`" />
             </div>
 
             <div>

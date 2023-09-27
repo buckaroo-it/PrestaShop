@@ -61,6 +61,6 @@ input:checked + .buckaroo-slider:before {
 }
 
 #subtab-AdminBuckaroo_B > a > i.mi-buckaroo {
-    background: url(../img/buckaroo-menu-logo.png) no-repeat scroll center center / contain transparent;
+    background: url(../images/buckaroo-menu-logo.png) no-repeat scroll center center / contain transparent;
     width: 16px;
 }

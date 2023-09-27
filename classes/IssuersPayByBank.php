@@ -87,7 +87,7 @@ class IssuersPayByBank
         if (count($selectedIssuer) > 0) {
             $selectedIssuer = reset($selectedIssuer);
 
-            return 'paybybank/SVG/' . $selectedIssuer['logo'];
+            return '../../PayByBank issuers/' . $selectedIssuer['logo'];
         } else {
             return 'paybybank.gif?v';
         }

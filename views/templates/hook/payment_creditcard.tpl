@@ -49,7 +49,7 @@
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/images/payments/creditcard/SVG/{$issuer['logo']|escape:'html':'UTF-8'}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/images/buckaroo/Creditcard issuers/SVG/{$issuer['logo']|escape:'html':'UTF-8'}"
                                     />
                                 {/if}
                                 <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>
