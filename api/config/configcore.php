@@ -13,7 +13,8 @@
  *  @author    Buckaroo.nl <plugins@buckaroo.nl>
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */// TODO - considering to remove this
+ */
+// TODO - considering to remove this
 abstract class ConfigCore
 {
     public const LOG = false;

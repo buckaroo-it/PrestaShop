@@ -14,6 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 namespace Buckaroo\Classes;
 
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';

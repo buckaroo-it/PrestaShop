@@ -40,6 +40,9 @@ return (new PhpCsFixer\Config())
         'yoda_style' => false,
         'single_line_throw' => false,
         'no_alias_language_construct_call' => false,
+        'phpdoc_align' => [
+            'align' => 'vertical',
+        ],
     ])
     ->setFinder($finder)
     ->setCacheFile(__DIR__.'/var/.php_cs.cache');
