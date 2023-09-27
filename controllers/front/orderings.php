@@ -89,13 +89,11 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
         // Prepare and send the response
         if ($result) {
             $response = [
-                'status' => true,
-                'message' => 'Data updated successfully',
+                'status' => true
             ];
         } else {
             $response = [
-                'status' => false,
-                'message' => 'Database error: Unable to update data',
+                'status' => false
             ];
         }
         $this->sendResponse($response);

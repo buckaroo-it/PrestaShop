@@ -101,6 +101,7 @@ import { useToastr } from "../lib/toastr"
 import CountrySelect from "../components/CountrySelect.vue";
 import draggable from 'vuedraggable'
 import {useCountries} from "../lib/countries";
+import {useI18n} from "vue-i18n";
 
 export default {
   name: "OrderPaymentMethods",
@@ -122,6 +123,7 @@ export default {
     const paymentOrderings = ref(null)
     const selectedCountry = ref(null)
 
+    const { t } = useI18n();
     const { get, post, data, loading, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=orderings`)
     const { filteredCountries, query } = useCountries()
     const { toastr } = useToastr()
@@ -141,12 +143,12 @@ export default {
     const update = () => {
       post(paymentOrderings.value).then(() => {
         if(data.value.status) {
-          toastr.success(this.$t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
+          toastr.success(t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
 
           return
         }
 
-        toastr.error(this.$t('dashboard.pages.order_payment_methods.something_went_wrong'))
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
       })
     }
 
