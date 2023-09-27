@@ -31,6 +31,10 @@ class CapayableIn3
 
     public function getLogo(): string
     {
+        if (!$this->isV3()) {
+            return self::LOGO_DEFAULT;
+        }
+
         if (Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO') === self::LOGO_IN3_IDEAL) {
             return self::LOGO_IN3_IDEAL_FILENAME;
         }
