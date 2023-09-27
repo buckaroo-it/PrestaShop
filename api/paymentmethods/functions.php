@@ -13,8 +13,7 @@
  *  @author    Buckaroo.nl <plugins@buckaroo.nl>
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */
-function autoload($payment_method)
+ */function autoload($payment_method)
 {
     require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
     $class_name = Tools::strtolower($payment_method);

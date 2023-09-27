@@ -13,8 +13,7 @@
  *  @author    Buckaroo.nl <plugins@buckaroo.nl>
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */
-use Buckaroo\BuckarooClient;
+ */use Buckaroo\BuckarooClient;
 
 class Buckaroo3Admin
 {

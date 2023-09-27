@@ -1,4 +1,3 @@
-
 <?php
 /**
  * NOTICE OF LICENSE

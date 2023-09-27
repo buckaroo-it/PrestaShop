@@ -14,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 use PrestaShop\Decimal\Number;
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
