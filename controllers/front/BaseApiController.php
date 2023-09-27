@@ -42,7 +42,7 @@ class BaseApiController extends ModuleFrontController
 
     protected function getJsonInput()
     {
-        $rawData = file_get_contents('php://input');
+        $rawData = \Tools::file_get_contents('php://input');
 
         return json_decode($rawData, true);
     }

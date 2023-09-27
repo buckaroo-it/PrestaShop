@@ -17,7 +17,7 @@ final class ConfigurationRepository
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
-        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int) $paymentId;
+        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
         $existingConfig = $db->getValue($query);
 
         if ($existingConfig === false) {
@@ -44,7 +44,7 @@ final class ConfigurationRepository
         // Update the configuration in the database
         $query = "
         UPDATE 
-            ps_bk_configuration 
+            '._DB_PREFIX_.'bk_configuration 
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
@@ -64,7 +64,7 @@ final class ConfigurationRepository
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
-        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . (int) $paymentId;
+        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
         $existingConfig = $db->getValue($query);
 
         if ($existingConfig === false) {
@@ -91,7 +91,7 @@ final class ConfigurationRepository
         // Update the configuration in the database
         $query = "
         UPDATE 
-            ps_bk_configuration 
+            '._DB_PREFIX_.'bk_configuration 
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
@@ -103,7 +103,7 @@ final class ConfigurationRepository
     public function getPaymentMethodConfig($name)
     {
         $db = \Db::getInstance();
-        $query = 'SELECT value FROM ps_bk_configuration WHERE configurable_id = ' . $this->paymentMethodRepository->getPaymentMethodId($name);
+        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . $this->paymentMethodRepository->getPaymentMethodId($name);
 
         return json_decode($db->getValue($query));
     }

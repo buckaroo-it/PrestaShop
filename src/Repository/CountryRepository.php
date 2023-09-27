@@ -43,7 +43,7 @@ final class CountryRepository
 
     public function getCountriesFromDB()
     {
-        $query = 'SELECT * FROM ps_bk_countries';
+        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_countries';
 
         return $this->db->executeS($query);
     }

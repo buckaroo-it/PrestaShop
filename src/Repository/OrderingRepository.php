@@ -15,7 +15,7 @@ class OrderingRepository
 
     public function getOrdering()
     {
-        $query = 'SELECT * FROM ps_bk_ordering';
+        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_ordering';
         $result = $this->db->executeS($query);
         $row = $result[0];
 

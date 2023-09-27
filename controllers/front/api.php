@@ -26,11 +26,7 @@ class Buckaroo3ApiModuleFrontController extends BaseApiController
 
     public function postProcess()
     {
-        // Get the raw POST data
-        $rawData = file_get_contents('php://input');
-
-        // Decode the JSON into a PHP array
-        $data = json_decode($rawData, true);
+        $data = $this->getJsonInput();
 
         if (empty($data['website_key']) || empty($data['secret_key'])) {
             $this->ajaxDie(json_encode([

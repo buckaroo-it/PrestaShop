@@ -21,8 +21,6 @@ class Installer implements InstallerInterface
      */
     private $module;
 
-    private $symContainer;
-
     /**
      * @var DatabaseTableInstaller
      */
@@ -361,17 +359,5 @@ class Installer implements InstallerInterface
         if (!copy($source, $destinationFile)) {
             throw new \Exception("Failed to copy file from '{$source}' to '{$destinationFile}'");
         }
-    }
-
-    private function setContainer()
-    {
-        global $kernel;
-
-        if (!$kernel) {
-            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
-            $kernel = new \AppKernel('prod', false);
-            $kernel->boot();
-        }
-        $this->symContainer = $kernel->getContainer();
     }
 }

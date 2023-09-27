@@ -76,7 +76,7 @@ final class PaymentMethodRepository
     public function getPaymentMethodsFromDB()
     {
         $db = \Db::getInstance();
-        $query = 'SELECT id, name, icon FROM ps_bk_payment_methods';
+        $query = 'SELECT id, name, icon FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
 
         return $db->executeS($query);
     }
@@ -84,7 +84,7 @@ final class PaymentMethodRepository
     public function getPaymentMethodId($name)
     {
         $db = \Db::getInstance();
-        $query = "SELECT id FROM ps_bk_payment_methods WHERE name = '" . $name . "'";
+        $query = 'SELECT id FROM ' . _DB_PREFIX_ . "bk_payment_methods WHERE name = '$name'";
 
         return $db->getValue($query);
     }
@@ -92,7 +92,7 @@ final class PaymentMethodRepository
     public function getPaymentMethodsId()
     {
         $db = \Db::getInstance();
-        $query = 'SELECT id FROM ps_bk_payment_methods';
+        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
 
         return $db->executeS($query);
     }
@@ -107,9 +107,9 @@ final class PaymentMethodRepository
                 p.icon AS payment_icon,
                 c.value AS config_value
             FROM 
-                ps_bk_payment_methods p
+                ' . _DB_PREFIX_ . 'bk_payment_methods p
             LEFT JOIN 
-                ps_bk_configuration c
+                ' . _DB_PREFIX_ . 'bk_configuration c
             ON 
                 p.id = c.configurable_id
         ';
