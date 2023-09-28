@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <div v-if="!selectedPayment" class="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4 p-5 overflow-y-scroll">
+      <div v-if="!selectedPayment" class="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-2 gap-4 p-5 overflow-y-auto">
         <PaymentMethodBlock  v-for="payment in payments" :payment="payment" @selectPayment="selectedPayment = payment" />
       </div>
 

@@ -10,7 +10,7 @@
           <div class="md:w-1/4 w-full border-r flex flex-col border-b">
             <div class="flex items-center border-b h-16">
               <i class="far fa-search block px-3 text-gray-400"></i>
-              <input class="w-full px-3 focus:ring-0 focus:outline-none" type="text" :placeholder="$t(`dashboard.pages.order_payment_methods.search_country`)" v-model="query" />
+              <input class="w-full px-3 border-0 focus:bg-transparent hover:bg-transparent focus:ring-0 focus:outline-none" type="text" :placeholder="$t(`dashboard.pages.order_payment_methods.search_country`)" v-model="query" />
             </div>
 
             <div class="overflow-y-auto md:h-full">
