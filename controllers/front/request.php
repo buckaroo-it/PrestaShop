@@ -112,6 +112,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $logger->logInfo('Checkout info', $debug);
 
         $this->checkout = Checkout::getInstance($payment_method, $cart);
+        $this->checkout->platformName = 'PrestaShop';
+        $this->checkout->platformVersion = _PS_VERSION_;
+        $this->checkout->moduleSupplier = $this->module->author;
+        $this->checkout->moduleName = $this->module->name;
+        $this->checkout->moduleVersion = $this->module->version;
         $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
         $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
         $logger->logDebug('Get checkout class: ', $this->checkout);
