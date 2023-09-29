@@ -32,6 +32,11 @@ abstract class PaymentMethod extends BuckarooAbstract
     public $OriginalTransactionKey;
     public $returnUrl;
     public $pushUrl;
+    public $platformName;
+    public $platformVersion;
+    public $moduleVersion;
+    public $moduleSupplier;
+    public $moduleName;
     public $mode;
     public $version;
     public $usecreditmanagment = 0;
@@ -75,6 +80,11 @@ abstract class PaymentMethod extends BuckarooAbstract
         $this->payload['order'] = $this->orderId;
         $this->payload['returnURL'] = $this->returnUrl;
         $this->payload['pushURL'] = $this->pushUrl;
+        $this->payload['platformName'] = $this->platformName;
+        $this->payload['platformVersion'] = $this->platformVersion;
+        $this->payload['moduleVersion'] = $this->moduleVersion;
+        $this->payload['moduleSupplier'] = $this->moduleSupplier;
+        $this->payload['moduleName'] = $this->moduleName;
 
         $buckaroo = $this->getBuckarooClient();
         // Pay

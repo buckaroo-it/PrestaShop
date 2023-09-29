@@ -103,7 +103,11 @@ abstract class Checkout
     {
         return $this->reference;
     }
-
+    public $platformName;
+    public $platformVersion;
+    public $moduleSupplier;
+    public $moduleName;
+    public $moduleVersion;
     public $returnUrl;
     public $pushUrl;
 
@@ -143,6 +147,11 @@ abstract class Checkout
         $reference = $this->reference . '_' . $this->cart->id;
         $this->payment_request->invoiceId = $reference;
         $this->payment_request->orderId = $reference;
+        $this->payment_request->platformName = $this->platformName;
+        $this->payment_request->platformVersion = $this->platformVersion;
+        $this->payment_request->moduleSupplier = $this->moduleSupplier;
+        $this->payment_request->moduleName = $this->moduleName;
+        $this->payment_request->moduleVersion = $this->moduleVersion;
         $this->payment_request->returnUrl = $this->returnUrl;
         $this->payment_request->pushUrl = $this->pushUrl;
     }
