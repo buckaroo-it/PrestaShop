@@ -25,7 +25,7 @@ class IssuersIdeal
 
     protected const ISSUERS_IMAGES = [
         'ABNANL2A' => 'ABNAMRO.svg',
-        'ASNBNL21' => 'ASNBANK.svg',
+        'ASNBNL21' => 'ASNBank.svg',
         'INGBNL2A' => 'ING.svg',
         'RABONL2U' => 'Rabobank.svg',
         'SNSBNL2A' => 'SNS.svg',
