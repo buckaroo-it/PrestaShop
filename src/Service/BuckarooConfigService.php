@@ -89,7 +89,7 @@ class BuckarooConfigService
 
     private function getConfiguration($paymentId)
     {
-        return $this->configurationRepository->findOneBy(['configurable_id' => $paymentId]);
+        return $this->configurationRepository->findOneBy($paymentId);
     }
 
     protected function logError($message): void

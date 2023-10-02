@@ -38,38 +38,51 @@ final class PaymentMethodRepository
         $paymentMethodsData = $this->getPaymentMethodsData();
 
         foreach ($paymentMethodsData as $methodData) {
+            $this->insertPaymentMethod($methodData);
+
             $data = [
                 'name' => pSQL($methodData['name']),
                 'icon' => pSQL($methodData['icon']),
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
-            $result = $this->db->insert('bk_payment_methods', $data);
-
-            if (!$result) {
-                // Handle error
-                die('Database error');
+            if (!$this->db->insert('bk_payment_methods', $data)) {
+                throw new \Exception('Database error: Could not insert payment method');
             }
-
-            // Get the ID of the newly inserted payment method
             $paymentMethodId = $this->db->Insert_ID();
 
-            // Prepare the configuration data
-            $configData = [
-                'configurable_id' => $paymentMethodId,  // assuming the column name is configurable_id
-                'value' => json_encode(['mode' => 'off']),
-            ];
-
-            // Insert the configuration data into the configuration table
-            $result = $this->db->insert('bk_configuration', $configData);
-
-            if (!$result) {
-                // Handle error
-                die('Configuration insert error');
-            }
+            $this->insertConfiguration($paymentMethodId);
         }
 
         return $paymentMethodsData;
+    }
+
+    private function insertPaymentMethod(array $methodData): void
+    {
+        $data = [
+            'name' => pSQL($methodData['name']),
+            'icon' => pSQL($methodData['icon']),
+            'created_at' => (new DateTime())->format('Y-m-d H:i:s'),
+        ];
+
+        if (!$this->db->insert('bk_payment_methods', $data)) {
+            throw new \Exception('Database error: Could not insert payment method');
+        }
+
+        $paymentMethodId = $this->db->Insert_ID();
+        $this->insertConfiguration($paymentMethodId);
+    }
+
+    private function insertConfiguration(int $paymentMethodId): void
+    {
+        $configData = [
+            'configurable_id' => $paymentMethodId,
+            'value' => json_encode(['mode' => 'off']),
+        ];
+
+        if (!$this->db->insert('bk_configuration', $configData)) {
+            throw new \Exception('Configuration insert error: Could not insert configuration');
+        }
     }
 
     private function getPaymentMethodsData()
@@ -110,7 +123,7 @@ final class PaymentMethodRepository
 
     public function getPaymentMethodId($name)
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . "bk_payment_methods WHERE name = '$name'";
+        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
 
         return $this->db->getValue($query);
     }
@@ -124,7 +137,7 @@ final class PaymentMethodRepository
 
     public function getPaymentMethod($id)
     {
-        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE id = ' . (int) $id;
+        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE id = ' . (int) pSQL($id);
 
         return $this->db->executeS($query);
     }
@@ -146,6 +159,10 @@ final class PaymentMethodRepository
 
         $results = $this->db->executeS($sql);
 
+        if ($results === false) {
+            throw new Exception('Database error: Could not fetch payment methods with config');
+        }
+
         // Process and format the results as per your needs
         $payments = [];
         foreach ($results as $result) {
@@ -162,9 +179,7 @@ final class PaymentMethodRepository
                     // Merge the config array with the other values
                     $payment = array_merge($payment, $configArray);
                 } else {
-                    // Optionally, handle JSON decoding error
-                    error_log('JSON decoding error: ' . json_last_error_msg());
-                    exit;
+                    throw new \Exception('JSON decode error: ' . json_last_error_msg());
                 }
             }
 
@@ -175,59 +190,30 @@ final class PaymentMethodRepository
         return $payments;
     }
 
-    private function insertPaymentMethodsToDB($paymentMethods)
-    {
-        foreach ($paymentMethods as $methodData) {
-            $data = [
-                'id' => pSQL($methodData['id']),
-                'name' => pSQL($methodData['name']),
-                'icon' => pSQL($methodData['icon']),
-                'mode' => pSQL($methodData['mode']),
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-
-            $result = $this->db->insert('bk_payment_methods', $data);
-
-            if (!$result) {
-                // Handle error
-                error_log('Database error');
-                exit;
-            }
-        }
-    }
-
     public function getPaymentMethodMode($name)
     {
         // Fetch the payment method ID
         $paymentId = $this->getPaymentMethodId($name);
 
         // Fetch the existing configuration
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
+        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) pSQL($paymentId);
         $existingConfig = $this->db->getValue($query);
 
         if ($existingConfig === false) {
-            // Handle error (e.g., configuration not found)
-            error_log('Configuration not found for payment id ' . $paymentId);
-
-            return null;  // You might want to return null or some default value, or throw an exception
+            throw new \Exception('Configuration not found for payment id ' . $paymentId);
         }
 
         // Decode the existing configuration
         $configArray = json_decode($existingConfig, true);
         if ($configArray === null) {
-            // Handle JSON decode error
-            error_log('JSON decode error: ' . json_last_error_msg());
-
-            return null;  // Again, decide how you want to handle this error
+            throw new \Exception('JSON decode error');
         }
 
         // Fetch and return the mode from the configuration
         if (isset($configArray['mode'])) {
             return $configArray['mode'];
         } else {
-            error_log('Mode not set for payment id ' . $paymentId);
-
-            return null;  // Or some default value, or throw an exception
+            throw new \Exception('Mode not set for payment id ' . $paymentId);
         }
     }
 }

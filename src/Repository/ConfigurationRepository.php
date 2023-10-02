@@ -30,114 +30,76 @@ final class ConfigurationRepository extends BkConfiguration
         $this->db = \Db::getInstance();
     }
 
-    public function findOneBy(array $criteria)
+    public function findOneBy($paymentId)
     {
-        // Build the WHERE clause of the SQL query from the criteria array
-        $whereClauses = [];
-        foreach ($criteria as $field => $value) {
-            $whereClauses[] = $field . ' = "' . pSQL($value) . '"';
-        }
-        $whereClause = implode(' AND ', $whereClauses);
-
         // Build and execute the SQL query
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE ' . $whereClause;
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . pSQL($paymentId);
 
         return $this->db->getRow($sql);
+    }
+
+
+
+    private function getConfigArray(int $paymentId): array
+    {
+        $query = sprintf(
+            'SELECT value FROM %sbk_configuration WHERE configurable_id = %d',
+            _DB_PREFIX_,
+            $paymentId
+        );
+        $existingConfig = $this->db->getValue($query);
+
+        if ($existingConfig === false) {
+            throw new \Exception('Configuration not found for payment id ' . $paymentId);
+        }
+
+        $configArray = json_decode($existingConfig, true);
+
+        if ($configArray === null) {
+            throw new \Exception('JSON decode error: ' . json_last_error_msg());
+        }
+
+        return $configArray;
     }
 
     public function updatePaymentMethodConfig($name, $data)
     {
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
-
-        // Fetch the existing configuration
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
-        $existingConfig = $this->db->getValue($query);
-
-        if ($existingConfig === false) {
-            // Handle error (e.g., configuration not found)
-            error_log('Configuration not found for payment id ' . $paymentId);
-            exit;
-        }
-
-        // Decode the existing configuration
-        $configArray = json_decode($existingConfig, true);
-        if ($configArray === null) {
-            // Handle JSON decode error
-            error_log('JSON decode error: ' . json_last_error_msg());
-            exit;
-        }
-
-        // Merge the new data into the existing configuration
+        $configArray = $this->getConfigArray($paymentId);
         $mergedConfig = array_merge($configArray, $data);
 
-        // Encode the merged configuration
-        $updatedConfig = json_encode($mergedConfig);
-
-        // Escape the updated configuration string to prevent SQL injection
-        $updatedConfigEscaped = pSQL($updatedConfig);
-
-        // Update the configuration in the database
-        $query = '
-        UPDATE 
-            ' . _DB_PREFIX_ . "bk_configuration 
-        SET 
-            value = '$updatedConfigEscaped'
-        WHERE 
-            configurable_id = " . (int) $paymentId;
-
-        if ($this->db->execute($query)) {
-            return true;
-        } else {
-            return false;
-        }
+        return $this->updateConfig($paymentId, $mergedConfig);
     }
 
-    public function updatePaymentMethodMode($name, $mode)
+    public function updatePaymentMethodMode(string $name, string $mode): bool
     {
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
-
-        // Fetch the existing configuration
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
-        $existingConfig = $this->db->getValue($query);
-
-        if ($existingConfig === false) {
-            // Handle error (e.g., configuration not found)
-            error_log('Configuration not found for payment id ' . $paymentId);
-            exit;
-        }
-
-        // Decode the existing configuration
-        $configArray = json_decode($existingConfig, true);
-        if ($configArray === null) {
-            // Handle JSON decode error
-            error_log('JSON decode error: ' . json_last_error_msg());
-            exit;
-        }
-
-        // Update the mode
+        $configArray = $this->getConfigArray($paymentId);
         $configArray['mode'] = $mode;
 
-        // Encode the updated configuration
-        $updatedConfig = json_encode($configArray);
+        return $this->updateConfig($paymentId, $configArray);
+    }
 
-        // Escape the updated configuration string to prevent SQL injection
-        $updatedConfigEscaped = pSQL($updatedConfig);
-
-        // Update the configuration in the database
-        $query = '
-        UPDATE 
-            ' . _DB_PREFIX_ . "bk_configuration 
-        SET 
-            value = '$updatedConfigEscaped'
-        WHERE 
-            id = " . (int) $paymentId;
+    private function updateConfig(int $paymentId, array $config): bool
+    {
+        $updatedConfigEscaped = pSQL(json_encode($config));
+        $query = sprintf(
+            'UPDATE %sbk_configuration SET value = "%s" WHERE configurable_id = %d',
+            _DB_PREFIX_,
+            $updatedConfigEscaped,
+            $paymentId
+        );
 
         return $this->db->execute($query);
     }
 
-    public function getPaymentMethodConfig($name)
+    public function getPaymentMethodConfig(string $name)
     {
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . $this->paymentMethodRepository->getPaymentMethodId($name);
+        $query = sprintf(
+            'SELECT value FROM %sbk_configuration WHERE configurable_id = %d',
+            _DB_PREFIX_,
+            $this->paymentMethodRepository->getPaymentMethodId($name)
+        );
 
         return json_decode($this->db->getValue($query));
     }
