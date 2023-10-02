@@ -31,6 +31,8 @@
           <CreditCardPaymentConfig v-if="selectedPayment.name === 'creditcard'" />
           <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
           <In3PaymentConfig v-if="selectedPayment.name === 'in3'" />
+          <IdealPaymentConfig v-if="selectedPayment.name === 'ideal'" />
+          <PayByBankPaymentConfig v-if="selectedPayment.name === 'paybybank'" />
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
         </DefaultPaymentConfig>
@@ -46,19 +48,23 @@ import { useApi } from "../lib/api.ts"
 import CountrySelect from "../components/CountrySelect.vue";
 import DefaultPaymentConfig from "../components/payments/DefaultPaymentConfig.vue";
 import AfterpayPaymentConfig from "../components/payments/AfterpayPaymentConfig.vue";
-import TransferPaymentConfig from "../components/payments/TransferPaymentConfig.vue"
-import CreditCardPaymentConfig from "../components/payments/CreditCardPaymentConfig.vue"
-import BancontactPaymentConfig from "../components/payments/BancontactPaymentConfig.vue"
-import BillinkPaymentConfig from "../components/payments/BillinkPaymentConfig.vue"
-import GiftcardPaymentConfig from '../components/payments/GiftcardPaymentConfig.vue'
-import In3PaymentConfig from '../components/payments/In3PaymentConfig.vue'
-import PayPerEmailPaymentConfig from '../components/payments/PayPerEmailPaymentConfig.vue'
-import PaymentMethodBlock from "../components/PaymentMethodBlock.vue"
+import TransferPaymentConfig from "../components/payments/TransferPaymentConfig.vue";
+import CreditCardPaymentConfig from "../components/payments/CreditCardPaymentConfig.vue";
+import BancontactPaymentConfig from "../components/payments/BancontactPaymentConfig.vue";
+import BillinkPaymentConfig from "../components/payments/BillinkPaymentConfig.vue";
+import GiftcardPaymentConfig from '../components/payments/GiftcardPaymentConfig.vue';
+import In3PaymentConfig from '../components/payments/In3PaymentConfig.vue';
+import PayPerEmailPaymentConfig from '../components/payments/PayPerEmailPaymentConfig.vue';
+import PayByBankPaymentConfig from "../components/payments/PayByBankPaymentConfig.vue";
+import IdealPaymentConfig from "../components/payments/IdealPaymentConfig.vue";
+import PaymentMethodBlock from "../components/PaymentMethodBlock.vue";
 import Loading from "../components/Loading.vue";
 
 export default {
   name: "PaymentMethods",
   components: {
+    IdealPaymentConfig,
+    PayByBankPaymentConfig,
     Loading,
     AfterpayPaymentConfig,
     DefaultPaymentConfig,
@@ -71,11 +77,6 @@ export default {
     TransferPaymentConfig,
     PayPerEmailPaymentConfig,
     PaymentMethodBlock
-  },
-  watch: {
-    selectedChannel(value) {
-      this.getPayments()
-    }
   },
   setup() {
     const payments = ref([])

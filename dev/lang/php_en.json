@@ -296,6 +296,10 @@
     "dashboard.pages.payments.custom_icon_url": "Custom Icon URL",
     "dashboard.pages.payments.payment_methods": "Payments methods",
     "dashboard.pages.payments.configure_your_payment_method_settings": "Configure your payment method settings",
+    "dashboard.pages.payments.display_type": "Display Type",
+    "dashboard.pages.payments.display_type_label": "This setting determines how the payment method is displayed in the checkout.",
+    "dashboard.pages.payments.display_types.radio": "Radio",
+    "dashboard.pages.payments.display_types.dropdown": "Dropdown",
     "dashboard.pages.settings.credentials_label": "Get your credentials from <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
     "dashboard.pages.settings.refunds_label_label": "When enabled you can do (partial) refunds directly from your PrestaShop admin area <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
     "dashboard.pages.settings.refunds_label_explanation": "This label (text) is shown on the bank statement of the consumer <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
@@ -366,5 +370,6 @@
     "payment_methods.klarna": "Klarna",
     "payment_methods.afterpay": "Riverty",
     "payment_methods.trustly": "Trustly",
-    "payment_methods.belfius": "Belfius"
+    "payment_methods.belfius": "Belfius",
+    "payment_methods.transfer": "Transfer"
 }

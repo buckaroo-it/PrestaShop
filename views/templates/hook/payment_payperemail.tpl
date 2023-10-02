@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="PAYPEREMAIL">
+    <input type="hidden" name="buckarooKey" value="payperemail">
     <form id="booPayPerEmailForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Please select gender:' mod='buckaroo3'}<br/><br/>
         <div class="col-xs-12">

@@ -293,6 +293,10 @@
   "dashboard.pages.payments.custom_icon_url": "Aangepaste cadeaukaart logo URL",
   "dashboard.pages.payments.payment_methods": "Betalingsmethoden",
   "dashboard.pages.payments.configure_your_payment_method_settings": "Configureer uw betalingsmethode-instellingen",
+  "dashboard.pages.payments.display_type": "Weergavetype",
+  "dashboard.pages.payments.display_type_label": "Deze instelling bepaalt hoe de betaalmethode wordt weergegeven bij het afrekenen.",
+  "dashboard.pages.payments.display_types.radio": "Radio",
+  "dashboard.pages.payments.display_types.dropdown": "Laten vallen",
   "dashboard.pages.settings.settings": "Instellingen",
   "dashboard.pages.settings.settings_label": "Configureer je instellingen",
   "dashboard.pages.settings.mode": "Modus",
@@ -355,5 +359,6 @@
   "payment_methods.payconiq": "Payconiq",
   "payment_methods.klarna": "Klarna",
   "payment_methods.afterpay": "Riverty",
-  "payment_methods.trustly": "Trustly"
+  "payment_methods.trustly": "Trustly",
+  "payment_methods.transfer": "Transfer"
 }

@@ -30,11 +30,6 @@ class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
         $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
         $this->configurationRepository = new ConfigurationRepository();
     }
-    private const PAYMENT_MAPPING = [
-        'bancontact' => 'MISTERCASH',
-        'sofort' => 'SOFORTBANKING',
-        'sepadirectdebit' => 'SDD',
-    ];
 
     public function initContent()
     {
@@ -61,12 +56,5 @@ class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
     private function updatePaymentMode($name, $mode)
     {
         $this->configurationRepository->updatePaymentMethodMode($name, $mode);  // Call the repository to update the data
-        $paymentName = $this->getPaymentConfigName($name);
-        Configuration::updateValue('BUCKAROO_' . $paymentName . '_MODE', $mode);
-    }
-
-    private function getPaymentConfigName($name)
-    {
-        return self::PAYMENT_MAPPING[$name] ?? strtoupper($name);
     }
 }

@@ -19,11 +19,23 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 
 final class PaymentMethodRepository
 {
+    protected $db;
+
+    public function __construct()
+    {
+        $this->db = \Db::getInstance();
+    }
+
+    public function findOneByName($name)
+    {
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
+
+        return $this->db->getRow($sql);
+    }
+
     public function insertPaymentMethods()
     {
         $paymentMethodsData = $this->getPaymentMethodsData();
-
-        $db = \Db::getInstance();
 
         foreach ($paymentMethodsData as $methodData) {
             $data = [
@@ -32,7 +44,7 @@ final class PaymentMethodRepository
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
-            $result = $db->insert('bk_payment_methods', $data);
+            $result = $this->db->insert('bk_payment_methods', $data);
 
             if (!$result) {
                 // Handle error
@@ -40,7 +52,7 @@ final class PaymentMethodRepository
             }
 
             // Get the ID of the newly inserted payment method
-            $paymentMethodId = $db->Insert_ID();
+            $paymentMethodId = $this->db->Insert_ID();
 
             // Prepare the configuration data
             $configData = [
@@ -49,7 +61,7 @@ final class PaymentMethodRepository
             ];
 
             // Insert the configuration data into the configuration table
-            $result = $db->insert('bk_configuration', $configData);
+            $result = $this->db->insert('bk_configuration', $configData);
 
             if (!$result) {
                 // Handle error
@@ -85,37 +97,40 @@ final class PaymentMethodRepository
             ['name' => 'payconiq', 'icon' => 'Payconiq.svg'],
             ['name' => 'tinka', 'icon' => 'Tinka.svg'],
             ['name' => 'trustly', 'icon' => 'Trustly.svg'],
+            ['name' => 'transfer', 'icon' => 'SEPA-credittransfer.svg'],
         ];
     }
 
     public function getPaymentMethodsFromDB()
     {
-        $db = \Db::getInstance();
         $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
 
-        return $db->executeS($query);
+        return $this->db->executeS($query);
     }
 
     public function getPaymentMethodId($name)
     {
-        $db = \Db::getInstance();
         $query = 'SELECT id FROM ' . _DB_PREFIX_ . "bk_payment_methods WHERE name = '$name'";
 
-        return $db->getValue($query);
+        return $this->db->getValue($query);
+    }
+
+    public function getPaymentMethodNames()
+    {
+        $query = 'SELECT name FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+
+        return $this->db->executeS($query);
     }
 
     public function getPaymentMethod($id)
     {
-        $db = \Db::getInstance();
         $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE id = ' . (int) $id;
 
-        return $db->executeS($query);
+        return $this->db->executeS($query);
     }
 
     public function getPaymentMethodsFromDBWithConfig()
     {
-        $db = \Db::getInstance();
-
         $sql = '
             SELECT 
                 p.name AS payment_name,
@@ -129,7 +144,7 @@ final class PaymentMethodRepository
                 p.id = c.configurable_id
         ';
 
-        $results = $db->executeS($sql);
+        $results = $this->db->executeS($sql);
 
         // Process and format the results as per your needs
         $payments = [];
@@ -149,7 +164,7 @@ final class PaymentMethodRepository
                 } else {
                     // Optionally, handle JSON decoding error
                     error_log('JSON decoding error: ' . json_last_error_msg());
-                    exit();
+                    exit;
                 }
             }
 
@@ -162,8 +177,6 @@ final class PaymentMethodRepository
 
     private function insertPaymentMethodsToDB($paymentMethods)
     {
-        $db = \Db::getInstance();
-
         foreach ($paymentMethods as $methodData) {
             $data = [
                 'id' => pSQL($methodData['id']),
@@ -173,13 +186,48 @@ final class PaymentMethodRepository
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
-            $result = $db->insert('bk_payment_methods', $data);
+            $result = $this->db->insert('bk_payment_methods', $data);
 
             if (!$result) {
                 // Handle error
                 error_log('Database error');
-                exit();
+                exit;
             }
+        }
+    }
+
+    public function getPaymentMethodMode($name)
+    {
+        // Fetch the payment method ID
+        $paymentId = $this->getPaymentMethodId($name);
+
+        // Fetch the existing configuration
+        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
+        $existingConfig = $this->db->getValue($query);
+
+        if ($existingConfig === false) {
+            // Handle error (e.g., configuration not found)
+            error_log('Configuration not found for payment id ' . $paymentId);
+
+            return null;  // You might want to return null or some default value, or throw an exception
+        }
+
+        // Decode the existing configuration
+        $configArray = json_decode($existingConfig, true);
+        if ($configArray === null) {
+            // Handle JSON decode error
+            error_log('JSON decode error: ' . json_last_error_msg());
+
+            return null;  // Again, decide how you want to handle this error
+        }
+
+        // Fetch and return the mode from the configuration
+        if (isset($configArray['mode'])) {
+            return $configArray['mode'];
+        } else {
+            error_log('Mode not set for payment id ' . $paymentId);
+
+            return null;  // Or some default value, or throw an exception
         }
     }
 }

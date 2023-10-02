@@ -56,7 +56,7 @@ class Uninstall
     private function deleteConfig()
     {
         $configurations = [
-            Config::BUCKAROO_IDEAL_FEE,
+            Config::BUCKAROO_TEST,
         ];
 
         $this->deleteConfigurations($configurations);

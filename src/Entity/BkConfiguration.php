@@ -22,7 +22,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Table(indexes={@ORM\Index(name="configurable_id", columns={"configurable_id"})})
  *
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository")
  */
 class BkConfiguration
 {

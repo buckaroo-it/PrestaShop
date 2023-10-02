@@ -17,7 +17,7 @@
 include dirname(__FILE__) . '/BaseApiController.php';
 use Buckaroo\BuckarooClient;
 
-class Buckaroo3ApiModuleFrontController extends BaseApiController
+class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
 {
     public function initContent()
     {

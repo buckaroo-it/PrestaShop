@@ -55,13 +55,6 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
         $this->sendResponse($data);
     }
 
-    private function getReturnUrl()
-    {
-        $protocol = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http');
-
-        return $protocol . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
-    }
-
     private function handlePost()
     {
         $data = $this->getJsonInput();

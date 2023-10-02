@@ -16,6 +16,8 @@
  */
 require_once dirname(__FILE__) . '/api/config/configcore.php';
 
+use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+
 class Config extends ConfigCore
 {
     public const NAME = 'buckaroo3';
@@ -38,7 +40,10 @@ class Config extends ConfigCore
     public static function getMode($key)
     {
         $key = Tools::strtoupper($key);
-        if (Config::get('BUCKAROO_TEST') == 0 && Config::get('BUCKAROO_' . $key . '_MODE') == 'live') {
+
+        $paymentMethodRepository = new PaymentMethodRepository();
+        $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
+        if (Config::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {
             return 'live';
         }
 

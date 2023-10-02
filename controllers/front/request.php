@@ -14,14 +14,24 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
     /* @var $checkout IDealCheckout */
     public $checkout;
+    private $buckarooFeeService;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->buckarooFeeService = new BuckarooFeeService();
+    }
 
     /**
      * @see FrontController::postProcess()
@@ -82,7 +92,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        if ($buckarooFee = Config::get('BUCKAROO_' . Tools::strtoupper($payment_method) . '_FEE')) {
+        $getBuckarooFeeValue = $this->buckarooFeeService->getBuckarooFeeValue($payment_method);
+        if ($buckarooFee = $getBuckarooFeeValue) {
             $buckarooFee = trim($buckarooFee);
 
             if (strpos($buckarooFee, '%') !== false) {

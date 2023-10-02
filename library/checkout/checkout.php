@@ -14,6 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\Number;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
@@ -110,6 +111,7 @@ abstract class Checkout
     public $moduleVersion;
     public $returnUrl;
     public $pushUrl;
+    private $buckarooFeeService;
 
     public function __construct($cart)
     {
@@ -123,6 +125,7 @@ abstract class Checkout
             $this->shipping_address = new Address((int) $cart->id_address_delivery);
         }
         $this->products = $this->cart->getProducts();
+        $this->buckarooFeeService = new BuckarooFeeService();
     }
 
     abstract protected function initialize();
@@ -133,11 +136,9 @@ abstract class Checkout
         $this->payment_request->amountDebit = $originalAmount =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
         $payment_method = Tools::getValue('method');
-        if ($payment_method == 'bancontactmrcash') {
-            $payment_method = 'MISTERCASH';
-        }
 
-        $buckarooFee = $this->getBuckarooFee();
+        $buckarooFee = $this->getBuckarooFee($payment_method);
+
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
         }
@@ -156,14 +157,9 @@ abstract class Checkout
         $this->payment_request->pushUrl = $this->pushUrl;
     }
 
-    public function getBuckarooFee()
+    public function getBuckarooFee($payment_method)
     {
-        $payment_method = Tools::getValue('method');
-        if ($payment_method == 'bancontactmrcash') {
-            $payment_method = 'MISTERCASH';
-        }
-
-        if ($buckarooFee = Config::get('BUCKAROO_' . Tools::strtoupper($payment_method) . '_FEE')) {
+        if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
 

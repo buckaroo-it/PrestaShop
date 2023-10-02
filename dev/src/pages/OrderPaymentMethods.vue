@@ -113,13 +113,8 @@ export default {
     selectedCountry(value, oldValue) {
       this.getOrdering()
     },
-    selectedChannel() {
-      this.setEndpoint(`/index.php?fc=module&module=buckaroo3&controller=api&action=orderings`)
-      this.getOrdering()
-    }
   },
   setup() {
-    const selectedChannel = inject('selectedChannel')
     const paymentOrderings = ref(null)
     const selectedCountry = ref(null)
 
@@ -159,7 +154,6 @@ export default {
       update,
       getOrdering,
       setEndpoint,
-      selectedChannel,
       query,
       filteredCountries
     }

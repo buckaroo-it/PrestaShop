@@ -16,13 +16,21 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+
 class PayPerEmail extends PaymentMethod
 {
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
     public function __construct()
     {
         $this->type = 'payperemail';
         $this->version = '1';
         $this->mode = Config::getMode($this->type);
+        $this->buckarooConfigService = new BuckarooConfigService();
     }
 
     public function pay($customVars = [])
@@ -34,6 +42,10 @@ class PayPerEmail extends PaymentMethod
 
     public function getPayload($data)
     {
+        $paymentMethodsAllowed = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'allowed_payments');
+        $dueDays = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'due_days');
+        $sendInstructionEmail = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'send_instruction_email');
+
         $payload = [
             'customer' => [
                 'gender' => $data['gender'],
@@ -41,9 +53,9 @@ class PayPerEmail extends PaymentMethod
                 'lastName' => $data['last_name'],
             ],
             'email' => $data['email'],
-            'merchantSendsEmail' => Config::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'),
-            'expirationDate' => date('Y-m-d', strtotime('+' . (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') . 'day')),
-            'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'), // 'ideal,mastercard,paypal',
+            'merchantSendsEmail' => $sendInstructionEmail,
+            'expirationDate' => date('Y-m-d', strtotime('+' . (int) $dueDays . 'day')),
+            'paymentMethodsAllowed' => $paymentMethodsAllowed,
             'attachment' => '',
         ];
 

@@ -17,6 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
+require_once dirname(__FILE__) . '/../../../config.php';
+
 use Buckaroo\BuckarooClient;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
@@ -49,27 +51,7 @@ class Handler
         return new BuckarooClient(
             \Configuration::get('BUCKAROO_MERCHANT_KEY'),
             \Configuration::get('BUCKAROO_SECRET_KEY'),
-            $this->getMode($method)
+            \Config::getMode($method)
         );
-    }
-
-    /**
-     * Get client mode
-     *
-     * @param string $method
-     *
-     * @return string
-     */
-    private function getMode(string $method): string
-    {
-        $key = \Tools::strtoupper($method);
-        if (
-            \Configuration::get('BUCKAROO_TEST') == 0
-            && \Configuration::get('BUCKAROO_' . $key . '_TEST') == '0'
-        ) {
-            return 'live';
-        }
-
-        return 'test';
     }
 }

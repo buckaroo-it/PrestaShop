@@ -18,11 +18,9 @@ include dirname(__FILE__) . '/BaseApiController.php';
 
 use Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository;
 use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
-use Buckaroo\PrestaShop\Src\Service\PaymentMethodConfigService;
 
 class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
 {
-    private $paymentService;
     private $paymentMethodRepository;
     private $configurationRepository;
 
@@ -31,8 +29,6 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
         parent::__construct();
         $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
         $this->configurationRepository = new ConfigurationRepository();
-
-        $this->paymentService = new PaymentMethodConfigService();
     }
 
     public function initContent()
@@ -82,7 +78,6 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
             return;
         }
         $result = $this->configurationRepository->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
-        $this->paymentService->updatePaymentConfig($paymentName, $data);
         $this->sendResponse(['status' => $result]);
     }
 }

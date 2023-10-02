@@ -43,7 +43,6 @@ export default {
     setup(props, { emit }) {
         const view = inject('view')
         const app = inject('app')
-        const selectedChannel = inject('selectedChannel')
 
         const setView = (newView) => {
             view.value = newView
@@ -53,7 +52,6 @@ export default {
         return {
             view,
             app,
-            selectedChannel,
             setView
         }
     }

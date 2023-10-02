@@ -47,7 +47,7 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
     private function handleGet()
     {
         $countryCode = null;
-        if(Tools::getValue('country')){
+        if (Tools::getValue('country')) {
             $countryCode = Tools::getValue('country');  // Get
         }
 
@@ -81,6 +81,7 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
                 'message' => 'Missing or invalid data',
             ];
             $this->sendResponse($response);
+
             return;
         }
 
@@ -89,11 +90,11 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
         // Prepare and send the response
         if ($result) {
             $response = [
-                'status' => true
+                'status' => true,
             ];
         } else {
             $response = [
-                'status' => false
+                'status' => false,
             ];
         }
         $this->sendResponse($response);

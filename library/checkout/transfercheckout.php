@@ -16,20 +16,35 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+
 class TransferCheckout extends Checkout
 {
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
+    public function __construct($cart)
+    {
+        parent::__construct($cart);
+        $this->buckarooConfigService = new BuckarooConfigService();
+    }
+
     final public function setCheckout()
     {
         parent::setCheckout();
 
-        $this->customVars([
+        $sendMail = $this->buckarooConfigService->getSpecificValueFromConfig('transfer', 'send_instruction_email');
+        $dueDate = $this->buckarooConfigService->getSpecificValueFromConfig('transfer', 'due_days');
+        $this->customVars = [
             'CustomerEmail' => $this->customer->email,
             'CustomerFirstName' => $this->invoice_address->firstname,
             'CustomerLastName' => $this->invoice_address->lastname,
-            'SendMail' => ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE'), // phpcs:ignore
-            'DateDue' => date('Y-m-d', strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')), // phpcs:ignore
+            'SendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE'), // phpcs:ignore
+            'DateDue' => date('Y-m-d', strtotime('now + ' . (int) $dueDate . ' day')), // phpcs:ignore
             'CustomerCountry' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
-        ]);
+        ];
     }
 
     public function isRedirectRequired()

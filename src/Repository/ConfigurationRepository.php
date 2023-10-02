@@ -17,28 +17,46 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-final class ConfigurationRepository
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+
+final class ConfigurationRepository extends BkConfiguration
 {
     private $paymentMethodRepository;
+    protected $db;
 
     public function __construct()
     {
         $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
+        $this->db = \Db::getInstance();
+    }
+
+    public function findOneBy(array $criteria)
+    {
+        // Build the WHERE clause of the SQL query from the criteria array
+        $whereClauses = [];
+        foreach ($criteria as $field => $value) {
+            $whereClauses[] = $field . ' = "' . pSQL($value) . '"';
+        }
+        $whereClause = implode(' AND ', $whereClauses);
+
+        // Build and execute the SQL query
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE ' . $whereClause;
+
+        return $this->db->getRow($sql);
     }
 
     public function updatePaymentMethodConfig($name, $data)
     {
-        $db = \Db::getInstance();
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
         $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
-        $existingConfig = $db->getValue($query);
+        $existingConfig = $this->db->getValue($query);
 
         if ($existingConfig === false) {
             // Handle error (e.g., configuration not found)
             error_log('Configuration not found for payment id ' . $paymentId);
-            exit();
+            exit;
         }
 
         // Decode the existing configuration
@@ -46,7 +64,7 @@ final class ConfigurationRepository
         if ($configArray === null) {
             // Handle JSON decode error
             error_log('JSON decode error: ' . json_last_error_msg());
-            exit();
+            exit;
         }
 
         // Merge the new data into the existing configuration
@@ -59,15 +77,15 @@ final class ConfigurationRepository
         $updatedConfigEscaped = pSQL($updatedConfig);
 
         // Update the configuration in the database
-        $query = "
+        $query = '
         UPDATE 
-            " . _DB_PREFIX_ . "bk_configuration 
+            ' . _DB_PREFIX_ . "bk_configuration 
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
             configurable_id = " . (int) $paymentId;
 
-        if ($db->execute($query)) {
+        if ($this->db->execute($query)) {
             return true;
         } else {
             return false;
@@ -76,18 +94,16 @@ final class ConfigurationRepository
 
     public function updatePaymentMethodMode($name, $mode)
     {
-        $db = \Db::getInstance();
-
         $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
 
         // Fetch the existing configuration
         $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) $paymentId;
-        $existingConfig = $db->getValue($query);
+        $existingConfig = $this->db->getValue($query);
 
         if ($existingConfig === false) {
             // Handle error (e.g., configuration not found)
             error_log('Configuration not found for payment id ' . $paymentId);
-            exit();
+            exit;
         }
 
         // Decode the existing configuration
@@ -95,7 +111,7 @@ final class ConfigurationRepository
         if ($configArray === null) {
             // Handle JSON decode error
             error_log('JSON decode error: ' . json_last_error_msg());
-            exit();
+            exit;
         }
 
         // Update the mode
@@ -108,22 +124,21 @@ final class ConfigurationRepository
         $updatedConfigEscaped = pSQL($updatedConfig);
 
         // Update the configuration in the database
-        $query = "
+        $query = '
         UPDATE 
-            " . _DB_PREFIX_ . "bk_configuration 
+            ' . _DB_PREFIX_ . "bk_configuration 
         SET 
             value = '$updatedConfigEscaped'
         WHERE 
             id = " . (int) $paymentId;
 
-        return $db->execute($query);
+        return $this->db->execute($query);
     }
 
     public function getPaymentMethodConfig($name)
     {
-        $db = \Db::getInstance();
         $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . $this->paymentMethodRepository->getPaymentMethodId($name);
 
-        return json_decode($db->getValue($query));
+        return json_decode($this->db->getValue($query));
     }
 }

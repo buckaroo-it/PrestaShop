@@ -14,7 +14,7 @@
 *}
 
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="PAYBYBANK">
+    <input type="hidden" name="buckarooKey" value="paybybank">
     <form id="bk-paybybank-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank'])|escape:'quotes':'UTF-8'}" method="post">
         <p> {l s='Choose your bank' mod='buckaroo3'}</p>
 

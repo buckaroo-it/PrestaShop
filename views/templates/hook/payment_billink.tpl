@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="BILLINK">
+    <input type="hidden" name="buckarooKey" value="billink">
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         <div class="row row-padding">
             <div class="col-xs-5">

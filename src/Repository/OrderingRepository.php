@@ -38,7 +38,7 @@ class OrderingRepository
             }
         }
 
-        $idArray = array();
+        $idArray = [];
         foreach ($value as $item) {
             if (isset($item['id'])) {
                 $idArray[] = $item['id'];
@@ -62,9 +62,9 @@ class OrderingRepository
 
     public function getOrdering($countryIsoCode)
     {
-        if($countryIsoCode === null){
+        if ($countryIsoCode === null) {
             $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_ordering';
-        }else{
+        } else {
             $query = '
             SELECT ' . _DB_PREFIX_ . 'bk_ordering.* 
             FROM ' . _DB_PREFIX_ . 'bk_ordering
@@ -136,5 +136,51 @@ class OrderingRepository
             'value' => pSQL(json_encode($paymentMethodsArray)),
             'created_at' => date('Y-m-d H:i:s'),
         ];
+    }
+
+    public function getPositionByCountryId(int $countryId): ?array
+    {
+        $positions = $this->fetchPositions($countryId);
+
+        // If no positions found for the given country_id, try fetching positions for null country_id
+        if ($positions === null) {
+            $positions = $this->fetchPositions(null);
+        }
+
+        return $positions;
+    }
+
+    /**
+     * Helper method to fetch positions based on country_id
+     *
+     * @param int|null $countryId
+     *
+     * @return array|null The positions array if found, or null if not
+     */
+    private function fetchPositions(?int $countryId): ?array
+    {
+        $query = '
+            SELECT value
+            FROM ' . _DB_PREFIX_ . 'bk_ordering
+            WHERE country_id ' . ($countryId === null ? 'IS NULL' : '= ' . pSQL((int) $countryId)) . '
+        ';
+
+        $result = $this->db->getRow($query);  // assuming getRow returns a single row as an associative array
+
+        if ($result && isset($result['value'])) {
+            $positionsArray = json_decode($result['value'], true);
+
+            $output = [];
+            foreach ($positionsArray as $position => $id) {
+                $paymentMethodData = $this->paymentMethodRepository->getPaymentMethod($id);
+                if (!empty($paymentMethodData)) {
+                    $output[] = $paymentMethodData[0]['name'];
+                }
+            }
+
+            return $output;
+        }
+
+        return null;  // or however you want to handle no results
     }
 }

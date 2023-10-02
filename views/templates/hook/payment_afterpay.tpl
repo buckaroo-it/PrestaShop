@@ -13,8 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-
-    <input type="hidden" name="buckarooKey" value="AFTERPAY">
+    <input type="hidden" name="buckarooKey" value="afterpay">
     <form class="mb-1" name="booAfterPayForm_digi" id="booAfterPayForm_digi"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
           method="post">
