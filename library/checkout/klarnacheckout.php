@@ -107,8 +107,13 @@ class KlarnaCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $products = array_merge($products, $this->prepareWrappingArticle());
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle());
+        $wrappingVat = $this->buckarooConfigService->getSpecificValueFromConfig('klarna', 'wrapping_vat');
+
+        if ($wrappingVat == null) {
+            $wrappingVat = 2;
+        }
+        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
+        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
         $mergedProducts = $this->mergeProductsBySKU($products);
 
         $shippingCostArticle = $this->prepareShippingCostArticle();
@@ -119,7 +124,7 @@ class KlarnaCheckout extends Checkout
         return $mergedProducts;
     }
 
-    private function prepareBuckarooFeeArticle()
+    private function prepareBuckarooFeeArticle($wrappingVat)
     {
         $buckarooFee = $this->getBuckarooFee();
         if ($buckarooFee <= 0) {
@@ -130,7 +135,7 @@ class KlarnaCheckout extends Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
-            'vatPercentage' => Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT'),
+            'vatPercentage' => $wrappingVat,
             'description' => 'buckaroo_fee',
         ];
     }

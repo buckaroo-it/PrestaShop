@@ -21,13 +21,13 @@ use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 
 final class ConfigurationRepository extends BkConfiguration
 {
-    private $paymentMethodRepository;
     protected $db;
+    protected $orderingRepository;
 
     public function __construct()
     {
-        $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
         $this->db = \Db::getInstance();
+        $this->orderingRepository = new OrderingRepository();
     }
 
     public function findOneBy($paymentId)
@@ -38,7 +38,12 @@ final class ConfigurationRepository extends BkConfiguration
         return $this->db->getRow($sql);
     }
 
+    public function getPaymentMethodId($name)
+    {
+        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
 
+        return $this->db->getValue($query);
+    }
 
     private function getConfigArray(int $paymentId): array
     {
@@ -64,16 +69,31 @@ final class ConfigurationRepository extends BkConfiguration
 
     public function updatePaymentMethodConfig($name, $data)
     {
-        $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
+        $paymentId = $this->getPaymentMethodId($name);
         $configArray = $this->getConfigArray($paymentId);
         $mergedConfig = array_merge($configArray, $data);
 
-        return $this->updateConfig($paymentId, $mergedConfig);
+        $configUpdateStatus = $this->updateConfig($paymentId, $mergedConfig);
+
+        //        $orderingUpdateStatus = $this->updateOrdering($data['countries'], $paymentId);
+
+        return $configUpdateStatus;
+    }
+
+    private function getOrderingEntry($countryId)
+    {
+        $query = sprintf(
+            'SELECT value FROM %sbk_ordering WHERE country_id = %d',
+            _DB_PREFIX_,
+            $countryId
+        );
+
+        return json_decode($this->db->getValue($query));
     }
 
     public function updatePaymentMethodMode(string $name, string $mode): bool
     {
-        $paymentId = $this->paymentMethodRepository->getPaymentMethodId($name);
+        $paymentId = $this->getPaymentMethodId($name);
         $configArray = $this->getConfigArray($paymentId);
         $configArray['mode'] = $mode;
 
@@ -98,7 +118,7 @@ final class ConfigurationRepository extends BkConfiguration
         $query = sprintf(
             'SELECT value FROM %sbk_configuration WHERE configurable_id = %d',
             _DB_PREFIX_,
-            $this->paymentMethodRepository->getPaymentMethodId($name)
+            $this->getPaymentMethodId($name)
         );
 
         return json_decode($this->db->getValue($query));

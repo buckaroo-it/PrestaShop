@@ -78,6 +78,7 @@ final class PaymentMethodRepository
         $configData = [
             'configurable_id' => $paymentMethodId,
             'value' => json_encode(['mode' => 'off']),
+            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if (!$this->db->insert('bk_configuration', $configData)) {

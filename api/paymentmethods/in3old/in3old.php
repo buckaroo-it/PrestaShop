@@ -21,7 +21,7 @@ class In3Old extends PaymentMethod
     public function __construct()
     {
         $this->type = 'in3Old';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = Config::getMode('in3');
     }
 
     public function pay($customVars = [])

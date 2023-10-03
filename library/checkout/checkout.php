@@ -14,6 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\Number;
 
@@ -113,6 +114,11 @@ abstract class Checkout
     public $pushUrl;
     private $buckarooFeeService;
 
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
     public function __construct($cart)
     {
         $this->initialize();
@@ -126,6 +132,7 @@ abstract class Checkout
         }
         $this->products = $this->cart->getProducts();
         $this->buckarooFeeService = new BuckarooFeeService();
+        $this->buckarooConfigService = new BuckarooConfigService();
     }
 
     abstract protected function initialize();
@@ -135,9 +142,8 @@ abstract class Checkout
         $currency = new Currency((int) $this->cart->id_currency);
         $this->payment_request->amountDebit = $originalAmount =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $payment_method = Tools::getValue('method');
 
-        $buckarooFee = $this->getBuckarooFee($payment_method);
+        $buckarooFee = $this->getBuckarooFee();
 
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
@@ -157,8 +163,10 @@ abstract class Checkout
         $this->payment_request->pushUrl = $this->pushUrl;
     }
 
-    public function getBuckarooFee($payment_method)
+    public function getBuckarooFee()
     {
+        $payment_method = Tools::getValue('method');
+
         if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
@@ -347,7 +355,7 @@ abstract class Checkout
         return $phone;
     }
 
-    protected function prepareWrappingArticle()
+    protected function prepareWrappingArticle($wrappingVat)
     {
         $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($wrappingCost <= 0) {
@@ -358,7 +366,7 @@ abstract class Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => $wrappingCost,
-            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
+            'vatPercentage' => $wrappingVat,
             'description' => 'Wrapping',
         ];
     }

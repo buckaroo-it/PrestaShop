@@ -24,8 +24,10 @@ class PayPalCheckout extends Checkout
     {
         parent::setCheckout();
 
+        $sellerProtection = $this->buckarooConfigService->getSpecificValueFromConfig('paypal', 'seller_protection');
+
         // Data required for Seller Protection payload
-        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED')) {
+        if ($sellerProtection == 1) {
             $this->customVars = [
                 'customer_name' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'address' => $this->getAddress(),

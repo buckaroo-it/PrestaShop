@@ -32,6 +32,7 @@
           <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
           <In3PaymentConfig v-if="selectedPayment.name === 'in3'" />
           <IdealPaymentConfig v-if="selectedPayment.name === 'ideal'" />
+          <PayPalPaymentConfig v-if="selectedPayment.name === 'paypal'" />
           <PayByBankPaymentConfig v-if="selectedPayment.name === 'paybybank'" />
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
@@ -59,10 +60,12 @@ import PayByBankPaymentConfig from "../components/payments/PayByBankPaymentConfi
 import IdealPaymentConfig from "../components/payments/IdealPaymentConfig.vue";
 import PaymentMethodBlock from "../components/PaymentMethodBlock.vue";
 import Loading from "../components/Loading.vue";
+import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue";
 
 export default {
   name: "PaymentMethods",
   components: {
+    PayPalPaymentConfig,
     IdealPaymentConfig,
     PayByBankPaymentConfig,
     Loading,

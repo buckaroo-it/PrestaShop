@@ -15,14 +15,21 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
 class PayPal extends PaymentMethod
 {
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
     public function __construct()
     {
         $this->type = 'paypal';
         $this->version = 1;
         $this->mode = Config::getMode($this->type);
+        $this->buckarooConfigService = new BuckarooConfigService();
     }
 
     // Seller protection payload
@@ -53,7 +60,8 @@ class PayPal extends PaymentMethod
 
     public function pay($customVars = [])
     {
-        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED')) {
+        $sellerProtection = $this->buckarooConfigService->getSpecificValueFromConfig('paypal', 'seller_protection');
+        if ($sellerProtection == '1') {
             // Pay with Seller Protection enabled
             $this->payload = $this->getPayload($customVars);
 

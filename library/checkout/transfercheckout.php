@@ -16,19 +16,11 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-
 class TransferCheckout extends Checkout
 {
-    /**
-     * @var BuckarooConfigService
-     */
-    protected $buckarooConfigService;
-
     public function __construct($cart)
     {
         parent::__construct($cart);
-        $this->buckarooConfigService = new BuckarooConfigService();
     }
 
     final public function setCheckout()

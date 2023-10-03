@@ -307,8 +307,8 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.224eb51a.js',
-            'pathCss' => $this->getPathUri() . 'dev/assets/main.86dbb811.css',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.d81bec7e.js',
+            'pathCss' => $this->getPathUri() . 'dev/assets/main.3ec6e7a8.css',
             'jwt' => $token,
         ]);
 
@@ -1173,7 +1173,7 @@ class Buckaroo3 extends PaymentModule
 
     public function showAfterpayCoc($cart)
     {
-        $afterpay_customer_type = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+        $afterpay_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
 
         $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
 
@@ -1201,7 +1201,7 @@ class Buckaroo3 extends PaymentModule
 
     public function showBillinkCoc($cart)
     {
-        $billink_customer_type = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
+        $billink_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'customer_type');
 
         $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
 
@@ -1271,7 +1271,8 @@ class Buckaroo3 extends PaymentModule
             $shippingCountry = Country::getIsoById($shippingAddress->id_country);
         }
 
-        $customerType = Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE');
+        $customerType = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
+
         if (AfterPayCheckout::CUSTOMER_TYPE_B2C !== $customerType) {
             $nlCompanyExists =
                 ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')

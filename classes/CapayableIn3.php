@@ -17,16 +17,31 @@
 require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+
 class CapayableIn3
 {
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+    protected $apiVersion;
+    protected $paymentLogo;
     public const VERSION_V2 = 'V2';
     public const LOGO_IN3_IDEAL = 'in3_ideal';
     public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
+    public function __construct()
+    {
+        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->apiVersion = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'version');
+        $this->paymentLogo = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'payment_logo');
+    }
+
     public function isV3(): bool
     {
-        return Configuration::get('BUCKAROO_IN3_API_VERSION') !== self::VERSION_V2;
+        return $this->apiVersion !== self::VERSION_V2;
     }
 
     public function getLogo(): string
@@ -35,7 +50,7 @@ class CapayableIn3
             return self::LOGO_DEFAULT;
         }
 
-        if (Configuration::get('BUCKAROO_IN3_PAYMENT_LOGO') === self::LOGO_IN3_IDEAL) {
+        if ($this->paymentLogo === self::LOGO_IN3_IDEAL) {
             return self::LOGO_IN3_IDEAL_FILENAME;
         }
 

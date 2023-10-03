@@ -22,6 +22,7 @@ use Buckaroo\Resources\Constants\RecipientCategory;
 class BillinkCheckout extends Checkout
 {
     protected $customVars = [];
+    protected $customerType;
     public const CUSTOMER_TYPE_B2C = 'B2C';
     public const CUSTOMER_TYPE_B2B = 'B2B';
     public const CUSTOMER_TYPE_BOTH = 'both';
@@ -29,6 +30,8 @@ class BillinkCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->customerType = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'customer_type');
 
         $this->customVars = [
             'vATNumber' => $this->invoice_address->vat_number,
@@ -60,8 +63,6 @@ class BillinkCheckout extends Checkout
 
     public function getBillingAddress()
     {
-        $customerType = Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE');
-
         $birthDate = $this->getBirthDate();
 
         $address_components = $this->getAddressComponents($this->invoice_address->address1); // phpcs:ignore
@@ -70,8 +71,8 @@ class BillinkCheckout extends Checkout
         }
         $country = new Country($this->invoice_address->id_country);
 
-        $category = ($customerType == self::CUSTOMER_TYPE_B2C) ? self::CUSTOMER_TYPE_B2C
-            : (($customerType == self::CUSTOMER_TYPE_B2B) ? self::CUSTOMER_TYPE_B2B
+        $category = ($this->customerType == self::CUSTOMER_TYPE_B2C) ? self::CUSTOMER_TYPE_B2C
+            : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? self::CUSTOMER_TYPE_B2B
                 : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : self::CUSTOMER_TYPE_B2C));
 
         $payload = [
@@ -98,7 +99,7 @@ class BillinkCheckout extends Checkout
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
 
-        if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE')) {
+        if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
             if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
                 $payload['recipient']['careOf'] = $this->invoice_address->company;
                 $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
@@ -111,7 +112,12 @@ class BillinkCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $products = array_merge($products, $this->prepareWrappingArticle());
+        $wrappingVat = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'wrapping_vat');
+
+        if ($wrappingVat == null) {
+            $wrappingVat = 2;
+        }
+        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
         $products = array_merge($products, $this->prepareBuckarooFeeArticle());
         $mergedProducts = $this->mergeProductsBySKU($products);
 
@@ -140,9 +146,10 @@ class BillinkCheckout extends Checkout
         return $articles;
     }
 
-    protected function prepareWrappingArticle()
+    protected function prepareWrappingArticle($wrappingVat)
     {
         $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+
         if ($wrappingCost <= 0) {
             return [];
         }
@@ -152,12 +159,12 @@ class BillinkCheckout extends Checkout
             'quantity' => '1',
             'price' => $wrappingCost,
             'priceExcl' => $wrappingCost,
-            'vatPercentage' => Configuration::get('BUCKAROO_BILLINK_WRAPPING_VAT'),
+            'vatPercentage' => $wrappingVat,
             'description' => 'Wrapping',
         ];
     }
 
-    private function prepareBuckarooFeeArticle()
+    private function prepareBuckarooFeeArticle($wrappingVat)
     {
         $buckarooFee = $this->getBuckarooFee();
         if ($buckarooFee <= 0) {
@@ -169,7 +176,7 @@ class BillinkCheckout extends Checkout
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
             'priceExcl' => round($buckarooFee, 2),
-            'vatPercentage' => 0,
+            'vatPercentage' => $wrappingVat,
             'description' => 'buckaroo_fee',
         ];
     }
@@ -258,7 +265,7 @@ class BillinkCheckout extends Checkout
                 ],
             ];
 
-            if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_BILLINK_CUSTOMER_TYPE')) {
+            if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
                 if ($this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null) {
                     $payload['recipient']['careOf'] = $this->shipping_address->company;
                     $payload['recipient']['category'] = 'B2B';

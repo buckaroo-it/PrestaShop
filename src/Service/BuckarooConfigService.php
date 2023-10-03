@@ -74,10 +74,10 @@ class BuckarooConfigService
         }
 
         if (!isset($configArray[$key])) {
-            $this->logError("Key {$key} not found in configuration for method {$method}");
+            return null;
         }
 
-        return $configArray[$key] ?? null;
+        return $configArray[$key];
     }
 
     private function getPaymentId($method)
