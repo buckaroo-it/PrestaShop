@@ -22,7 +22,7 @@ class CreditCard extends PaymentMethod
     {
         $this->type = 'creditcard';
         $this->version = 1;
-        $this->mode = Config::getMode('CREDITCARD');
+        $this->mode = Config::getMode($this->type);
     }
 
     public function refund()

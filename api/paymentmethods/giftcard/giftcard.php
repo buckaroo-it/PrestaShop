@@ -21,7 +21,7 @@ class GiftCard extends PaymentMethod
     public function __construct()
     {
         $this->type = 'giftcard';
-        $this->mode = Config::getMode('GIFTCARD');
+        $this->mode = Config::getMode($this->type);
     }
 
     public function getPayload($data)

@@ -39,8 +39,6 @@ class Config extends ConfigCore
 
     public static function getMode($key)
     {
-        $key = Tools::strtoupper($key);
-
         $paymentMethodRepository = new PaymentMethodRepository();
         $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
         if (Config::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {

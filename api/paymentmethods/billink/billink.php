@@ -21,7 +21,7 @@ class Billink extends PaymentMethod
     {
         $this->type = 'billink';
         $this->version = '1';
-        $this->mode = Config::getMode('BILLINK');
+        $this->mode = Config::getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

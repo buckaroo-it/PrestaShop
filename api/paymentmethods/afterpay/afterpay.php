@@ -21,7 +21,7 @@ class AfterPay extends PaymentMethod
     {
         $this->type = 'afterpay';
         $this->version = '1';
-        $this->mode = Config::getMode('AFTERPAY');
+        $this->mode = Config::getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

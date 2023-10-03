@@ -20,8 +20,8 @@ class MisterCash extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'bancontactmrcash';
+        $this->type = 'bancontact';
         $this->version = 1;
-        $this->mode = Config::getMode('MISTERCASH');
+        $this->mode = Config::getMode($this->type);
     }
 }

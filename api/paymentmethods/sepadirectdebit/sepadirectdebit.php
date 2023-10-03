@@ -22,7 +22,7 @@ class SepaDirectDebit extends PaymentMethod
     {
         $this->type = 'sepadirectdebit';
         $this->version = '1';
-        $this->mode = Config::getMode('SDD');
+        $this->mode = Config::getMode($this->type);
     }
 
     public function pay($customVars = [])
