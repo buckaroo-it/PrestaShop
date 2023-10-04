@@ -668,16 +668,29 @@ class Buckaroo3 extends PaymentModule
             $payment_options[] = $newOption;
         }
 
-        $orderingRepository = new OrderingRepository();
+        return $this->getSortedPaymentOptions($payment_options);
+    }
+
+    public function getSortedPaymentOptions($payment_options): array
+    {
         $countryId = $this->context->country->id;
-        $positions = $orderingRepository->getPositionByCountryId($countryId);
+        $positions = $this->orderingRepository->getPositionByCountryId($countryId);
         $positions = array_flip($positions);
 
+        $filteredOptions = $this->filterActivePaymentOptions($payment_options, $positions);
+        return $this->sortPaymentOptionsByPosition($filteredOptions, $positions);
+    }
+
+    private function filterActivePaymentOptions($payment_options, array $positions): array {
+        return array_filter($payment_options, function($option) use ($positions) {
+            return isset($positions[$option->getModuleName()]);
+        });
+    }
+
+    private function sortPaymentOptionsByPosition(array $payment_options, array $positions): array {
         usort($payment_options, function ($a, $b) use ($positions) {
-            // Get the position from the positions array obtained from the database.
             $positionA = isset($positions[$a->getModuleName()]) ? $positions[$a->getModuleName()] : 0;
             $positionB = isset($positions[$b->getModuleName()]) ? $positions[$b->getModuleName()] : 0;
-
             return $positionA - $positionB;
         });
 
