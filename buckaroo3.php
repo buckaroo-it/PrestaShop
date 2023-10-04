@@ -37,7 +37,7 @@ use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstall;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository;
-use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
@@ -54,8 +54,8 @@ class Buckaroo3 extends PaymentModule
     /** @var ConfigurationRepository */
     private $configurationRepository;
 
-    /** @var OrderingRepository */
-    private $orderingRepository;
+    /** @var BuckarooPaymentService */
+    private $buckarooPaymentService;
 
     /** @var BuckarooFeeService */
     private $buckarooFeeService;
@@ -82,7 +82,7 @@ class Buckaroo3 extends PaymentModule
 
         $this->paymentMethodRepository = new PaymentMethodRepository();
         $this->configurationRepository = new ConfigurationRepository();
-        $this->orderingRepository = new OrderingRepository();
+        $this->buckarooPaymentService = new BuckarooPaymentService();
         $this->buckarooFeeService = new BuckarooFeeService();
         $this->buckarooConfigService = new BuckarooConfigService();
         $this->logger = new Logger(Logger::INFO, $fileName = '');
@@ -668,33 +668,7 @@ class Buckaroo3 extends PaymentModule
             $payment_options[] = $newOption;
         }
 
-        return $this->getSortedPaymentOptions($payment_options);
-    }
-
-    public function getSortedPaymentOptions($payment_options): array
-    {
-        $countryId = $this->context->country->id;
-        $positions = $this->orderingRepository->getPositionByCountryId($countryId);
-        $positions = array_flip($positions);
-
-        $filteredOptions = $this->filterActivePaymentOptions($payment_options, $positions);
-        return $this->sortPaymentOptionsByPosition($filteredOptions, $positions);
-    }
-
-    private function filterActivePaymentOptions($payment_options, array $positions): array {
-        return array_filter($payment_options, function($option) use ($positions) {
-            return isset($positions[$option->getModuleName()]);
-        });
-    }
-
-    private function sortPaymentOptionsByPosition(array $payment_options, array $positions): array {
-        usort($payment_options, function ($a, $b) use ($positions) {
-            $positionA = isset($positions[$a->getModuleName()]) ? $positions[$a->getModuleName()] : 0;
-            $positionB = isset($positions[$b->getModuleName()]) ? $positions[$b->getModuleName()] : 0;
-            return $positionA - $positionB;
-        });
-
-        return $payment_options;
+        return $this->buckarooPaymentService->getSortedPaymentOptions($payment_options);
     }
 
     public function hookPaymentReturn($params)
