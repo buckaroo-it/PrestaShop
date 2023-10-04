@@ -338,7 +338,7 @@
     "dashboard.pages.settings.custom_scripts_placeholder": "Javascript / CSS (https://example.com/style.css)",
     "dashboard.pages.settings.settings_successfully_updated": "Settings successfully updated.",
     "dashboard.pages.settings.welcome_to_buckaroo": "Welcome to Buckaroo",
-    "dashboard.pages.settings.explanation_intro": "Welcome to the configuration panel of the Buckaroo Payment app for your PrestaShop webshop. In this panel you can set the app completely to your liking. Below you will find the steps to configue the settings. For further questions, please refer to our documentation.",
+    "dashboard.pages.settings.explanation_intro": "Welcome to the configuration panel of the Buckaroo Payment app for your PrestaShop webshop. In this panel you can set the app completely to your liking. Below you will find the steps to configue the settings. For further questions, please refer to our documentation <a href='https://docs.buckaroo.io/docs/prestashop' target='_blank' class='bg-primary inline-block rounded text-white p-1'>page</a>.",
     "dashboard.pages.settings.step_one": "Fill in your <a href='https://plaza.buckaroo.nl/Configuration/Website/Index/' target='_blank' class='bg-primary inline-block rounded text-white p-1'>websitekey</a>",
     "dashboard.pages.settings.step_two": "Fill in your <a href='https://plaza.buckaroo.nl/Configuration/Merchant/SecretKey' target='_blank' class='bg-primary inline-block rounded text-white p-1'>secretkey</a>",
     "dashboard.pages.settings.step_three": "Click on ‘test connection’, when oke proceed to step 4.",

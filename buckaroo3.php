@@ -22,37 +22,26 @@ require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/afterpaycheckout.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/billinkcheckout.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersPayByBank.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CapayableIn3.php';
 
 use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Classes\CapayableIn3;
+use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
 use Buckaroo\PrestaShop\Classes\JWTAuth;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstall;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
-use Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository;
-use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
-use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class Buckaroo3 extends PaymentModule
 {
     public $context;
-
-    /** @var PaymentMethodRepository */
-    private $paymentMethodRepository;
-
-    /** @var ConfigurationRepository */
-    private $configurationRepository;
 
     /** @var BuckarooPaymentService */
     private $buckarooPaymentService;
@@ -63,10 +52,12 @@ class Buckaroo3 extends PaymentModule
     /** @var BuckarooConfigService */
     private $buckarooConfigService;
 
+    protected $logger;
+    private $issuersPayByBank;
+    private $issuersCreditCard;
+
     /** @var LeagueServiceContainerProvider */
     private $containerProvider;
-
-    protected $logger;
 
     public function __construct()
     {
@@ -80,12 +71,11 @@ class Buckaroo3 extends PaymentModule
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
         parent::__construct();
 
-        $this->paymentMethodRepository = new PaymentMethodRepository();
-        $this->configurationRepository = new ConfigurationRepository();
-        $this->buckarooPaymentService = new BuckarooPaymentService();
-        $this->buckarooFeeService = new BuckarooFeeService();
-        $this->buckarooConfigService = new BuckarooConfigService();
         $this->logger = new Logger(Logger::INFO, $fileName = '');
+        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->issuersPayByBank = new IssuersPayByBank();
+        $this->issuersCreditCard = new IssuersCreditCard();
+        $this->buckarooFeeService = new BuckarooFeeService();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
@@ -234,7 +224,6 @@ class Buckaroo3 extends PaymentModule
             $currentStates[$state->id_order_state] = $state->name;
         }
 
-        $state_id = 0;
         if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
             // Add the custom order state
             $defaultOrderState = new OrderState();
@@ -307,7 +296,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.d81bec7e.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.ed37e6d0.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.3ec6e7a8.css',
             'jwt' => $token,
         ]);
@@ -414,9 +403,14 @@ class Buckaroo3 extends PaymentModule
         }
         require_once dirname(__FILE__) . '/config.php';
 
-        $capayableIn3 = new CapayableIn3();
-        $issuersPayByBank = new IssuersPayByBank();
-        $issuersCreditCard = new IssuersCreditCard();
+        $this->buckarooPaymentService = new BuckarooPaymentService(
+            $this->buckarooConfigService,
+            $this->buckarooFeeService,
+            $this->issuersPayByBank,
+            $this->logger,
+            $this->context,
+            $this
+        );
 
         try {
             $this->context->smarty->assign(
@@ -435,240 +429,22 @@ class Buckaroo3 extends PaymentModule
                     'phone_afterpay_billing' => $phone_afterpay_billing,
                     'total' => $cart->getOrderTotal(true, 3),
                     'country' => Country::getIsoById(Tools::getCountry()),
-                    'afterpay_show_coc' => $this->showAfterpayCoc($cart),
-                    'billink_show_coc' => $this->showBillinkCoc($cart),
+                    'afterpay_show_coc' => $this->buckarooPaymentService->showAfterpayCoc($cart),
+                    'billink_show_coc' => $this->buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
                     'idealDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('ideal', 'display_type'),
-                    'paybybankIssuers' => $issuersPayByBank->getIssuerList(),
+                    'paybybankIssuers' => $this->issuersPayByBank->getIssuerList(),
                     'payByBankDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('paybybank', 'display_type'),
-                    'creditcardIssuers' => $issuersCreditCard->getIssuerList(),
+                    'creditcardIssuers' => $this->issuersCreditCard->getIssuerList(),
                     'creditCardDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('creditcard', 'display_type'),
-                    'in3Method' => $capayableIn3->getMethod(),
+                    'in3Method' => (new CapayableIn3())->getMethod(),
                 ]
             );
         } catch (Exception $e) {
             $this->logger->logInfo('Buckaroo3::hookPaymentOptions - ' . $e->getMessage(), 'error');
         }
 
-        $payment_options = [];
-        libxml_use_internal_errors(true);
-        if ($this->isPaymentModeActive('ideal') && $this->isPaymentMethodAvailable($cart, 'ideal')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('ideal', 'iDEAL'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_ideal.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/iDEAL.svg?v')
-                ->setModuleName('ideal');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('paybybank') && $this->isPaymentMethodAvailable($cart, 'paybybank')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('paybybank', 'PayByBank'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_paybybank.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/' . $issuersPayByBank->getSelectedIssuerLogo())
-                ->setModuleName('paybybank');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('paypal') && $this->isPaymentMethodAvailable($cart, 'paypal')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('paypal', 'PayPal'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('paypal'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'paypal']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/PayPal.svg?v')
-                ->setModuleName('paypal');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('sepadirectdebit') && $this->isPaymentMethodAvailable($cart, 'sepadirectdebit')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('sepadirectdebit', 'SEPA Direct Debit'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sepadirectdebit'])) // phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_sepadirectdebit.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/SEPA-directdebit.svg?v') // phpcs:ignore
-                ->setModuleName('sepadirectdebit');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('giropay') && $this->isPaymentMethodAvailable($cart, 'giropay')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('giropay', 'GiroPay'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giropay']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_giropay.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Giropay.svg?v')
-                ->setModuleName('giropay');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('kbc') && $this->isPaymentMethodAvailable($cart, 'kbc')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('kbc', 'KBC'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('kbc'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'kbc']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/KBC.svg?v')
-                ->setModuleName('kbc');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('bancontact') && $this->isPaymentMethodAvailable($cart, 'bancontact')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('bancontact', 'Bancontact / Mister Cash'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('bancontact'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'bancontactmrcash'])) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Bancontact.svg?vv') // phpcs:ignore
-                ->setModuleName('bancontact');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('giftcard') && $this->isPaymentMethodAvailable($cart, 'giftcard')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('giftcard', 'Giftcards'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('giftcard'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Giftcards.svg?v')
-                ->setModuleName('giftcard');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('creditcard') && $this->isPaymentMethodAvailable($cart, 'creditcard')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('creditcard', 'Credit and debit card'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_creditcard.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Creditcards.svg?v')
-                ->setModuleName('creditcard');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('sofort') && $this->isPaymentMethodAvailable($cart, 'sofort')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('sofort', 'Sofortbanking'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('sofort'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'sofortueberweisung'])) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Sofort.svg?v') // phpcs:ignore
-                ->setModuleName('sofort');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('belfius') && $this->isPaymentMethodAvailable($cart, 'belfius')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('belfius', 'Belfius'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('belfius'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'belfius'])) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Belfius.svg?v') // phpcs:ignore
-                ->setModuleName('belfius');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('transfer') && $this->isPaymentMethodAvailable($cart, 'transfer')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('transfer', 'Bank Transfer'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'transfer']))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('transfer'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/SEPA-credittransfer.svg?v')
-                ->setModuleName('transfer');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('afterpay') && $this->isPaymentMethodAvailable($cart, 'afterpay') && $this->isAfterpayAvailable($cart)) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('afterpay', 'Riverty | AfterPay'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay'])) // phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_afterpay.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/AfterPay.svg?v') // phpcs:ignore
-                ->setModuleName('afterpay');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('klarna') && $this->isPaymentMethodAvailable($cart, 'klarna')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('klarna', 'KlarnaKP'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])) // phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_klarna.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Klarna.svg?v') // phpcs:ignore
-                ->setModuleName('klarna');
-            $payment_options[] = $newOption;
-        }
-        if ($this->isPaymentModeActive('applepay') && $this->isPaymentMethodAvailable($cart, 'applepay')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('applepay', 'Apple Pay'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'applepay'])) // phpcs:ignore
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('applepay'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/ApplePay.svg?v') // phpcs:ignore
-                ->setModuleName('applepay');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('in3') && $this->isPaymentMethodAvailable($cart, 'in3') && $this->isIn3Available($cart)) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('in3', 'In3'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $capayableIn3->getMethod()])) // phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_in3.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/' . $capayableIn3->getLogo())
-                ->setModuleName('in3');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('billink') && $this->isPaymentMethodAvailable($cart, 'billink')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('billink', 'Billink'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])) // phpcs:ignore
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_billink.tpl')) // phpcs:ignore
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Billink.svg?v') // phpcs:ignore
-                ->setModuleName('billink');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('eps') && $this->isPaymentMethodAvailable($cart, 'eps')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('eps', 'EPS'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('eps'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'eps']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/EPS.svg?v')
-                ->setModuleName('eps');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('przelewy24') && $this->isPaymentMethodAvailable($cart, 'przelewy24')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('przelewy24', 'Przelewy24'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'przelewy24']))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('przelewy24'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Przelewy24.svg?v')
-                ->setModuleName('przelewy24');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('payperemail') && $this->isPaymentMethodAvailable($cart, 'payperemail')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('payperemail', 'PayPerEmail'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_payperemail.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/PayPerEmail.svg?v')
-                ->setModuleName('payperemail');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('payconiq') && $this->isPaymentMethodAvailable($cart, 'payconiq')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('payconiq', 'Payconiq'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('payconiq'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'payconiq']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Payconiq.svg?v')
-                ->setModuleName('payconiq');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('tinka') && $this->isPaymentMethodAvailable($cart, 'tinka')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('tinka', 'Tinka'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'tinka']))
-                ->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/payment_tinka.tpl'))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Tinka.svg?v')
-                ->setModuleName('tinka');
-            $payment_options[] = $newOption;
-        }
-
-        if ($this->isPaymentModeActive('trustly') && $this->isPaymentMethodAvailable($cart, 'trustly')) {
-            $newOption = new PaymentOption();
-            $newOption->setCallToActionText($this->getBuckarooLabel('trustly', 'Trustly'))
-                ->setInputs($this->buckarooFeeService->getBuckarooFeeInputs('trustly'))
-                ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => 'trustly']))
-                ->setLogo($this->_path . 'views/img/buckaroo/Payment methods/SVG/Trustly.svg?v')
-                ->setModuleName('trustly');
-            $payment_options[] = $newOption;
-        }
-
-        return $this->buckarooPaymentService->getSortedPaymentOptions($payment_options);
+        return $this->buckarooPaymentService->getPaymentOptions($cart);
     }
 
     public function hookPaymentReturn($params)
@@ -856,40 +632,6 @@ class Buckaroo3 extends PaymentModule
         }
 
         return $payment_method_tr;
-    }
-
-    public function getBuckarooLabel($method, $label)
-    {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
-        if ($configArray === null) {
-            $this->logError('JSON decode error: ' . json_last_error_msg());
-
-            return null;
-        }
-
-        $label = $this->getLabel($configArray, $label);
-        $feeLabel = $this->getFeeLabel($configArray);
-
-        return $this->l($label . $feeLabel);
-    }
-
-    private function getLabel($configArray, $defaultLabel)
-    {
-        return (isset($configArray['frontend_label']) && $configArray['frontend_label'] !== '') ? $configArray['frontend_label'] : $defaultLabel;
-    }
-
-    private function getFeeLabel($configArray)
-    {
-        if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . Tools::displayPrice($configArray['payment_fee'], $this->context->currency->id);
-        }
-
-        return '';
-    }
-
-    private function logError($message)
-    {
-        $this->logger->logInfo($message, 'error');
     }
 
     public function getBuckarooFeeByCartId($id_cart)
@@ -1124,236 +866,5 @@ class Buckaroo3 extends PaymentModule
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/product_fileds.tpl');
-    }
-
-    /**
-     * Get address by id
-     *
-     * @param mixed $id
-     *
-     * @return Address|null
-     */
-    protected function getAddressById($id)
-    {
-        if (!is_int($id)) {
-            return;
-        }
-
-        return new Address($id);
-    }
-
-    /**
-     * Check if company exists
-     *
-     * @param Address|null $address
-     *
-     * @return bool
-     */
-    protected function companyExists($address)
-    {
-        if ($address === null) {
-            return false;
-        }
-
-        return strlen(trim($address->company)) !== 0;
-    }
-
-    public function showAfterpayCoc($cart)
-    {
-        $afterpay_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
-
-        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
-
-        $billingAddress = $this->getAddressById($idAddressInvoice);
-        $billingCountry = null;
-        if ($billingAddress !== null) {
-            $billingCountry = Country::getIsoById($billingAddress->id_country);
-        }
-
-        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
-        $shippingCountry = null;
-        if ($shippingAddress !== null) {
-            $shippingCountry = Country::getIsoById($shippingAddress->id_country);
-        }
-
-        return AfterPayCheckout::CUSTOMER_TYPE_B2B === $afterpay_customer_type
-        || (
-            AfterPayCheckout::CUSTOMER_TYPE_B2C !== $afterpay_customer_type
-            && (
-                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
-                || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
-            )
-        );
-    }
-
-    public function showBillinkCoc($cart)
-    {
-        $billink_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'customer_type');
-
-        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
-
-        $billingAddress = $this->getAddressById($idAddressInvoice);
-        $billingCountry = null;
-        if ($billingAddress !== null) {
-            $billingCountry = Country::getIsoById($billingAddress->id_country);
-        }
-
-        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
-        $shippingCountry = null;
-        if ($shippingAddress !== null) {
-            $shippingCountry = Country::getIsoById($shippingAddress->id_country);
-        }
-
-        return BillinkCheckout::CUSTOMER_TYPE_B2B === $billink_customer_type
-        || (
-            BillinkCheckout::CUSTOMER_TYPE_B2C !== $billink_customer_type
-            && (
-                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
-                || ($this->companyExists($billingAddress) && $billingCountry === 'NL')
-            )
-        );
-    }
-
-    /**TODO
-     * Check if payment method available
-     *
-     * @param Cart $cart
-     * @return bool
-     */
-    protected function isPaymentMethodAvailable($cart, $paymentMethod)
-    {
-        // Check if payment method is available by amount
-        return $this->isAvailableByAmount($cart->getOrderTotal(true, 3), $paymentMethod);
-    }
-
-    public function isPaymentModeActive($method)
-    {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
-        if ($configArray === null) {
-            return false;
-        }
-
-        return isset($configArray['mode']) && in_array($configArray['mode'], ['live', 'test']);
-    }
-
-    /**
-     * Check if afterpay available
-     *
-     * @param Cart $cart
-     *
-     * @return bool
-     */
-    protected function isAfterpayAvailable($cart)
-    {
-        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
-        $billingAddress = $this->getAddressById($idAddressInvoice);
-        $billingCountry = null;
-        if ($billingAddress !== null) {
-            $billingCountry = Country::getIsoById($billingAddress->id_country);
-        }
-
-        $shippingAddress = $this->getAddressById($cart->id_address_delivery);
-        $shippingCountry = null;
-        if ($shippingAddress !== null) {
-            $shippingCountry = Country::getIsoById($shippingAddress->id_country);
-        }
-
-        $customerType = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
-
-        if (AfterPayCheckout::CUSTOMER_TYPE_B2C !== $customerType) {
-            $nlCompanyExists =
-                ($this->companyExists($shippingAddress) && $shippingCountry === 'NL')
-                || ($this->companyExists($billingAddress) && $billingCountry === 'NL');
-            if (AfterPayCheckout::CUSTOMER_TYPE_B2B === $customerType) {
-                return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3), 'AFTERPAY') && $nlCompanyExists;
-            }
-
-            // both customer types & a company is filled show if available b2b by amount
-            if ($nlCompanyExists) {
-                return $this->isAvailableByAmountB2B($cart->getOrderTotal(true, 3), 'AFTERPAY');
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Check if payment is available by amount
-     *
-     * @param float  $cartTotal
-     * @param string $paymentMethod
-     *
-     * @return bool
-     */
-    public function isAvailableByAmount(float $cartTotal, $paymentMethod)
-    {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($paymentMethod);
-
-        if ($configArray === null) {
-            return false;
-        }
-
-        $minAmount = isset($configArray['min_order_amount']) ? (float) $configArray['min_order_amount'] : 0;
-        $maxAmount = isset($configArray['max_order_amount']) ? (float) $configArray['max_order_amount'] : 0;
-
-        if ($minAmount == 0 && $maxAmount == 0) {
-            return true;
-        }
-
-        return ($minAmount == 0 || $cartTotal >= $minAmount) && ($maxAmount == 0 || $cartTotal <= $maxAmount);
-    }
-
-    /**
-     * Check if payment is available for b2b
-     *
-     * @param float $cartTotal
-     *
-     * @return bool
-     */
-    public function isAvailableByAmountB2B(float $cartTotal, $paymentMethod)
-    {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($paymentMethod);
-
-        if ($configArray === null) {
-            return false;
-        }
-
-        $minAmount = isset($configArray['min_order_amount']) ? (float) $configArray['min_order_amount'] : 0;
-        $maxAmount = isset($configArray['max_order_amount']) ? (float) $configArray['max_order_amount'] : 0;
-
-        if ($minAmount == 0 && $maxAmount == 0) {
-            return true;
-        }
-
-        return ($minAmount == 0 || $cartTotal >= $minAmount) && ($maxAmount == 0 || $cartTotal <= $maxAmount);
-    }
-
-    /**
-     * Get billing country iso from cart
-     *
-     * @param Cart $cart
-     *
-     * @return string|null
-     */
-    protected function getBillingCountryIso($cart)
-    {
-        $idAddressInvoice = $cart->id_address_invoice !== 0 ? $cart->id_address_invoice : $cart->id_address_delivery;
-        $billingAddress = $this->getAddressById((int) $idAddressInvoice);
-
-        if ($billingAddress !== null) {
-            return Country::getIsoById($billingAddress->id_country);
-        }
-    }
-
-    /**
-     * Is in3 available
-     *
-     * @param Cart $cart
-     *
-     * @return bool
-     */
-    protected function isIn3Available($cart)
-    {
-        return $this->getBillingCountryIso($cart) === 'NL';
     }
 }

@@ -39,19 +39,6 @@ final class PaymentMethodRepository
 
         foreach ($paymentMethodsData as $methodData) {
             $this->insertPaymentMethod($methodData);
-
-            $data = [
-                'name' => pSQL($methodData['name']),
-                'icon' => pSQL($methodData['icon']),
-                'created_at' => date('Y-m-d H:i:s'),
-            ];
-
-            if (!$this->db->insert('bk_payment_methods', $data)) {
-                throw new \Exception('Database error: Could not insert payment method');
-            }
-            $paymentMethodId = $this->db->Insert_ID();
-
-            $this->insertConfiguration($paymentMethodId);
         }
 
         return $paymentMethodsData;
@@ -61,8 +48,10 @@ final class PaymentMethodRepository
     {
         $data = [
             'name' => pSQL($methodData['name']),
+            'label' => pSQL($methodData['label']),
             'icon' => pSQL($methodData['icon']),
-            'created_at' => (new DateTime())->format('Y-m-d H:i:s'),
+            'template' => pSQL($methodData['template']),
+            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if (!$this->db->insert('bk_payment_methods', $data)) {
@@ -89,35 +78,42 @@ final class PaymentMethodRepository
     private function getPaymentMethodsData()
     {
         return [
-            ['name' => 'ideal', 'icon' => 'iDEAL.svg'],
-            ['name' => 'paybybank', 'icon' => 'paybybank.gif'],
-            ['name' => 'paypal', 'icon' => 'PayPal.svg'],
-            ['name' => 'sepadirectdebit', 'icon' => 'SEPA-directdebit.svg'],
-            ['name' => 'giropay', 'icon' => 'Giropay.svg'],
-            ['name' => 'kbc', 'icon' => 'KBC.svg'],
-            ['name' => 'bancontact', 'icon' => 'Bancontact.svg'],
-            ['name' => 'giftcard', 'icon' => 'Giftcards.svg'],
-            ['name' => 'creditcard', 'icon' => 'Creditcards.svg'],
-            ['name' => 'sofort', 'icon' => 'Sofort.svg'],
-            ['name' => 'belfius', 'icon' => 'Belfius.svg'],
-            ['name' => 'afterpay', 'icon' => 'AfterPay.svg'],
-            ['name' => 'klarna', 'icon' => 'Klarna.svg'],
-            ['name' => 'applepay', 'icon' => 'ApplePay.svg'],
-            ['name' => 'in3', 'icon' => 'In3.svg'],
-            ['name' => 'billink', 'icon' => 'Billink.svg'],
-            ['name' => 'eps', 'icon' => 'EPS.svg'],
-            ['name' => 'przelewy24', 'icon' => 'Przelewy24.svg'],
-            ['name' => 'payperemail', 'icon' => 'PayPerEmail.svg'],
-            ['name' => 'payconiq', 'icon' => 'Payconiq.svg'],
-            ['name' => 'tinka', 'icon' => 'Tinka.svg'],
-            ['name' => 'trustly', 'icon' => 'Trustly.svg'],
-            ['name' => 'transfer', 'icon' => 'SEPA-credittransfer.svg'],
+            ['name' => 'ideal', 'label' => 'iDEAL', 'icon' => 'iDEAL.svg', 'template' => 'payment_ideal.tpl'],
+            ['name' => 'paybybank', 'label' => 'PayByBank', 'icon' => 'PayByBank.gif', 'template' => 'payment_paybybank.tpl'],
+            ['name' => 'paypal', 'label' => 'PayPal', 'icon' => 'PayPal.svg', 'template' => ''],
+            ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl'],
+            ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => 'payment_giropay.tpl'],
+            ['name' => 'kbc', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => ''],
+            ['name' => 'bancontact', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => ''],
+            ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => ''],
+            ['name' => 'creditcard', 'label' => 'Credit and debit card', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl'],
+            ['name' => 'sofort', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => ''],
+            ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => ''],
+            ['name' => 'afterpay', 'label' => 'Riverty | AfterPay', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl'],
+            ['name' => 'klarna', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl'],
+            ['name' => 'applepay', 'label' => 'Apple Pay', 'icon' => 'ApplePay.svg', 'template' => ''],
+            ['name' => 'in3', 'label' => 'In3', 'icon' => 'In3.svg', 'template' => 'payment_in3.tpl'],
+            ['name' => 'billink', 'label' => 'Billink', 'icon' => 'Billink.svg', 'template' => 'payment_billink.tpl'],
+            ['name' => 'eps', 'label' => 'EPS', 'icon' => 'EPS.svg', 'template' => ''],
+            ['name' => 'przelewy24', 'label' => 'Przelewy24', 'icon' => 'Przelewy24.svg', 'template' => ''],
+            ['name' => 'payperemail', 'label' => 'PayPerEmail', 'icon' => 'PayPerEmail.svg', 'template' => 'payment_payperemail.tpl'],
+            ['name' => 'payconiq', 'label' => 'Payconiq', 'icon' => 'Payconiq.svg', 'template' => ''],
+            ['name' => 'tinka', 'label' => 'Tinka', 'icon' => 'Tinka.svg', 'template' => 'payment_tinka.tpl'],
+            ['name' => 'trustly', 'label' => 'Trustly', 'icon' => 'Trustly.svg', 'template' => ''],
+            ['name' => 'transfer', 'label' => 'Bank Transfer', 'icon' => 'SEPA-credittransfer.svg', 'template' => ''],
         ];
     }
 
     public function getPaymentMethodsFromDB()
     {
         $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+
+        return $this->db->executeS($query);
+    }
+
+    public function fetchAllPaymentMethods()
+    {
+        $query = 'SELECT name, label, icon, template FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
 
         return $this->db->executeS($query);
     }

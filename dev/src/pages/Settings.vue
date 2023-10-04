@@ -92,7 +92,11 @@
               <div class="py-3 space-y-5 flex justify-between items-center">
                 <div>
                   <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.transaction_description') }}</h2>
-                  <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.transaction_description_label')"></div>
+                  <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.transaction_description_label', {
+                      'order_number': $t('dashboard.pages.settings.order_number'),
+                      'shop_name': $t('dashboard.pages.settings.shop_name')
+                    })">
+                  </div>
                 </div>
               </div>
 
@@ -161,8 +165,7 @@
     <div class="lg:w-1/5 w-full bg-thirdly p-5 space-y-5 text-gray-600 border-l-2 border-gray-100 lg:h-full">
       <h2 class="font-bold text-lg">{{ $t('dashboard.pages.settings.welcome_to_buckaroo') }}</h2>
 
-      <p class="text-sm">
-        {{ $t('dashboard.pages.settings.explanation_intro') }}
+      <p class="text-sm" v-html=" $t('dashboard.pages.settings.explanation_intro')">
       </p>
 
       <iframe class="rounded-xl" width="100%" height="180" src="https://www.youtube.com/embed/sAw16-VPkhY" title="Buckaroo Smart Checkout" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>

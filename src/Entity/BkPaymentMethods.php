@@ -45,6 +45,20 @@ class BkPaymentMethods
     /**
      * @var string
      *
+     * @ORM\Column(name="label", type="string")
+     */
+    private $label;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="template", type="string")
+     */
+    private $template;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="icon", type="string")
      */
     private $icon;
@@ -64,6 +78,26 @@ class BkPaymentMethods
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+
+    public function setLabel(string $label): void
+    {
+        $this->label = $label;
+    }
+
+    public function getTemplate(): string
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(string $template): void
+    {
+        $this->template = $template;
     }
 
     public function getIcon(): string

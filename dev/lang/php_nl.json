@@ -244,7 +244,7 @@
   "dashboard.pages.order_payment_methods.payment_method_order_updated_successfully": "Betaalmethoden volgorde succesvol geüpdatet.",
   "dashboard.pages.order_payment_methods.something_went_wrong": "Er is iets fout gegaan.",
   "dashboard.pages.order_payment_methods.how_to_order_payment_method": "Hoe u uw betaalmethode volgorde aan kunt passen",
-  "dashboard.pages.order_payment_methods.explanation_intro": "Om de betaalmethoden per land in de juiste volgorde in te stellen, dien je aan de linkerkant van dit scherm het gewenste land te selecteren. Je krijgt dan een overzicht van de betaalmethoden die voor dat land 'aan' staan. Je kunt ze vervolgens in de juiste volgorde zetten door te slepen.",
+  "dashboard.pages.order_payment_methods.explanation_intro": "Om de betaalmethoden per land in de juiste volgorde in te stellen, dien je aan de linkerkant van dit scherm het gewenste land te selecteren. Je krijgt dan een overzicht van de betaalmethoden die voor dat land 'aan' staan. Je kunt ze vervolgens in de juiste volgorde zetten door te slepen <a href='https://docs.buckaroo.io/docs/prestashop' target='_blank' class='bg-primary inline-block rounded text-white p-1'>page</a>.",
   "dashboard.pages.order_payment_methods.step_one": "Selecteer het land waarvoor je de volgorde van de betaalmethoden wilt wijzigen.",
   "dashboard.pages.order_payment_methods.step_two": "Sleep de betaalmethoden in de volgorde van je voorkeur.",
   "dashboard.pages.order_payment_methods.step_three": "Sla op en controleer in je webshop (checkout) of alles correct is.",

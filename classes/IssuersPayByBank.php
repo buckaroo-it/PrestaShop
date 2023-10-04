@@ -14,8 +14,8 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
+
+namespace Buckaroo\PrestaShop\Classes;
 
 class IssuersPayByBank
 {
@@ -23,7 +23,7 @@ class IssuersPayByBank
 
     public function getIssuerList()
     {
-        $savedBankIssuer = Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
+        $savedBankIssuer = \Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
 
         $issuerArray = [
             'ABNANL2A' => [
@@ -89,7 +89,7 @@ class IssuersPayByBank
 
             return '../../PayByBank issuers/' . $selectedIssuer['logo'];
         } else {
-            return 'paybybank.gif?v';
+            return 'PayByBank.gif?v';
         }
     }
 }
