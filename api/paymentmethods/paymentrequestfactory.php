@@ -43,6 +43,8 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_PRZELEWY24 = 'przelewy24';
     public const REQUEST_TYPE_TINKA = 'tinka';
     public const REQUEST_TYPE_TRUSTLY = 'trustly';
+    public const REQUEST_TYPE_WECHATPAY = 'wechatpay';
+    public const REQUEST_TYPE_ALIPAY = 'alipay';
 
     // Request types (Payment Methods).
     public static $valid_request_types = [
@@ -71,6 +73,8 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_PRZELEWY24 => 'Przelewy24',
         PaymentRequestFactory::REQUEST_TYPE_TINKA => 'Tinka',
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',
+        PaymentRequestFactory::REQUEST_TYPE_WECHATPAY => 'Wechatpay',
+        PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay'
     ];
 
     final public static function create($request_type_id, $data = [])

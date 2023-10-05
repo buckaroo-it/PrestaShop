@@ -356,9 +356,10 @@
   "payment_methods.bancontact": "Bancontact",
   "payment_methods.sofort": "Sofort",
   "payment_methods.giropay": "Giropay",
-  "payment_methods.payconiq": "Payconiq",
   "payment_methods.klarna": "Klarna",
   "payment_methods.afterpay": "Riverty",
   "payment_methods.trustly": "Trustly",
-  "payment_methods.transfer": "Transfer"
+  "payment_methods.transfer": "Transfer",
+  "payment_methods.wechatpay": "WeChatPay",
+  "payment_methods.alipay": "Alipay"
 }
