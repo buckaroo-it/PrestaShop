@@ -49,6 +49,8 @@ abstract class Checkout
     public const CHECKOUT_TYPE_PRZELEWY24 = 'przelewy24';
     public const CHECKOUT_TYPE_TINKA = 'tinka';
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
+    public const CHECKOUT_TYPE_WECHATPAY = 'wechatpay';
+    public const CHECKOUT_TYPE_ALIPAY = 'alipay';
 
     // Request types (Payment Methods).
     public static $payment_method_type = [
@@ -77,6 +79,8 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_PRZELEWY24 => 'Przelewy24',
         Checkout::CHECKOUT_TYPE_TINKA => 'Tinka',
         Checkout::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
+        Checkout::CHECKOUT_TYPE_WECHATPAY => 'Wechatpay',
+        Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay'
     ];
 
     // protected $current_order;

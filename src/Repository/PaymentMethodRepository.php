@@ -101,6 +101,8 @@ final class PaymentMethodRepository
             ['name' => 'tinka', 'label' => 'Tinka', 'icon' => 'Tinka.svg', 'template' => 'payment_tinka.tpl'],
             ['name' => 'trustly', 'label' => 'Trustly', 'icon' => 'Trustly.svg', 'template' => ''],
             ['name' => 'transfer', 'label' => 'Bank Transfer', 'icon' => 'SEPA-credittransfer.svg', 'template' => ''],
+            ['name' => 'wechatpay', 'label' => 'WeChatPay', 'icon' => 'WeChat Pay.svg', 'template' => ''],
+            ['name' => 'alipay', 'label' => 'Alipay', 'icon' => 'Alipay.svg', 'template' => '']
         ];
     }
 
