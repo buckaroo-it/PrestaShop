@@ -13,19 +13,19 @@
                 'bg-sixthly text-white': view === 'settings',
                 'hover:bg-seventhly text-eightly': view !== 'settings',
             }">
-        <i class="fas fa-cogs md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">Settings</span>
+        <i class="fas fa-cogs md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">{{$t(`dashboard.menu.settings`)}}</span>
       </li>
       <li class="text-white md:p-5 p-2 cursor-pointer transition ease-in-out duration-300 flex-1 md:text-left text-left space-y-2 md:block md:space-x-1 flex flex-col justify-center" @click="setView('payment_methods')" v-bind:class="{
                 'bg-sixthly text-white': view === 'payment_methods',
                 'hover:bg-seventhly text-eightly': view !== 'payment_methods',
             }">
-        <i class="fas fa-credit-card md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">Payment methods</span>
+        <i class="fas fa-credit-card md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">{{$t(`dashboard.menu.payment_methods`)}}}</span>
       </li>
       <li class="text-white md:p-5 p-2 cursor-pointer transition ease-in-out duration-300 flex-1 md:text-left text-left space-y-2 md:block md:space-x-1 flex flex-col justify-center" @click="setView('order_payment_methods')" v-bind:class="{
                 'bg-sixthly text-white': view === 'order_payment_methods',
                 'hover:bg-seventhly text-eightly': view !== 'order_payment_methods',
             }">
-        <i class="fas fa-sort-numeric-up md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">Order Payments Methods</span>
+        <i class="fas fa-sort-numeric-up md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">{{ $t(`dashboard.pages.order_payment_methods.order_payment_methods`) }}</span>
       </li>
     </ul>
   </div>
