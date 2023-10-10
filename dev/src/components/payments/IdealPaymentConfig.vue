@@ -5,7 +5,6 @@
           <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.display_type`) }}</h2>
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.display_type_label`) }}</div>
         </div>
-
         <div class="flex rounded shadow border justify-between md:w-80 w-full overflow-hidden font-bold md:text-sm text-xs">
           <button class="w-1/2 h-12 space-x-1 hover:bg-green-500 hover:text-white"
                   v-bind:class="{'bg-green-500 text-white': config.display_type === 'radio' }"
