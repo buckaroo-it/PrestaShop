@@ -14,19 +14,28 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
+
 class Buckaroo3CountriesModuleFrontController extends BaseApiController
 {
+    private $buckarooCountriesService;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->buckarooCountriesService = $this->module->getService(BuckarooCountriesService::class);
+    }
+
     public function initContent()
     {
         parent::initContent();
         $this->authenticate();
 
-        $countryRepository = new CountryRepository();
-        $countries = $countryRepository->checkAndInsertNewCountries();
+        $countries = $this->buckarooCountriesService->synchronizeCountries();
 
         $data = [
             'status' => true,

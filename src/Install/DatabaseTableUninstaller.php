@@ -34,8 +34,8 @@ final class DatabaseTableUninstaller implements UninstallerInterface
     {
         $sql = [];
 
-        $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_payment_methods`;';
         $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_configuration`;';
+        $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_payment_methods`;';
         $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_countries`;';
         $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_ordering`;';
         $sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'bk_creditcards`;';

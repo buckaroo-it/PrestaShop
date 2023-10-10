@@ -17,9 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
-require_once dirname(__FILE__) . '/../../../config.php';
-
 use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 class Handler
@@ -51,7 +50,7 @@ class Handler
         return new BuckarooClient(
             \Configuration::get('BUCKAROO_MERCHANT_KEY'),
             \Configuration::get('BUCKAROO_SECRET_KEY'),
-            \Config::getMode($method)
+            Config::getMode($method)
         );
     }
 }

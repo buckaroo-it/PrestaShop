@@ -17,49 +17,31 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityRepository;
 
-final class ConfigurationRepository extends BkConfiguration
+class ConfigurationRepository extends EntityRepository
 {
-    protected $db;
-    protected $orderingRepository;
-
-    public function __construct()
+    private function getPaymentMethodByName(string $name): ?BkPaymentMethods
     {
-        $this->db = \Db::getInstance();
-        $this->orderingRepository = new OrderingRepository();
+        return $this->_em->getRepository(BkPaymentMethods::class)->findOneBy(['name' => $name]);
     }
 
-    public function findOneBy($paymentId)
+    public function getPaymentMethodId(string $name): ?int
     {
-        // Build and execute the SQL query
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . pSQL($paymentId);
+        $paymentMethod = $this->getPaymentMethodByName($name);
 
-        return $this->db->getRow($sql);
+        return $paymentMethod ? $paymentMethod->getId() : null;
     }
 
-    public function getPaymentMethodId($name)
+    public function getConfigArray(int $paymentId): array
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
-
-        return $this->db->getValue($query);
-    }
-
-    private function getConfigArray(int $paymentId): array
-    {
-        $query = sprintf(
-            'SELECT value FROM %sbk_configuration WHERE configurable_id = %d',
-            _DB_PREFIX_,
-            $paymentId
-        );
-        $existingConfig = $this->db->getValue($query);
-
-        if ($existingConfig === false) {
-            throw new \Exception('Configuration not found for payment id ' . $paymentId);
+        $configuration = $this->findOneBy(['paymentMethod' => $paymentId]);
+        if (!$configuration) {
+            throw new \Exception("Configuration not found for payment id {$paymentId}");
         }
 
-        $configArray = json_decode($existingConfig, true);
-
+        $configArray = json_decode($configuration->getValue(), true);
         if ($configArray === null) {
             throw new \Exception('JSON decode error: ' . json_last_error_msg());
         }
@@ -67,60 +49,27 @@ final class ConfigurationRepository extends BkConfiguration
         return $configArray;
     }
 
-    public function updatePaymentMethodConfig($name, $data)
+    public function updateConfig(int $paymentId, array $config): bool
     {
-        $paymentId = $this->getPaymentMethodId($name);
-        $configArray = $this->getConfigArray($paymentId);
-        $mergedConfig = array_merge($configArray, $data);
+        $configuration = $this->findOneBy(['paymentMethod' => $paymentId]);
+        if (!$configuration) {
+            throw new \Exception("Configuration not found for payment id {$paymentId}");
+        }
 
-        $configUpdateStatus = $this->updateConfig($paymentId, $mergedConfig);
+        $configuration->setValue(json_encode($config));
+        $this->_em->persist($configuration);
+        $this->_em->flush();
 
-        //        $orderingUpdateStatus = $this->updateOrdering($data['countries'], $paymentId);
-
-        return $configUpdateStatus;
+        return true;
     }
 
-    private function getOrderingEntry($countryId)
+    public function getActiveCreditCards(): array
     {
-        $query = sprintf(
-            'SELECT value FROM %sbk_ordering WHERE country_id = %d',
-            _DB_PREFIX_,
-            $countryId
-        );
+        $paymentName = 'creditcard';
+        $paymentMethod = $this->getPaymentMethodByName($paymentName);
 
-        return json_decode($this->db->getValue($query));
-    }
+        $configArray = $this->getConfigArray($paymentMethod->getId());
 
-    public function updatePaymentMethodMode(string $name, string $mode): bool
-    {
-        $paymentId = $this->getPaymentMethodId($name);
-        $configArray = $this->getConfigArray($paymentId);
-        $configArray['mode'] = $mode;
-
-        return $this->updateConfig($paymentId, $configArray);
-    }
-
-    private function updateConfig(int $paymentId, array $config): bool
-    {
-        $updatedConfigEscaped = pSQL(json_encode($config));
-        $query = sprintf(
-            'UPDATE %sbk_configuration SET value = "%s" WHERE configurable_id = %d',
-            _DB_PREFIX_,
-            $updatedConfigEscaped,
-            $paymentId
-        );
-
-        return $this->db->execute($query);
-    }
-
-    public function getPaymentMethodConfig(string $name)
-    {
-        $query = sprintf(
-            'SELECT value FROM %sbk_configuration WHERE configurable_id = %d',
-            _DB_PREFIX_,
-            $this->getPaymentMethodId($name)
-        );
-
-        return json_decode($this->db->getValue($query));
+        return $configArray['activeCreditcards'] ?? [];
     }
 }

@@ -14,21 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 include dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository;
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
 class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
 {
-    private $paymentMethodRepository;
-    private $configurationRepository;
+    private $buckarooConfigService;
+    public $module;
 
     public function __construct()
     {
         parent::__construct();
-        $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
-        $this->configurationRepository = new ConfigurationRepository();
+        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
     }
 
     public function initContent()
@@ -60,7 +59,7 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
         $data = [
             'status' => true,
             'config' => [
-                'value' => $this->configurationRepository->getPaymentMethodConfig($paymentName),  // Call the repository to fetch the data
+                'value' => $this->buckarooConfigService->getConfigArrayForMethod($paymentName),  // Call the repository to fetch the data
             ],
         ];
 
@@ -77,7 +76,7 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
 
             return;
         }
-        $result = $this->configurationRepository->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
+        $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
         $this->sendResponse(['status' => $result]);
     }
 }

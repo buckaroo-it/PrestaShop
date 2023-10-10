@@ -20,6 +20,8 @@ class BaseApiController extends ModuleFrontController
 {
     protected $jwt;
 
+    public $module;
+
     public function __construct()
     {
         parent::__construct();

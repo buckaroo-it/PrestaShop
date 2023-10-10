@@ -21,13 +21,13 @@ class GiftCard extends PaymentMethod
     public function __construct()
     {
         $this->type = 'giftcard';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function getPayload($data)
     {
         $payload = [
-            'servicesSelectableByClient' => Config::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
+            'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
             'continueOnIncomplete' => '1',
         ];
 

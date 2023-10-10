@@ -14,18 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 include_once dirname(__FILE__) . '/BaseApiController.php';
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
 class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 {
-    private $paymentMethodRepository;
+    private $buckarooConfigService;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->paymentMethodRepository = new PaymentMethodRepository();  // Instantiate the repository
+        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
     }
 
     public function initContent()
@@ -52,6 +54,6 @@ class Buckaroo3PaymentMethodsModuleFrontController extends BaseApiController
 
     private function getPaymentConfigurations()
     {
-        return $this->paymentMethodRepository->getPaymentMethodsFromDBWithConfig();  // Call the repository to fetch the data
+        return $this->buckarooConfigService->getPaymentMethodsFromDBWithConfig();
     }
 }

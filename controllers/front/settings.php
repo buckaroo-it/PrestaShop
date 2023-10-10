@@ -14,10 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-if (!defined('_PS_VERSION_')) {
-    return;
-}
+
 include dirname(__FILE__) . '/BaseApiController.php';
+
 use Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService;
 
 class Buckaroo3SettingsModuleFrontController extends BaseApiController

@@ -17,27 +17,11 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-final class CountryRepository
+use Buckaroo\PrestaShop\Src\Entity\BkCountries;
+use Doctrine\ORM\EntityRepository;
+
+class CountryRepository extends EntityRepository
 {
-    private $db;
-    private $context;
-
-    public function __construct()
-    {
-        $this->db = \Db::getInstance();
-        $this->context = \Context::getContext();
-    }
-
-    public function insertCountries()
-    {
-        $langId = $this->context->language->id;
-        $rawCountries = \Country::getCountries($langId, true);
-        $processedCountries = $this->processCountries($rawCountries);
-        $this->insertCountriesToDB($processedCountries);
-
-        return $processedCountries;
-    }
-
     private function processCountries($countries)
     {
         $result = [];
@@ -56,19 +40,31 @@ final class CountryRepository
         return $result;
     }
 
-    public function getCountriesFromDB()
+    public function getCountriesFromDB(): array
     {
-        $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_countries';
+        $countries = $this->findAll();  // Use Doctrine's default findAll method
+        $result = [];
 
-        return $this->db->executeS($query);
+        foreach ($countries as $country) {
+            $result[] = [
+                'id' => $country->getCountryId(),
+                'name' => strtolower($country->getName()),
+                'iso_code_2' => $country->getIsoCode2(),
+                'iso_code_3' => $country->getIsoCode3(),
+                'call_prefix' => $country->getCallPrefix(),
+                'icon' => \Tools::strtolower($country->getIsoCode2()) . '.jpg',
+            ];
+        }
+
+        return $result;
     }
 
     public function checkAndInsertNewCountries()
     {
         $dbCountries = $this->getCountriesFromDB();
-        $dbCountryIds = array_column($dbCountries, 'country_id');
+        $dbCountryIds = array_column($dbCountries, 'id');
 
-        $langId = $this->context->language->id;
+        $langId = \Context::getContext()->language->id;
         $rawCountries = \Country::getCountries($langId, true);
         $processedCountries = $this->processCountries($rawCountries);
 
@@ -77,33 +73,20 @@ final class CountryRepository
         });
 
         if ($newCountries) {
-            $this->insertCountriesToDB($newCountries);
+            foreach ($newCountries as $countryData) {
+                $country = new BkCountries();
+                $country->setCountryId($countryData['id']);
+                $country->setName($countryData['name']);
+                $country->setIsoCode2($countryData['iso_code_2']);
+                $country->setIsoCode3($countryData['iso_code_3']);
+                $country->setCallPrefix($countryData['call_prefix']);
+                $country->setIcon($countryData['icon']);
+                $country->setCreatedAt(new \DateTime());
+                $this->_em->persist($country);
+            }
+            $this->_em->flush();
         }
 
         return array_merge($dbCountries, $newCountries);
-    }
-
-    private function insertCountriesToDB($countries)
-    {
-        foreach ($countries as $countryData) {
-            $data = $this->prepareData($countryData);
-            $result = $this->db->insert('bk_countries', $data);
-            if (!$result) {
-                throw new \Exception('Database error: Unable to insert country');
-            }
-        }
-    }
-
-    private function prepareData($countryData)
-    {
-        return [
-            'country_id' => pSQL($countryData['id']),
-            'name' => pSQL($countryData['name']),
-            'iso_code_2' => pSQL($countryData['iso_code_2']),
-            'iso_code_3' => pSQL($countryData['iso_code_3']),
-            'call_prefix' => pSQL($countryData['call_prefix']),
-            'icon' => pSQL($countryData['icon']),
-            'created_at' => date('Y-m-d H:i:s'),
-        ];
     }
 }

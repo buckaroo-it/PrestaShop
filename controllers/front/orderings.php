@@ -14,19 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooOrderingService;
 
 class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 {
-    private $orderingRepository;
+    private $orderingService;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->orderingRepository = new OrderingRepository();  // Instantiate the repository
+        $this->orderingService = $this->module->getService(BuckarooOrderingService::class);
     }
 
     public function initContent()
@@ -46,57 +47,44 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 
     private function handleGet()
     {
-        $countryCode = null;
-        if (Tools::getValue('country')) {
-            $countryCode = Tools::getValue('country');  // Get
-        }
+        $countryCode = Tools::getValue('country');
+        $countryCode = !empty($countryCode) ? $countryCode : null;
 
         $ordering = $this->getOrdering($countryCode);
 
-        $data = [
+        $this->sendResponse([
             'status' => true,
             'orderings' => $ordering,
-        ];
-
-        $this->sendResponse($data);
+        ]);
     }
 
     private function getOrdering($countryCode)
     {
-        return $this->orderingRepository->getOrdering($countryCode);
+        return $this->orderingService->getOrderingByCountryIsoCode($countryCode);
     }
 
     private function handlePost()
     {
         $data = $this->getJsonInput();
 
-        $countryId = isset($data['country_id']) ? $data['country_id'] : null;
-        $value = isset($data['value']) ? json_encode($data['value']) : null;
-        $createdAt = isset($data['created_at']) ? $data['created_at'] : null;
+        $countryId = $this->getValueOrNull($data, 'country_id');
+        $value = $this->getValueOrNull($data, 'value');
 
-        // Check for missing or invalid data
-        if ($value === null) {
-            $response = [
+        if (!$value) {
+            $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing or invalid data',
-            ];
-            $this->sendResponse($response);
+            ]);
 
             return;
         }
 
-        $result = $this->orderingRepository->updateOrdering($value, $countryId);
+        $result = $this->orderingService->updateOrderingByCountryId(json_encode($value), $countryId);
+        $this->sendResponse(['status' => $result]);
+    }
 
-        // Prepare and send the response
-        if ($result) {
-            $response = [
-                'status' => true,
-            ];
-        } else {
-            $response = [
-                'status' => false,
-            ];
-        }
-        $this->sendResponse($response);
+    private function getValueOrNull(array $data, $key)
+    {
+        return isset($data[$key]) && !empty($data[$key]) ? $data[$key] : null;
     }
 }

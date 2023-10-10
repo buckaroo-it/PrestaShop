@@ -18,25 +18,25 @@
 
         <div class="p-5 space-y-5">
             <div class="space-y-2">
-                <h2 class="font-semibold text-sm">{{ $(`dashboard.pages.payments.customer.type_label`) }}</h2>
+                <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.customer.type_label`) }}</h2>
             </div>
 
             <div class="relative">
                 <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.customer_type">
-                    <option value="both">{{ $(`dashboard.pages.payments.customer.type.both`) }}</option>
-                    <option value="B2C">{{ $(`dashboard.pages.payments.customer.type.b2c`) }} ({{ $(`dashboard.pages.payments.customer.type.b2c.long`) }})</option>
-                    <option value="B2B">{{ $(`dashboard.pages.payments.customer.type.b2b`) }} ({{ $(`dashboard.pages.payments.customer.type.b2b.long`) }})</option>
+                    <option value="both">{{ $t(`dashboard.pages.payments.customer.type.both`) }}</option>
+                    <option value="B2C">{{ $t(`dashboard.pages.payments.customer.type.b2c`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2c.long`) }})</option>
+                    <option value="B2B">{{ $t(`dashboard.pages.payments.customer.type.b2b`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2b.long`) }})</option>
                 </select>
 
                 <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                  {{ $(`customer_type`) }}
+                  {{ $t(`dashboard.pages.payments.customer_type`) }}
                 </label>
             </div>
         </div>
 
         <div class="p-5 space-y-5" v-if="config.customer_type === 'both' || config.customer_type === 'b2b'">
             <div class="space-y-2">
-                <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.order_amount_allowed`) }} ({{ $(`dashboard.pages.payments.customer.type.b2b`) }})</h2>
+                <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.order_amount_allowed`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2b`) }})</h2>
                 <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.order_amount_allowed_label`) }}.</div>
             </div>
 
@@ -55,7 +55,6 @@
                     </label>
                 </div>
             </div>
-
         </div>
     </div>
 </template>

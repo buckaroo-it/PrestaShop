@@ -19,6 +19,7 @@ require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
 abstract class PaymentMethod extends BuckarooAbstract
 {
@@ -141,5 +142,16 @@ abstract class PaymentMethod extends BuckarooAbstract
         ]);
 
         return ResponseFactory::getResponse($response);
+    }
+
+    public function getMode($key)
+    {
+        $paymentMethodRepository = new RawPaymentMethodRepository();
+        $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
+        if (Configuration::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {
+            return 'live';
+        }
+
+        return 'test';
     }
 }

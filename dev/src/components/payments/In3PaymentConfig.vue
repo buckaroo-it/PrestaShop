@@ -2,23 +2,23 @@
     <div>
         <div class="p-5 space-y-5">
             <div class="space-y-2">
-                <h2 class="font-semibold text-sm">{{ $(`dashboard.pages.payments.in3.version.label`) }}</h2>
+                <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.in3.version.label`) }}</h2>
             </div>
 
             <div class="relative">
                 <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.version">
-                    <option value="V3">{{ $(`dashboard.pages.payments.in3.version.v3`) }}</option>
-                    <option value="V2">{{ $(`dashboard.pages.payments.in3.version.v2`) }}</option>
+                    <option value="V3">{{ $t(`dashboard.pages.payments.in3.version.v3`) }}</option>
+                    <option value="V2">{{ $t(`dashboard.pages.payments.in3.version.v2`) }}</option>
                 </select>
 
                 <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                  {{ $(`dashboard.pages.payments.in3.version.label`) }}
+                  {{ $t(`dashboard.pages.payments.in3.version.label`) }}
                 </label>
             </div>
         </div>
 
         <div class="p-5 space-y-5" v-if="config.version === 'V3'">
-          <h2 class="font-semibold text-sm">{{ $(`dashboard.pages.payments.logo`) }}</h2>
+          <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.logo`) }}</h2>
           <div class="flex space-x-4">
             <div v-for="option in paymentLogoOptions" :key="option.value" class="radio-image-wrapper">
               <input type="radio" :id="option.value" v-model="config.payment_logo" :value="option.value" class="hidden-radio">

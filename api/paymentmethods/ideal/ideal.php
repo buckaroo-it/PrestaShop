@@ -26,7 +26,7 @@ class IDeal extends PaymentMethod
     {
         $this->type = 'ideal';
         $this->version = 2;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

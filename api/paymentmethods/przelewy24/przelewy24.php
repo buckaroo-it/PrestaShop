@@ -21,7 +21,7 @@ class Przelewy24 extends PaymentMethod
     public function __construct()
     {
         $this->type = 'przelewy24';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function getPayload($data)

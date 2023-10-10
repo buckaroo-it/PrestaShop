@@ -13,9 +13,11 @@
  *  @author    Buckaroo.nl <plugins@buckaroo.nl>
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- */ use Buckaroo\BuckarooClient;
+ */
 
-require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
+use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Classes\Config;
+
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
 class IssuersIdeal

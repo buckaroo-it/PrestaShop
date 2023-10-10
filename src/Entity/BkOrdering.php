@@ -20,9 +20,9 @@ namespace Buckaroo\PrestaShop\Src\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Table(indexes={@ORM\Index(name="country_id", columns={"country_id"})})
+ * @ORM\Table(indexes={@ORM\Index(name="country", columns={"country_id"})})
  *
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Buckaroo\PrestaShop\Src\Repository\OrderingRepository")
  */
 class BkOrdering
 {
@@ -38,7 +38,7 @@ class BkOrdering
     private $id;
 
     /**
-     * @var int|null
+     * @var int
      *
      * @ORM\Column(name="country_id", type="integer", nullable=true)
      */
@@ -47,7 +47,7 @@ class BkOrdering
     /**
      * @var string
      *
-     * @ORM\Column(name="value", type="string")
+     * @ORM\Column(name="value", type="text")
      */
     private $value;
 
@@ -57,6 +57,23 @@ class BkOrdering
      * @ORM\Column(name="created_at", type="datetime")
      */
     private $createdAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     */
+    private $updatedAt;
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
 
     public function getCountryId(): ?int
     {
@@ -86,5 +103,15 @@ class BkOrdering
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

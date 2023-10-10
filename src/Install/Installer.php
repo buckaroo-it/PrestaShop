@@ -18,9 +18,10 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
-use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawCountryRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
 class Installer implements InstallerInterface
 {
@@ -52,18 +53,8 @@ class Installer implements InstallerInterface
 
     public function install()
     {
-        foreach (self::getHooks() as $hook) {
-            if (version_compare(_PS_VERSION_, '1.7.0.0', '>=') && 'displayPaymentEU' === $hook) {
-                continue;
-            }
-
-            try {
-                $this->module->registerHook($hook);
-            } catch (\Exception $e) {
-                $this->errors[] = $this->module->l('Unable to install hook' . $e, self::FILE_NAME);
-
-                return false;
-            }
+        foreach ($this->getHooks() as $hook) {
+            $this->module->registerHook($hook);
         }
 
         try {
@@ -79,14 +70,17 @@ class Installer implements InstallerInterface
         $this->copyEmailTemplates();
         $this->databaseTableInstaller->install();
 
-        $countryRepository = new CountryRepository();
+        $countryRepository = new RawCountryRepository();
         $countryRepository->insertCountries();
 
-        $paymentMethodRepository = new PaymentMethodRepository();
+        $paymentMethodRepository = new RawPaymentMethodRepository();
         $paymentMethodRepository->insertPaymentMethods();
 
-        $orderingRepository = new OrderingRepository();
+        $orderingRepository = new RawOrderingRepository();
         $orderingRepository->insertCountryOrdering();
+
+        $creditCardsRepository = new RawCreditCardsRepository();
+        $creditCardsRepository->insertCreditCards();
 
         return true;
     }
@@ -104,7 +98,7 @@ class Installer implements InstallerInterface
         return $this->errors;
     }
 
-    public static function getHooks()
+    public function getHooks()
     {
         return [
             'displayHeader',
@@ -133,24 +127,11 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_LABEL, '');
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_FEE, '');
 
-        \Configuration::updateValue(Config::BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED, '0');
-
-        \Configuration::updateValue('BUCKAROO_AFTERPAY_WRAPPING_VAT', '2');
         \Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize([]));
-        \Configuration::updateValue('BUCKAROO_AFTERPAY_CUSTOMER_TYPE', 'both');
 
-        \Configuration::updateValue('BUCKAROO_KLARNA_DEFAULT_VAT', '2');
-        \Configuration::updateValue('BUCKAROO_KLARNA_WRAPPING_VAT', '2');
         \Configuration::updateValue('BUCKAROO_KLARNA_TAXRATE', serialize([]));
 
-        \Configuration::updateValue('BUCKAROO_IN3_API_VERSION', 'V3');
-        \Configuration::updateValue('BUCKAROO_IN3_PAYMENT_LOGO', 'in3');
-        \Configuration::updateValue('BUCKAROO_IN3OLD_FEE', '');
-
-        \Configuration::updateValue('BUCKAROO_BILLINK_DEFAULT_VAT', '2');
-        \Configuration::updateValue('BUCKAROO_BILLINK_WRAPPING_VAT', '2');
         \Configuration::updateValue('BUCKAROO_BILLINK_TAXRATE', serialize([]));
-        \Configuration::updateValue('BUCKAROO_BILLINK_CUSTOMER_TYPE', 'both');
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

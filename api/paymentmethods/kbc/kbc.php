@@ -22,7 +22,7 @@ class Kbc extends PaymentMethod
     {
         $this->type = 'kbc';
         $this->version = 1;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

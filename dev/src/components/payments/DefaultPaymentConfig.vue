@@ -200,7 +200,6 @@ export default {
     },
     setup(props) {
 
-        // const { get, data, loading, post, setEndpoint } = useApi(`buckaroo3/${ props.payment.name }/config`)
         const { get, data, loading, post, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
         const { toastr } = useToastr()
         const { countries } = useCountries()
@@ -229,6 +228,7 @@ export default {
 
                     config.value = {
                         mode: 'off',
+                        display_type: 'dropdown',
                         frontend_label: '',
                         payment_fee: null,
                         min_order_amount: null,

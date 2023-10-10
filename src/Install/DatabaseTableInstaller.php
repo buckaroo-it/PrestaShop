@@ -59,7 +59,9 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`label`           VARCHAR(255) NOT NULL,
 				`icon`            VARCHAR(255) NOT NULL,
 				`template`        VARCHAR(255) NOT NULL,
-				`created_at`      DATETIME NOT NULL
+                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                INDEX(`name`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee` (
@@ -68,14 +70,17 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`id_cart`         TEXT NOT NULL,
 				`buckaroo_fee`    FLOAT,
 				`currency`        TEXT NOT NULL,
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_configuration` (
 				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
 				`configurable_id` INT(11) NOT NULL,
 				`value`           TEXT NOT NULL,
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                FOREIGN KEY (`configurable_id`) REFERENCES `' . _DB_PREFIX_ . 'bk_payment_methods`(`id`) ON DELETE CASCADE
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_countries` (
@@ -86,14 +91,16 @@ final class DatabaseTableInstaller implements InstallerInterface
                 `iso_code_3`      VARCHAR(3) NOT NULL,
 				`call_prefix`     INT(11),
 				`icon`            VARCHAR(255),
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_ordering` (
 				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
 				`country_id`      INT(11),
 				`value`           TEXT NOT NULL,
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_creditcards` (
@@ -101,7 +108,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`icon`            VARCHAR(255) NOT NULL,
 				`name`            VARCHAR(255) NOT NULL,
 				`service_code`    VARCHAR(255) NOT NULL,
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_giftcards` (
@@ -109,7 +117,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`code`            VARCHAR(255) NOT NULL,
 				`name`            VARCHAR(255) NOT NULL,
 				`logo`            VARCHAR(255) NOT NULL,
-				`created_at`      DATETIME NOT NULL
+				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         return $sql;

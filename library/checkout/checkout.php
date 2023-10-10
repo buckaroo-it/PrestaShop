@@ -80,7 +80,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_TINKA => 'Tinka',
         Checkout::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
         Checkout::CHECKOUT_TYPE_WECHATPAY => 'Wechatpay',
-        Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay'
+        Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
     ];
 
     // protected $current_order;
@@ -116,7 +116,9 @@ abstract class Checkout
     public $moduleVersion;
     public $returnUrl;
     public $pushUrl;
-    private $buckarooFeeService;
+
+    /** @var Buckaroo3 */
+    public $module;
 
     /**
      * @var BuckarooConfigService
@@ -126,7 +128,7 @@ abstract class Checkout
     public function __construct($cart)
     {
         $this->initialize();
-
+        $this->module = \Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
@@ -135,8 +137,7 @@ abstract class Checkout
             $this->shipping_address = new Address((int) $cart->id_address_delivery);
         }
         $this->products = $this->cart->getProducts();
-        $this->buckarooFeeService = new BuckarooFeeService();
-        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
     }
 
     abstract protected function initialize();
@@ -170,8 +171,8 @@ abstract class Checkout
     public function getBuckarooFee()
     {
         $payment_method = Tools::getValue('method');
-
-        if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
+        $buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+        if ($buckarooFee = $buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
 

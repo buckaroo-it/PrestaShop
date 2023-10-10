@@ -25,12 +25,16 @@ class PayPerEmail extends PaymentMethod
      */
     protected $buckarooConfigService;
 
+    /** @var Buckaroo3 */
+    public $module;
+
     public function __construct()
     {
+        $this->module = \Module::getInstanceByName('buckaroo3');
         $this->type = 'payperemail';
         $this->version = '1';
-        $this->mode = Config::getMode($this->type);
-        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->mode = $this->getMode($this->type);
+        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
     }
 
     public function pay($customVars = [])

@@ -25,7 +25,7 @@ class Refunds extends PaymentMethod
     {
         $this->type = $type;
         $this->version = 2;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function refund()

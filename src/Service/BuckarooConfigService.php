@@ -17,92 +17,148 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-require_once dirname(__FILE__) . '/../../vendor/autoload.php';
-require_once dirname(__FILE__) . '/../../library/logger.php';
-
-use Buckaroo\PrestaShop\Src\Repository\ConfigurationRepository;
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkCountries;
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManager;
 
 class BuckarooConfigService
 {
-    /** @var PaymentMethodRepository */
+    protected $logger;
     private $paymentMethodRepository;
 
-    /** @var ConfigurationRepository */
     private $configurationRepository;
+    private $countryRepository;
+    private $orderingRepository;
 
-    protected $logger;
+    private $entityManager;
 
-    public function __construct()
+    public function __construct(EntityManager $entityManager, $logger)
     {
-        $this->paymentMethodRepository = new PaymentMethodRepository();
-        $this->configurationRepository = new ConfigurationRepository();
-        $this->logger = new \Logger(\Logger::INFO, $fileName = '');
+        $this->entityManager = $entityManager;
+        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->countryRepository = $entityManager->getRepository(BkCountries::class);
+        $this->orderingRepository = $entityManager->getRepository(BkOrdering::class);
+        $this->logger = $logger;
     }
 
     public function getConfigArrayForMethod($method)
     {
-        $paymentId = $this->getPaymentId($method);
-        if ($paymentId === null) {
-            $this->logError('Payment method not found: ' . $method);
+        $paymentMethod = $this->paymentMethodRepository->findOneByName($method);
+
+        if (!$paymentMethod) {
+            $this->logger->logError('Payment method not found: ' . $method);
 
             return null;
         }
 
-        $configuration = $this->getConfiguration($paymentId);
-        if ($configuration === null) {
-            $this->logError('Configuration not found for payment id ' . $paymentId);
-
-            return null;
-        }
-
-        $configArray = $this->getConfigArray($configuration);
-        if ($configArray === null) {
-            $this->logError('JSON decode error: ' . json_last_error_msg());
-
-            return null;
-        }
-
-        return $configArray;
+        return $this->configurationRepository->getConfigArray($paymentMethod->getId());
     }
 
     public function getSpecificValueFromConfig($method, $key)
     {
         $configArray = $this->getConfigArrayForMethod($method);
-        if ($configArray === null) {
-            return null;
+
+        return isset($configArray[$key]) ? $configArray[$key] : null;
+    }
+
+    public function updatePaymentMethodConfig($name, array $data): bool
+    {
+        $paymentMethod = $this->paymentMethodRepository->findOneByName($name);
+
+        if (!$paymentMethod) {
+            return false;
         }
 
-        if (!isset($configArray[$key])) {
-            return null;
+        $paymentMethodId = $paymentMethod->getId();
+
+        // Existing config
+        $configArray = $this->configurationRepository->getConfigArray($paymentMethodId);
+        $mergedConfig = array_merge($configArray, $data);
+
+        if (isset($data['countries'])) {
+            $newCountryIds = array_column($data['countries'], 'id');
+
+            // Update each country's ordering
+            foreach ($newCountryIds as $countryId) {
+                $ordering = $this->orderingRepository->findOneByCountryId($countryId);
+                if (!$ordering) {
+                    // No existing ordering for this country. Create a new one.
+                    $ordering = new BkOrdering();
+                    $ordering->setCountryId($countryId);
+                    $ordering->setValue(json_encode([$paymentMethodId]));
+                    $ordering->setCreatedAt(new \DateTime());
+                    $this->entityManager->persist($ordering);
+                } else {
+                    $paymentMethodIds = json_decode($ordering->getValue(), true);
+
+                    // Check if the paymentMethodId is already in the ordering for the country
+                    if (!in_array($paymentMethodId, $paymentMethodIds)) {
+                        // Add paymentMethodId to the ordering for the country
+                        $paymentMethodIds[] = $paymentMethodId;
+                        $ordering->setValue(json_encode($paymentMethodIds));
+                        $this->entityManager->persist($ordering);
+                    }
+                }
+            }
+
+            // Fetch all orderings
+            $allOrderings = $this->orderingRepository->findAll();
+            foreach ($allOrderings as $ordering) {
+                if ($ordering->getCountryId() === null) {
+                    continue;
+                }
+                $paymentMethodIds = json_decode($ordering->getValue(), true);
+                if (in_array($paymentMethodId, $paymentMethodIds) && !in_array($ordering->getCountryId(), $newCountryIds)) {
+                    // Remove the paymentMethodId from the ordering as it's not in the new data
+                    $key = array_search($paymentMethodId, $paymentMethodIds);
+                    if ($key !== false) {
+                        unset($paymentMethodIds[$key]);
+                        $ordering->setValue(json_encode(array_values($paymentMethodIds)));  // reindex array
+                        $this->entityManager->persist($ordering);
+                    }
+                }
+            }
+
+            $this->entityManager->flush();
         }
 
-        return $configArray[$key];
+        return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
     }
 
-    private function getPaymentId($method)
+    public function updatePaymentMethodMode(string $name, string $mode): bool
     {
-        $paymentId = $this->paymentMethodRepository->findOneByName($method);
+        $paymentMethod = $this->paymentMethodRepository->findOneByName($name);
 
-        return is_array($paymentId) && isset($paymentId['id']) ? $paymentId['id'] : null;
-    }
-
-    private function getConfiguration($paymentId)
-    {
-        return $this->configurationRepository->findOneBy($paymentId);
-    }
-
-    protected function logError($message): void
-    {
-        $this->logger->logInfo($message, 'error');
-    }
-
-    private function getConfigArray($configuration)
-    {
-        if (is_array($configuration) && isset($configuration['value'])) {
-            return json_decode($configuration['value'], true);
+        if (!$paymentMethod) {
+            return false;
         }
 
-        return null;
+        $configArray = $this->configurationRepository->getConfigArray($paymentMethod->getId());
+        $configArray['mode'] = $mode;
+
+        return $this->configurationRepository->updateConfig($paymentMethod->getId(), $configArray);
+    }
+
+    public function getPaymentMethodsFromDBWithConfig()
+    {
+        return $this->paymentMethodRepository->getPaymentMethodsFromDBWithConfig();
+    }
+
+    public function getActiveCreditCards()
+    {
+        $result = $this->configurationRepository->getActiveCreditCards();
+
+        $issuerArray = [];
+        foreach ($result as $card) {
+            $issuerArray[strtolower($card['service_code'])] = [
+                'name' => $card['name'],
+                'logo' => $card['icon'],
+            ];
+        }
+
+        return $issuerArray;
     }
 }

@@ -25,7 +25,7 @@ class Idin extends PaymentMethod
     {
         $this->type = 'idin';
         $this->version = 0;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function verify($customVars = [])

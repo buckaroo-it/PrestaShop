@@ -18,12 +18,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
-require_once dirname(__FILE__) . '/config.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersIdeal.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/classes/IssuersCreditCard.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\CapayableIn3;
@@ -32,7 +30,7 @@ use Buckaroo\PrestaShop\Classes\JWTAuth;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\Installer;
-use Buckaroo\PrestaShop\Src\Install\Uninstall;
+use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
@@ -55,6 +53,7 @@ class Buckaroo3 extends PaymentModule
     protected $logger;
     private $issuersPayByBank;
     private $issuersCreditCard;
+    private $capayableIn3;
 
     /** @var LeagueServiceContainerProvider */
     private $containerProvider;
@@ -70,12 +69,6 @@ class Buckaroo3 extends PaymentModule
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
         parent::__construct();
-
-        $this->logger = new Logger(Logger::INFO, $fileName = '');
-        $this->buckarooConfigService = new BuckarooConfigService();
-        $this->issuersPayByBank = new IssuersPayByBank();
-        $this->issuersCreditCard = new IssuersCreditCard();
-        $this->buckarooFeeService = new BuckarooFeeService();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
@@ -264,7 +257,7 @@ class Buckaroo3 extends PaymentModule
     public function uninstall()
     {
         $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $uninstall = new Uninstall($databaseTableUninstaller);
+        $uninstall = new Uninstaller($databaseTableUninstaller);
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
@@ -296,8 +289,8 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.ed37e6d0.js',
-            'pathCss' => $this->getPathUri() . 'dev/assets/main.3ec6e7a8.css',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.cd5d666c.js',
+            'pathCss' => $this->getPathUri() . 'dev/assets/main.4b658739.css',
             'jwt' => $token,
         ]);
 
@@ -360,6 +353,7 @@ class Buckaroo3 extends PaymentModule
         $lastNameShipping = '';
         $phone = '';
         $phone_mobile = '';
+
         foreach ($addresses as $address) {
             if ($address['id_address'] == $cart->id_address_delivery) {
                 $phone = $address['phone'];
@@ -401,15 +395,23 @@ class Buckaroo3 extends PaymentModule
         } elseif ($cart->id_address_delivery != $cart->id_address_invoice) {
             $address_differ = 1;
         }
-        require_once dirname(__FILE__) . '/config.php';
+
+        $this->logger = new Logger(Logger::INFO, $fileName = '');
+        $this->buckarooConfigService = $this->getService(BuckarooConfigService::class);
+        $this->issuersPayByBank = new IssuersPayByBank();
+        $this->issuersCreditCard = $this->buckarooConfigService->getActiveCreditCards();
+        $this->capayableIn3 = new CapayableIn3();
+
+        $entityManager = $this->get('doctrine.orm.entity_manager');
 
         $this->buckarooPaymentService = new BuckarooPaymentService(
+            $entityManager,
+            $this,
             $this->buckarooConfigService,
-            $this->buckarooFeeService,
             $this->issuersPayByBank,
             $this->logger,
             $this->context,
-            $this
+            $this->capayableIn3
         );
 
         try {
@@ -435,7 +437,7 @@ class Buckaroo3 extends PaymentModule
                     'idealDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('ideal', 'display_type'),
                     'paybybankIssuers' => $this->issuersPayByBank->getIssuerList(),
                     'payByBankDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('paybybank', 'display_type'),
-                    'creditcardIssuers' => $this->issuersCreditCard->getIssuerList(),
+                    'creditcardIssuers' => $this->issuersCreditCard,
                     'creditCardDisplayMode' => $this->buckarooConfigService->getSpecificValueFromConfig('creditcard', 'display_type'),
                     'in3Method' => (new CapayableIn3())->getMethod(),
                 ]
@@ -511,6 +513,8 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
+        $this->buckarooFeeService = $this->getService(BuckarooFeeService::class);
+
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
             'buckarooFees' => $this->buckarooFeeService->getBuckarooFees(),
@@ -866,5 +870,21 @@ class Buckaroo3 extends PaymentModule
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/product_fileds.tpl');
+    }
+
+    /**
+     * Gets service that is defined by module container.
+     *
+     * @param string $serviceName
+     *
+     * @returns mixed
+     */
+    public function getService(string $serviceName)
+    {
+        if ($this->containerProvider === null) {
+            $this->containerProvider = new LeagueServiceContainerProvider();
+        }
+
+        return $this->containerProvider->getService($serviceName);
     }
 }

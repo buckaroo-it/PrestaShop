@@ -25,12 +25,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
     /* @var $checkout IDealCheckout */
     public $checkout;
-    private $buckarooFeeService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->buckarooFeeService = new BuckarooFeeService();
     }
 
     /**
@@ -58,8 +56,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $merchantkey = Config::get('BUCKAROO_MERCHANT_KEY');
-        $secret_key = Config::get('BUCKAROO_SECRET_KEY');
+        $merchantkey = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $secret_key = Configuration::get('BUCKAROO_SECRET_KEY');
         if (empty($merchantkey) || empty($secret_key)) {
             $error = $this->module->l(
                 '<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured.'
@@ -92,7 +90,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        $getBuckarooFeeValue = $this->buckarooFeeService->getBuckarooFeeValue($payment_method);
+        $buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+
+        $getBuckarooFeeValue = $buckarooFeeService->getBuckarooFeeValue($payment_method);
         if ($buckarooFee = $getBuckarooFeeValue) {
             $buckarooFee = trim($buckarooFee);
 

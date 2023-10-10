@@ -21,7 +21,7 @@ class Trustly extends PaymentMethod
     public function __construct()
     {
         $this->type = 'trustly';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function getPayload($data)

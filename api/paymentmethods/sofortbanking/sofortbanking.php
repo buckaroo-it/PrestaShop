@@ -22,6 +22,6 @@ class Sofortbanking extends PaymentMethod
     {
         $this->type = 'sofort';
         $this->version = 1;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 }

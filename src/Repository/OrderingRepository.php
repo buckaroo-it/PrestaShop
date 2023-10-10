@@ -17,18 +17,34 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-class OrderingRepository
-{
-    private $db;
-    private $paymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Entity\BkCountries;
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityRepository;
 
-    public function __construct()
+class OrderingRepository extends EntityRepository
+{
+    public function findOneByCountryId($country_id)
     {
-        $this->db = \Db::getInstance();
-        $this->paymentMethodRepository = new PaymentMethodRepository();
+        return $this->findOneBy(['country_id' => $country_id]);
     }
 
-    public function updateOrdering($value, $countryId)
+    public function findOneByCountryIsoCode(?string $isoCode2)
+    {
+        $qb = $this->_em->createQueryBuilder()->select('bo')
+            ->from(BkOrdering::class, 'bo');
+        if ($isoCode2 !== null) {
+            $qb->join(BkCountries::class, 'c', 'WITH', 'bo.country_id = c.country_id')
+                ->where('c.iso_code_2 = :isoCode2')
+                ->setParameter('isoCode2', $isoCode2);
+        } else {
+            $qb->where('bo.country_id IS NULL');
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    public function updateOrdering($value, $countryId = null)
     {
         if (is_string($value)) {
             $value = json_decode($value, true);
@@ -38,149 +54,119 @@ class OrderingRepository
             }
         }
 
-        $idArray = [];
-        foreach ($value as $item) {
-            if (isset($item['id'])) {
-                $idArray[] = $item['id'];
-            }
-        }
+        $idArray = array_column($value, 'id');
         $value = json_encode($idArray);
 
-        // Note: pSQL is used for simple sanitization, but does not replace the security of prepared statements.
-        // Be sure to validate and sanitize all input.
-        $query = '
-        UPDATE 
-            ' . _DB_PREFIX_ . 'bk_ordering
-        SET 
-            value = "' . pSQL($value, true) . '"
-        WHERE 
-            country_id ' . ($countryId === null ? 'is NULL' : '= "' . pSQL($countryId, true) . '"')
-        ;
+        if ($countryId !== null) {
+            return $this->updateOrderingForSpecificCountry($value, $countryId);
+        }
 
-        return $this->db->execute($query);
+        return $this->updateOrderingForNullCountry($value);
     }
 
-    public function getOrdering($countryIsoCode)
+    private function updateOrderingForSpecificCountry($value, $countryId)
     {
-        if ($countryIsoCode === null) {
-            $query = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_ordering';
-        } else {
-            $query = '
-            SELECT ' . _DB_PREFIX_ . 'bk_ordering.* 
-            FROM ' . _DB_PREFIX_ . 'bk_ordering
-            JOIN ' . _DB_PREFIX_ . 'bk_countries ON ' . _DB_PREFIX_ . 'bk_ordering.country_id = ' . _DB_PREFIX_ . 'bk_countries.country_id
-            WHERE ' . _DB_PREFIX_ . 'bk_countries.iso_code_2 ' . ($countryIsoCode === null ? 'IS NULL' : '= "' . pSQL($countryIsoCode) . '"');
+        $countryRepo = $this->_em->getRepository(BkCountries::class);
+        $country = $countryRepo->findOneBy(['country_id' => $countryId]);
+
+        if (!$country) {
+            return false;
         }
 
-        $result = $this->db->executeS($query);
-        if (empty($result)) {
-            return null;  // or however you want to handle no results
+        $orderingRepo = $this->_em->getRepository(BkOrdering::class);
+        $ordering = $orderingRepo->findOneBy(['country_id' => $country->getCountryId()]);
+
+        if (!$ordering) {
+            return false;
         }
-        $row = $result[0];
 
-        // Decode the JSON data in the 'value' column.
-        $value = json_decode($row['value'], true);
+        $ordering->setValue($value);
+        $this->_em->persist($ordering);
+        $this->_em->flush();
 
-        $output = [
-            'id' => $row['id'],
-            'country_id' => $row['country_id'],
-            'created_at' => $row['created_at'],
+        return true;
+    }
+
+    private function updateOrderingForNullCountry($value)
+    {
+        $orderingRepo = $this->_em->getRepository(BkOrdering::class);
+        $ordering = $orderingRepo->findOneBy(['country_id' => null]);
+
+        if (!$ordering) {
+            return false;
+        }
+
+        $ordering->setValue($value);
+        $this->_em->persist($ordering);
+        $this->_em->flush();
+
+        return true;
+    }
+
+    public function getOrdering(?string $isoCode2)
+    {
+        $ordering = $this->findOneByCountryIsoCode($isoCode2);
+
+        if (empty($ordering)) {
+            return null;
+        }
+
+        $result = [
+            'id' => $ordering->getid(),
+            'country_id' => $ordering->getCountryId(),
             'value' => [],
+            'createdAt' => $ordering->getCreatedAt(),
+            'updatedAt' => $ordering->getUpdatedAt(),
             'status' => true,
         ];
 
-        // Iterate over the payment method IDs and fetch their data
-        foreach ($value as $id) {
-            $paymentMethodData = $this->paymentMethodRepository->getPaymentMethod($id);
-            if (!empty($paymentMethodData)) {
-                $output['value'][] = $paymentMethodData[0];  // Assumes getPaymentMethod() returns an array with the payment method data as the first element
+        $paymentMethodIds = is_string($ordering->getValue())
+            ? json_decode($ordering->getValue(), true)
+            : $ordering->getValue();
+
+        foreach ($paymentMethodIds as $id) {
+            $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
+            $paymentMethodData = $paymentMethodRepo->findOneById($id);
+
+            if ($paymentMethodData) {
+                $result['value'][] = [
+                    'id' => $paymentMethodData->getId(),
+                    'name' => $paymentMethodData->getName(),
+                    'label' => $paymentMethodData->getLabel(),
+                    'icon' => $paymentMethodData->getIcon(),
+                ];
             }
-        }
-
-        return $output;
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function insertCountryOrdering($countryId = null, $paymentMethodsArray = null)
-    {
-        return $this->insertCountryOrderingToDB($countryId, $paymentMethodsArray);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    private function insertCountryOrderingToDB($countryId, $paymentMethodsArray)
-    {
-        if ($paymentMethodsArray === null) {
-            $paymentMethods = $this->paymentMethodRepository->getPaymentMethodsFromDB();
-            $paymentMethodsArray = [];
-            foreach ($paymentMethods as $row) {
-                $paymentMethodsArray[] = $row['id'];
-            }
-        }
-        $data = $this->prepareData($countryId, $paymentMethodsArray);
-        $result = $this->db->insert('bk_ordering', $data, $null_values = true);
-        if (!$result) {
-            throw new \Exception('Database error: Unable to insert country');
         }
 
         return $result;
     }
 
-    private function prepareData($countryId, $paymentMethodsArray)
+    public function fetchPositions($countryId)
     {
-        return [
-            'country_id' => pSQL($countryId),
-            'value' => pSQL(json_encode($paymentMethodsArray)),
-            'created_at' => date('Y-m-d H:i:s'),
-        ];
-    }
+        $qb = $this->_em->createQueryBuilder()
+            ->select('bo.value')
+            ->from(BkOrdering::class, 'bo')
+            ->where($countryId !== null ? 'bo.country_id = :countryId' : 'bo.country_id IS NULL');
 
-    public function getPositionByCountryId(int $countryId): ?array
-    {
-        $positions = $this->fetchPositions($countryId);
-
-        // If no positions found for the given country_id, try fetching positions for null country_id
-        if ($positions === null) {
-            $positions = $this->fetchPositions(null);
+        if ($countryId !== null) {
+            $qb->setParameter('countryId', $countryId);
         }
 
-        return $positions;
-    }
-
-    /**
-     * Helper method to fetch positions based on country_id
-     *
-     * @param int|null $countryId
-     *
-     * @return array|null The positions array if found, or null if not
-     */
-    private function fetchPositions(?int $countryId): ?array
-    {
-        $query = '
-            SELECT value
-            FROM ' . _DB_PREFIX_ . 'bk_ordering
-            WHERE country_id ' . ($countryId === null ? 'IS NULL' : '= ' . pSQL((int) $countryId)) . '
-        ';
-
-        $result = $this->db->getRow($query);  // assuming getRow returns a single row as an associative array
+        $result = $qb->getQuery()->getOneOrNullResult();
 
         if ($result && isset($result['value'])) {
             $positionsArray = json_decode($result['value'], true);
-
             $output = [];
-            foreach ($positionsArray as $position => $id) {
-                $paymentMethodData = $this->paymentMethodRepository->getPaymentMethod($id);
-                if (!empty($paymentMethodData)) {
-                    $output[] = $paymentMethodData[0]['name'];
+            foreach ($positionsArray as $id) {
+                $paymentMethodData = $this->_em->getRepository(BkPaymentMethods::class)->find($id);
+                if ($paymentMethodData) {
+                    $output[] = $paymentMethodData->getName();
                 }
             }
 
             return $output;
         }
 
-        return null;  // or however you want to handle no results
+        return null;
     }
 }

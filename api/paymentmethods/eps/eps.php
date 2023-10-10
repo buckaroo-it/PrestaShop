@@ -21,7 +21,7 @@ class Eps extends PaymentMethod
     public function __construct()
     {
         $this->type = 'eps';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

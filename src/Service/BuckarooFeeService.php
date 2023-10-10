@@ -17,32 +17,33 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManager;
 
 class BuckarooFeeService
 {
-    /** @var PaymentMethodRepository */
     private $paymentMethodRepository;
+    private $configurationRepository;
+    public $logger;
 
-    /** @var BuckarooConfigService */
-    private $buckarooConfigService;
-
-    public function __construct()
+    public function __construct(EntityManager $entityManager, $logger)
     {
-        $this->paymentMethodRepository = new PaymentMethodRepository();
-        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->logger = $logger;
     }
 
     public function getBuckarooFees(): array
     {
         $result = [];
-        $paymentMethods = $this->paymentMethodRepository->getPaymentMethodNames();
+        $paymentMethods = $this->paymentMethodRepository->findAllPaymentMethods();
 
         foreach ($paymentMethods as $method) {
-            $buckarooFee = $this->getBuckarooFeeValue($method['name']);
+            $buckarooFee = $this->getBuckarooFeeValue($method->getName());
 
             if ($buckarooFee > 0) {
-                $result[$method['name']] = [
+                $result[$method->getName()] = [
                     'buckarooFee' => $buckarooFee,
                     'buckarooFeeDisplay' => \Tools::displayPrice($buckarooFee),
                 ];
@@ -54,12 +55,32 @@ class BuckarooFeeService
 
     public function getBuckarooFeeInputs($method)
     {
-        return $this->getFeeData($this->buckarooConfigService->getSpecificValueFromConfig($method, 'payment_fee'));
+        return $this->getFeeData($this->getSpecificValueFromConfig($method, 'payment_fee'));
+    }
+
+    public function getConfigArrayForMethod($method)
+    {
+        $paymentMethod = $this->paymentMethodRepository->findOneByName($method);
+
+        if (!$paymentMethod) {
+            $this->logger->logError('Payment method not found: ' . $method);
+
+            return null;
+        }
+
+        return $this->configurationRepository->getConfigArray($paymentMethod->getId());
+    }
+
+    public function getSpecificValueFromConfig($method, $key)
+    {
+        $configArray = $this->getConfigArrayForMethod($method);
+
+        return $configArray[$key] ?? null;
     }
 
     public function getBuckarooFeeValue($method)
     {
-        return $this->buckarooConfigService->getSpecificValueFromConfig($method, 'payment_fee');
+        return $this->getSpecificValueFromConfig($method, 'payment_fee');
     }
 
     private function getFeeData($configArray): array

@@ -10,13 +10,14 @@
     "require": {
         "php": ">=7.4",
         "buckaroo/sdk": "^1.8.0",
+        "league/container": "2.5.0",
         "firebase/php-jwt": "^6.8"
     },
     "autoload": {
         "psr-4": {
             "Buckaroo\\PrestaShop\\Src\\": "src",
             "Buckaroo\\PrestaShop\\Classes\\": "classes",
-            "Buckaroo\\PrestaShop\\Controller\\": "controllers/admin"
+            "Buckaroo\\PrestaShop\\Controllers\\": "controllers"
         }
       },
     "config": {

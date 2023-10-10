@@ -32,9 +32,14 @@ class CapayableIn3
     public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
+    /** @var \Buckaroo3 */
+    public $module;
+
     public function __construct()
     {
-        $this->buckarooConfigService = new BuckarooConfigService();
+        $this->module = \Module::getInstanceByName('buckaroo3');
+
+        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
         $this->apiVersion = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'version');
         $this->paymentLogo = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'payment_logo');
     }

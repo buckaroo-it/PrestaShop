@@ -74,7 +74,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_TINKA => 'Tinka',
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',
         PaymentRequestFactory::REQUEST_TYPE_WECHATPAY => 'Wechatpay',
-        PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay'
+        PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
     ];
 
     final public static function create($request_type_id, $data = [])

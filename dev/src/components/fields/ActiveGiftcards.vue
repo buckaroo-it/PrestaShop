@@ -72,14 +72,13 @@ export default {
         const giftcards = ref([])
         const customGiftcards = ref([])
         const activatedGiftcards = ref(props.modelValue ?? []);
-        const bigcommerceAppUrl = import.meta.env.VITE_BUCKAROO_BIGCOMMERCE_APP_URL
 
         const { get, data } = useApi('giftcards');
 
         get().then(() => {
             if(data.value.status) {
                 giftcards.value = data.value.giftcards.map((giftcard) => {
-                    giftcard.logo_url = `${ bigcommerceAppUrl }/modules/buckaroo/views/img/giftcards/${ giftcard.logo }`
+                  const { get, data } = useApi('/index.php?fc=module&module=buckaroo3&controller=giftcards');
                     giftcard.giftcard = false
 
                     return giftcard
@@ -151,7 +150,6 @@ export default {
             filteredGiftcards,
             toggleGiftcard,
             activatedGiftcards,
-            bigcommerceAppUrl,
             appendCustomGiftcard,
             removeCustomGiftcard
         }

@@ -14,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/config.php';
 // Remove old payment methods
 // empayment
 Configuration::deleteByName('BUCKAROO_EMPAYMENT_ENABLED');

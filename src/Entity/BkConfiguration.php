@@ -38,11 +38,13 @@ class BkConfiguration
     private $id;
 
     /**
-     * @var int
+     * @var BkPaymentMethods
      *
-     * @ORM\Column(name="configurable_id", type="integer")
+     * @ORM\ManyToOne(targetEntity="BkPaymentMethods")
+     *
+     * @ORM\JoinColumn(name="configurable_id", referencedColumnName="id", onDelete="CASCADE")
      */
-    private $configurable_id;
+    private $paymentMethod;
 
     /**
      * @var string
@@ -58,14 +60,31 @@ class BkConfiguration
      */
     private $createdAt;
 
-    public function getConfigurableId(): int
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     */
+    private $updatedAt;
+
+    public function getId(): int
     {
-        return $this->configurable_id;
+        return $this->id;
     }
 
-    public function setConfigurableId(int $configurable_id): void
+    public function setId(int $id): void
     {
-        $this->configurable_id = $configurable_id;
+        $this->id = $id;
+    }
+
+    public function getPaymentMethod(): BkPaymentMethods
+    {
+        return $this->paymentMethod;
+    }
+
+    public function setPaymentMethod(BkPaymentMethods $paymentMethod): void
+    {
+        $this->paymentMethod = $paymentMethod;
     }
 
     public function getValue(): string
@@ -86,5 +105,15 @@ class BkConfiguration
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
     }
 }

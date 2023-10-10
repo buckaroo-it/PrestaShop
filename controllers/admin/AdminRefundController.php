@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\PrestaShop\Controller;
+namespace Buckaroo\PrestaShop\Controllers\Admin;
 
 use Buckaroo\PrestaShop\Src\Refund\OrderService;
 use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;

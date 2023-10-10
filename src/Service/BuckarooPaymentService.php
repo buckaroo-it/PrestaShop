@@ -17,19 +17,16 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-require_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 
-use Buckaroo\PrestaShop\Classes\CapayableIn3;
-use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
-use Buckaroo\PrestaShop\Src\Repository\PaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class BuckarooPaymentService
 {
-    private $orderingRepository;
-
+    private $orderingService;
     private $paymentMethodRepository;
     private $context;
     private BuckarooConfigService $buckarooConfigService;
@@ -40,37 +37,38 @@ class BuckarooPaymentService
     private $module;
 
     public function __construct(
+        EntityManager $entityManager,
+        $module,
         $buckarooConfigService,
-        $buckarooFeeService,
         $issuersPayByBank,
         $logger,
         $context,
-        $module
+        $capayableIn3
     ) {
-        $this->orderingRepository = new OrderingRepository();
-        $this->paymentMethodRepository = new PaymentMethodRepository();
+        $this->module = $module;
         $this->buckarooConfigService = $buckarooConfigService;
-        $this->buckarooFeeService = $buckarooFeeService;
         $this->issuersPayByBank = $issuersPayByBank;
-        $this->capayableIn3 = new CapayableIn3();
         $this->logger = $logger;
         $this->context = $context;
-        $this->module = $module;
+        $this->orderingService = $this->module->getService(BuckarooOrderingService::class);
+        $this->capayableIn3 = $capayableIn3;
+        $this->buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
     }
 
     public function getPaymentOptions($cart)
     {
         $payment_options = [];
         libxml_use_internal_errors(true);
-        $paymentMethods = $this->paymentMethodRepository->fetchAllPaymentMethods();
+        $paymentMethods = $this->paymentMethodRepository->findAllPaymentMethods();
 
         $countryId = $this->context->country->id;
-        $positions = $this->orderingRepository->getPositionByCountryId($countryId);
+        $positions = $this->orderingService->getPositionByCountryId($countryId);
+
         $positions = array_flip($positions);
 
         foreach ($paymentMethods as $details) {
-            $method = $details['name'];
-
+            $method = $details->getName();
             $isMethodValid = $this->isPaymentModeActive($method)
                 && $this->isPaymentMethodAvailable($cart, $method)
                 && isset($positions[$method])
@@ -86,8 +84,11 @@ class BuckarooPaymentService
         }
 
         usort($payment_options, function ($a, $b) use ($positions) {
-            $positionA = isset($positions[$a->getModuleName()]) ? $positions[$a->getModuleName()] : 0;
-            $positionB = isset($positions[$b->getModuleName()]) ? $positions[$b->getModuleName()] : 0;
+            $moduleNameA = $a->getModuleName() === 'in3Old' ? 'in3' : $a->getModuleName();
+            $moduleNameB = $b->getModuleName() === 'in3Old' ? 'in3' : $b->getModuleName();
+
+            $positionA = isset($positions[$moduleNameA]) ? $positions[$moduleNameA] : 0;
+            $positionB = isset($positions[$moduleNameB]) ? $positions[$moduleNameB] : 0;
 
             return $positionA - $positionB;
         });
@@ -206,30 +207,30 @@ class BuckarooPaymentService
     private function createPaymentOption($method, $details)
     {
         $newOption = new PaymentOption();
-        $newOption->setCallToActionText($this->getBuckarooLabel($method, $details['label']))
+
+        $newOption->setCallToActionText($this->getBuckarooLabel($method, $details->getLabel()))
             ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method]))
             ->setModuleName($method);
 
         // If template is set, use setForm, otherwise set inputs
-        if (!empty($details['template'])) {
-            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details['template']));
+        if (!empty($details->getTemplate())) {
+            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
-
         // Custom conditions for specific payment methods
         switch ($method) {
             case 'paybybank':
                 $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $this->issuersPayByBank->getSelectedIssuerLogo();
                 break;
+            case 'in3Old':
             case 'in3':
                 $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $this->capayableIn3->getLogo();
                 break;
             default:
-                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details['icon'];
+                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
                 break;
         }
-
         $newOption->setLogo($logoPath);
 
         return $newOption;
@@ -237,6 +238,9 @@ class BuckarooPaymentService
 
     public function getBuckarooLabel($method, $label)
     {
+        if ($method == 'in3Old') {
+            $method = 'in3';
+        }
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
         if ($configArray === null) {
             $this->logError('JSON decode error: ' . json_last_error_msg());
@@ -245,6 +249,7 @@ class BuckarooPaymentService
         }
 
         $label = $this->getLabel($configArray, $label);
+
         $feeLabel = $this->getFeeLabel($configArray);
 
         return $this->module->l($label . $feeLabel);
@@ -258,7 +263,7 @@ class BuckarooPaymentService
     private function getFeeLabel($configArray)
     {
         if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . Tools::displayPrice($configArray['payment_fee'], $this->context->currency->id);
+            return ' + ' . \Tools::displayPrice($configArray['payment_fee'], $this->context->currency->id);
         }
 
         return '';

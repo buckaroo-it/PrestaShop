@@ -26,10 +26,10 @@
       <div v-if="selectedPayment" class="overflow-y-scroll h-full">
         <DefaultPaymentConfig :payment="selectedPayment">
           <AfterpayPaymentConfig v-if="selectedPayment.name === 'afterpay'"  />
-          <BancontactPaymentConfig v-if="selectedPayment.name === 'bancontact'" />
+<!--          <BancontactPaymentConfig v-if="selectedPayment.name === 'bancontact'" />-->
           <BillinkPaymentConfig v-if="selectedPayment.name === 'billink'" />
           <CreditCardPaymentConfig v-if="selectedPayment.name === 'creditcard'" />
-          <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
+<!--          <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />-->
           <In3PaymentConfig v-if="selectedPayment.name === 'in3'" />
           <IdealPaymentConfig v-if="selectedPayment.name === 'ideal'" />
           <PayPalPaymentConfig v-if="selectedPayment.name === 'paypal'" />

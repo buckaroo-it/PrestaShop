@@ -25,7 +25,7 @@ class Giropay extends PaymentMethod
     {
         $this->type = 'giropay';
         $this->version = 2;
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

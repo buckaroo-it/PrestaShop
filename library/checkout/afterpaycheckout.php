@@ -77,9 +77,13 @@ class AfterPayCheckout extends Checkout
             $address_components['house_number'] = $this->invoice_address->address2;
         }
 
+        $category = ($this->customerType == self::CUSTOMER_TYPE_B2C) ? RecipientCategory::PERSON
+            : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? RecipientCategory::COMPANY
+                : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : RecipientCategory::PERSON));
+
         $payload = [
             'recipient' => [
-                'category' => (self::CUSTOMER_TYPE_B2C == $this->customerType) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
+                'category' => $category,
                 'conversationLanguage' => Tools::strtoupper($country->iso_code),
                 'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'firstName' => $this->invoice_address->firstname,

@@ -21,7 +21,7 @@ class Tinka extends PaymentMethod
     public function __construct()
     {
         $this->type = 'tinka';
-        $this->mode = Config::getMode($this->type);
+        $this->mode = $this->getMode($this->type);
     }
 
     public function getPayload($data)

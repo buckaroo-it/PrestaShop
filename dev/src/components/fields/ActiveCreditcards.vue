@@ -24,7 +24,7 @@
                         'hover:bg-gray-200 hover:text-gray-700': !activatedCreditcards.find(cc => cc.id === creditcard.id)
                     }"
                     @click="toggleCreditcard(creditcard)">
-                    <img v-if="creditcard.icon" :src="`${ bigcommerceAppUrl }/modules/buckaroo3/views/img/buckaroo/Creditcard issuers/${ creditcard.icon }`" class="w-4" />
+                    <img v-if="creditcard.icon" :src="`/modules/buckaroo3/views/img/buckaroo/Creditcard issuers/SVG/${ creditcard.icon }`" class="w-4" />
                     <span class="block">{{ creditcard.name }}</span>
                 </li>
             </ul>
@@ -58,9 +58,8 @@ export default {
         const creditcards = ref([])
         const customGiftcards = ref([])
         const activatedCreditcards = ref(props.modelValue ?? []);
-        const bigcommerceAppUrl = import.meta.env.VITE_BUCKAROO_BIGCOMMERCE_APP_URL
 
-        const { get, data } = useApi('creditcards');
+      const { get, data } = useApi('/index.php?fc=module&module=buckaroo3&controller=creditcards');
 
         get().then(() => {
             if(data.value.status) {
@@ -93,8 +92,7 @@ export default {
             customGiftcards,
             filteredCreditcards,
             toggleCreditcard,
-            activatedCreditcards,
-            bigcommerceAppUrl
+            activatedCreditcards
         }
     }
 }
