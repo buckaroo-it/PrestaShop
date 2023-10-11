@@ -79,8 +79,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`configurable_id` INT(11) NOT NULL,
 				`value`           TEXT NOT NULL,
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                FOREIGN KEY (`configurable_id`) REFERENCES `' . _DB_PREFIX_ . 'bk_payment_methods`(`id`) ON DELETE CASCADE
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_countries` (

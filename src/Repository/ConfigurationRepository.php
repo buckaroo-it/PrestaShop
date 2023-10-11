@@ -36,7 +36,7 @@ class ConfigurationRepository extends EntityRepository
 
     public function getConfigArray(int $paymentId): array
     {
-        $configuration = $this->findOneBy(['paymentMethod' => $paymentId]);
+        $configuration = $this->findOneBy(['configurable_id' => $paymentId]);
         if (!$configuration) {
             throw new \Exception("Configuration not found for payment id {$paymentId}");
         }
@@ -51,7 +51,7 @@ class ConfigurationRepository extends EntityRepository
 
     public function updateConfig(int $paymentId, array $config): bool
     {
-        $configuration = $this->findOneBy(['paymentMethod' => $paymentId]);
+        $configuration = $this->findOneBy(['configurable_id' => $paymentId]);
         if (!$configuration) {
             throw new \Exception("Configuration not found for payment id {$paymentId}");
         }

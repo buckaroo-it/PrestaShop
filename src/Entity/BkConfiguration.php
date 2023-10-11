@@ -38,13 +38,12 @@ class BkConfiguration
     private $id;
 
     /**
-     * @var BkPaymentMethods
+     * @var int
      *
-     * @ORM\ManyToOne(targetEntity="BkPaymentMethods")
      *
-     * @ORM\JoinColumn(name="configurable_id", referencedColumnName="id", onDelete="CASCADE")
+     * @ORM\Column(name="configurable_id", type="integer")
      */
-    private $paymentMethod;
+    private $configurable_id;
 
     /**
      * @var string
@@ -77,14 +76,14 @@ class BkConfiguration
         $this->id = $id;
     }
 
-    public function getPaymentMethod(): BkPaymentMethods
+    public function getConfigurableId(): int
     {
-        return $this->paymentMethod;
+        return $this->configurable_id;
     }
 
-    public function setPaymentMethod(BkPaymentMethods $paymentMethod): void
+    public function setConfigurableId(int $configurable_id): void
     {
-        $this->paymentMethod = $paymentMethod;
+        $this->configurable_id = $configurable_id;
     }
 
     public function getValue(): string

@@ -45,7 +45,7 @@ class PaymentMethodRepository extends EntityRepository
 
         $qb->select('pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
             ->from(BkPaymentMethods::class, 'pm')
-            ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.paymentMethod');
+            ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
 
         $results = $qb->getQuery()->getArrayResult();
 
