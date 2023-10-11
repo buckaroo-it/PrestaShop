@@ -151,36 +151,40 @@
 <!--                <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>-->
 <!--              </div>-->
 
-                <h2 class="font-semibold text-sm">Refund Settings</h2>
+                <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
                 <ToggleField class="p-5 space-y-5" v-model="settings.restock">
                     <div>
                         <label for="client-side-mode" class="font-semibold text-sm">
-                          Re-stock Products
+                          {{ $t('dashboard.pages.settings.re_stock_products') }}
                         </label>
+                        <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.re_stock_products_label') }}</div>
                     </div>
                 </ToggleField>
 
                 <ToggleField class="p-5 space-y-5" v-model="settings.creditSlip">
                   <div>
                     <label for="client-side-mode" class="font-semibold text-sm">
-                      Generate a Credit Slip
+                      {{ $t('dashboard.pages.settings.generate_credit_slip') }}
                     </label>
+                    <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.generate_credit_slip_label') }}</div>
                   </div>
                 </ToggleField>
 
                 <ToggleField class="p-5 space-y-5" v-model="settings.voucher">
                   <div>
                     <label for="client-side-mode" class="font-semibold text-sm">
-                      Generate a Voucher
+                      {{ $t('dashboard.pages.settings.generate_voucher') }}
                     </label>
+                    <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.generate_voucher_label') }}</div>
                   </div>
                 </ToggleField>
 
                 <ToggleField class="p-5 space-y-5" v-model="settings.negativePayment">
                   <div>
                     <label for="client-side-mode" class="font-semibold text-sm">
-                      Create Negative Payments on Refund
+                      {{ $t('dashboard.pages.settings.generate_negative_payments') }}
                     </label>
+                    <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.generate_negative_payments_label') }}</div>
                   </div>
                 </ToggleField>
             </div>
