@@ -112,7 +112,7 @@ class OrderingRepository extends EntityRepository
         }
 
         $result = [
-            'id' => $ordering->getid(),
+            'id' => $ordering->getId(),
             'country_id' => $ordering->getCountryId(),
             'value' => [],
             'createdAt' => $ordering->getCreatedAt(),

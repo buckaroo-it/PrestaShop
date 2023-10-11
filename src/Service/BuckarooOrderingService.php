@@ -59,6 +59,7 @@ class BuckarooOrderingService
         $ordering->setCountryId($countryId);
         $ordering->setValue(serialize($paymentMethodsArray));
         $ordering->setCreatedAt(new \DateTime());
+        $ordering->setUpdatedAt(new \DateTime());
 
         $this->entityManager->persist($ordering);
         $this->entityManager->flush();

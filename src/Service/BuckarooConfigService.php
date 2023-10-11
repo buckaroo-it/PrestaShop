@@ -90,6 +90,7 @@ class BuckarooConfigService
                     $ordering->setCountryId($countryId);
                     $ordering->setValue(json_encode([$paymentMethodId]));
                     $ordering->setCreatedAt(new \DateTime());
+                    $ordering->setUpdatedAt(new \DateTime());
                     $this->entityManager->persist($ordering);
                 } else {
                     $paymentMethodIds = json_decode($ordering->getValue(), true);

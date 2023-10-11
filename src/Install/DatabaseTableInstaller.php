@@ -59,8 +59,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`label`           VARCHAR(255) NOT NULL,
 				`icon`            VARCHAR(255) NOT NULL,
 				`template`        VARCHAR(255) NOT NULL,
-                `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                `created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
                 INDEX(`name`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
@@ -71,7 +71,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`buckaroo_fee`    FLOAT,
 				`currency`        TEXT NOT NULL,
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_configuration` (
@@ -79,7 +79,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`configurable_id` INT(11) NOT NULL,
 				`value`           TEXT NOT NULL,
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_countries` (
@@ -91,7 +91,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`call_prefix`     INT(11),
 				`icon`            VARCHAR(255),
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_ordering` (
@@ -99,7 +99,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`country_id`      INT(11),
 				`value`           TEXT NOT NULL,
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_creditcards` (
@@ -107,8 +107,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`icon`            VARCHAR(255) NOT NULL,
 				`name`            VARCHAR(255) NOT NULL,
 				`service_code`    VARCHAR(255) NOT NULL,
-				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_giftcards` (
@@ -117,7 +117,7 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`name`            VARCHAR(255) NOT NULL,
 				`logo`            VARCHAR(255) NOT NULL,
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         return $sql;
