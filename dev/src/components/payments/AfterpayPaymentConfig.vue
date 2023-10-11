@@ -81,14 +81,26 @@
 
 <script>
 import { inject } from 'vue'
+import {useI18n} from "vue-i18n";
 
 export default {
     name: "AfterpayPaymentConfig",
     setup(props) {
-        const config = inject('config')
+      const { t } = useI18n();
+
+      const config = inject('config')
+
+        const vatOptions = [
+          { text: t('1 = High rate'), value: '1' },
+          { text: t('2 = Low rate'), value: '2' },
+          { text: t('3 = Zero rate'), value: '3' },
+          { text: t('4 = Null rate'), value: '4' },
+          { text: t('5 = Middle rate'), value: '5' },
+        ];
 
         return {
-            config
+          config,
+          vatOptions
         }
     }
 }

@@ -127,29 +127,62 @@
                 </div>
               </div>
 
-              <div class="py-5 flex justify-between items-center">
-                <div>
-                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
-                  <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_label')"></div>
-                </div>
-                <div>
-                  <label for="default-toggle" class="!inline-flex !relative !items-center !cursor-pointer">
-                    <input type="checkbox" :value="true" id="default-toggle" class="sr-only peer" v-model="settings.refund_enabled">
-                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                  </label>
-                </div>
-              </div>
+<!--              <div class="py-5 flex justify-between items-center">-->
+<!--                <div>-->
+<!--                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>-->
+<!--                  <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_label')"></div>-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                  <label for="default-toggle" class="!inline-flex !relative !items-center !cursor-pointer">-->
+<!--                    <input type="checkbox" :value="true" id="default-toggle" class="sr-only peer" v-model="settings.refund_enabled">-->
+<!--                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>-->
+<!--                  </label>-->
+<!--                </div>-->
+<!--              </div>-->
 
-              <div class="space-y-1">
-                <div class="relative">
-                  <input type="text" id="refund_label" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="settings.refund_label" />
-                  <label for="refund_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                    {{ $t('dashboard.pages.settings.refunds_label') }}
-                  </label>
-                </div>
+<!--              <div class="space-y-1">-->
+<!--                <div class="relative">-->
+<!--                  <input type="text" id="refund_label" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="settings.refund_label" />-->
+<!--                  <label for="refund_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">-->
+<!--                    {{ $t('dashboard.pages.settings.refunds_label') }}-->
+<!--                  </label>-->
+<!--                </div>-->
 
-                <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>
-              </div>
+<!--                <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>-->
+<!--              </div>-->
+
+                <h2 class="font-semibold text-sm">Refund Settings</h2>
+                <ToggleField class="p-5 space-y-5" v-model="settings.restock">
+                    <div>
+                        <label for="client-side-mode" class="font-semibold text-sm">
+                          Re-stock Products
+                        </label>
+                    </div>
+                </ToggleField>
+
+                <ToggleField class="p-5 space-y-5" v-model="settings.creditSlip">
+                  <div>
+                    <label for="client-side-mode" class="font-semibold text-sm">
+                      Generate a Credit Slip
+                    </label>
+                  </div>
+                </ToggleField>
+
+                <ToggleField class="p-5 space-y-5" v-model="settings.voucher">
+                  <div>
+                    <label for="client-side-mode" class="font-semibold text-sm">
+                      Generate a Voucher
+                    </label>
+                  </div>
+                </ToggleField>
+
+                <ToggleField class="p-5 space-y-5" v-model="settings.negativePayment">
+                  <div>
+                    <label for="client-side-mode" class="font-semibold text-sm">
+                      Create Negative Payments on Refund
+                    </label>
+                  </div>
+                </ToggleField>
             </div>
           </div>
         </Transition>

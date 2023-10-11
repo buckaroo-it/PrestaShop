@@ -25,8 +25,6 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
 class Installer implements InstallerInterface
 {
-    public const FILE_NAME = 'Installer';
-
     /**
      * @var array
      */
@@ -60,7 +58,7 @@ class Installer implements InstallerInterface
         try {
             $this->initConfig();
         } catch (\Exception $e) {
-            $this->errors[] = $this->module->l('Unable to install config', self::FILE_NAME);
+            $this->errors[] = $this->module->l('Unable to install config', Config::FILE_NAME);
 
             return false;
         }
@@ -90,7 +88,7 @@ class Installer implements InstallerInterface
         $this->installTab('AdminBuckaroo_B', 'IMPROVE', 'Buckaroo Payments', true, 'buckaroo');
         $this->installTab('AdminBuckaroo', 'AdminBuckaroo_B', 'Configure', true);
         $this->installTab('AdminBuckaroolog', 'AdminBuckaroo_B', 'Logs', true);
-        $this->installTab('AdminRefund', 'AdminBuckaroo_B', 'Buckaroo Refunds');
+//        $this->installTab('AdminRefund', 'AdminBuckaroo_B', 'Buckaroo Refunds');
     }
 
     public function getErrors()
@@ -127,11 +125,10 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_LABEL, '');
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_FEE, '');
 
-        \Configuration::updateValue('BUCKAROO_AFTERPAY_TAXRATE', serialize([]));
-
-        \Configuration::updateValue('BUCKAROO_KLARNA_TAXRATE', serialize([]));
-
-        \Configuration::updateValue('BUCKAROO_BILLINK_TAXRATE', serialize([]));
+        \Configuration::updateValue(Config::LABEL_REFUND_RESTOCK, false);
+        \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, true);
+        \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, false);
+        \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, false);
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')
