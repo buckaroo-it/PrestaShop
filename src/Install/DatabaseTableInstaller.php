@@ -54,13 +54,14 @@ final class DatabaseTableInstaller implements InstallerInterface
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_payment_methods` (
-				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
-				`name`            VARCHAR(255) NOT NULL,
-				`label`           VARCHAR(255) NOT NULL,
-				`icon`            VARCHAR(255) NOT NULL,
-				`template`        VARCHAR(255) NOT NULL,
-                `created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
+				`id`                INT(11) AUTO_INCREMENT PRIMARY KEY,
+				`name`              VARCHAR(255) NOT NULL,
+				`label`             VARCHAR(255) NOT NULL,
+				`icon`              VARCHAR(255) NOT NULL,
+				`template`          VARCHAR(255) NOT NULL,
+				`is_payment_method` INT(11) NOT NULL,
+                `created_at`        DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`        DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP,
                 INDEX(`name`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 

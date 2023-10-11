@@ -40,7 +40,6 @@ class BkConfiguration
     /**
      * @var int
      *
-     *
      * @ORM\Column(name="configurable_id", type="integer")
      */
     private $configurable_id;

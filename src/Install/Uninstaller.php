@@ -64,7 +64,7 @@ class Uninstaller
             Config::LABEL_REFUND_RESTOCK,
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,
-            Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT
+            Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
         ];
 
         $this->deleteConfigurations($configurations);

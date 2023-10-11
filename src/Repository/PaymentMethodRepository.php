@@ -39,13 +39,32 @@ class PaymentMethodRepository extends EntityRepository
         return $this->findAll();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getPaymentMethodsFromDBWithConfig()
+    {
+        return $this->fetchMethodsFromDBWithConfig(1);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getVerificationMethodsFromDBWithConfig()
+    {
+        return $this->fetchMethodsFromDBWithConfig(0);
+    }
+
+    public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array
     {
         $qb = $this->_em->createQueryBuilder();
 
         $qb->select('pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
             ->from(BkPaymentMethods::class, 'pm')
+            ->where('pm.is_payment_method = :isPaymentMethod')
+            ->setParameter('isPaymentMethod', $isPaymentMethod)
             ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
+
 
         $results = $qb->getQuery()->getArrayResult();
 
@@ -54,6 +73,7 @@ class PaymentMethodRepository extends EntityRepository
         }
 
         $capayableIn3 = new CapayableIn3();
+
 
         $payments = [];
         foreach ($results as $result) {

@@ -153,6 +153,11 @@ class BuckarooConfigService
         return $this->paymentMethodRepository->getPaymentMethodsFromDBWithConfig();
     }
 
+    public function getVerificationMethodsFromDBWithConfig()
+    {
+        return $this->paymentMethodRepository->getVerificationMethodsFromDBWithConfig();
+    }
+
     public function getActiveCreditCards()
     {
         $result = $this->configurationRepository->getActiveCreditCards();

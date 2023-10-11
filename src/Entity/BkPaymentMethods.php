@@ -59,6 +59,13 @@ class BkPaymentMethods
     private $template;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(name="is_payment_method", type="integer")
+     */
+    private $is_payment_method;
+
+    /**
      * @var string
      *
      * @ORM\Column(name="icon", type="string")
@@ -117,6 +124,16 @@ class BkPaymentMethods
     public function setTemplate(string $template): void
     {
         $this->template = $template;
+    }
+
+    public function getIsPaymentMethod(): int
+    {
+        return $this->is_payment_method;
+    }
+
+    public function setIsPaymentMethod(int $is_payment_method): void
+    {
+        $this->is_payment_method = $is_payment_method;
     }
 
     public function getIcon(): string

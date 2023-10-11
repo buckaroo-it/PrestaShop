@@ -6,6 +6,7 @@
       <div class="lg:w-4/5 md:2/3 w-full">
         <Settings v-if="view === 'settings'" class="lg:flex h-full"/>
         <PaymentMethods v-if="view === 'payment_methods'" ref="paymentMethodsRef"/>
+        <VerificationMethods v-if="view === 'verification_methods'" ref="paymentMethodsRef"/>
         <OrderPaymentMethods v-if="view === 'order_payment_methods'" class="md:flex h-full"/>
       </div>
     </div>
@@ -19,11 +20,13 @@ import Menu from './components/Menu.vue'
 import Settings from './pages/Settings.vue'
 import PaymentMethods from './pages/PaymentMethods.vue'
 import OrderPaymentMethods from './pages/OrderPaymentMethods.vue'
+import VerificationMethods from "./pages/VerificationMethods.vue";
 
 export default {
   name: "Dashboard",
   props: ['jwt'],
   components: {
+    VerificationMethods,
     Menu,
     Settings,
     PaymentMethods,
@@ -40,6 +43,9 @@ export default {
     const changedView = (view) => {
       if (view === 'payment_methods' && paymentMethodsRef.value) {
         paymentMethodsRef.value.selectedPayment = null
+      }
+      if (view === 'verification_methods' && paymentMethodsRef.value) {
+        paymentMethodsRef.value.selectedVerification = null
       }
     }
 
