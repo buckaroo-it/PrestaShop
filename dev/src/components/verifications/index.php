@@ -14,21 +14,12 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-namespace Buckaroo\PrestaShop\Classes;
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 
-use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
-
-class Config
-{
-    public static function getMode($key)
-    {
-        $paymentMethodRepository = new RawPaymentMethodRepository();
-        $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
-        if (\Configuration::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {
-            return 'live';
-        }
-
-        return 'test';
-    }
-}
+header('Location: ../');
+exit;

@@ -181,7 +181,7 @@ class BuckarooPaymentService
     /**
      * Check if payment is available by amount
      *
-     * @param float  $cartTotal
+     * @param float $cartTotal
      * @param string $paymentMethod
      *
      * @return bool

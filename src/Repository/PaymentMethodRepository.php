@@ -65,7 +65,6 @@ class PaymentMethodRepository extends EntityRepository
             ->setParameter('isPaymentMethod', $isPaymentMethod)
             ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
 
-
         $results = $qb->getQuery()->getArrayResult();
 
         if (!$results) {
@@ -73,7 +72,6 @@ class PaymentMethodRepository extends EntityRepository
         }
 
         $capayableIn3 = new CapayableIn3();
-
 
         $payments = [];
         foreach ($results as $result) {
