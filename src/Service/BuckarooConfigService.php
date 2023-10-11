@@ -117,8 +117,13 @@ class BuckarooConfigService
                     $key = array_search($paymentMethodId, $paymentMethodIds);
                     if ($key !== false) {
                         unset($paymentMethodIds[$key]);
-                        $ordering->setValue(json_encode(array_values($paymentMethodIds)));  // reindex array
-                        $this->entityManager->persist($ordering);
+                        if (empty($paymentMethodIds)) {
+                            // If ordering array is empty, remove the row from the database
+                            $this->entityManager->remove($ordering);
+                        } else {
+                            $ordering->setValue(json_encode(array_values($paymentMethodIds)));
+                            $this->entityManager->persist($ordering);
+                        }
                     }
                 }
             }
