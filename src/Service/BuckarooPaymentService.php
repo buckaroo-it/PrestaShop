@@ -20,6 +20,7 @@ namespace Buckaroo\PrestaShop\Src\Service;
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 
+use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -78,6 +79,12 @@ class BuckarooPaymentService
                 $method = $this->capayableIn3->getMethod();
             }
 
+            if($method == 'idin') {
+                if ($this->isCustomerIdinValid($cart)) {
+                    continue;
+                }
+            }
+
             if ($isMethodValid) {
                 $payment_options[] = $this->createPaymentOption($method, $details);
             }
@@ -94,6 +101,16 @@ class BuckarooPaymentService
         });
 
         return $payment_options;
+    }
+
+    public function isCustomerIdinValid($cart)
+    {
+        $id_customer = $cart->id_customer;
+        $query = 'SELECT c.`buckaroo_idin_iseighteenorolder`'
+            . ' FROM `' . _DB_PREFIX_ . 'customer` c '
+            . ' WHERE c.id_customer = ' . (int) $id_customer;
+
+        return \Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query) == 'True' ? true : false;
     }
 
     private function isMethodUnavailableBySpecificConditions($cart, $method)
@@ -227,6 +244,9 @@ class BuckarooPaymentService
             case 'in3':
                 $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $this->capayableIn3->getLogo();
                 break;
+            case 'idin':
+                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/' . $details->getIcon();
+                break;
             default:
                 $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
                 break;
@@ -276,12 +296,19 @@ class BuckarooPaymentService
 
     public function isPaymentModeActive($method)
     {
+        $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
         if ($configArray === null) {
             return false;
         }
 
-        return isset($configArray['mode']) && in_array($configArray['mode'], ['live', 'test']);
+        if ($isLive === 0) {
+            return isset($configArray['mode']) && $configArray['mode'] === 'test';
+        } else if ($isLive === 1) {
+            return isset($configArray['mode']) && $configArray['mode'] === 'live';
+        }
+
+        return false;
     }
 
     /**

@@ -132,14 +132,20 @@ abstract class PaymentMethod extends BuckarooAbstract
         $this->data['services'][$this->type]['action'] = 'verify';
         $this->data['services'][$this->type]['version'] = $this->version;
 
-        $this->data['returnUrl'] = $this->returnUrl;
-        $this->data['mode'] = $this->mode;
+        $this->payload['returnURL'] = $this->returnUrl;
+        $this->payload['pushURL'] = $this->pushUrl;
+        $this->payload['platformName'] = $this->platformName;
+        $this->payload['platformVersion'] = $this->platformVersion;
+        $this->payload['moduleVersion'] = $this->moduleVersion;
+        $this->payload['moduleSupplier'] = $this->moduleSupplier;
+        $this->payload['moduleName'] = $this->moduleName;
+        $this->payload['mode'] = $this->mode;
+        $this->payload['additionalParameters']['cid'] = $this->payload['additionalParameters']['cid'];
+
 
         $buckaroo = $this->getBuckarooClient();
         // Verify
-        $response = $buckaroo->method('idin')->identify([
-            'issuer' => $this->data['customVars']['idin']['issuerId'],
-        ]);
+        $response = $buckaroo->method('idin')->verify($this->payload);
 
         return ResponseFactory::getResponse($response);
     }
@@ -148,7 +154,8 @@ abstract class PaymentMethod extends BuckarooAbstract
     {
         $paymentMethodRepository = new RawPaymentMethodRepository();
         $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
-        if (Configuration::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {
+
+        if (Configuration::get('BUCKAROO_TEST') == 1 && $getPaymentMethodMode == 'live') {
             return 'live';
         }
 

@@ -111,6 +111,7 @@ class Installer implements InstallerInterface
             'actionAdminCustomersListingFieldsModifier',
             'displayAdminProductsMainStepLeftColumnMiddle',
             'displayProductExtraContent',
+            'actionProductFormBuilderModifier'
         ];
     }
 

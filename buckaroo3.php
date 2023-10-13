@@ -36,6 +36,7 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class Buckaroo3 extends PaymentModule
 {
@@ -121,6 +122,16 @@ class Buckaroo3 extends PaymentModule
         $translations[] = $this->l('Follow my order');
         $translations[] = $this->l('Payment in progress');
         $translations[] = $this->l('Buckaroo supports the following gift cards:');
+    }
+
+    public function hookActionProductFormBuilderModifier(array $params)
+    {
+        $formBuilder = $params['form_builder'];
+
+        $formBuilder->add('require_idin', CheckboxType::class, [
+            'label' => 'Require iDIN Authorization',
+            'required' => false,
+        ]);
     }
 
     public function hookDisplayAdminOrderMainBottom($params)

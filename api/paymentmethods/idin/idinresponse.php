@@ -16,16 +16,17 @@
  */
 require_once dirname(__FILE__) . '/../response.php';
 
-// TODO - Fix IDIN
 class IdinResponse extends Response
 {
-    public $idinConsumerbin;
-    public $idinIseighteenorolder;
-    public $buckarooCid;
-
+    public function __construct($transactionResponse = null)
+    {
+        parent::__construct($transactionResponse);
+        $this->parsePostResponseChild();
+    }
+    
     protected function parsePostResponseChild()
     {
-        if ($customerId = Tools::getValue('add_cid')) {
+        if ($customerId = Tools::getValue('ADD_cid')) {
             if ($consumerbin = pSQL(Tools::getValue('brq_service_idin_consumerbin'))) {
                 if ($iseighteenorolder = pSQL(Tools::getValue('brq_service_idin_iseighteenorolder'))) {
                     Db::getInstance()->execute(
