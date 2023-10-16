@@ -52,12 +52,12 @@ class RawCreditCardsRepository
             ['name' => 'CarteBleue', 'service_code' => 'cartebleue', 'icon' => 'CarteBleue.svg'],
             ['name' => 'Dankort', 'service_code' => 'dankort', 'icon' => 'Dankort.svg'],
             ['name' => 'Maestro', 'service_code' => 'maestro', 'icon' => 'Maestro.svg'],
-            ['name' => 'Mastercard', 'service_code' => 'mastercard', 'icon' => 'Mastercard.svg'],
+            ['name' => 'Mastercard', 'service_code' => 'mastercard', 'icon' => 'MasterCard.svg'],
             ['name' => 'Nexi', 'service_code' => 'nexi', 'icon' => 'Nexi.svg'],
-            ['name' => 'PostePay', 'service_code' => 'postepay', 'icon' => 'PostePay.svg'],
-            ['name' => 'VISA', 'service_code' => 'visa', 'icon' => 'VISA.svg'],
+            ['name' => 'PostePay', 'service_code' => 'postepay', 'icon' => 'Postepay.svg'],
+            ['name' => 'VISA', 'service_code' => 'visa', 'icon' => 'Visa.svg'],
             ['name' => 'VISA Electron', 'service_code' => 'visaelectron', 'icon' => 'VisaElectron.svg'],
-            ['name' => 'VPAY', 'service_code' => 'vpay', 'icon' => 'VPAY.svg'],
+            ['name' => 'VPAY', 'service_code' => 'vpay', 'icon' => 'VPay.svg'],
         ];
     }
 
