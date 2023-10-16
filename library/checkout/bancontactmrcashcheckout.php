@@ -16,7 +16,7 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-class MisterCashCheckout extends Checkout
+class BancontactmrcashCheckout extends Checkout
 {
     protected $customVars = [];
 
@@ -42,6 +42,6 @@ class MisterCashCheckout extends Checkout
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_MISTERCASH);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_BANCONTACTMRCASH);
     }
 }

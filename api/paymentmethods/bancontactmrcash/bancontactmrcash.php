@@ -16,11 +16,11 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
-class MisterCash extends PaymentMethod
+class Bancontactmrcash extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'bancontact';
+        $this->type = 'bancontactmrcash';
         $this->version = 1;
         $this->mode = $this->getMode($this->type);
     }

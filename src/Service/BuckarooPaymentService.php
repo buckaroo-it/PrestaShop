@@ -70,7 +70,7 @@ class BuckarooPaymentService
 
         foreach ($paymentMethods as $details) {
             $method = $details->getName();
-            $isMethodValid = $this->isPaymentModeActive($method)
+            $isMethodValid = $this->module->isPaymentModeActive($method)
                 && $this->isPaymentMethodAvailable($cart, $method)
                 && isset($positions[$method])
                 && !$this->isMethodUnavailableBySpecificConditions($cart, $method);
@@ -80,7 +80,11 @@ class BuckarooPaymentService
             }
 
             if($method == 'idin') {
-                if ($this->isCustomerIdinValid($cart)) {
+                if ($this->module->isIdinCheckout($cart)) {
+                    if ($this->isCustomerIdinValid($cart)) {
+                        continue;
+                    }
+                }else{
                     continue;
                 }
             }
@@ -292,23 +296,6 @@ class BuckarooPaymentService
     private function logError($message)
     {
         $this->logger->logInfo($message, 'error');
-    }
-
-    public function isPaymentModeActive($method)
-    {
-        $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
-        if ($configArray === null) {
-            return false;
-        }
-
-        if ($isLive === 0) {
-            return isset($configArray['mode']) && $configArray['mode'] === 'test';
-        } else if ($isLive === 1) {
-            return isset($configArray['mode']) && $configArray['mode'] === 'live';
-        }
-
-        return false;
     }
 
     /**

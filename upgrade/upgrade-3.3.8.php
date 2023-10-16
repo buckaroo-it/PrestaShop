@@ -30,7 +30,6 @@ function upgrade_module_3_3_8($object)
     $object->registerHook('actionAdminCustomersListingFieldsModifier');
 
     $object->registerHook('displayAdminProductsMainStepLeftColumnMiddle');
-    $object->registerHook('displayProductExtraContent');
 
     Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'customer` 
         ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;');

@@ -24,7 +24,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_GIROPAY = 'giropay';
     public const REQUEST_TYPE_KBC = 'kbc';
     public const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
-    public const REQUEST_TYPE_MISTERCASH = 'bancontactmrcash';
+    public const REQUEST_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
     public const REQUEST_TYPE_GIFTCARD = 'giftcard';
     public const REQUEST_TYPE_CREDITCARD = 'creditcard';
@@ -54,7 +54,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
         PaymentRequestFactory::REQUEST_TYPE_KBC => 'Kbc',
-        PaymentRequestFactory::REQUEST_TYPE_MISTERCASH => 'MisterCash',
+        PaymentRequestFactory::REQUEST_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         PaymentRequestFactory::REQUEST_TYPE_SOFORTBANKING => 'Sofortbanking',
         PaymentRequestFactory::REQUEST_TYPE_GIFTCARD => 'GiftCard',
         PaymentRequestFactory::REQUEST_TYPE_CREDITCARD => 'CreditCard',

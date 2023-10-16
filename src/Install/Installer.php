@@ -66,6 +66,7 @@ class Installer implements InstallerInterface
         $this->installSpecificTabs();
 
         $this->copyEmailTemplates();
+        $this->copyProductTemplates();
         $this->databaseTableInstaller->install();
 
         $countryRepository = new RawCountryRepository();
@@ -107,11 +108,7 @@ class Installer implements InstallerInterface
             'actionEmailSendBefore',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
-            'displayBeforeCarrier',
             'actionAdminCustomersListingFieldsModifier',
-            'displayAdminProductsMainStepLeftColumnMiddle',
-            'displayProductExtraContent',
-            'actionProductFormBuilderModifier'
         ];
     }
 
@@ -162,6 +159,28 @@ class Installer implements InstallerInterface
         $source = _PS_ROOT_DIR_ . '/modules/buckaroo3/classes/Mail.php';
         $destinationDir = _PS_ROOT_DIR_ . '/override/classes/';
         $destinationFile = $destinationDir . 'Mail.php';
+
+        // Check if destination directory exists, create it if necessary
+        if (!is_dir($destinationDir)) {
+            if (!mkdir($destinationDir, 0755, true)) {
+                throw new \Exception("Failed to create destination directory '{$destinationDir}'");
+            }
+        }
+
+        // Attempt to copy the file
+        if (!copy($source, $destinationFile)) {
+            throw new \Exception("Failed to copy file from '{$source}' to '{$destinationFile}'");
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function copyProductTemplates()
+    {
+        $source = _PS_ROOT_DIR_ . '/modules/buckaroo3/classes/Product.php';
+        $destinationDir = _PS_ROOT_DIR_ . '/override/classes/';
+        $destinationFile = $destinationDir . 'Product.php';
 
         // Check if destination directory exists, create it if necessary
         if (!is_dir($destinationDir)) {

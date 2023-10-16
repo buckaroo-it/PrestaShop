@@ -64,42 +64,22 @@
 
                 <slot></slot>
 
-                <div class="px-5 space-y-5">
-                    <div class="space-y-2">
-                        <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}</h2>
-                        <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat_label`) }}</div>
-                    </div>
+                <div class="p-5 space-y-5">
+                  <div class="space-y-2">
+                    <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.idin.display_mode`) }}</h2>
+                    <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.idin.display_mode_label`) }}</div>
+                  </div>
 
-                    <div class="relative">
-                        <input type="number" id="fee" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
-                        <label for="fee" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                            {{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}
-                        </label>
-                    </div>
-                </div>
+                  <div class="relative">
+                    <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.display_mode">
+                      <option value="product">{{ $t(`dashboard.pages.payments.idin.display_mode.product`) }}</option>
+                      <option value="global">{{ $t(`dashboard.pages.payments.idin.display_mode.global`) }}</option>
+                    </select>
 
-                <div class="px-5 space-y-5">
-                    <div class="space-y-2">
-                        <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.order_amount_allowed`) }}</h2>
-                        <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.order_amount_allowed_label`) }}</div>
-                    </div>
-
-                    <div class="md:flex md:space-x-5 md:space-y-0 space-y-3">
-                        <div class="relative w-full">
-                            <input type="number" id="min_order_amount" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.min_order_amount" />
-                            <label for="min_order_amount" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                                {{ $t(`dashboard.pages.payments.minimum_order_amount`) }}
-                            </label>
-                        </div>
-
-                        <div class="relative w-full">
-                            <input type="number" id="max_order_amount" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.max_order_amount" />
-                            <label for="max_order_amount" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                                {{ $t(`dashboard.pages.payments.maximum_order_amount`) }}
-                            </label>
-                        </div>
-                    </div>
-
+                    <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                      {{ $t(`dashboard.pages.payments.idin.display_mode`) }}
+                    </label>
+                  </div>
                 </div>
 
                 <div class="px-5 space-y-5">

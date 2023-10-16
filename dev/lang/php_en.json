@@ -329,6 +329,10 @@
     "dashboard.pages.payments.seller_protection_enable": "Enable PayPal Seller Protection",
     "dashboard.pages.payments.seller_protection_enabled": "Yes",
     "dashboard.pages.payments.seller_protection_disabled": "No",
+    "dashboard.pages.payments.idin.display_mode": "iDIN mode:",
+    "dashboard.pages.payments.idin.display_mode.product": "Specific products",
+    "dashboard.pages.payments.idin.display_mode.global": "Global",
+    "dashboard.pages.payments.idin.display_mode_label": "With this setting you can select whether iDIN is enabled for all the products in the store (globally) or only for specific products.\nFor specific products you also need to enable it for the products in the PrestaShop catalog.",
     "dashboard.pages.settings.credentials_label": "Get your credentials from the <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
     "dashboard.pages.settings.refunds_label_label": "When enabled you can do (partial) refunds directly from your PrestaShop admin area <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
     "dashboard.pages.settings.refunds_label_explanation": "This description is used for the refunds and will be visible in Buckaroo and on the bank statement of the consumer. We recommend using the webshop name for recognition.",
@@ -400,7 +404,7 @@
     "payment_methods.payconiq": "Payconiq",
     "payment_methods.tinka": "Tinka",
     "payment_methods.paypal": "PayPal",
-    "payment_methods.bancontact": "Bancontact",
+    "payment_methods.bancontactmrcash": "Bancontact",
     "payment_methods.sofort": "Sofort",
     "payment_methods.giropay": "Giropay",
     "payment_methods.klarna": "Klarna",
@@ -410,5 +414,5 @@
     "payment_methods.transfer": "Transfer",
     "payment_methods.wechatpay": "WeChatPay",
     "payment_methods.alipay": "Alipay",
-    "verification_methods.idin": "iDin"
+    "verification_methods.idin": "iDIN"
 }

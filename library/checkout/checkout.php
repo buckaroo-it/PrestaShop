@@ -30,7 +30,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const CHECKOUT_TYPE_GIROPAY = 'giropay';
     public const CHECKOUT_TYPE_KBC = 'kbc';
-    public const CHECKOUT_TYPE_MISTERCASH = 'bancontactmrcash';
+    public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
     public const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
     public const CHECKOUT_TYPE_SOFORTBANKING = 'sofortueberweisung';
@@ -60,7 +60,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY => 'Giropay',
         Checkout::CHECKOUT_TYPE_KBC => 'Kbc',
-        Checkout::CHECKOUT_TYPE_MISTERCASH => 'MisterCash',
+        Checkout::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         Checkout::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
         Checkout::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
         Checkout::CHECKOUT_TYPE_SOFORTBANKING => 'Sofortbanking',

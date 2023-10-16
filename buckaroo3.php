@@ -27,6 +27,8 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\CapayableIn3;
 use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
 use Buckaroo\PrestaShop\Classes\JWTAuth;
+use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\Installer;
@@ -36,7 +38,6 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class Buckaroo3 extends PaymentModule
 {
@@ -124,16 +125,6 @@ class Buckaroo3 extends PaymentModule
         $translations[] = $this->l('Buckaroo supports the following gift cards:');
     }
 
-    public function hookActionProductFormBuilderModifier(array $params)
-    {
-        $formBuilder = $params['form_builder'];
-
-        $formBuilder->add('require_idin', CheckboxType::class, [
-            'label' => 'Require iDIN Authorization',
-            'required' => false,
-        ]);
-    }
-
     public function hookDisplayAdminOrderMainBottom($params)
     {
         $refundProvider = $this->get('buckaroo.refund.admin.provider');
@@ -186,6 +177,7 @@ class Buckaroo3 extends PaymentModule
             Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'customer` 
             ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;');
         }
+
 
         Db::getInstance()->query('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'product` LIKE "buckaroo_idin"');
         if (Db::getInstance()->NumRows() == 0) {
@@ -300,7 +292,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.1eea84df.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.13b092d4.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.ffb95ec5.css',
             'jwt' => $token,
         ]);
@@ -406,9 +398,9 @@ class Buckaroo3 extends PaymentModule
         } elseif ($cart->id_address_delivery != $cart->id_address_invoice) {
             $address_differ = 1;
         }
+        $this->initBuckarooConfigService();
 
         $this->logger = new Logger(Logger::INFO, $fileName = '');
-        $this->buckarooConfigService = $this->getService(BuckarooConfigService::class);
         $this->issuersPayByBank = new IssuersPayByBank();
         $this->issuersCreditCard = $this->buckarooConfigService->getActiveCreditCards();
         $this->capayableIn3 = new CapayableIn3();
@@ -722,39 +714,18 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    public function hookDisplayBeforeCarrier(array $params)
+    public function isPaymentModeActive($method)
     {
-        $cart = isset($params['cart']) ? $params['cart'] : null;
-        if ($cart === null || !$cart->id_address_delivery) {
-            return '';
+        $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
+        if ($configArray === null) {
+            return false;
         }
 
-        $address = new Address($cart->id_address_delivery);
-        $country = new Country($address->id_country);
-        $context = $this->context;
-
-        $this->smarty->assign([
-            'buckaroo_idin_test' => Configuration::get('BUCKAROO_IDIN_TEST'),
-            'this_path' => _MODULE_DIR_ . $this->tpl_folder . '/',
-            'cart' => $cart,
-            'to_country' => $country->iso_code,
-            'to_postal_code' => $address->postcode,
-            'language' => $context->language->language_code,
-        ]);
-
-        if ($this->isIdinBoxShow($cart)) {
-            return $this->display(__FILE__, 'views/templates/hook/idin.tpl');
-        }
-    }
-
-    public function isIdinBoxShow($cart)
-    {
-        if ($this->isIdinCheckout($cart)) {
-            if ($this->isCustomerIdinValid($cart)) {
-                return false;
-            }
-
-            return true;
+        if ($isLive === 0) {
+            return isset($configArray['mode']) && $configArray['mode'] === 'test';
+        } else if ($isLive === 1) {
+            return isset($configArray['mode']) && $configArray['mode'] === 'live';
         }
 
         return false;
@@ -762,83 +733,53 @@ class Buckaroo3 extends PaymentModule
 
     public function isIdinProductBoxShow($params)
     {
-        $buckaroo_idin_category = [];
-        $tmp_arr = Configuration::get('BUCKAROO_IDIN_CATEGORY');
-        if (!empty($tmp_arr)) {
-            $c = unserialize($tmp_arr);
-            if (is_array($c)) {
-                $buckaroo_idin_category = array_flip($c);
-            }
+        $this->initBuckarooConfigService();
+
+        if (!$this->isPaymentModeActive('idin')) {
+            return false;
         }
 
-        if (Configuration::get('BUCKAROO_IDIN_MODE') != 'off') {
-            switch (Configuration::get('BUCKAROO_IDIN_MODE')) {
-                case 1:
-                    if (isset($params['product']->buckaroo_idin) && $params['product']->buckaroo_idin == 1) {
-                        return true;
-                    }
-                    break;
-                case 2:
-                    if (isset($params['product']->id_category_default, $buckaroo_idin_category[$params['product']->id_category_default])
-                    ) {
-                        return true;
-                    }
-                    break;
-                default:
-                    return true;
-            }
+        switch ($this->buckarooConfigService->getSpecificValueFromConfig('idin', 'display_mode')) {
+            case 'product':
+                return isset($params['product']->buckaroo_idin) && $params['product']->buckaroo_idin == 1;
+            case 'global':
+                return true;
+            default:
+                return false;
         }
-
-        return false;
     }
 
     public function isIdinCheckout($cart)
     {
-        $buckaroo_idin_category = [];
-        $tmp_arr = Configuration::get('BUCKAROO_IDIN_CATEGORY');
-        if (!empty($tmp_arr)) {
-            $c = unserialize($tmp_arr);
-            if (is_array($c)) {
-                $buckaroo_idin_category = array_flip($c);
-            }
+        $this->initBuckarooConfigService();
+
+        if (!$this->isPaymentModeActive('idin')) {
+            return false;
         }
 
-        $cart_products = $cart->getProducts(true);
-
-        if (Configuration::get('BUCKAROO_IDIN_ENABLED') == '1') {
-            switch (Configuration::get('BUCKAROO_IDIN_MODE')) {
-                case 1:
-                    foreach ($cart_products as $value) {
-                        $product = new Product($value['id_product']);
-                        if (isset($product->buckaroo_idin) && $product->buckaroo_idin == 1) {
-                            return true;
-                        }
+        switch ($this->buckarooConfigService->getSpecificValueFromConfig('idin', 'display_mode')) {
+            case 'product':
+                foreach ($cart->getProducts(true) as $value) {
+                    $product = new Product($value['id_product']);
+                    if (isset($product->buckaroo_idin) && $product->buckaroo_idin == 1) {
+                        return true;
                     }
-                    break;
-                case 2:
-                    foreach ($cart_products as $product) {
-                        if (isset($product['id_category_default'], $buckaroo_idin_category[$product['id_category_default']])
-                        ) {
-                            return true;
-                        }
-                    }
-                    break;
-                default:
-                    return true;
-            }
+                }
+                break;
+            case 'global':
+                return true;
+            default:
+                return false;
         }
 
         return false;
     }
 
-    public function isCustomerIdinValid($cart)
+    private function initBuckarooConfigService()
     {
-        $id_customer = $cart->id_customer;
-        $query = 'SELECT c.`buckaroo_idin_iseighteenorolder`'
-        . ' FROM `' . _DB_PREFIX_ . 'customer` c '
-        . ' WHERE c.id_customer = ' . (int) $id_customer;
-
-        return Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query) == 'True' ? true : false;
+        if (!isset($this->buckarooConfigService)) {
+            $this->buckarooConfigService = $this->getService(BuckarooConfigService::class);
+        }
     }
 
     public function hookActionAdminCustomersListingFieldsModifier($params)
@@ -868,19 +809,6 @@ class Buckaroo3 extends PaymentModule
 
             return [$productExtraContent];
         }
-    }
-
-    public function hookDisplayAdminProductsMainStepLeftColumnMiddle($params)
-    {
-        $product = new Product($params['id_product']);
-        $languages = Language::getLanguages(false);
-        $this->context->smarty->assign([
-            'buckaroo_idin' => $product->buckaroo_idin ?? 0,
-            'languages' => $languages,
-            'default_language' => $this->context->employee->id_lang,
-        ]);
-
-        return $this->display(__FILE__, 'views/templates/hook/product_fileds.tpl');
     }
 
     /**

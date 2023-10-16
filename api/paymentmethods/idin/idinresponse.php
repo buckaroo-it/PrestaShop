@@ -15,24 +15,25 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 require_once dirname(__FILE__) . '/../response.php';
+require_once dirname(__FILE__) . '/../../../library/logger.php';
 
 class IdinResponse extends Response
 {
     public function __construct($transactionResponse = null)
     {
-        parent::__construct($transactionResponse);
         $this->parsePostResponseChild();
+        parent::__construct($transactionResponse);
     }
     
     protected function parsePostResponseChild()
     {
-        if ($customerId = Tools::getValue('ADD_cid')) {
-            if ($consumerbin = pSQL(Tools::getValue('brq_service_idin_consumerbin'))) {
-                if ($iseighteenorolder = pSQL(Tools::getValue('brq_service_idin_iseighteenorolder'))) {
-                    Db::getInstance()->execute(
+        if ($customerId = \Tools::getValue('ADD_cid')) {
+            if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
+                if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
+                    \Db::getInstance()->execute(
                         'UPDATE ' . _DB_PREFIX_ . 'customer SET buckaroo_idin_consumerbin="' .
-                        $consumerbin . '", buckaroo_idin_iseighteenorolder="' . $iseighteenorolder . '" WHERE id_customer=' .
-                        (int) $customerId
+                        pSQL($consumerbin) . '", buckaroo_idin_iseighteenorolder="' . pSQL($iseighteenorolder) . '" WHERE id_customer=' .
+                        (int) pSQL($customerId)
                     );
                 }
             }

@@ -327,6 +327,10 @@
   "dashboard.pages.payments.seller_protection_enable": "Schakel de PayPal Verkopersbescherming in",
   "dashboard.pages.payments.seller_protection_enabled": "Ja",
   "dashboard.pages.payments.seller_protection_disabled": "Nee",
+  "dashboard.pages.payments.idin.display_mode": "iDIN modus:",
+  "dashboard.pages.payments.idin.display_mode.product": "Specifieke producten",
+  "dashboard.pages.payments.idin.display_mode.global": "Globaal",
+  "dashboard.pages.payments.idin.display_mode_label": "Met deze instelling kun je selecteren of iDIN is ingeschakeld voor alle producten in de winkel (globaal) of alleen voor specifieke producten. Voor specifieke producten moet je het ook inschakelen voor de producten in de PrestaShop-catalogus.",
   "dashboard.pages.settings.settings": "Instellingen",
   "dashboard.pages.settings.settings_label": "Configureer je instellingen",
   "dashboard.pages.settings.mode": "Modus",
@@ -391,7 +395,7 @@
   "payment_methods.payconiq": "Payconiq",
   "payment_methods.tinka": "Tinka",
   "payment_methods.paypal": "PayPal",
-  "payment_methods.bancontact": "Bancontact",
+  "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.sofort": "Sofort",
   "payment_methods.giropay": "Giropay",
   "payment_methods.klarna": "Klarna",
@@ -400,5 +404,5 @@
   "payment_methods.transfer": "Transfer",
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.alipay": "Alipay",
-  "verification_methods.idin": "iDin"
+  "verification_methods.idin": "iDIN"
 }
