@@ -93,8 +93,8 @@
                 <div>
                   <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.transaction_description') }}</h2>
                   <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.transaction_description_label', {
-                      'order_number': $t('dashboard.pages.settings.order_number'),
-                      'shop_name': $t('dashboard.pages.settings.shop_name')
+                      'order_number': '{' + $t('dashboard.pages.settings.order_number2') + '}',
+                      'shop_name': '{' + $t('dashboard.pages.settings.shop_name2') + '}'
                     })">
                   </div>
                 </div>
@@ -151,7 +151,14 @@
 <!--                <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>-->
 <!--              </div>-->
 
-                <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
+              <div class="py-3 space-y-5 flex justify-between items-center">
+                <div>
+                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
+                  <div class="text-gray-400 text-xs">
+                    {{ $t('dashboard.pages.settings.refunds_label_explanation') }}
+                  </div>
+                </div>
+              </div>
                 <ToggleField class="p-5 space-y-5" v-model="settings.restock">
                     <div>
                         <label for="client-side-mode" class="font-semibold text-sm">

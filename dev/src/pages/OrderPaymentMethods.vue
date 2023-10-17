@@ -54,7 +54,6 @@
                     </div>
                   </template>
                 </draggable>
-
               </div>
             </div>
           </div>
@@ -83,9 +82,9 @@
       </ol>
 
       <p class="text-xs leading-loose">
-        {{$t(`dashboard.pages.order_payment_methods.if_you_have_any_questions`)}}
-        <a href='mailto:info@buckaroo.nl' class='text-fourthly font-bold'>info@buckaroo.nl</a>
-        {{$t(`dashboard.pages.order_payment_methods.if_you_have_any_questions_link`)}}
+        {{ $t('dashboard.pages.order_payment_methods.if_you_have_any_questions') }}
+        <a href='mailto:support@buckaroo.nl' class='text-fourthly font-bold'>support@buckaroo.nl</a>
+        {{ $t('dashboard.pages.settings.if_you_have_any_questions_link') }}
         <a href='tel:+31307115020' class='text-fourthly font-bold'>+31 (0) 30 711 50 20</a>.
       </p>
     </div>
