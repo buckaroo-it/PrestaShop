@@ -6,13 +6,42 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-
-class IdinTabType extends AbstractType
+use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
+use Symfony\Component\Validator\Constraints\Type;
+class IdinTabType extends TranslatorAwareType
 {
+    /**
+     * @var \Currency
+     */
+    private $defaultCurrency;
+
+    /**
+     * @param TranslatorInterface $translator
+     * @param array $locales
+     * @param \Currency $defaultCurrency
+     */
+    public function __construct(
+        TranslatorInterface $translator,
+        array $locales,
+        \Currency $defaultCurrency
+    ) {
+        parent::__construct($translator, $locales);
+        $this->defaultCurrency = $defaultCurrency;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $description = "To require iDIN for specific products, you'll also need to have iDIN to be enabled for specific products in the Buckaroo App. You can find this setting at the iDIN verification settings.";
-
+        parent::buildForm($builder, $options);
+        $description = $this->trans("To require iDIN for specific products, you'll also need to have iDIN to be enabled for specific products in the Buckaroo App. You can find this setting at the iDIN verification settings.", 'Modules.Buckaroo.Admin');
         $builder
             ->add('idin_description', TextType::class, [
                 'label' => false,
@@ -25,8 +54,22 @@ class IdinTabType extends AbstractType
                 ]
             ])
             ->add('buckaroo_idin', CheckboxType::class, [
-                'label' => 'Require iDIN verification for this product.',
+                'label' => $this->trans('Require iDIN verification for this product.', 'Modules.Buckaroo.Admin'),
                 'required' => false,
             ]);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        parent::configureOptions($resolver);
+
+        $resolver
+            ->setDefaults([
+                'label' => $this->trans('iDIN Settings', 'Modules.Bucakroo.Admin'),
+            ])
+        ;
     }
 }

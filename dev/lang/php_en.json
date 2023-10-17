@@ -407,7 +407,7 @@
     "payment_methods.tinka": "Tinka",
     "payment_methods.paypal": "PayPal",
     "payment_methods.bancontactmrcash": "Bancontact",
-    "payment_methods.sofort": "Sofort",
+    "payment_methods.sofortueberweisung": "Sofort",
     "payment_methods.giropay": "Giropay",
     "payment_methods.klarna": "Klarna",
     "payment_methods.afterpay": "Riverty",

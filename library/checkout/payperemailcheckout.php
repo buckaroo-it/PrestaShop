@@ -24,11 +24,22 @@ class PayPerEmailCheckout extends Checkout
     {
         parent::setCheckout();
 
+        $paymentMethodsAllowed = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'allowed_payments');
+        $dueDays = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'due_days');
+        $sendInstructionEmail = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'send_instruction_email');
+
+
         $this->customVars = [
-            'first_name' => $this->invoice_address->firstname,
-            'last_name' => $this->invoice_address->lastname,
+            'customer' => [
+                'gender' => Tools::getValue('bpe_payperemail_person_gender'),
+                'firstName' => $this->invoice_address->firstname,
+                'lastName' => $this->invoice_address->lastname,
+            ],
             'email' => $this->customer->email,
-            'gender' => Tools::getValue('bpe_payperemail_person_gender'),
+            'merchantSendsEmail' => $sendInstructionEmail,
+            'expirationDate' => date('Y-m-d', strtotime('+' . (int) $dueDays . 'day')),
+            'paymentMethodsAllowed' => $paymentMethodsAllowed,
+            'attachment' => '',
         ];
     }
 
@@ -39,7 +50,7 @@ class PayPerEmailCheckout extends Checkout
 
     public function isRedirectRequired()
     {
-        return true;
+        return false;
     }
 
     public function isVerifyRequired()

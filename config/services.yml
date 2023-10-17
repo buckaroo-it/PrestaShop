@@ -93,3 +93,18 @@ services:
       - "@buckaroo.decorator.issue_standard_refund_handler.inner"
       - "@buckaroo.refund_handler"
     public: false
+
+  Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier:
+    autowire: true
+    public: true
+    arguments:
+      $formBuilderModifier: '@form.form_builder_modifier'
+
+  Buckaroo\PrestaShop\Src\Form\Type\IdinTabType:
+    class: Buckaroo\PrestaShop\Src\Form\Type\IdinTabType
+    parent: 'form.type.translatable.aware'
+    public: true
+    arguments:
+      - '@=service("prestashop.adapter.data_provider.currency").getDefaultCurrency()'
+    tags:
+      - { name: form.type }

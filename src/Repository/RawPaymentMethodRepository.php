@@ -84,6 +84,9 @@ class RawPaymentMethodRepository
                 $configValue['send_instruction_email'] = '0';
                 $configValue['due_days'] = '14';
                 break;
+
+            case 'idin':
+                $configValue['display_mode'] = 'global';
         }
 
         $configData = [
@@ -109,7 +112,7 @@ class RawPaymentMethodRepository
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
-            ['name' => 'sofort', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'afterpay', 'label' => 'Riverty | AfterPay', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
             ['name' => 'klarna', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
