@@ -51,9 +51,9 @@ class BuckarooPaymentService
         $this->issuersPayByBank = $issuersPayByBank;
         $this->logger = $logger;
         $this->context = $context;
-        $this->orderingService = $this->module->getService(BuckarooOrderingService::class);
+        $this->orderingService = new BuckarooOrderingService($entityManager);
         $this->capayableIn3 = $capayableIn3;
-        $this->buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+        $this->buckarooFeeService = new BuckarooFeeService($entityManager, $logger);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
     }
 

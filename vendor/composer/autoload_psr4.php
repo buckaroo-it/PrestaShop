@@ -31,6 +31,7 @@ return array(
     'Firebase\\JWT\\' => array($vendorDir . '/firebase/php-jwt/src'),
     'Composer\\CaBundle\\' => array($vendorDir . '/composer/ca-bundle/src'),
     'Buckaroo\\PrestaShop\\Src\\' => array($baseDir . '/src'),
+    'Buckaroo\\PrestaShop\\Library\\' => array($baseDir . '/library'),
     'Buckaroo\\PrestaShop\\Controllers\\' => array($baseDir . '/controllers'),
     'Buckaroo\\PrestaShop\\Classes\\' => array($baseDir . '/classes'),
     'Buckaroo\\' => array($vendorDir . '/buckaroo/sdk/src'),

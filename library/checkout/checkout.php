@@ -137,7 +137,7 @@ abstract class Checkout
             $this->shipping_address = new Address((int) $cart->id_address_delivery);
         }
         $this->products = $this->cart->getProducts();
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
+        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
     }
 
     abstract protected function initialize();
@@ -171,7 +171,7 @@ abstract class Checkout
     public function getBuckarooFee()
     {
         $payment_method = Tools::getValue('method');
-        $buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+        $buckarooFeeService = new BuckarooFeeService($this->module->getEntityManager(), $this->module->logger);
         if ($buckarooFee = $buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);

@@ -90,7 +90,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        $buckarooFeeService = $this->module->getService(BuckarooFeeService::class);
+        $buckarooFeeService = new BuckarooFeeService($this->module->getEntityManager(), $logger);
 
         $getBuckarooFeeValue = $buckarooFeeService->getBuckarooFeeValue($payment_method);
         if ($buckarooFee = $getBuckarooFeeValue) {

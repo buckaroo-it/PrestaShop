@@ -27,7 +27,8 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
     {
         parent::__construct();
 
-        $this->orderingService = $this->module->getService(BuckarooOrderingService::class);
+        $entityManager = $this->module->getEntityManager();
+        $this->orderingService = new BuckarooOrderingService($entityManager);
     }
 
     public function initContent()

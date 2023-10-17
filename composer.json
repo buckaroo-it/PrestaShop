@@ -17,7 +17,8 @@
         "psr-4": {
             "Buckaroo\\PrestaShop\\Src\\": "src",
             "Buckaroo\\PrestaShop\\Classes\\": "classes",
-            "Buckaroo\\PrestaShop\\Controllers\\": "controllers"
+            "Buckaroo\\PrestaShop\\Controllers\\": "controllers",
+            "Buckaroo\\PrestaShop\\Library\\": "library"
         }
       },
     "config": {

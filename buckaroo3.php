@@ -38,7 +38,6 @@ use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
-use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
 
 class Buckaroo3 extends PaymentModule
 {
@@ -53,13 +52,12 @@ class Buckaroo3 extends PaymentModule
     /** @var BuckarooConfigService */
     private $buckarooConfigService;
 
-    protected $logger;
+    public $logger;
     private $issuersPayByBank;
     private $issuersCreditCard;
     private $capayableIn3;
 
-    /** @var LeagueServiceContainerProvider */
-    private $containerProvider;
+    public $symContainer;
 
     public function __construct()
     {
@@ -72,6 +70,7 @@ class Buckaroo3 extends PaymentModule
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
         parent::__construct();
+        $this->setContainer();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
@@ -97,7 +96,6 @@ class Buckaroo3 extends PaymentModule
                 }
             }
         }
-
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY')
             || !Configuration::get('BUCKAROO_SECRET_KEY')
             || !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')
@@ -124,6 +122,18 @@ class Buckaroo3 extends PaymentModule
         $translations[] = $this->l('Follow my order');
         $translations[] = $this->l('Payment in progress');
         $translations[] = $this->l('Buckaroo supports the following gift cards:');
+    }
+
+    private function setContainer()
+    {
+        global $kernel;
+
+        if (!$kernel) {
+            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
+            $kernel = new \AppKernel('prod', false);
+            $kernel->boot();
+        }
+        $this->symContainer = $kernel->getContainer();
     }
 
     public function hookDisplayAdminOrderMainBottom($params)
@@ -293,7 +303,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.796b1d5e.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.c75d6aea.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.ffb95ec5.css',
             'jwt' => $token,
         ]);
@@ -335,6 +345,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
+
         if (!$this->active) {
             return;
         }
@@ -399,11 +410,14 @@ class Buckaroo3 extends PaymentModule
         } elseif ($cart->id_address_delivery != $cart->id_address_invoice) {
             $address_differ = 1;
         }
+
         $this->initBuckarooConfigService();
 
         $this->logger = new Logger(Logger::INFO, $fileName = '');
         $this->issuersPayByBank = new IssuersPayByBank();
+
         $this->issuersCreditCard = $this->buckarooConfigService->getActiveCreditCards();
+
         $this->capayableIn3 = new CapayableIn3();
 
         $entityManager = $this->get('doctrine.orm.entity_manager');
@@ -451,6 +465,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         return $this->buckarooPaymentService->getPaymentOptions($cart);
+    }
+
+    public function getEntityManager()
+    {
+        return $this->symContainer->get('doctrine.orm.entity_manager');
     }
 
     public function hookPaymentReturn($params)
@@ -517,7 +536,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-        $this->buckarooFeeService = $this->getService(BuckarooFeeService::class);
+        $this->buckarooFeeService = new BuckarooFeeService($this->getEntityManager(),$this->logger);
 
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
@@ -779,7 +798,7 @@ class Buckaroo3 extends PaymentModule
     private function initBuckarooConfigService()
     {
         if (!isset($this->buckarooConfigService)) {
-            $this->buckarooConfigService = $this->getService(BuckarooConfigService::class);
+            $this->buckarooConfigService = new BuckarooConfigService($this->getEntityManager());
         }
     }
 
@@ -810,22 +829,6 @@ class Buckaroo3 extends PaymentModule
 
             return [$productExtraContent];
         }
-    }
-
-    /**
-     * Gets service that is defined by module container.
-     *
-     * @param string $serviceName
-     *
-     * @returns mixed
-     */
-    public function getService(string $serviceName)
-    {
-        if ($this->containerProvider === null) {
-            $this->containerProvider = new LeagueServiceContainerProvider();
-        }
-
-        return $this->containerProvider->getService($serviceName);
     }
 
     /**

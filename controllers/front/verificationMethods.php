@@ -27,7 +27,7 @@ class Buckaroo3VerificationMethodsModuleFrontController extends BaseApiControlle
     {
         parent::__construct();
 
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
+        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
     }
 
     public function initContent()

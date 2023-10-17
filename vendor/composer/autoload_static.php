@@ -73,6 +73,7 @@ class ComposerStaticInit0fdcf9de6cd595d783f0cb3796fa729e
         'B' => 
         array (
             'Buckaroo\\PrestaShop\\Src\\' => 24,
+            'Buckaroo\\PrestaShop\\Library\\' => 28,
             'Buckaroo\\PrestaShop\\Controllers\\' => 32,
             'Buckaroo\\PrestaShop\\Classes\\' => 28,
             'Buckaroo\\' => 9,
@@ -181,6 +182,10 @@ class ComposerStaticInit0fdcf9de6cd595d783f0cb3796fa729e
         'Buckaroo\\PrestaShop\\Src\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src',
+        ),
+        'Buckaroo\\PrestaShop\\Library\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/library',
         ),
         'Buckaroo\\PrestaShop\\Controllers\\' => 
         array (
