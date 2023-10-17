@@ -118,7 +118,7 @@ class BillinkCheckout extends Checkout
             $wrappingVat = 2;
         }
         $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle());
+        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
         $mergedProducts = $this->mergeProductsBySKU($products);
 
         $shippingCostArticle = $this->prepareShippingCostArticle();
