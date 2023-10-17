@@ -28,9 +28,10 @@ use Buckaroo\PrestaShop\Classes\CapayableIn3;
 use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
 use Buckaroo\PrestaShop\Classes\JWTAuth;
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
+use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
+use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
@@ -178,11 +179,10 @@ class Buckaroo3 extends PaymentModule
             ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;');
         }
 
-
         Db::getInstance()->query('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'product` LIKE "buckaroo_idin"');
         if (Db::getInstance()->NumRows() == 0) {
-            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'product` 
-            ADD buckaroo_idin TINYINT(1) NULL;');
+            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'product`
+            ADD `buckaroo_idin` TINYINT(1) UNSIGNED DEFAULT 0');
         }
     }
 
@@ -260,7 +260,8 @@ class Buckaroo3 extends PaymentModule
     public function uninstall()
     {
         $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $uninstall = new Uninstaller($databaseTableUninstaller);
+        $databaseIdinColumnsRemover = new IdinColumnsRemover();
+        $uninstall = new Uninstaller($databaseTableUninstaller,$databaseIdinColumnsRemover);
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
@@ -292,7 +293,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.13b092d4.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.796b1d5e.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.ffb95ec5.css',
             'jwt' => $token,
         ]);
@@ -825,5 +826,39 @@ class Buckaroo3 extends PaymentModule
         }
 
         return $this->containerProvider->getService($serviceName);
+    }
+
+    /**
+     * Modify product form builder
+     *
+     * @param array $params
+     */
+    public function hookActionProductFormBuilderModifier(array $params): void
+    {
+        /** @var ProductFormModifier $productFormModifier */
+        $productFormModifier = $this->get(ProductFormModifier::class);
+        $productId = (int) $params['id'];
+
+        $productFormModifier->modify($productId, $params['form_builder']);
+    }
+
+    public function hookActionAfterUpdateProductFormHandler(array $params)
+    {
+        $this->updateCustomerReviewStatus($params);
+    }
+
+    private function updateCustomerReviewStatus(array $params)
+    {
+        $product_id = $params['form_data']['id'];
+
+        $buckarooIdin = $params['form_data']['buckaroo_idin']['buckaroo_idin'];
+
+        $sql = 'UPDATE ' . _DB_PREFIX_ . 'product SET buckaroo_idin = ' . (int) $buckarooIdin . ' WHERE id_product = ' . (int) $product_id;
+
+        try {
+            Db::getInstance()->execute($sql);
+        } catch (Exception $e) {
+            $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage());
+        }
     }
 }
