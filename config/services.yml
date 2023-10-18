@@ -95,6 +95,7 @@ services:
     public: false
 
   Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier:
+    class: Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier
     autowire: true
     public: true
     arguments:
