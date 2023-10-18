@@ -33,7 +33,7 @@ class PayPal extends PaymentMethod
         $this->type = 'paypal';
         $this->version = 1;
         $this->mode = $this->getMode($this->type);
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
+        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
     }
 
     // Seller protection payload

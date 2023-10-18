@@ -27,7 +27,7 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
     public function __construct()
     {
         parent::__construct();
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
+        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
     }
 
     public function initContent()

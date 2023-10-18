@@ -27,7 +27,7 @@ class Buckaroo3CountriesModuleFrontController extends BaseApiController
     {
         parent::__construct();
 
-        $this->buckarooCountriesService = $this->module->getService(BuckarooCountriesService::class);
+        $this->buckarooCountriesService = new BuckarooCountriesService($this->module->getEntityManager());
     }
 
     public function initContent()

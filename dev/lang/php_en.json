@@ -409,7 +409,7 @@
     "payment_methods.idin": "Idin",
     "payment_methods.paypal": "PayPal",
     "payment_methods.bancontactmrcash": "Bancontact",
-    "payment_methods.sofort": "Sofort",
+    "payment_methods.sofortueberweisung": "Sofort",
     "payment_methods.giropay": "Giropay",
     "payment_methods.klarna": "Klarna",
     "payment_methods.afterpay": "Riverty",
@@ -418,5 +418,6 @@
     "payment_methods.transfer": "Transfer",
     "payment_methods.wechatpay": "WeChatPay",
     "payment_methods.alipay": "Alipay",
+    "payment_methods.idin": "iDIN",
     "verification_methods.idin": "iDIN"
 }

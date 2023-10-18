@@ -24,7 +24,7 @@ class IdinResponse extends Response
         $this->parsePostResponseChild();
         parent::__construct($transactionResponse);
     }
-    
+
     protected function parsePostResponseChild()
     {
         if ($customerId = \Tools::getValue('ADD_cid')) {

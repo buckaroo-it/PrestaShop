@@ -33,6 +33,7 @@ class RawOrderingRepository
      */
     public function insertCountryOrdering($countryId = null, $paymentMethodsArray = null)
     {
+        $this->clearOrderingTable();
         return $this->insertCountryOrderingToDB($countryId, $paymentMethodsArray);
     }
 
@@ -64,5 +65,13 @@ class RawOrderingRepository
             'value' => pSQL(json_encode($paymentMethodsArray)),
             'created_at' => date('Y-m-d H:i:s'),
         ];
+    }
+
+    private function clearOrderingTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_ordering';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
+        }
     }
 }

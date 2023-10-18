@@ -28,7 +28,7 @@ use Buckaroo\PrestaShop\Classes\CapayableIn3;
 use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
 use Buckaroo\PrestaShop\Classes\JWTAuth;
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
+use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\Installer;
@@ -37,7 +37,6 @@ use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
-use Buckaroo\PrestaShop\Src\ServiceProvider\LeagueServiceContainerProvider;
 
 class Buckaroo3 extends PaymentModule
 {
@@ -52,28 +51,28 @@ class Buckaroo3 extends PaymentModule
     /** @var BuckarooConfigService */
     private $buckarooConfigService;
 
-    protected $logger;
+    public $logger;
     private $issuersPayByBank;
     private $issuersCreditCard;
     private $capayableIn3;
 
-    /** @var LeagueServiceContainerProvider */
-    private $containerProvider;
+    public $symContainer;
 
     public function __construct()
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '3.5.0';
+        $this->version = '4.0.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
         parent::__construct();
+        $this->setContainer();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 8.1.2');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
@@ -90,13 +89,12 @@ class Buckaroo3 extends PaymentModule
                         if (isset($response->status) && $response->status > 0) {
                             $this->displayName = $this->getPaymentTranslation($response->payment_method);
                         } else {
-                            $this->displayName = $this->l('Buckaroo Payments (v 3.4.0)');
+                            $this->displayName = $this->l('Buckaroo Payments (v 4.0.0)');
                         }
                     }
                 }
             }
         }
-
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY')
             || !Configuration::get('BUCKAROO_SECRET_KEY')
             || !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')
@@ -123,6 +121,18 @@ class Buckaroo3 extends PaymentModule
         $translations[] = $this->l('Follow my order');
         $translations[] = $this->l('Payment in progress');
         $translations[] = $this->l('Buckaroo supports the following gift cards:');
+    }
+
+    private function setContainer()
+    {
+        global $kernel;
+
+        if (!$kernel) {
+            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
+            $kernel = new \AppKernel('prod', false);
+            $kernel->boot();
+        }
+        $this->symContainer = $kernel->getContainer();
     }
 
     public function hookDisplayAdminOrderMainBottom($params)
@@ -178,11 +188,10 @@ class Buckaroo3 extends PaymentModule
             ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;');
         }
 
-
         Db::getInstance()->query('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'product` LIKE "buckaroo_idin"');
         if (Db::getInstance()->NumRows() == 0) {
-            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'product` 
-            ADD buckaroo_idin TINYINT(1) NULL;');
+            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'product`
+            ADD `buckaroo_idin` TINYINT(1) UNSIGNED DEFAULT 0');
         }
     }
 
@@ -292,7 +301,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.13b092d4.js',
+            'pathApp' => $this->getPathUri() . 'dev/assets/main.5a406481.js',
             'pathCss' => $this->getPathUri() . 'dev/assets/main.ffb95ec5.css',
             'jwt' => $token,
         ]);
@@ -398,11 +407,14 @@ class Buckaroo3 extends PaymentModule
         } elseif ($cart->id_address_delivery != $cart->id_address_invoice) {
             $address_differ = 1;
         }
+
         $this->initBuckarooConfigService();
 
         $this->logger = new Logger(Logger::INFO, $fileName = '');
         $this->issuersPayByBank = new IssuersPayByBank();
+
         $this->issuersCreditCard = $this->buckarooConfigService->getActiveCreditCards();
+
         $this->capayableIn3 = new CapayableIn3();
 
         $entityManager = $this->get('doctrine.orm.entity_manager');
@@ -450,6 +462,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         return $this->buckarooPaymentService->getPaymentOptions($cart);
+    }
+
+    public function getEntityManager()
+    {
+        return $this->symContainer->get('doctrine.orm.entity_manager');
     }
 
     public function hookPaymentReturn($params)
@@ -516,7 +533,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-        $this->buckarooFeeService = $this->getService(BuckarooFeeService::class);
+        $this->buckarooFeeService = new BuckarooFeeService($this->getEntityManager(), $this->logger);
 
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
@@ -724,7 +741,7 @@ class Buckaroo3 extends PaymentModule
 
         if ($isLive === 0) {
             return isset($configArray['mode']) && $configArray['mode'] === 'test';
-        } else if ($isLive === 1) {
+        } elseif ($isLive === 1) {
             return isset($configArray['mode']) && $configArray['mode'] === 'live';
         }
 
@@ -778,7 +795,7 @@ class Buckaroo3 extends PaymentModule
     private function initBuckarooConfigService()
     {
         if (!isset($this->buckarooConfigService)) {
-            $this->buckarooConfigService = $this->getService(BuckarooConfigService::class);
+            $this->buckarooConfigService = new BuckarooConfigService($this->getEntityManager());
         }
     }
 
@@ -812,18 +829,36 @@ class Buckaroo3 extends PaymentModule
     }
 
     /**
-     * Gets service that is defined by module container.
+     * Modify product form builder
      *
-     * @param string $serviceName
-     *
-     * @returns mixed
+     * @param array $params
      */
-    public function getService(string $serviceName)
+    public function hookActionProductFormBuilderModifier(array $params): void
     {
-        if ($this->containerProvider === null) {
-            $this->containerProvider = new LeagueServiceContainerProvider();
-        }
+        /** @var ProductFormModifier $productFormModifier */
+        $productFormModifier = $this->get(ProductFormModifier::class);
+        $productId = (int) $params['id'];
 
-        return $this->containerProvider->getService($serviceName);
+        $productFormModifier->modify($productId, $params['form_builder']);
+    }
+
+    public function hookActionAfterUpdateProductFormHandler(array $params)
+    {
+        $this->updateCustomerReviewStatus($params);
+    }
+
+    private function updateCustomerReviewStatus(array $params)
+    {
+        $product_id = $params['form_data']['id'];
+
+        $buckarooIdin = $params['form_data']['buckaroo_idin']['buckaroo_idin'];
+
+        $sql = 'UPDATE ' . _DB_PREFIX_ . 'product SET buckaroo_idin = ' . (int) $buckarooIdin . ' WHERE id_product = ' . (int) $product_id;
+
+        try {
+            Db::getInstance()->execute($sql);
+        } catch (Exception $e) {
+            $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage());
+        }
     }
 }

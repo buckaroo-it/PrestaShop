@@ -16,8 +16,6 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-
 class PayPerEmail extends PaymentMethod
 {
     /**
@@ -30,11 +28,9 @@ class PayPerEmail extends PaymentMethod
 
     public function __construct()
     {
-        $this->module = \Module::getInstanceByName('buckaroo3');
         $this->type = 'payperemail';
         $this->version = '1';
         $this->mode = $this->getMode($this->type);
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
     }
 
     public function pay($customVars = [])
@@ -46,23 +42,6 @@ class PayPerEmail extends PaymentMethod
 
     public function getPayload($data)
     {
-        $paymentMethodsAllowed = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'allowed_payments');
-        $dueDays = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'due_days');
-        $sendInstructionEmail = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'send_instruction_email');
-
-        $payload = [
-            'customer' => [
-                'gender' => $data['gender'],
-                'firstName' => $data['first_name'],
-                'lastName' => $data['last_name'],
-            ],
-            'email' => $data['email'],
-            'merchantSendsEmail' => $sendInstructionEmail,
-            'expirationDate' => date('Y-m-d', strtotime('+' . (int) $dueDays . 'day')),
-            'paymentMethodsAllowed' => $paymentMethodsAllowed,
-            'attachment' => '',
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

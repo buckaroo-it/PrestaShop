@@ -142,7 +142,6 @@ abstract class PaymentMethod extends BuckarooAbstract
         $this->payload['mode'] = $this->mode;
         $this->payload['additionalParameters']['cid'] = $this->payload['additionalParameters']['cid'];
 
-
         $buckaroo = $this->getBuckarooClient();
         // Verify
         $response = $buckaroo->method('idin')->verify($this->payload);

@@ -20,7 +20,7 @@ class Sofortbanking extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'sofort';
+        $this->type = 'sofortueberweisung';
         $this->version = 1;
         $this->mode = $this->getMode($this->type);
     }

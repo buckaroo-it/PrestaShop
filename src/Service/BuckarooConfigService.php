@@ -25,7 +25,6 @@ use Doctrine\ORM\EntityManager;
 
 class BuckarooConfigService
 {
-    protected $logger;
     private $paymentMethodRepository;
 
     private $configurationRepository;
@@ -34,14 +33,15 @@ class BuckarooConfigService
 
     private $entityManager;
 
-    public function __construct(EntityManager $entityManager, $logger)
+    public $module;
+
+    public function __construct(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
-        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
-        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
-        $this->countryRepository = $entityManager->getRepository(BkCountries::class);
-        $this->orderingRepository = $entityManager->getRepository(BkOrdering::class);
-        $this->logger = $logger;
+        $this->configurationRepository = $this->entityManager->getRepository(BkConfiguration::class);
+        $this->paymentMethodRepository = $this->entityManager->getRepository(BkPaymentMethods::class);
+        $this->countryRepository = $this->entityManager->getRepository(BkCountries::class);
+        $this->orderingRepository = $this->entityManager->getRepository(BkOrdering::class);
     }
 
     public function getConfigArrayForMethod($method)
@@ -49,8 +49,6 @@ class BuckarooConfigService
         $paymentMethod = $this->paymentMethodRepository->findOneByName($method);
 
         if (!$paymentMethod) {
-            $this->logger->logError('Payment method not found: ' . $method);
-
             return null;
         }
 

@@ -38,8 +38,7 @@ class CapayableIn3
     public function __construct()
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
-
-        $this->buckarooConfigService = $this->module->getService(BuckarooConfigService::class);
+        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
         $this->apiVersion = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'version');
         $this->paymentLogo = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'payment_logo');
     }

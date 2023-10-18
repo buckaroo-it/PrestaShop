@@ -108,7 +108,10 @@ class Installer implements InstallerInterface
             'actionEmailSendBefore',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
+            'displayProductExtraContent',
             'actionAdminCustomersListingFieldsModifier',
+            'actionProductFormBuilderModifier',
+            'actionAfterUpdateProductFormHandler',
         ];
     }
 

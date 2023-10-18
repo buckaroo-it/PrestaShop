@@ -19,8 +19,13 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 
 class RawPaymentMethodRepository
 {
+    /**
+     * @throws \Exception
+     */
     public function insertPaymentMethods()
     {
+        $this->clearPaymentMethodsTable();
+        $this->clearConfigurationTable();
         $paymentMethodsData = $this->getPaymentMethodsData();
 
         foreach ($paymentMethodsData as $methodData) {
@@ -84,6 +89,9 @@ class RawPaymentMethodRepository
                 $configValue['send_instruction_email'] = '0';
                 $configValue['due_days'] = '14';
                 break;
+
+            case 'idin':
+                $configValue['display_mode'] = 'global';
         }
 
         $configData = [
@@ -109,7 +117,7 @@ class RawPaymentMethodRepository
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
-            ['name' => 'sofort', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'afterpay', 'label' => 'Riverty | AfterPay', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
             ['name' => 'klarna', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
@@ -167,6 +175,22 @@ class RawPaymentMethodRepository
             return $configArray['mode'];
         } else {
             throw new \Exception('Mode not set for payment id ' . $paymentId);
+        }
+    }
+
+    private function clearPaymentMethodsTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
+        }
+    }
+
+    private function clearConfigurationTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_configuration';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
         }
     }
 }
