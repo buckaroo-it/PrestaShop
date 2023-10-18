@@ -57,7 +57,7 @@ final class IdinColumnsRemover implements UninstallerInterface
     /**
      * Check if a column exists in a table.
      *
-     * @param string $table  Table name
+     * @param string $table Table name
      * @param string $column Column name
      *
      * @return bool

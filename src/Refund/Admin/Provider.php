@@ -58,7 +58,7 @@ class Provider
      * Get available amount for refund
      *
      * @param \Order $order
-     * @param array  $refunds
+     * @param array $refunds
      *
      * @return float
      */
