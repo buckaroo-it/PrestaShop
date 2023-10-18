@@ -405,8 +405,6 @@
     "payment_methods.payperemail": "PayPerEmail",
     "payment_methods.payconiq": "Payconiq",
     "payment_methods.tinka": "Tinka",
-    "payment_methods.bancontact": "Bancontact",
-    "payment_methods.idin": "Idin",
     "payment_methods.paypal": "PayPal",
     "payment_methods.bancontactmrcash": "Bancontact",
     "payment_methods.sofortueberweisung": "Sofort",

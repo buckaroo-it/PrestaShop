@@ -123,8 +123,6 @@ class BuckarooPaymentService
                 return !$this->isIn3Available($cart);
             case 'afterpay':
                 return !$this->isAfterpayAvailable($cart);
-            case 'applepay':
-                return !(\Context::getContext()->isMobile());
             default:
                 return false;
         }
