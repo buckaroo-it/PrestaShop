@@ -31,7 +31,6 @@ use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
-use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
@@ -270,8 +269,7 @@ class Buckaroo3 extends PaymentModule
     public function uninstall()
     {
         $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $databaseIdinColumnsRemover = new IdinColumnsRemover();
-        $uninstall = new Uninstaller($databaseTableUninstaller, $databaseIdinColumnsRemover);
+        $uninstall = new Uninstaller($databaseTableUninstaller);
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
