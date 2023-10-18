@@ -408,5 +408,6 @@
   "payment_methods.transfer": "Transfer",
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.alipay": "Alipay",
+  "payment_methods.idin": "iDIN",
   "verification_methods.idin": "iDIN"
 }
