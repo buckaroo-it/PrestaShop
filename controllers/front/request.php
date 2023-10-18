@@ -20,7 +20,6 @@ require_once dirname(__FILE__) . '/../../library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
-use Cart;
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
