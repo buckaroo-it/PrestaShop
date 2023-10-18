@@ -26,19 +26,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     /* @var $checkout IDealCheckout */
     public $checkout;
 
-    public $logger;
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->logger = new \Logger(\Logger::INFO, 'request');
-    }
-
     /**
      * @see FrontController::postProcess()
      */
     public function postProcess()
     {
+        $this->logger = new \Logger(\Logger::INFO, 'request');
         $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
         $this->display_column_left = false;
@@ -148,7 +141,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $customer->secure_key
             );
         }
+        var_dump($cart->id);
         $id_order_cart = Order::getOrderByCartId($cart->id);
+        var_dump($id_order_cart);
         $order = new Order($id_order_cart);
         $this->checkout->setReference($order->reference);
         $this->checkout->setCheckout();
