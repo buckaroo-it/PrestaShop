@@ -2,17 +2,13 @@
 
 namespace Buckaroo\PrestaShop\Src\Form\Type;
 
-use Symfony\Component\Form\AbstractType;
+use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\PositiveOrZero;
-use Symfony\Component\Validator\Constraints\Type;
+
 class IdinTabType extends TranslatorAwareType
 {
     /**
@@ -22,8 +18,8 @@ class IdinTabType extends TranslatorAwareType
 
     /**
      * @param TranslatorInterface $translator
-     * @param array $locales
-     * @param \Currency $defaultCurrency
+     * @param array               $locales
+     * @param \Currency           $defaultCurrency
      */
     public function __construct(
         TranslatorInterface $translator,
@@ -33,7 +29,6 @@ class IdinTabType extends TranslatorAwareType
         parent::__construct($translator, $locales);
         $this->defaultCurrency = $defaultCurrency;
     }
-
 
     /**
      * {@inheritDoc}
@@ -50,8 +45,8 @@ class IdinTabType extends TranslatorAwareType
                 'data' => $description,
                 'attr' => [
                     'readonly' => 'readonly',
-                    'style' => 'border: none; background: transparent;'
-                ]
+                    'style' => 'border: none; background: transparent;',
+                ],
             ])
             ->add('buckaroo_idin', CheckboxType::class, [
                 'label' => $this->trans('Require iDIN verification for this product.', 'Modules.Buckaroo.Admin'),

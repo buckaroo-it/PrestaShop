@@ -1,14 +1,13 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Buckaroo\PrestaShop\Src\Form\Modifier;
 
+use Buckaroo\PrestaShop\Src\Form\Entity\CustomProduct;
 use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
 use PrestaShopBundle\Form\FormBuilderModifier;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Buckaroo\PrestaShop\Src\Form\Entity\CustomProduct;
 
 final class ProductFormModifier
 {
@@ -27,14 +26,13 @@ final class ProductFormModifier
     }
 
     /**
-     * @param int|null $productId
+     * @param int|null             $productId
      * @param FormBuilderInterface $productFormBuilder
      */
     public function modify(
         int $productId,
         FormBuilderInterface $productFormBuilder
     ): void {
-
         $idValue = $productId ? $productId : null;
         $customProduct = new CustomProduct($idValue);
         $this->formBuilderModifier->addAfter(

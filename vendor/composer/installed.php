@@ -46,21 +46,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'container-interop/container-interop' => array(
-            'pretty_version' => '1.2.0',
-            'version' => '1.2.0.0',
-            'reference' => '79cbf1341c22ec75643d841642dd5d6acd83bdb8',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../container-interop/container-interop',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'container-interop/container-interop-implementation' => array(
-            'dev_requirement' => false,
-            'provided' => array(
-                0 => '^1.2',
-            ),
-        ),
         'firebase/php-jwt' => array(
             'pretty_version' => 'v6.9.0',
             'version' => '6.9.0.0',
@@ -97,15 +82,6 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'league/container' => array(
-            'pretty_version' => '2.5.0',
-            'version' => '2.5.0.0',
-            'reference' => '8438dc47a0674e3378bcce893a0a04d79a2c22b3',
-            'type' => 'library',
-            'install_path' => __DIR__ . '/../league/container',
-            'aliases' => array(),
-            'dev_requirement' => false,
-        ),
         'monolog/monolog' => array(
             'pretty_version' => '3.4.0',
             'version' => '3.4.0.0',
@@ -124,12 +100,6 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
-        'orno/di' => array(
-            'dev_requirement' => false,
-            'replaced' => array(
-                0 => '~2.0',
-            ),
-        ),
         'prestashop/autoindex' => array(
             'pretty_version' => 'v2.1.0',
             'version' => '2.1.0.0',
@@ -146,13 +116,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../psr/container',
             'aliases' => array(),
-            'dev_requirement' => false,
-        ),
-        'psr/container-implementation' => array(
-            'dev_requirement' => false,
-            'provided' => array(
-                0 => '^1.0',
-            ),
+            'dev_requirement' => true,
         ),
         'psr/http-client' => array(
             'pretty_version' => '1.0.3',

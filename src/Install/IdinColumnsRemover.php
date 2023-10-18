@@ -57,13 +57,15 @@ final class IdinColumnsRemover implements UninstallerInterface
     /**
      * Check if a column exists in a table.
      *
-     * @param string $table Table name
+     * @param string $table  Table name
      * @param string $column Column name
+     *
      * @return bool
      */
     private function columnExists(string $table, string $column): bool
     {
         $result = \Db::getInstance()->executeS('SHOW COLUMNS FROM `' . $table . '` LIKE "' . $column . '"');
+
         return (bool) $result;
     }
 }

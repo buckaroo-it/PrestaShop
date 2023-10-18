@@ -28,7 +28,6 @@ class PayPerEmailCheckout extends Checkout
         $dueDays = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'due_days');
         $sendInstructionEmail = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'send_instruction_email');
 
-
         $this->customVars = [
             'customer' => [
                 'gender' => Tools::getValue('bpe_payperemail_person_gender'),

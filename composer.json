@@ -10,7 +10,6 @@
     "require": {
         "php": ">=7.4",
         "buckaroo/sdk": "^1.8.0",
-        "league/container": "2.5.0",
         "firebase/php-jwt": "^6.8"
     },
     "autoload": {

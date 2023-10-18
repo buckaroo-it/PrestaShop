@@ -20,7 +20,6 @@ namespace Buckaroo\PrestaShop\Src\Service;
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 
-use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -79,12 +78,12 @@ class BuckarooPaymentService
                 $method = $this->capayableIn3->getMethod();
             }
 
-            if($method == 'idin') {
+            if ($method == 'idin') {
                 if ($this->module->isIdinCheckout($cart)) {
                     if ($this->isCustomerIdinValid($cart)) {
                         continue;
                     }
-                }else{
+                } else {
                     continue;
                 }
             }
@@ -202,7 +201,7 @@ class BuckarooPaymentService
     /**
      * Check if payment is available by amount
      *
-     * @param float $cartTotal
+     * @param float  $cartTotal
      * @param string $paymentMethod
      *
      * @return bool

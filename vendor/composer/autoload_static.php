@@ -48,14 +48,6 @@ class ComposerStaticInit0fdcf9de6cd595d783f0cb3796fa729e
         array (
             'Monolog\\' => 8,
         ),
-        'L' => 
-        array (
-            'League\\Container\\' => 17,
-        ),
-        'I' => 
-        array (
-            'Interop\\Container\\' => 18,
-        ),
         'G' => 
         array (
             'GuzzleHttp\\Psr7\\' => 16,
@@ -150,14 +142,6 @@ class ComposerStaticInit0fdcf9de6cd595d783f0cb3796fa729e
         'Monolog\\' => 
         array (
             0 => __DIR__ . '/..' . '/monolog/monolog/src/Monolog',
-        ),
-        'League\\Container\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/league/container/src',
-        ),
-        'Interop\\Container\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/container-interop/container-interop/src/Interop/Container',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (

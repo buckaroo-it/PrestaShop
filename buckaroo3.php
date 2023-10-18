@@ -271,7 +271,7 @@ class Buckaroo3 extends PaymentModule
     {
         $databaseTableUninstaller = new DatabaseTableUninstaller();
         $databaseIdinColumnsRemover = new IdinColumnsRemover();
-        $uninstall = new Uninstaller($databaseTableUninstaller,$databaseIdinColumnsRemover);
+        $uninstall = new Uninstaller($databaseTableUninstaller, $databaseIdinColumnsRemover);
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
@@ -345,7 +345,6 @@ class Buckaroo3 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-
         if (!$this->active) {
             return;
         }
@@ -536,7 +535,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-        $this->buckarooFeeService = new BuckarooFeeService($this->getEntityManager(),$this->logger);
+        $this->buckarooFeeService = new BuckarooFeeService($this->getEntityManager(), $this->logger);
 
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
@@ -744,7 +743,7 @@ class Buckaroo3 extends PaymentModule
 
         if ($isLive === 0) {
             return isset($configArray['mode']) && $configArray['mode'] === 'test';
-        } else if ($isLive === 1) {
+        } elseif ($isLive === 1) {
             return isset($configArray['mode']) && $configArray['mode'] === 'live';
         }
 

@@ -28,7 +28,6 @@ class BuckarooOrderingService
 
     protected $paymentMethodRepository;
 
-
     public function __construct(EntityManager $entityManager)
     {
         $this->entityManager = $entityManager;
