@@ -63,7 +63,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '3.5.0';
+        $this->version = '4.0.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -73,7 +73,7 @@ class Buckaroo3 extends PaymentModule
         $this->setContainer();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 8.1.2');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
