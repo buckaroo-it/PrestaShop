@@ -90,7 +90,7 @@ class Buckaroo3 extends PaymentModule
                         if (isset($response->status) && $response->status > 0) {
                             $this->displayName = $this->getPaymentTranslation($response->payment_method);
                         } else {
-                            $this->displayName = $this->l('Buckaroo Payments (v 3.4.0)');
+                            $this->displayName = $this->l('Buckaroo Payments (v 4.0.0)');
                         }
                     }
                 }
