@@ -28,8 +28,12 @@ class RawCountryRepository
         $this->context = \Context::getContext();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function insertCountries()
     {
+        $this->clearCountriesTable();
         $langId = $this->context->language->id;
         $rawCountries = \Country::getCountries($langId, true);
         $processedCountries = $this->processCountries($rawCountries);
@@ -78,5 +82,13 @@ class RawCountryRepository
             'icon' => pSQL($countryData['icon']),
             'created_at' => date('Y-m-d H:i:s'),
         ];
+    }
+
+    private function clearCountriesTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_countries';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
+        }
     }
 }

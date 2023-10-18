@@ -38,14 +38,14 @@ function columnExists( $table, $column)
     return (bool) $result;
 }
 
-function installTab($className, $parent, $name, $active = true, $icon = '')
+function installTab($className, $parent, $name, $active = true, $icon = '', $object)
 {
     $idParent = is_int($parent) ? $parent : \Tab::getIdFromClassName($parent);
 
     $moduleTab = new \Tab();
     $moduleTab->class_name = $className;
     $moduleTab->id_parent = $idParent;
-    $moduleTab->module = $this->module->name;
+    $moduleTab->module = $object->name;
     $moduleTab->active = $active;
     $moduleTab->icon = $icon; /** @phpstan-ignore-line */
     $languages = \Language::getLanguages(true);
@@ -198,9 +198,9 @@ function upgrade_module_4_0_0($object)
         }
     }
 
-    installTab('AdminBuckaroo_B', 'IMPROVE', 'Buckaroo Payments', true, 'buckaroo');
-    installTab('AdminBuckaroo', 'AdminBuckaroo_B', 'Configure', true);
-    installTab('AdminBuckaroolog', 'AdminBuckaroo_B', 'Logs', true);
+    installTab('AdminBuckaroo_B', 'IMPROVE', 'Buckaroo Payments', true, 'buckaroo', $object);
+    installTab('AdminBuckaroo', 'AdminBuckaroo_B', 'Configure', true, '', $object);
+    installTab('AdminBuckaroolog', 'AdminBuckaroo_B', 'Logs', true, '', $object);
 
     return true;
 }

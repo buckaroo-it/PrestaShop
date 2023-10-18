@@ -19,8 +19,13 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 
 class RawPaymentMethodRepository
 {
+    /**
+     * @throws \Exception
+     */
     public function insertPaymentMethods()
     {
+        $this->clearPaymentMethodsTable();
+        $this->clearConfigurationTable();
         $paymentMethodsData = $this->getPaymentMethodsData();
 
         foreach ($paymentMethodsData as $methodData) {
@@ -170,6 +175,22 @@ class RawPaymentMethodRepository
             return $configArray['mode'];
         } else {
             throw new \Exception('Mode not set for payment id ' . $paymentId);
+        }
+    }
+
+    private function clearPaymentMethodsTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
+        }
+    }
+
+    private function clearConfigurationTable(): void
+    {
+        $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_configuration';
+        if (!\Db::getInstance()->execute($sql)) {
+            throw new \Exception('Database error: Could not clear payment methods table');
         }
     }
 }
