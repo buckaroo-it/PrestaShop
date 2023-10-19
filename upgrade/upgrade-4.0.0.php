@@ -15,10 +15,6 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
-use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
-use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
