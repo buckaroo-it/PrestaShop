@@ -134,6 +134,7 @@ class RawPaymentMethodRepository
             ['name' => 'wechatpay', 'label' => 'WeChatPay', 'icon' => 'WeChat Pay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'alipay', 'label' => 'Alipay', 'icon' => 'Alipay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'idin', 'label' => 'iDIN', 'icon' => 'iDIN.svg', 'template' => 'idin.tpl', 'is_payment_method' => '0'],
+            ['name' => 'multibanco', 'label' => 'Multibanco', 'icon' => 'multibanco.png', 'template' => '', 'is_payment_method' => '1'],
         ];
     }
 
