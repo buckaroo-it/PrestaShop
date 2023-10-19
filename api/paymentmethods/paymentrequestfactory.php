@@ -45,6 +45,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_TRUSTLY = 'trustly';
     public const REQUEST_TYPE_WECHATPAY = 'wechatpay';
     public const REQUEST_TYPE_ALIPAY = 'alipay';
+    public const REQUEST_TYPE_MBWAY = 'mbway';
 
     // Request types (Payment Methods).
     public static $valid_request_types = [
@@ -75,6 +76,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',
         PaymentRequestFactory::REQUEST_TYPE_WECHATPAY => 'Wechatpay',
         PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
+        PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'MBway'
     ];
 
     final public static function create($request_type_id, $data = [])
