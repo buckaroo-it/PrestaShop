@@ -31,6 +31,7 @@ use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
+use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
@@ -180,21 +181,6 @@ class Buckaroo3 extends PaymentModule
         return $return;
     }
 
-    public function addBuckarooIdin()
-    {
-        Db::getInstance()->query('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'customer` LIKE "buckaroo_idin_%"');
-        if (Db::getInstance()->NumRows() == 0) {
-            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'customer` 
-            ADD buckaroo_idin_consumerbin VARCHAR(255) NULL, ADD buckaroo_idin_iseighteenorolder VARCHAR(255) NULL;');
-        }
-
-        Db::getInstance()->query('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'product` LIKE "buckaroo_idin"');
-        if (Db::getInstance()->NumRows() == 0) {
-            Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'product`
-            ADD `buckaroo_idin` TINYINT(1) UNSIGNED DEFAULT 0');
-        }
-    }
-
     public function install()
     {
         if (Shop::isFeatureActive()) {
@@ -216,8 +202,6 @@ class Buckaroo3 extends PaymentModule
 
             return false;
         }
-
-        $this->addBuckarooIdin();
 
         (new RefundSettings())->install();
 
@@ -269,7 +253,8 @@ class Buckaroo3 extends PaymentModule
     public function uninstall()
     {
         $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $uninstall = new Uninstaller($databaseTableUninstaller);
+        $databaseIdinColumnsRemover = new IdinColumnsRemover();
+        $uninstall = new Uninstaller($databaseTableUninstaller, $databaseIdinColumnsRemover);
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
@@ -758,12 +743,21 @@ class Buckaroo3 extends PaymentModule
 
         switch ($this->buckarooConfigService->getSpecificValueFromConfig('idin', 'display_mode')) {
             case 'product':
-                return isset($params['product']->buckaroo_idin) && $params['product']->buckaroo_idin == 1;
+                return $this->isProductBuckarooIdinEnabled($params['product']->id);
             case 'global':
                 return true;
             default:
                 return false;
         }
+    }
+
+    private function isProductBuckarooIdinEnabled($productId)
+    {
+
+        $sql = 'SELECT buckaroo_idin FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $buckarooIdin = Db::getInstance()->getValue($sql);
+
+        return $buckarooIdin == 1;
     }
 
     public function isIdinCheckout($cart)
@@ -777,10 +771,7 @@ class Buckaroo3 extends PaymentModule
         switch ($this->buckarooConfigService->getSpecificValueFromConfig('idin', 'display_mode')) {
             case 'product':
                 foreach ($cart->getProducts(true) as $value) {
-                    $product = new Product($value['id_product']);
-                    if (isset($product->buckaroo_idin) && $product->buckaroo_idin == 1) {
-                        return true;
-                    }
+                    return $this->isProductBuckarooIdinEnabled($value['id_product']);
                 }
                 break;
             case 'global':
@@ -844,16 +835,26 @@ class Buckaroo3 extends PaymentModule
 
     public function hookActionAfterUpdateProductFormHandler(array $params)
     {
-        $this->updateCustomerReviewStatus($params);
+        $this->updateProductFormHandler($params);
     }
 
-    private function updateCustomerReviewStatus(array $params)
+    private function updateProductFormHandler(array $params)
     {
         $product_id = $params['form_data']['id'];
 
         $buckarooIdin = $params['form_data']['buckaroo_idin']['buckaroo_idin'];
 
-        $sql = 'UPDATE ' . _DB_PREFIX_ . 'product SET buckaroo_idin = ' . (int) $buckarooIdin . ' WHERE id_product = ' . (int) $product_id;
+        // Check if there's already a record for this product in the bk_product_idin table
+        $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $product_id;
+        $exists = Db::getInstance()->getValue($sqlCheck);
+
+        if ($exists) {
+            // If there's a record, update it
+            $sql = 'UPDATE ' . _DB_PREFIX_ . 'bk_product_idin SET buckaroo_idin = ' . (int) $buckarooIdin . ' WHERE product_id = ' . (int) $product_id;
+        } else {
+            // If there isn't, insert a new record
+            $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_product_idin (product_id, buckaroo_idin) VALUES (' . (int) $product_id . ', ' . (int) $buckarooIdin . ')';
+        }
 
         try {
             Db::getInstance()->execute($sql);

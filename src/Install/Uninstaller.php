@@ -31,12 +31,18 @@ class Uninstaller
      */
     private $databaseUninstaller;
 
+    /**
+     * @var UninstallerInterface
+     */
+    private $idinColumnsRemover;
+
     public function __construct(
-        UninstallerInterface $databaseUninstaller
+        UninstallerInterface $databaseUninstaller,
+        UninstallerInterface $idinColumnsRemover
     ) {
         $this->databaseUninstaller = $databaseUninstaller;
+        $this->idinColumnsRemover = $idinColumnsRemover;
     }
-
     public function uninstall()
     {
         $this->deleteConfig();
@@ -44,6 +50,8 @@ class Uninstaller
         $this->uninstallTabs();
 
         $this->databaseUninstaller->uninstall();
+
+        $this->idinColumnsRemover->uninstall();
 
         return true;
     }

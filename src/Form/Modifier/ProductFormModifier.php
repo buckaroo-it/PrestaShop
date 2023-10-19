@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace Buckaroo\PrestaShop\Src\Form\Modifier;
 
-use Buckaroo\PrestaShop\Src\Form\Entity\CustomProduct;
 use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
 use PrestaShopBundle\Form\FormBuilderModifier;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -48,18 +47,31 @@ final class ProductFormModifier
         int $productId,
         FormBuilderInterface $productFormBuilder
     ): void {
-        $idValue = $productId ? $productId : null;
-        $customProduct = new CustomProduct($idValue);
+        $buckarooIdinValue = $this->getBuckarooIdinForProduct($productId);
+
         $this->formBuilderModifier->addAfter(
-            $productFormBuilder, // the tab
+            $productFormBuilder,
             'options',
-            'buckaroo_idin', // your field name
+            'buckaroo_idin',
             IdinTabType::class,
             [
                 'data' => [
-                    'buckaroo_idin' => (bool) $customProduct->buckaroo_idin,
+                    'buckaroo_idin' => (bool) $buckarooIdinValue,
                 ],
             ]
         );
+    }
+
+    /**
+     * Fetch buckaroo_idin for a given product from `bk_product_idin` table.
+     * @param int $productId
+     * @return bool|null
+     */
+    private function getBuckarooIdinForProduct(int $productId): ?bool
+    {
+        $sql = 'SELECT buckaroo_idin FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $result = \Db::getInstance()->getValue($sql);
+
+        return $result ? (bool) $result : null;
     }
 }
