@@ -32,7 +32,7 @@ class MultibancoCheckout extends Checkout
 
     public function isRedirectRequired()
     {
-        return false;
+        return true;
     }
 
     public function isVerifyRequired()
