@@ -23,10 +23,4 @@ class Multibanco extends PaymentMethod
         $this->type = 'multibanco';
         $this->mode = $this->getMode($this->type);
     }
-
-
-    public function pay($customVars = [])
-    {
-        return parent::pay();
-    }
 }
