@@ -121,6 +121,23 @@ final class DatabaseTableInstaller implements InstallerInterface
                 `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_customer_idin` (
+				`id`                        INT(11) AUTO_INCREMENT PRIMARY KEY,
+				`customer_id`                INT(11) NOT NULL,
+				`buckaroo_idin_consumerbin`  VARCHAR(255) NULL,
+				`buckaroo_idin_iseighteenorolder` VARCHAR(255) NULL,
+				`created_at`                 DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`                 DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
+			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_product_idin` (
+				`id`               INT(11) AUTO_INCREMENT PRIMARY KEY,
+				`product_id`       INT(11) NOT NULL,
+				`buckaroo_idin`    TINYINT(1) UNSIGNED DEFAULT 0,
+				`created_at`       DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+                `updated_at`       DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
+			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
         return $sql;
     }
 }

@@ -14,15 +14,18 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-class Product extends ProductCore
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+/**
+ * @return mixed
+ */
+function upgrade_module_4_0_1($object)
 {
-    public function __construct(
-        $id_product = null,
-        $full = false,
-        $id_lang = null,
-        $id_shop = null,
-        Context $context = null
-    ) {
-        parent::__construct($id_product, $full, $id_lang, $id_shop, $context);
-    }
+    $object->uninstall();
+    $object->install();
+
+    return true;
 }

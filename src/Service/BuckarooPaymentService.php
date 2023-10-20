@@ -109,9 +109,10 @@ class BuckarooPaymentService
     public function isCustomerIdinValid($cart)
     {
         $id_customer = $cart->id_customer;
-        $query = 'SELECT c.`buckaroo_idin_iseighteenorolder`'
-            . ' FROM `' . _DB_PREFIX_ . 'customer` c '
-            . ' WHERE c.id_customer = ' . (int) $id_customer;
+
+        $query = 'SELECT ci.`buckaroo_idin_iseighteenorolder`'
+            . ' FROM `' . _DB_PREFIX_ . 'bk_customer_idin` ci'
+            . ' WHERE ci.customer_id = ' . (int) $id_customer;
 
         return \Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query) == 'True' ? true : false;
     }

@@ -14,15 +14,13 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-class Product extends ProductCore
+require_once dirname(__FILE__) . '/../paymentmethod.php';
+
+class MBway extends PaymentMethod
 {
-    public function __construct(
-        $id_product = null,
-        $full = false,
-        $id_lang = null,
-        $id_shop = null,
-        Context $context = null
-    ) {
-        parent::__construct($id_product, $full, $id_lang, $id_shop, $context);
+    public function __construct()
+    {
+        $this->type = 'mbway';
+        $this->mode = $this->getMode($this->type);
     }
 }
