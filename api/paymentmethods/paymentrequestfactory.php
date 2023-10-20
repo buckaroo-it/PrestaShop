@@ -45,6 +45,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_TRUSTLY = 'trustly';
     public const REQUEST_TYPE_WECHATPAY = 'wechatpay';
     public const REQUEST_TYPE_ALIPAY = 'alipay';
+    public const REQUEST_TYPE_MULTIBANCO = 'multibanco';
     public const REQUEST_TYPE_MBWAY = 'mbway';
 
     // Request types (Payment Methods).
@@ -76,6 +77,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',
         PaymentRequestFactory::REQUEST_TYPE_WECHATPAY => 'Wechatpay',
         PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
+        PaymentRequestFactory::REQUEST_TYPE_MULTIBANCO => 'Multibanco',
         PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'MBway'
     ];
 

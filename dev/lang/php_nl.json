@@ -409,6 +409,7 @@
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.alipay": "Alipay",
   "payment_methods.idin": "iDIN",
+  "payment_methods.multibanco": "Multibanco",
   "payment_methods.mbway": "MB WAY",
   "verification_methods.idin": "iDIN"
 }
