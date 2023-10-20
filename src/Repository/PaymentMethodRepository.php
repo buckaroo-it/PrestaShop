@@ -22,7 +22,7 @@ use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 
-class PaymentMethodRepository extends EntityRepository
+class PaymentMethodRepository extends EntityRepository implements BkPaymentMethodRepositoryInterface
 {
     public function findOneByName($name)
     {

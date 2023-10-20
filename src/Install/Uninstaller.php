@@ -36,15 +36,27 @@ class Uninstaller
      */
     private $idinColumnsRemover;
 
+    /**
+     * @var \Buckaroo3
+     */
+    private $module;
+
     public function __construct(
+        $module,
         UninstallerInterface $databaseUninstaller,
         UninstallerInterface $idinColumnsRemover
     ) {
+        $this->module = $module;
         $this->databaseUninstaller = $databaseUninstaller;
         $this->idinColumnsRemover = $idinColumnsRemover;
     }
+
     public function uninstall()
     {
+        foreach ($this->getHooks() as $hook) {
+            $this->module->unregisterHook($hook);
+        }
+
         $this->deleteConfig();
 
         $this->uninstallTabs();
@@ -106,10 +118,9 @@ class Uninstaller
             'actionEmailSendBefore',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
-            'displayBeforeCarrier',
-            'actionAdminCustomersListingFieldsModifier',
-            'displayAdminProductsMainStepLeftColumnMiddle',
             'displayProductExtraContent',
+            'actionProductFormBuilderModifier',
+            'actionAfterUpdateProductFormHandler',
         ];
     }
 }

@@ -15,17 +15,19 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
+
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
 class Buckaroo3CreditCardsModuleFrontController extends BaseApiController
 {
-    private $creditCardsRepository;
+    private RawCreditCardsRepository $creditCardsRepository;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->creditCardsRepository = new \Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository();
+        $this->creditCardsRepository = new RawCreditCardsRepository();
     }
 
     public function initContent()

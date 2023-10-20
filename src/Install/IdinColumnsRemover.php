@@ -16,6 +16,7 @@
  */
 
 namespace Buckaroo\PrestaShop\Src\Install;
+
 final class IdinColumnsRemover implements UninstallerInterface
 {
     public function uninstall(): bool

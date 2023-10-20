@@ -45,17 +45,18 @@ class AfterPayCheckout extends Checkout
     public function getCocNumber()
     {
         $customerIdentificationNumber = Tools::getValue('customerIdentificationNumber');
+
         if (!empty($customerIdentificationNumber)) {
-            $identificationNumber = $customerIdentificationNumber;
+            return $customerIdentificationNumber;
         }
 
         $cocNumber = Tools::getValue('customerafterpaynew-coc');
 
         if (!empty($cocNumber) && strlen(trim($cocNumber)) !== 0) {
-            $identificationNumber = $cocNumber;
+            return $cocNumber;
         }
 
-        return $identificationNumber;
+        return '';
     }
 
     public function isRedirectRequired()
@@ -68,6 +69,10 @@ class AfterPayCheckout extends Checkout
         return false;
     }
 
+    /**
+     * @throws PrestaShopException
+     * @throws PrestaShopDatabaseException
+     */
     public function getBillingAddress()
     {
         $country = new Country($this->invoice_address->id_country);

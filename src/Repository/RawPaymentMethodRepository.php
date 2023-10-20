@@ -180,6 +180,13 @@ class RawPaymentMethodRepository
         }
     }
 
+    public function getPaymentMethodsLabel($name)
+    {
+        $sql = 'SELECT label FROM ' . _DB_PREFIX_ . 'bk_payment_methods where name = "' . pSQL($name) . '"';
+
+        return \Db::getInstance()->getValue($sql);
+    }
+
     private function clearPaymentMethodsTable(): void
     {
         $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods';

@@ -15,29 +15,32 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
-require_once dirname(__FILE__) . '/../../library/logger.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
     /* @var $checkout IDealCheckout */
     public $checkout;
+    public $display_column_left = false;
+    /** @var bool */
+    public $display_column_right = false;
 
     /**
+     * @throws Exception
+     *
      * @see FrontController::postProcess()
      */
     public function postProcess()
     {
-        $logger = new \Logger(\Logger::INFO, 'request');
+        $logger = new \Logger(CoreLogger::INFO, '');
         $logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
-        $this->display_column_left = false;
-        $this->display_column_right = false;
         $cart = $this->context->cart;
-        $logger->logDebug('Get cart', $cart);
+        $logger->logDebug('Get cart', $cart->id);
 
         if ($cart->id_customer == 0
             || $cart->id_address_delivery == 0
@@ -85,7 +88,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        $buckarooFeeService = new BuckarooFeeService($this->module->getEntityManager(), $logger);
+        $buckarooFeeService = $this->module->getBuckarooFeeService();
 
         $getBuckarooFeeValue = $buckarooFeeService->getBuckarooFeeValue($payment_method);
         if ($buckarooFee = $getBuckarooFeeValue) {
@@ -125,9 +128,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->checkout->moduleVersion = $this->module->version;
         $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
         $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
-        $logger->logDebug('Get checkout class: ', $this->checkout);
+        $logger->logDebug('Get checkout class: ');
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $payment_method_tr = $this->module->getPaymentTranslation($payment_method);
+
+        $rawPaymentMethodRepository = new RawPaymentMethodRepository();
+        $payment_method_tr = $rawPaymentMethodRepository->getPaymentMethodsLabel($payment_method);
+
         if (!$this->checkout->isVerifyRequired()) {
             $this->module->validateOrder(
                 $cart->id,
@@ -141,11 +147,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $customer->secure_key
             );
         }
-        $id_order_cart = Order::getOrderByCartId($cart->id);
+        $id_order_cart = Order::getIdByCartId($cart->id);
         $order = new Order($id_order_cart);
         $this->checkout->setReference($order->reference);
         $this->checkout->setCheckout();
-        $logger->logDebug('Set checkout info: ', $this->checkout);
+        $logger->logDebug('Set checkout info: ');
 
         if ($this->checkout->isVerifyRequired()) {
             $logger->logInfo('Start verify process');
@@ -172,7 +178,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 exit;
             }
 
-            $response = $this->checkout->getResponse();
             $logger->logDebug('Checkout response', $response);
 
             if ($response->hasSucceeded()) {
@@ -271,7 +276,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 }
             }
         } else {
-
             $response = $this->checkout->getResponse();
             $logger->logInfo('Request not succeeded');
 

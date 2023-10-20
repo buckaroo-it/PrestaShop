@@ -48,7 +48,7 @@ class BaseApiController extends ModuleFrontController
     {
         http_response_code($status);
         header('Content-Type: application/json');
-        $this->ajaxDie(json_encode($data));
+        $this->ajaxRender(json_encode($data));
     }
 
     protected function sendErrorResponse($message, $status = 400)

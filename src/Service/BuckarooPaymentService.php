@@ -20,13 +20,13 @@ namespace Buckaroo\PrestaShop\Src\Service;
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
-use Doctrine\ORM\EntityManager;
+use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
 class BuckarooPaymentService
 {
-    private $orderingService;
+    public $module;
+    private BuckarooOrderingService $orderingService;
     private $paymentMethodRepository;
     private $context;
     private BuckarooConfigService $buckarooConfigService;
@@ -34,26 +34,27 @@ class BuckarooPaymentService
     protected $logger;
     private $issuersPayByBank;
     private $capayableIn3;
-    private $module;
 
     public function __construct(
-        EntityManager $entityManager,
         $module,
         $buckarooConfigService,
         $issuersPayByBank,
         $logger,
         $context,
-        $capayableIn3
+        $capayableIn3,
+        $buckarooFeeService,
+        $buckarooOrderingService,
+        $paymentMethodRepository
     ) {
         $this->module = $module;
         $this->buckarooConfigService = $buckarooConfigService;
         $this->issuersPayByBank = $issuersPayByBank;
         $this->logger = $logger;
         $this->context = $context;
-        $this->orderingService = new BuckarooOrderingService($entityManager);
+        $this->orderingService = $buckarooOrderingService;
         $this->capayableIn3 = $capayableIn3;
-        $this->buckarooFeeService = new BuckarooFeeService($entityManager, $logger);
-        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->buckarooFeeService = $buckarooFeeService;
+        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function getPaymentOptions($cart)
@@ -202,7 +203,7 @@ class BuckarooPaymentService
     /**
      * Check if payment is available by amount
      *
-     * @param float $cartTotal
+     * @param float  $cartTotal
      * @param string $paymentMethod
      *
      * @return bool
@@ -284,10 +285,17 @@ class BuckarooPaymentService
         return (isset($configArray['frontend_label']) && $configArray['frontend_label'] !== '') ? $configArray['frontend_label'] : $defaultLabel;
     }
 
+    /**
+     * @throws LocalizationException
+     * @throws \Exception
+     */
     private function getFeeLabel($configArray)
     {
+        $locale = \Tools::getContextLocale(\Context::getContext());
+        $currency = \Context::getContext()->currency;
+
         if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . \Tools::displayPrice($configArray['payment_fee'], $this->context->currency->id);
+            return ' + ' . $locale->formatPrice($configArray['payment_fee'], $currency->iso_code);
         }
 
         return '';

@@ -49,6 +49,9 @@ class Installer implements InstallerInterface
         $this->databaseTableInstaller = $databaseTableInstaller;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function install()
     {
         foreach ($this->getHooks() as $hook) {
@@ -89,7 +92,6 @@ class Installer implements InstallerInterface
         $this->installTab('AdminBuckaroo_B', 'IMPROVE', 'Buckaroo Payments', true, 'buckaroo');
         $this->installTab('AdminBuckaroo', 'AdminBuckaroo_B', 'Configure', true);
         $this->installTab('AdminBuckaroolog', 'AdminBuckaroo_B', 'Logs', true);
-        //        $this->installTab('AdminRefund', 'AdminBuckaroo_B', 'Buckaroo Refunds');
     }
 
     public function getErrors()
@@ -109,7 +111,6 @@ class Installer implements InstallerInterface
             'displayPDFInvoice',
             'displayBackOfficeHeader',
             'displayProductExtraContent',
-            'actionAdminCustomersListingFieldsModifier',
             'actionProductFormBuilderModifier',
             'actionAfterUpdateProductFormHandler',
         ];

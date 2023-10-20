@@ -40,7 +40,7 @@ final class ProductFormModifier
     }
 
     /**
-     * @param int|null $productId
+     * @param int|null             $productId
      * @param FormBuilderInterface $productFormBuilder
      */
     public function modify(
@@ -64,7 +64,9 @@ final class ProductFormModifier
 
     /**
      * Fetch buckaroo_idin for a given product from `bk_product_idin` table.
+     *
      * @param int $productId
+     *
      * @return bool|null
      */
     private function getBuckarooIdinForProduct(int $productId): ?bool

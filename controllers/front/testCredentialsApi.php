@@ -26,12 +26,15 @@ class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
         parent::initContent();
     }
 
+    /**
+     * @throws PrestaShopException
+     */
     public function postProcess()
     {
         $data = $this->getJsonInput();
 
         if (empty($data['website_key']) || empty($data['secret_key'])) {
-            $this->ajaxDie(json_encode([
+            $this->ajaxRender(json_encode([
                 'status' => false,
                 'message' => 'Missing website_key or secret_key',
             ]));
@@ -40,6 +43,6 @@ class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
         $buckarooClient = new BuckarooClient($data['website_key'], $data['secret_key']);
         $status = $buckarooClient->confirmCredential();
 
-        $this->ajaxDie(json_encode(['status' => $status]));
+        $this->ajaxRender(json_encode(['status' => $status]));
     }
 }

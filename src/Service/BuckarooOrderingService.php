@@ -17,22 +17,15 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
-use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Repository\BkOrderingRepositoryInterface;
 
 class BuckarooOrderingService
 {
-    protected $entityManager;
-    protected $orderingRepository;
+    protected BkOrderingRepositoryInterface $orderingRepository;
 
-    protected $paymentMethodRepository;
-
-    public function __construct(EntityManager $entityManager)
+    public function __construct(BkOrderingRepositoryInterface $bkOrderingRepository)
     {
-        $this->entityManager = $entityManager;
-        $this->orderingRepository = $this->entityManager->getRepository(BkOrdering::class);
-        $this->paymentMethodRepository = $this->entityManager->getRepository(BkPaymentMethods::class);
+        $this->orderingRepository = $bkOrderingRepository;
     }
 
     public function getOrderingByCountryIsoCode(?string $isoCode2)
@@ -43,28 +36,6 @@ class BuckarooOrderingService
     public function updateOrderingByCountryId($value, $countryId)
     {
         return $this->orderingRepository->updateOrdering($value, $countryId);
-    }
-
-    public function insertCountryOrdering(int $countryId = null, array $paymentMethodsArray = null): bool
-    {
-        if ($paymentMethodsArray === null) {
-            $paymentMethods = $this->paymentMethodRepository->findAll();
-            $paymentMethodsArray = [];
-            foreach ($paymentMethods as $method) {
-                $paymentMethodsArray[] = $method->getId();
-            }
-        }
-
-        $ordering = new BkOrdering();
-        $ordering->setCountryId($countryId);
-        $ordering->setValue(serialize($paymentMethodsArray));
-        $ordering->setCreatedAt(new \DateTime());
-        $ordering->setUpdatedAt(new \DateTime());
-
-        $this->entityManager->persist($ordering);
-        $this->entityManager->flush();
-
-        return true;
     }
 
     public function getPositionByCountryId(int $countryId): ?array

@@ -121,7 +121,6 @@ class TinkaCheckout extends Checkout
      */
     protected function getArticles()
     {
-        $total = 0;
         $products = [];
         foreach ($this->products as $item) {
             $products[] = [

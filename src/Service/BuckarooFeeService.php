@@ -17,23 +17,26 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
-use Doctrine\ORM\EntityManager;
+use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class BuckarooFeeService
 {
     private $paymentMethodRepository;
     private $configurationRepository;
     public $logger;
+    private $locale;
 
-    public function __construct(EntityManager $entityManager, $logger)
+    public function __construct($bkConfigurationRepository, $bkPaymentMethodRepository, $logger)
     {
-        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
-        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->configurationRepository = $bkConfigurationRepository;
+        $this->paymentMethodRepository = $bkPaymentMethodRepository;
         $this->logger = $logger;
+        $this->locale = \Tools::getContextLocale(\Context::getContext());
     }
 
+    /**
+     * @throws LocalizationException
+     */
     public function getBuckarooFees(): array
     {
         $result = [];
@@ -43,9 +46,11 @@ class BuckarooFeeService
             $buckarooFee = $this->getBuckarooFeeValue($method->getName());
 
             if ($buckarooFee > 0) {
+                $formattedPrice = $this->formatPrice($buckarooFee);
+
                 $result[$method->getName()] = [
                     'buckarooFee' => $buckarooFee,
-                    'buckarooFeeDisplay' => \Tools::displayPrice($buckarooFee),
+                    'buckarooFeeDisplay' => $formattedPrice,
                 ];
             }
         }
@@ -83,6 +88,19 @@ class BuckarooFeeService
         return $this->getSpecificValueFromConfig($method, 'payment_fee');
     }
 
+    /**
+     * @throws LocalizationException
+     */
+    private function formatPrice($amount): string
+    {
+        $currency = \Context::getContext()->currency;
+
+        return $this->locale->formatPrice($amount, $currency->iso_code);
+    }
+
+    /**
+     * @throws LocalizationException
+     */
     private function getFeeData($configArray): array
     {
         return $configArray > 0 ? [
@@ -94,7 +112,7 @@ class BuckarooFeeService
             [
                 'type' => 'hidden',
                 'name' => 'payment-fee-price-display',
-                'value' => \Tools::displayPrice($configArray),
+                'value' => $this->formatPrice($configArray),
             ],
         ] : [];
     }

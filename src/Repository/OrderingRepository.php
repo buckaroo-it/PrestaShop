@@ -21,14 +21,18 @@ use Buckaroo\PrestaShop\Src\Entity\BkCountries;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 
-class OrderingRepository extends EntityRepository
+class OrderingRepository extends EntityRepository implements BkOrderingRepositoryInterface
 {
     public function findOneByCountryId($country_id)
     {
         return $this->findOneBy(['country_id' => $country_id]);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findOneByCountryIsoCode(?string $isoCode2)
     {
         $qb = $this->_em->createQueryBuilder()->select('bo')
@@ -168,5 +172,89 @@ class OrderingRepository extends EntityRepository
         }
 
         return null;
+    }
+
+    /**
+     * Creates a new BkOrdering with given data.
+     *
+     * @param int   $countryId
+     * @param array $paymentMethodIds
+     *
+     * @return BkOrdering
+     */
+    public function createNewOrdering(int $countryId, array $paymentMethodIds): BkOrdering
+    {
+        $ordering = new BkOrdering();
+        $ordering->setCountryId($countryId);
+        $ordering->setValue(json_encode($paymentMethodIds));
+        $ordering->setCreatedAt(new \DateTime());
+        $ordering->setUpdatedAt(new \DateTime());
+
+        $this->_em->persist($ordering);
+        $this->_em->flush();
+
+        return $ordering;
+    }
+
+    /**
+     * Add a payment method ID to the ordering if it doesn't exist.
+     *
+     * @param BkOrdering $ordering
+     * @param int        $paymentMethodId
+     *
+     * @return bool indicates whether the ordering was updated or not
+     */
+    public function addPaymentMethodToOrdering(BkOrdering $ordering, int $paymentMethodId): bool
+    {
+        $paymentMethodIds = json_decode($ordering->getValue(), true);
+
+        // Check if the paymentMethodId is already in the ordering for the country
+        if (!in_array($paymentMethodId, $paymentMethodIds)) {
+            // Add paymentMethodId to the ordering for the country
+            $paymentMethodIds[] = $paymentMethodId;
+            $ordering->setValue(json_encode($paymentMethodIds));
+            $this->_em->persist($ordering);
+            $this->_em->flush();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Remove the given payment method ID from all orderings if it's not in the new country IDs.
+     *
+     * @param int   $paymentMethodId
+     * @param array $newCountryIds
+     */
+    public function removePaymentMethodFromOrderings(int $paymentMethodId, array $newCountryIds): void
+    {
+        $allOrderings = $this->findAll();
+
+        foreach ($allOrderings as $ordering) {
+            if ($ordering->getCountryId() === null) {
+                continue;
+            }
+
+            $paymentMethodIds = json_decode($ordering->getValue(), true);
+
+            if (in_array($paymentMethodId, $paymentMethodIds) && !in_array($ordering->getCountryId(), $newCountryIds)) {
+                $key = array_search($paymentMethodId, $paymentMethodIds);
+
+                if ($key !== false) {
+                    unset($paymentMethodIds[$key]);
+
+                    if (empty($paymentMethodIds)) {
+                        $this->_em->remove($ordering);
+                    } else {
+                        $ordering->setValue(json_encode(array_values($paymentMethodIds)));
+                        $this->_em->persist($ordering);
+                    }
+                }
+            }
+        }
+
+        $this->_em->flush();
     }
 }
