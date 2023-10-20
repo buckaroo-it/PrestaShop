@@ -23,9 +23,4 @@ class MBway extends PaymentMethod
         $this->type = 'mbway';
         $this->mode = $this->getMode($this->type);
     }
-
-    public function pay($customVars = [])
-    {
-        return parent::pay();
-    }
 }
