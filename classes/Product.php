@@ -16,8 +16,6 @@
  */
 class Product extends ProductCore
 {
-    public $buckaroo_idin;
-
     public function __construct(
         $id_product = null,
         $full = false,
@@ -26,10 +24,5 @@ class Product extends ProductCore
         Context $context = null
     ) {
         parent::__construct($id_product, $full, $id_lang, $id_shop, $context);
-        $this->def['fields']['buckaroo_idin'] = [
-            'type' => self::TYPE_BOOL,
-            'validate' => 'isBool',
-            'shop' => true,
-        ];
     }
 }

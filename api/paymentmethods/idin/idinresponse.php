@@ -30,11 +30,26 @@ class IdinResponse extends Response
         if ($customerId = \Tools::getValue('ADD_cid')) {
             if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
                 if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
-                    \Db::getInstance()->execute(
-                        'UPDATE ' . _DB_PREFIX_ . 'customer SET buckaroo_idin_consumerbin="' .
-                        pSQL($consumerbin) . '", buckaroo_idin_iseighteenorolder="' . pSQL($iseighteenorolder) . '" WHERE id_customer=' .
-                        (int) pSQL($customerId)
-                    );
+                    // Check if there's already a record for this customer in the bk_customer_idin table
+                    $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_customer_idin WHERE customer_id = ' . (int) $customerId;
+                    $exists = \Db::getInstance()->getValue($sqlCheck);
+
+                    if ($exists) {
+                        // If there's a record, update it
+                        $sql = 'UPDATE ' . _DB_PREFIX_ . 'bk_customer_idin SET buckaroo_idin_consumerbin="' . pSQL($consumerbin) .
+                            '", buckaroo_idin_iseighteenorolder="' . pSQL($iseighteenorolder) .
+                            '" WHERE customer_id=' . (int) pSQL($customerId);
+                    } else {
+                        // If there isn't, insert a new record
+                        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_customer_idin (customer_id, buckaroo_idin_consumerbin, buckaroo_idin_iseighteenorolder) VALUES (' .
+                            (int) $customerId . ', "' . pSQL($consumerbin) . '", "' . pSQL($iseighteenorolder) . '")';
+                    }
+
+                    try {
+                        \Db::getInstance()->execute($sql);
+                    } catch (Exception $e) {
+                        throw new Exception('Error while saving iDIN data: ' . $e->getMessage());
+                    }
                 }
             }
         }
