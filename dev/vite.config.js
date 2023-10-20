@@ -26,6 +26,9 @@ export default defineConfig({
     build: {
         outDir: '', // Set this to the appropriate path
         rollupOptions: {
+            output:{
+              assetFileNames: 'assets/[name].[ext]',
+            },
             // specify the path to your main JS file here
             input: '/src/main.ts',
         },
