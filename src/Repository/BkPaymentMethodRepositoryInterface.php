@@ -4,5 +4,5 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 
 interface BkPaymentMethodRepositoryInterface
 {
-    public function findAllPaymentMethods();
+    public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array;
 }

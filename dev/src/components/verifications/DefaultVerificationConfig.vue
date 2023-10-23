@@ -20,9 +20,6 @@
 
         <div v-if="!loading" class="h-full">
             <div class="p-5 space-y-5">
-<!--                <div>-->
-<!--                    {{ payment.variants }}-->
-<!--                </div>-->
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">
@@ -125,10 +122,9 @@
 </template>
 
 <script>
-import {ref, provide, inject, computed} from 'vue'
+import {ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
-import { usePaymentCountryConfig } from "../../lib/paymentCountryConfig";
 import { useToastr } from "../../lib/toastr"
 import {useCountries} from "../../lib/countries";
 
@@ -151,32 +147,7 @@ export default {
                 this.config.countries = value
             },
             deep: true
-        },
-        'config.payment_fee'(value) {
-            if(value) {
-                if(value < 0) {
-                    this.config.payment_fee = 0
-
-                    return
-                }
-
-                if(value > 999) {
-                    this.config.payment_fee = 999
-
-                    return
-                }
-
-                this.config.payment_fee = parseFloat(value.toString().match( /\d+/g ).join(''))
-                return;
-            }
-
-            this.config.payment_fee = ''
-        },
-        payment() {
-            this.setEndpoint(`payment/${ this.payment.name }/config`)
-
-            this.getConfig()
-        },
+        }
     },
     setup(props) {
 
@@ -189,9 +160,6 @@ export default {
         const config = ref({
             mode: 'off',
             frontend_label: '',
-            payment_fee: null,
-            min_order_amount: null,
-            max_order_amount: null,
             countries: []
         })
 
@@ -210,9 +178,6 @@ export default {
                         mode: 'off',
                         display_type: 'dropdown',
                         frontend_label: '',
-                        payment_fee: null,
-                        min_order_amount: null,
-                        max_order_amount: null,
                         countries: []
                     }
                 }

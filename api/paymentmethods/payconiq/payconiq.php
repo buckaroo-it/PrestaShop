@@ -21,11 +21,5 @@ class Payconiq extends PaymentMethod
     public function __construct()
     {
         $this->type = 'payconiq';
-        $this->mode = $this->getMode($this->type);
-    }
-
-    public function pay($customVars = [])
-    {
-        return parent::pay();
     }
 }

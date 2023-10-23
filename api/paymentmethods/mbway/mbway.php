@@ -21,6 +21,5 @@ class MBway extends PaymentMethod
     public function __construct()
     {
         $this->type = 'mbway';
-        $this->mode = $this->getMode($this->type);
     }
 }

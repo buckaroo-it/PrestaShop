@@ -27,6 +27,7 @@ class SepaDirectdebitCheckout extends Checkout
         $this->customVars = [
             'iban' => (string) Tools::getValue('bpe_sepadirectdebit_iban'),
             'bic' => (string) Tools::getValue('bpe_sepadirectdebit_bic'),
+            'collectdate' => date('d-m-Y'),
             'customer' => [
                 'name' => (string) Tools::getValue('bpe_sepadirectdebit_bank_account_holder'),
             ],

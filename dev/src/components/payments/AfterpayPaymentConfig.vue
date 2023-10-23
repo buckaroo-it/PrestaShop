@@ -1,26 +1,4 @@
 <template>
-<!--    <div>-->
-<!--        <div class="p-5 space-y-5">-->
-<!--            <div class="space-y-2">-->
-<!--                <h2 class="font-semibold text-sm">Afterpay Action</h2>-->
-<!--            </div>-->
-
-<!--            <div class="relative">-->
-<!--                <select class="w-full rounded-lg border border-gray-300 p-2.5 peer appearance-none bg-white" v-model="config.afterpay_action">-->
-<!--                    <option value="pay">Pay</option>-->
-<!--                    <option value="authorize">Authorize</option>-->
-<!--                </select>-->
-
-<!--                <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">-->
-<!--                    Afterpay action-->
-<!--                </label>-->
-
-<!--                <span class="right-5 absolute top-2.5 text-gray-500">-->
-<!--                    <i class="fas fa-chevron-down text-xs"></i>-->
-<!--                </span>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
     <div class="p-5 space-y-5">
       <div class="space-y-2">
         <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.vat_type_for_wrap`) }}</h2>
@@ -44,9 +22,7 @@
 
       <div class="relative">
         <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.customer_type">
-          <option value="both">{{ $t(`dashboard.pages.payments.customer.type.both`) }}</option>
-          <option value="B2C">{{ $t(`dashboard.pages.payments.customer.type.b2c`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2c.long`) }})</option>
-          <option value="B2B">{{ $t(`dashboard.pages.payments.customer.type.b2b`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2b.long`) }})</option>
+          <option v-for="option in customerTypeOptions" :key="option.value" :value="option.value">{{ option.text }}</option>
         </select>
 
         <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
@@ -98,9 +74,16 @@ export default {
           { text: t('5 = Middle rate'), value: '5' },
         ];
 
+        const customerTypeOptions = [
+          { text: t('dashboard.pages.payments.customer.type.both'), value: 'both' },
+          { text: `${t('dashboard.pages.payments.customer.type.b2c')} (${t('dashboard.pages.payments.customer.type.b2c.long')})`, value: 'B2C' },
+          { text: `${t('dashboard.pages.payments.customer.type.b2b')} (${t('dashboard.pages.payments.customer.type.b2b.long')})`, value: 'B2B' },
+        ];
+
         return {
           config,
-          vatOptions
+          vatOptions,
+          customerTypeOptions
         }
     }
 }

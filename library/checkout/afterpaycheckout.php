@@ -32,7 +32,7 @@ class AfterPayCheckout extends Checkout
     {
         parent::setCheckout();
 
-        $this->customerType = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
+        $this->customerType = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
         $this->customVars = [
             'clientIP' => $_SERVER['REMOTE_ADDR'],
@@ -130,7 +130,7 @@ class AfterPayCheckout extends Checkout
     {
         $products = $this->prepareProductArticles();
 
-        $wrappingVat = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('afterpay', 'wrapping_vat');
 
         if ($wrappingVat == null) {
             $wrappingVat = 2;

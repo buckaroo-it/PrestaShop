@@ -28,7 +28,8 @@ class Config
     {
         $paymentMethodRepository = new RawPaymentMethodRepository();
         $getPaymentMethodMode = $paymentMethodRepository->getPaymentMethodMode($key);
-        if (\Configuration::get('BUCKAROO_TEST') == 0 && $getPaymentMethodMode == 'live') {
+
+        if (\Configuration::get('BUCKAROO_TEST') == 1 && $getPaymentMethodMode == 'live') {
             return 'live';
         }
 

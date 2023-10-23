@@ -21,7 +21,6 @@ class In3Old extends PaymentMethod
     public function __construct()
     {
         $this->type = 'in3Old';
-        $this->mode = $this->getMode('in3');
     }
 
     public function pay($customVars = [])
@@ -33,18 +32,6 @@ class In3Old extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'version' => $this->version,
-            'description' => $data['description'],
-            'invoiceDate' => date('d-m-Y'),
-            'customerType' => 'Debtor',
-            'email' => $data['email'],
-            'phone' => ['mobile' => $data['phone']],
-            'articles' => $data['articles'],
-            'customer' => $data['customer'],
-            'address' => $data['address'],
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

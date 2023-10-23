@@ -23,6 +23,5 @@ class Belfius extends PaymentMethod
     {
         $this->type = 'belfius';
         $this->version = 0;
-        $this->mode = $this->getMode($this->type);
     }
 }

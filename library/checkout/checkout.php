@@ -431,6 +431,16 @@ abstract class Checkout
             'price' => $shippingCost,
         ];
     }
+
+    public function initials($str)
+    {
+        $ret = '';
+        foreach (explode(' ', $str) as $word) {
+            $ret .= Tools::strtoupper($word[0]) . '.';
+        }
+
+        return $ret;
+    }
 }
 
 function checkoutautoload($payment_method)
@@ -443,3 +453,5 @@ function checkoutautoload($payment_method)
         exit('Class not found!');
     }
 }
+
+

@@ -18,7 +18,6 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Repository\BkConfigurationRepositoryInterface;
-use Buckaroo\PrestaShop\Src\Repository\BkOrderingRepositoryInterface;
 use Buckaroo\PrestaShop\Src\Repository\BkPaymentMethodRepositoryInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -27,11 +26,11 @@ class BuckarooConfigService
 {
     private BkPaymentMethodRepositoryInterface $paymentMethodRepository;
     private BkConfigurationRepositoryInterface $configurationRepository;
-    private BkOrderingRepositoryInterface $orderingRepository;
+    private $orderingRepository;
 
     public function __construct(
         BkPaymentMethodRepositoryInterface $paymentMethodRepository,
-        BkOrderingRepositoryInterface $orderingRepository,
+        $orderingRepository,
         BkConfigurationRepositoryInterface $configurationRepository
     ) {
         $this->configurationRepository = $configurationRepository;
@@ -41,7 +40,7 @@ class BuckarooConfigService
 
     public function getConfigArrayForMethod($method)
     {
-        $paymentMethod = $this->paymentMethodRepository->findOneByName($method);
+        $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $method]);
 
         if (!$paymentMethod) {
             return null;
@@ -50,7 +49,7 @@ class BuckarooConfigService
         return $this->configurationRepository->getConfigArray($paymentMethod->getId());
     }
 
-    public function getSpecificValueFromConfig($method, $key)
+    public function getConfigValue($method, $key)
     {
         $configArray = $this->getConfigArrayForMethod($method);
 
@@ -63,7 +62,7 @@ class BuckarooConfigService
      */
     public function updatePaymentMethodConfig($name, array $data): bool
     {
-        $paymentMethod = $this->paymentMethodRepository->findOneByName($name);
+        $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $name]);
 
         if (!$paymentMethod) {
             return false;
@@ -102,7 +101,7 @@ class BuckarooConfigService
 
     public function updatePaymentMethodMode(string $name, string $mode): bool
     {
-        $paymentMethod = $this->paymentMethodRepository->findOneByName($name);
+        $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $name]);
 
         if (!$paymentMethod) {
             return false;
@@ -119,7 +118,7 @@ class BuckarooConfigService
      */
     public function getPaymentMethodsFromDBWithConfig()
     {
-        return $this->paymentMethodRepository->getPaymentMethodsFromDBWithConfig();
+        return $this->paymentMethodRepository->fetchMethodsFromDBWithConfig(1);
     }
 
     /**
@@ -127,21 +126,11 @@ class BuckarooConfigService
      */
     public function getVerificationMethodsFromDBWithConfig()
     {
-        return $this->paymentMethodRepository->getVerificationMethodsFromDBWithConfig();
+        return $this->paymentMethodRepository->fetchMethodsFromDBWithConfig(0);
     }
 
     public function getActiveCreditCards()
     {
-        $result = $this->configurationRepository->getActiveCreditCards();
-
-        $issuerArray = [];
-        foreach ($result as $card) {
-            $issuerArray[strtolower($card['service_code'])] = [
-                'name' => $card['name'],
-                'logo' => $card['icon'],
-            ];
-        }
-
-        return $issuerArray;
+        return $this->configurationRepository->getActiveCreditCards();
     }
 }

@@ -27,15 +27,19 @@ class TransferCheckout extends Checkout
     {
         parent::setCheckout();
 
-        $sendMail = $this->buckarooConfigService->getSpecificValueFromConfig('transfer', 'send_instruction_email');
-        $dueDate = $this->buckarooConfigService->getSpecificValueFromConfig('transfer', 'due_days');
+        $sendMail = $this->buckarooConfigService->getConfigValue('transfer', 'send_instruction_email');
+        $dueDate = $this->buckarooConfigService->getConfigValue('transfer', 'due_days');
+
+
         $this->customVars = [
-            'CustomerEmail' => $this->customer->email,
-            'CustomerFirstName' => $this->invoice_address->firstname,
-            'CustomerLastName' => $this->invoice_address->lastname,
-            'SendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE'), // phpcs:ignore
-            'DateDue' => date('Y-m-d', strtotime('now + ' . (int) $dueDate . ' day')), // phpcs:ignore
-            'CustomerCountry' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
+            'customer' => [
+                'firstName' => $this->invoice_address->firstname,
+                'lastName' => $this->invoice_address->lastname,
+            ],
+            'email' => $this->customer->email,
+            'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
+            'dateDue' => date('Y-m-d', strtotime('now + ' . (int) $dueDate . ' day')),
+            'sendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE')
         ];
     }
 

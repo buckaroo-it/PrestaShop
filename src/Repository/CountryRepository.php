@@ -81,8 +81,6 @@ class CountryRepository extends EntityRepository implements BkCountriesRepositor
                 $country->setIsoCode3($countryData['iso_code_3']);
                 $country->setCallPrefix($countryData['call_prefix']);
                 $country->setIcon($countryData['icon']);
-                $country->setCreatedAt(new \DateTime());
-                $country->setUpdatedAt(new \DateTime());
                 $this->_em->persist($country);
             }
             $this->_em->flush();

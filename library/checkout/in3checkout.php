@@ -26,6 +26,7 @@ class In3Checkout extends Checkout
 
         $this->addRequiredDescription();
         $this->customVars = [
+            'invoiceDate' => date('d-m-Y'),
             'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
             'shipping' => $this->getShippingAddress(),
@@ -160,7 +161,7 @@ class In3Checkout extends Checkout
         $data = [
             'recipient' => [
                 'category' => 'B2C',
-                'initials' => initials($this->invoice_address->firstname),
+                'initials' => $this->initials($this->invoice_address->firstname),
                 'firstName' => $this->invoice_address->firstname,
                 'lastName' => $this->invoice_address->lastname,
                 'birthDate' => date(

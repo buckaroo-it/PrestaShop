@@ -22,13 +22,5 @@ class Kbc extends PaymentMethod
     {
         $this->type = 'kbc';
         $this->version = 1;
-        $this->mode = $this->getMode($this->type);
-    }
-
-    // @codingStandardsIgnoreStart
-    public function pay($customVars = [])
-    {
-        // @codingStandardsIgnoreEnd
-        return parent::pay();
     }
 }

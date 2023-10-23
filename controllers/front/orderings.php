@@ -17,18 +17,16 @@
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooOrderingService;
-
 class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 {
-    private BuckarooOrderingService $orderingService;
+    private $bkOrderingRepository;
     public $module;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->orderingService = $this->module->getBuckarooOrderingService();
+        $this->bkOrderingRepository = $this->module->getBuckarooOrderingRepository();
     }
 
     public function initContent()
@@ -61,7 +59,7 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 
     private function getOrdering($countryCode)
     {
-        return $this->orderingService->getOrderingByCountryIsoCode($countryCode);
+        return $this->bkOrderingRepository->getOrdering($countryCode);
     }
 
     private function handlePost()
@@ -80,7 +78,7 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
             return;
         }
 
-        $result = $this->orderingService->updateOrderingByCountryId(json_encode($value), $countryId);
+        $result = $this->bkOrderingRepository->updateOrdering(json_encode($value), $countryId);
         $this->sendResponse(['status' => $result]);
     }
 

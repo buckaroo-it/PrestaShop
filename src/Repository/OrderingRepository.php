@@ -23,7 +23,7 @@ use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 
-class OrderingRepository extends EntityRepository implements BkOrderingRepositoryInterface
+class OrderingRepository extends EntityRepository
 {
     public function findOneByCountryId($country_id)
     {
@@ -65,7 +65,7 @@ class OrderingRepository extends EntityRepository implements BkOrderingRepositor
             return $this->updateOrderingForSpecificCountry($value, $countryId);
         }
 
-        return $this->updateOrderingForNullCountry($value);
+        return $this->updateOrderingValue($value, null);
     }
 
     private function updateOrderingForSpecificCountry($value, $countryId)
@@ -77,24 +77,13 @@ class OrderingRepository extends EntityRepository implements BkOrderingRepositor
             return false;
         }
 
-        $orderingRepo = $this->_em->getRepository(BkOrdering::class);
-        $ordering = $orderingRepo->findOneBy(['country_id' => $country->getCountryId()]);
-
-        if (!$ordering) {
-            return false;
-        }
-
-        $ordering->setValue($value);
-        $this->_em->persist($ordering);
-        $this->_em->flush();
-
-        return true;
+        return $this->updateOrderingValue($value, $countryId);
     }
 
-    private function updateOrderingForNullCountry($value)
+    private function updateOrderingValue($value, $countryId)
     {
         $orderingRepo = $this->_em->getRepository(BkOrdering::class);
-        $ordering = $orderingRepo->findOneBy(['country_id' => null]);
+        $ordering = $orderingRepo->findOneBy(['country_id' => $countryId]);
 
         if (!$ordering) {
             return false;
@@ -128,9 +117,10 @@ class OrderingRepository extends EntityRepository implements BkOrderingRepositor
             ? json_decode($ordering->getValue(), true)
             : $ordering->getValue();
 
+        $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
+
         foreach ($paymentMethodIds as $id) {
-            $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
-            $paymentMethodData = $paymentMethodRepo->findOneById($id);
+            $paymentMethodData = $paymentMethodRepo->findOneBy(['id' => $id]);
 
             if ($paymentMethodData) {
                 $result['value'][] = [
@@ -145,33 +135,26 @@ class OrderingRepository extends EntityRepository implements BkOrderingRepositor
         return $result;
     }
 
-    public function fetchPositions($countryId)
+    public function fetchPositions($isoCode2)
     {
-        $qb = $this->_em->createQueryBuilder()
-            ->select('bo.value')
-            ->from(BkOrdering::class, 'bo')
-            ->where($countryId !== null ? 'bo.country_id = :countryId' : 'bo.country_id IS NULL');
+        $ordering = $this->findOneByCountryIsoCode($isoCode2);
 
-        if ($countryId !== null) {
-            $qb->setParameter('countryId', $countryId);
+        if (empty($ordering)) {
+            return null;
         }
 
-        $result = $qb->getQuery()->getOneOrNullResult();
+        $positionsArray = json_decode($ordering->getValue(), true);
+        $output = [];
+        $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
 
-        if ($result && isset($result['value'])) {
-            $positionsArray = json_decode($result['value'], true);
-            $output = [];
-            foreach ($positionsArray as $id) {
-                $paymentMethodData = $this->_em->getRepository(BkPaymentMethods::class)->find($id);
-                if ($paymentMethodData) {
-                    $output[] = $paymentMethodData->getName();
-                }
+        foreach ($positionsArray as $id) {
+            $paymentMethodData = $paymentMethodRepo->findOneBy(['id' => $id]);
+            if ($paymentMethodData) {
+                $output[] = $paymentMethodData->getName();
             }
-
-            return $output;
         }
 
-        return null;
+        return $output;
     }
 
     /**
@@ -187,8 +170,6 @@ class OrderingRepository extends EntityRepository implements BkOrderingRepositor
         $ordering = new BkOrdering();
         $ordering->setCountryId($countryId);
         $ordering->setValue(json_encode($paymentMethodIds));
-        $ordering->setCreatedAt(new \DateTime());
-        $ordering->setUpdatedAt(new \DateTime());
 
         $this->_em->persist($ordering);
         $this->_em->flush();

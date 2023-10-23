@@ -22,6 +22,5 @@ class Bancontactmrcash extends PaymentMethod
     {
         $this->type = 'bancontactmrcash';
         $this->version = 1;
-        $this->mode = $this->getMode($this->type);
     }
 }

@@ -137,7 +137,7 @@ class IssuersIdeal
     /**
      * Get cached issuers
      *
-     * @return void
+     * @return array|null
      */
     private function getCacheIssuers()
     {

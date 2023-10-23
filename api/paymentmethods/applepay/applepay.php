@@ -23,22 +23,16 @@ class ApplePay extends PaymentMethod
     {
         $this->type = 'applepay';
         $this->version = 1;
-        $this->mode = $this->getMode($this->type);
     }
 
-    public function getPayload()
+    public function getPayload($data)
     {
-        $payload = [
-            'servicesSelectableByClient' => $this->type,
-            'continueOnIncomplete' => '1',
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 
     public function pay($customVars = [])
     {
-        $this->payload = $this->getPayload();
+        $this->payload = $this->getPayload($customVars);
 
         return parent::executeCustomPayAction('payRedirect');
     }

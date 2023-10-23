@@ -20,9 +20,6 @@
 
         <div v-if="!loading" class="h-full">
             <div class="p-5 space-y-5">
-<!--                <div>-->
-<!--                    {{ payment.variants }}-->
-<!--                </div>-->
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">
@@ -145,10 +142,9 @@
 </template>
 
 <script>
-import {ref, provide, inject, computed} from 'vue'
+import {ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
-import { usePaymentCountryConfig } from "../../lib/paymentCountryConfig";
 import { useToastr } from "../../lib/toastr"
 import {useCountries} from "../../lib/countries";
 
@@ -191,12 +187,7 @@ export default {
             }
 
             this.config.payment_fee = ''
-        },
-        payment() {
-            this.setEndpoint(`payment/${ this.payment.name }/config`)
-
-            this.getConfig()
-        },
+        }
     },
     setup(props) {
 

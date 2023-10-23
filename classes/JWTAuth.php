@@ -21,10 +21,16 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
+use Buckaroo\PrestaShop\Src\Config\Config;
 
 class JWTAuth
 {
-    private $key = 'your_super_secret_key';  // Should be stored securely
+    private $key;
+
+    public function __construct()
+    {
+        $this->key = \Configuration::get(Config::BUCKAROO_SECRET_KEY);
+    }
 
     public function encode($data)
     {
