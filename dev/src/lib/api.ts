@@ -3,6 +3,7 @@ import { computed, ref, watch, inject } from 'vue';
 
 export const useApi = (endpoint: string, access_token?: string) => {
     const signedJWT = inject('signedJWT')
+    const baseUrl = inject('baseUrl')
 
     var endPoint = endpoint
     var headers = {
@@ -15,7 +16,7 @@ export const useApi = (endpoint: string, access_token?: string) => {
     const error = ref();
 
     const api = axios.create({
-        baseURL: ''
+        baseURL: baseUrl + ''
     })
 
     const get = (query?: Record<string, any>) => {

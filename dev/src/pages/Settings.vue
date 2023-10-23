@@ -244,8 +244,8 @@ export default {
     const settings = ref(null)
     const showAdvanceSettings = ref(false)
 
-    const {get, post, data, loading} = useApi('/index.php?fc=module&module=buckaroo3&controller=settings')
-    const testCredentialsApi = useApi(`/index.php?fc=module&module=buckaroo3&controller=testCredentialsApi`);
+    const {get, post, data, loading} = useApi('index.php?fc=module&module=buckaroo3&controller=settings')
+    const testCredentialsApi = useApi(`index.php?fc=module&module=buckaroo3&controller=testCredentialsApi`);
     const {toastr} = useToastr()
     const credentialsAreValid = ref(null)
     const getSettings = () => {

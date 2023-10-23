@@ -2,7 +2,7 @@
     <div class="bg-gray-50 p-3 rounded">
         <div class="text-center space-y-2">
             <div class="flex justify-center">
-                <img :src="`/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
+                <img :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
             </div>
 
             <h3 class="font-bold text-lg modal-title">{{ $t(`verification_methods.${ payment.name }`) }}</h3>
@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import {inject, ref, watch} from "vue";
+import { inject, ref, watch } from "vue";
 import { useApi } from "../lib/api"
 import { useToastr } from "../lib/toastr";
 
@@ -53,8 +53,9 @@ export default {
     },
     setup(props) {
         const { toastr } = useToastr()
-        const { post, data, loading, setEndpoint } = useApi('/index.php?fc=module&module=buckaroo3&controller=paymentMethodMode')
+        const { post, data, loading, setEndpoint } = useApi('index.php?fc=module&module=buckaroo3&controller=paymentMethodMode')
         const paymentState = ref((props.payment.config)? (props.payment.config.value.enabled ?? 0) : 0)
+        const baseUrl = inject('baseUrl');
 
         return {
             toastr,
@@ -62,7 +63,8 @@ export default {
             post,
             data,
             paymentState,
-            setEndpoint
+            setEndpoint,
+            baseUrl
         }
     }
 }

@@ -2,7 +2,7 @@
     <div class="border-b h-16 flex justify-between items-center">
         <div class="px-5 space-y-1 flex items-center  space-x-3">
             <div class="w-8">
-                <img v-if="payment.icon" :src="`/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" />
+              <img v-if="payment.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" />
             </div>
 
             <div>
@@ -142,7 +142,7 @@
 </template>
 
 <script>
-import {ref, provide, computed} from 'vue'
+import { inject, ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
@@ -191,11 +191,12 @@ export default {
     },
     setup(props) {
 
-        const { get, data, loading, post, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
+        const { get, data, loading, post, setEndpoint } = useApi(`index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
         const { toastr } = useToastr()
         const { countries } = useCountries()
         const selectCountry = ref(null)
         const showAllCountries = ref(false)
+        const baseUrl = inject('baseUrl');
 
         const config = ref({
             mode: 'off',
@@ -283,7 +284,8 @@ export default {
             setMode,
             loading,
             selectCountry,
-            enabledCountries
+            enabledCountries,
+            baseUrl
         }
     }
 }
