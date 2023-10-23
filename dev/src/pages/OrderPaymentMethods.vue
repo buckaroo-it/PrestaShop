@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useOrderingsService } from "../lib/orderingsService";
 import { useCountries } from "../lib/countries";
 
@@ -106,27 +106,24 @@ export default {
     CountrySelect,
     draggable
   },
-  watch: {
-    selectedCountry(value, oldValue) {
-      orderingsService.getOrdering(
-          selectedCountry.value ? selectedCountry.value.iso_code_2 : ''
-      );
-    },
-  },
   setup() {
     const { filteredCountries, query } = useCountries();
     const orderingsService = useOrderingsService();
     const selectedCountry = ref(null);
+
+    watch(selectedCountry, (newVal, oldVal) => {
+      orderingsService.getOrdering(
+          newVal ? newVal.iso_code_2 : ''
+      );
+    });
 
     const update = () => {
       orderingsService.updateOrderings(orderingsService.paymentOrderings.value)
           .then(() => {
             if(data.value.status) {
               toastr.success(t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
-
-              return
+              return;
             }
-
             toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
           });
     };
