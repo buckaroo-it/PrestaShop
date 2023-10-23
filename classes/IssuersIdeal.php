@@ -15,10 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-use Buckaroo\BuckarooClient;
-use Buckaroo\PrestaShop\Classes\Config;
+namespace Buckaroo\PrestaShop\Classes;
 
-require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
+use Buckaroo\BuckarooClient;
 
 class IssuersIdeal
 {
@@ -47,7 +46,7 @@ class IssuersIdeal
         $issuers = $this->getCacheIssuers();
         $cacheDate = $this->getCacheDate();
 
-        if (!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
+        if (!is_array($issuers) || $cacheDate !== (new \DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
 
@@ -83,6 +82,8 @@ class IssuersIdeal
      * update cache with issues from payment engine
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function updateCacheIssuers($issuers)
     {
@@ -99,18 +100,21 @@ class IssuersIdeal
         return $issuers;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function requestIssuers()
     {
-        if (Configuration::get('BUCKAROO_MERCHANT_KEY') || Configuration::get('BUCKAROO_SECRET_KEY')) {
+        if (\Configuration::get('BUCKAROO_MERCHANT_KEY') || \Configuration::get('BUCKAROO_SECRET_KEY')) {
             $buckaroo = new BuckarooClient(
-                Configuration::get('BUCKAROO_MERCHANT_KEY'),
-                Configuration::get('BUCKAROO_SECRET_KEY'),
+                \Configuration::get('BUCKAROO_MERCHANT_KEY'),
+                \Configuration::get('BUCKAROO_SECRET_KEY'),
                 Config::getMode('ideal')
             );
 
             return $buckaroo->method('ideal')->issuers();
         } else {
-            throw new Exception('Buckaroo master settings not found.');
+            throw new \Exception('Buckaroo master settings not found.');
         }
     }
 
@@ -126,18 +130,18 @@ class IssuersIdeal
         if (!is_array($issuers)) {
             return;
         }
-        Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
-        Configuration::updateValue(self::CACHE_ISSUERS_DATE_KEY, (new DateTime())->format('Y-m-d'));
+        \Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
+        \Configuration::updateValue(self::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
     }
 
     /**
      * Get cached issuers
      *
-     * @return array|null
+     * @return void
      */
     private function getCacheIssuers()
     {
-        $issuersString = Configuration::get(self::CACHE_ISSUERS_KEY);
+        $issuersString = \Configuration::get(self::CACHE_ISSUERS_KEY);
         if (!is_string($issuersString)) {
             return;
         }
@@ -152,6 +156,6 @@ class IssuersIdeal
      */
     private function getCacheDate()
     {
-        return Configuration::get(self::CACHE_ISSUERS_DATE_KEY);
+        return \Configuration::get(self::CACHE_ISSUERS_DATE_KEY);
     }
 }

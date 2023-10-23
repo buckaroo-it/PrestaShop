@@ -21,7 +21,7 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService;
 
 class Buckaroo3SettingsModuleFrontController extends BaseApiController
 {
-    private $settingsService;
+    private BuckarooSettingsService $settingsService;
 
     public function __construct()
     {

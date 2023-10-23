@@ -33,8 +33,8 @@ class IdinTabType extends TranslatorAwareType
 
     /**
      * @param TranslatorInterface $translator
-     * @param array $locales
-     * @param \Currency $defaultCurrency
+     * @param array               $locales
+     * @param \Currency           $defaultCurrency
      */
     public function __construct(
         TranslatorInterface $translator,

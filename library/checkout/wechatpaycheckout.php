@@ -40,6 +40,9 @@ class Wechatpaycheckout extends Checkout
         return false;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function initialize()
     {
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_WECHATPAY);

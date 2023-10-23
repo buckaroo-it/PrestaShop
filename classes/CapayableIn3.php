@@ -24,7 +24,7 @@ class CapayableIn3
     /**
      * @var BuckarooConfigService
      */
-    protected $buckarooConfigService;
+    protected BuckarooConfigService $buckarooConfigService;
     protected $apiVersion;
     protected $paymentLogo;
     public const VERSION_V2 = 'V2';
@@ -38,7 +38,7 @@ class CapayableIn3
     public function __construct()
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
-        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
         $this->apiVersion = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'version');
         $this->paymentLogo = $this->buckarooConfigService->getSpecificValueFromConfig('in3', 'payment_logo');
     }

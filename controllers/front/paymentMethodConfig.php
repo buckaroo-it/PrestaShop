@@ -21,13 +21,13 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
 class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
 {
-    private $buckarooConfigService;
+    private BuckarooConfigService $buckarooConfigService;
     public $module;
 
     public function __construct()
     {
         parent::__construct();
-        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
     }
 
     public function initContent()

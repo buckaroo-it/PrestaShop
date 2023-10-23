@@ -21,13 +21,14 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
 
 class Buckaroo3CountriesModuleFrontController extends BaseApiController
 {
-    private $buckarooCountriesService;
+    private BuckarooCountriesService $buckarooCountriesService;
+    public $module;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->buckarooCountriesService = new BuckarooCountriesService($this->module->getEntityManager());
+        $this->buckarooCountriesService = $this->module->getBuckarooCountriesService();
     }
 
     public function initContent()

@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
+
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
 class PayPal extends PaymentMethod
@@ -33,7 +34,8 @@ class PayPal extends PaymentMethod
         $this->type = 'paypal';
         $this->version = 1;
         $this->mode = $this->getMode($this->type);
-        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
+
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
     }
 
     // Seller protection payload

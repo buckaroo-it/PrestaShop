@@ -21,14 +21,14 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooOrderingService;
 
 class Buckaroo3OrderingsModuleFrontController extends BaseApiController
 {
-    private $orderingService;
+    private BuckarooOrderingService $orderingService;
+    public $module;
 
     public function __construct()
     {
         parent::__construct();
 
-        $entityManager = $this->module->getEntityManager();
-        $this->orderingService = new BuckarooOrderingService($entityManager);
+        $this->orderingService = $this->module->getBuckarooOrderingService();
     }
 
     public function initContent()

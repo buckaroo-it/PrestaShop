@@ -20,6 +20,10 @@ class TrustlyCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     final public function setCheckout()
     {
         parent::setCheckout();

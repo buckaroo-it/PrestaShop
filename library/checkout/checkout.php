@@ -15,8 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
-use PrestaShop\Decimal\Number;
+use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
@@ -137,7 +136,7 @@ abstract class Checkout
             $this->shipping_address = new Address((int) $cart->id_address_delivery);
         }
         $this->products = $this->cart->getProducts();
-        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
     }
 
     abstract protected function initialize();
@@ -171,7 +170,7 @@ abstract class Checkout
     public function getBuckarooFee()
     {
         $payment_method = Tools::getValue('method');
-        $buckarooFeeService = new BuckarooFeeService($this->module->getEntityManager(), $this->module->logger);
+        $buckarooFeeService = $this->module->getBuckarooFeeService();
         if ($buckarooFee = $buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
@@ -189,6 +188,11 @@ abstract class Checkout
         }
     }
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     * @throws Exception
+     */
     public function updateOrderFee($buckarooFee)
     {
         $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
@@ -200,17 +204,17 @@ abstract class Checkout
             'currency' => $currency->iso_code,
         ]);
 
-        $orderFeeNumber = new Number((string) 0);
-        $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $totalPrice = new Number((string) ($originalAmount + $buckarooFee));
+        $orderFeeNumber = new DecimalNumber((string) 0);
+        $originalAmount = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
+        $totalPrice = new DecimalNumber((string) ($originalAmount + $buckarooFee));
         $orderFeeNumber->plus($totalPrice);
 
-        $orderid = Order::getOrderByCartId($this->cart->id);
+        $orderid = Order::getIdByCartId($this->cart->id);
 
         $order = new Order($orderid);
 
-        $order->total_paid_tax_excl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_excl));
-        $order->total_paid_tax_incl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_incl));
+        $order->total_paid_tax_excl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_excl));
+        $order->total_paid_tax_incl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_incl));
         $order->total_paid = $totalPrice->toPrecision(2);
         $order->update();
     }

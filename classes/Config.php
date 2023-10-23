@@ -21,6 +21,9 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
 class Config
 {
+    /**
+     * @throws \Exception
+     */
     public static function getMode($key)
     {
         $paymentMethodRepository = new RawPaymentMethodRepository();

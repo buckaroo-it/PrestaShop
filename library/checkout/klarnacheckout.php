@@ -21,6 +21,10 @@ class KlarnaCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     final public function setCheckout()
     {
         parent::setCheckout();
@@ -36,6 +40,10 @@ class KlarnaCheckout extends Checkout
         ];
     }
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     public function getBillingAddress()
     {
         return [

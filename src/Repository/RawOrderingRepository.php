@@ -34,6 +34,7 @@ class RawOrderingRepository
     public function insertCountryOrdering($countryId = null, $paymentMethodsArray = null)
     {
         $this->clearOrderingTable();
+
         return $this->insertCountryOrderingToDB($countryId, $paymentMethodsArray);
     }
 

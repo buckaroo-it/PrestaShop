@@ -20,18 +20,11 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 
-class ConfigurationRepository extends EntityRepository
+class ConfigurationRepository extends EntityRepository implements BkConfigurationRepositoryInterface
 {
     private function getPaymentMethodByName(string $name): ?BkPaymentMethods
     {
         return $this->_em->getRepository(BkPaymentMethods::class)->findOneBy(['name' => $name]);
-    }
-
-    public function getPaymentMethodId(string $name): ?int
-    {
-        $paymentMethod = $this->getPaymentMethodByName($name);
-
-        return $paymentMethod ? $paymentMethod->getId() : null;
     }
 
     public function getConfigArray(int $paymentId): array
@@ -63,6 +56,9 @@ class ConfigurationRepository extends EntityRepository
         return true;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getActiveCreditCards(): array
     {
         $paymentName = 'creditcard';

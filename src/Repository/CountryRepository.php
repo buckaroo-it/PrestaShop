@@ -20,7 +20,7 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 use Buckaroo\PrestaShop\Src\Entity\BkCountries;
 use Doctrine\ORM\EntityRepository;
 
-class CountryRepository extends EntityRepository
+class CountryRepository extends EntityRepository implements BkCountriesRepositoryInterface
 {
     private function processCountries($countries)
     {
@@ -42,7 +42,7 @@ class CountryRepository extends EntityRepository
 
     public function getCountriesFromDB(): array
     {
-        $countries = $this->findAll();  // Use Doctrine's default findAll method
+        $countries = $this->findAll();
         $result = [];
 
         foreach ($countries as $country) {

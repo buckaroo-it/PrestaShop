@@ -17,8 +17,6 @@
 
 include_once dirname(__FILE__) . '/BaseApiController.php';
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-
 class Buckaroo3VerificationMethodsModuleFrontController extends BaseApiController
 {
     private $buckarooConfigService;
@@ -27,7 +25,7 @@ class Buckaroo3VerificationMethodsModuleFrontController extends BaseApiControlle
     {
         parent::__construct();
 
-        $this->buckarooConfigService = new BuckarooConfigService($this->module->getEntityManager());
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
     }
 
     public function initContent()
@@ -44,12 +42,10 @@ class Buckaroo3VerificationMethodsModuleFrontController extends BaseApiControlle
     {
         $payments = $this->getPaymentConfigurations();
 
-        $data = [
+        return [
             'status' => true,
             'payments' => $payments,
         ];
-
-        return $data;
     }
 
     private function getPaymentConfigurations()

@@ -17,31 +17,26 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
-use Buckaroo\PrestaShop\Src\Entity\BkCountries;
-use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
-use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Repository\BkConfigurationRepositoryInterface;
+use Buckaroo\PrestaShop\Src\Repository\BkOrderingRepositoryInterface;
+use Buckaroo\PrestaShop\Src\Repository\BkPaymentMethodRepositoryInterface;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 class BuckarooConfigService
 {
-    private $paymentMethodRepository;
+    private BkPaymentMethodRepositoryInterface $paymentMethodRepository;
+    private BkConfigurationRepositoryInterface $configurationRepository;
+    private BkOrderingRepositoryInterface $orderingRepository;
 
-    private $configurationRepository;
-    private $countryRepository;
-    private $orderingRepository;
-
-    private $entityManager;
-
-    public $module;
-
-    public function __construct(EntityManager $entityManager)
-    {
-        $this->entityManager = $entityManager;
-        $this->configurationRepository = $this->entityManager->getRepository(BkConfiguration::class);
-        $this->paymentMethodRepository = $this->entityManager->getRepository(BkPaymentMethods::class);
-        $this->countryRepository = $this->entityManager->getRepository(BkCountries::class);
-        $this->orderingRepository = $this->entityManager->getRepository(BkOrdering::class);
+    public function __construct(
+        BkPaymentMethodRepositoryInterface $paymentMethodRepository,
+        BkOrderingRepositoryInterface $orderingRepository,
+        BkConfigurationRepositoryInterface $configurationRepository
+    ) {
+        $this->configurationRepository = $configurationRepository;
+        $this->paymentMethodRepository = $paymentMethodRepository;
+        $this->orderingRepository = $orderingRepository;
     }
 
     public function getConfigArrayForMethod($method)
@@ -62,6 +57,10 @@ class BuckarooConfigService
         return isset($configArray[$key]) ? $configArray[$key] : null;
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
     public function updatePaymentMethodConfig($name, array $data): bool
     {
         $paymentMethod = $this->paymentMethodRepository->findOneByName($name);
@@ -84,49 +83,18 @@ class BuckarooConfigService
                 $ordering = $this->orderingRepository->findOneByCountryId($countryId);
                 if (!$ordering) {
                     // No existing ordering for this country. Create a new one.
-                    $ordering = new BkOrdering();
-                    $ordering->setCountryId($countryId);
-                    $ordering->setValue(json_encode([$paymentMethodId]));
-                    $ordering->setCreatedAt(new \DateTime());
-                    $ordering->setUpdatedAt(new \DateTime());
-                    $this->entityManager->persist($ordering);
+                    $this->orderingRepository->createNewOrdering($countryId, [$paymentMethodId]);
                 } else {
                     $paymentMethodIds = json_decode($ordering->getValue(), true);
 
                     // Check if the paymentMethodId is already in the ordering for the country
                     if (!in_array($paymentMethodId, $paymentMethodIds)) {
-                        // Add paymentMethodId to the ordering for the country
-                        $paymentMethodIds[] = $paymentMethodId;
-                        $ordering->setValue(json_encode($paymentMethodIds));
-                        $this->entityManager->persist($ordering);
+                        $this->orderingRepository->addPaymentMethodToOrdering($ordering, $paymentMethodId);
                     }
                 }
             }
 
-            // Fetch all orderings
-            $allOrderings = $this->orderingRepository->findAll();
-            foreach ($allOrderings as $ordering) {
-                if ($ordering->getCountryId() === null) {
-                    continue;
-                }
-                $paymentMethodIds = json_decode($ordering->getValue(), true);
-                if (in_array($paymentMethodId, $paymentMethodIds) && !in_array($ordering->getCountryId(), $newCountryIds)) {
-                    // Remove the paymentMethodId from the ordering as it's not in the new data
-                    $key = array_search($paymentMethodId, $paymentMethodIds);
-                    if ($key !== false) {
-                        unset($paymentMethodIds[$key]);
-                        if (empty($paymentMethodIds)) {
-                            // If ordering array is empty, remove the row from the database
-                            $this->entityManager->remove($ordering);
-                        } else {
-                            $ordering->setValue(json_encode(array_values($paymentMethodIds)));
-                            $this->entityManager->persist($ordering);
-                        }
-                    }
-                }
-            }
-
-            $this->entityManager->flush();
+            $this->orderingRepository->removePaymentMethodFromOrderings($paymentMethodId, $newCountryIds);
         }
 
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
@@ -146,11 +114,17 @@ class BuckarooConfigService
         return $this->configurationRepository->updateConfig($paymentMethod->getId(), $configArray);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getPaymentMethodsFromDBWithConfig()
     {
         return $this->paymentMethodRepository->getPaymentMethodsFromDBWithConfig();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getVerificationMethodsFromDBWithConfig()
     {
         return $this->paymentMethodRepository->getVerificationMethodsFromDBWithConfig();
