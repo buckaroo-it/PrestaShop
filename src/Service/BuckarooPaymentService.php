@@ -263,6 +263,10 @@ class BuckarooPaymentService
 
     public function getBuckarooLabel($method, $label)
     {
+        if ($method == 'in3' && $this->capayableIn3->isV3()) {
+           $label = 'iDEAL In3';
+        }
+
         if ($method == 'in3Old') {
             $method = 'in3';
         }
