@@ -93,14 +93,12 @@
 </template>
 
 <script>
-import {ref, inject } from "vue"
-import { useApi } from "../lib/api.ts"
-import { useToastr } from "../lib/toastr"
+import { ref, watch } from "vue";
+import { useOrderingsService } from "../lib/orderingsService";
+import { useCountries } from "../lib/countries";
 
 import CountrySelect from "../components/CountrySelect.vue";
-import draggable from 'vuedraggable'
-import {useCountries} from "../lib/countries";
-import {useI18n} from "vue-i18n";
+import draggable from 'vuedraggable';
 
 export default {
   name: "OrderPaymentMethods",
@@ -108,51 +106,35 @@ export default {
     CountrySelect,
     draggable
   },
-  watch: {
-    selectedCountry(value, oldValue) {
-      this.getOrdering()
-    },
-  },
   setup() {
-    const paymentOrderings = ref(null)
-    const selectedCountry = ref(null)
+    const { filteredCountries, query } = useCountries();
+    const orderingsService = useOrderingsService();
+    const selectedCountry = ref(null);
 
-    const { t } = useI18n();
-    const { get, post, data, loading, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=orderings`)
-    const { filteredCountries, query } = useCountries()
-    const { toastr } = useToastr()
-
-    const getOrdering = () => {
-      get({
-        country: (selectedCountry.value)? selectedCountry.value.iso_code_2 : '',
-      }).then(() => {
-        if(data.value.status) {
-          paymentOrderings.value = data.value.orderings
-        }
-      })
-    }
-
-    getOrdering()
+    watch(selectedCountry, (newVal, oldVal) => {
+      orderingsService.getOrdering(
+          newVal ? newVal.iso_code_2 : ''
+      );
+    });
 
     const update = () => {
-      post(paymentOrderings.value).then(() => {
-        if(data.value.status) {
-          toastr.success(t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
+      orderingsService.updateOrderings(orderingsService.paymentOrderings.value)
+          .then(() => {
+            if(data.value.status) {
+              toastr.success(t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
+              return;
+            }
+            toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+          });
+    };
 
-          return
-        }
-
-        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
-      })
-    }
+    orderingsService.getOrdering('');
 
     return {
-      loading,
-      paymentOrderings,
+      loading: orderingsService.loading,
+      paymentOrderings: orderingsService.paymentOrderings,
       selectedCountry,
       update,
-      getOrdering,
-      setEndpoint,
       query,
       filteredCountries
     }

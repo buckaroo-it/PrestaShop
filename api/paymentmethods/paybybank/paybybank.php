@@ -26,7 +26,6 @@ class PayByBank extends PaymentMethod
     {
         $this->type = 'paybybank';
         $this->version = 2;
-        $this->mode = $this->getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart

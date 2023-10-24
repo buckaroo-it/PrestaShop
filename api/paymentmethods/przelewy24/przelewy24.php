@@ -21,20 +21,11 @@ class Przelewy24 extends PaymentMethod
     public function __construct()
     {
         $this->type = 'przelewy24';
-        $this->mode = $this->getMode($this->type);
     }
 
     public function getPayload($data)
     {
-        $payload = [
-            'customer' => [
-                'firstName' => $data['first_name'],
-                'lastName' => $data['last_name'],
-            ],
-            'email' => $data['email'],
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 
     public function pay($customVars = [])

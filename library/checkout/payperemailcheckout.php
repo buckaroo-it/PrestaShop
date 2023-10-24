@@ -24,9 +24,9 @@ class PayPerEmailCheckout extends Checkout
     {
         parent::setCheckout();
 
-        $paymentMethodsAllowed = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'allowed_payments');
-        $dueDays = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'due_days');
-        $sendInstructionEmail = $this->buckarooConfigService->getSpecificValueFromConfig('payperemail', 'send_instruction_email');
+        $paymentMethodsAllowed = $this->buckarooConfigService->getConfigValue('payperemail', 'allowed_payments');
+        $dueDays = $this->buckarooConfigService->getConfigValue('payperemail', 'due_days');
+        $sendInstructionEmail = $this->buckarooConfigService->getConfigValue('payperemail', 'send_instruction_email');
 
         $this->customVars = [
             'customer' => [

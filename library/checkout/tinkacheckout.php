@@ -24,11 +24,14 @@ class TinkaCheckout extends Checkout
     {
         parent::setCheckout();
         $this->customVars = [
+            'description' => 'This is a test order',
+            'paymentMethod' => 'Credit',
+            'deliveryMethod' => 'Locker',
+            'deliveryDate' => date('Y-m-d'),
+            'articles' => $this->getArticles(),
             'customer' => $this->getCustomer(),
-            'email' => $this->customer->email,
             'billing' => $this->getAddress('billing'),
             'shipping' => $this->getAddress('shipping'),
-            'articles' => $this->getArticles(),
         ];
     }
 
@@ -62,7 +65,7 @@ class TinkaCheckout extends Checkout
         return [
             'firstName' => $this->invoice_address->firstname,
             'lastName' => $this->invoice_address->lastname,
-            'initials' => initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
+            'initials' => $this->initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
             'birthDate' => date(
                 'Y-m-d',
                 strtotime(
@@ -92,7 +95,7 @@ class TinkaCheckout extends Checkout
         if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->$addressType->address2;
         }
-        $data = [
+        $address_data = [
             'street' => $address_components['street'],
             'houseNumber' => $address_components['house_number'],
             'zipcode' => $this->$addressType->postcode,
@@ -103,14 +106,20 @@ class TinkaCheckout extends Checkout
         ];
 
         if (!empty($address_components['number_addition'])) {
-            return array_merge(
-                $data,
-                ['houseNumberAdditional' => $address_components['number_addition']]
-            );
+            $address_data['houseNumberAdditional'] = $address_components['number_addition'];
         }
 
-        return ['phone' => (isset($this->$addressType->phone_mobile)) ? $this->$addressType->phone_mobile : $this->addressType->phone,
-            'address' => $data,
+        $phone_data = [
+            'mobile' => (isset($this->$addressType->phone_mobile)) ? $this->$addressType->phone_mobile : $this->addressType->phone,
+        ];
+
+        return [
+            'recipient' => [
+                'lastNamePrefix' => 'the',  // Assuming 'the' is a placeholder
+            ],
+            'email' => $this->customer->email,
+            'phone' => $phone_data,
+            'address' => $address_data,
         ];
     }
 

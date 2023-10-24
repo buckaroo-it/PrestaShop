@@ -28,11 +28,13 @@ class In3OldCheckout extends Checkout
 
         $this->customVars = [
             'description' => $this->payment_request->invoiceId,
-            'customer' => $this->getCustomer(),
-            'address' => $this->getAddress(),
-            'articles' => $this->getArticles(),
-            'phone' => $this->getPhone($this->invoice_address),
+            'invoiceDate' => date('d-m-Y'),
+            'customerType' => 'Debtor',
             'email' => $this->customer->email,
+            'phone' => ['mobile' => $this->getPhone($this->invoice_address)],
+            'articles' => $this->getArticles(),
+            'customer' => $this->getCustomer(),
+            'address' => $this->getAddress()
         ];
     }
 
@@ -73,7 +75,7 @@ class In3OldCheckout extends Checkout
         return [
             'lastName' => $this->invoice_address->lastname,
             'culture' => 'nl-NL',
-            'initials' => initials($this->invoice_address->firstname),
+            'initials' => $this->initials($this->invoice_address->firstname),
             'phone' => $this->getPhone($this->invoice_address),
             'email' => $this->customer->email,
             'birthDate' => date(

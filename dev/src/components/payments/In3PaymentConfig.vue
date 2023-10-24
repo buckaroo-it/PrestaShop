@@ -39,17 +39,20 @@ export default {
     name: "In3PaymentConfig",
     setup(props) {
         const config = inject('config')
+        const baseUrl = inject('baseUrl');
+
+        const url = baseUrl + '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
 
         const paymentLogoOptions = [
           {
             value: 'in3',
             text: 'IN3',
-            image: '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/In3.svg'
+            image: url + 'In3.svg'
           },
           {
             value: 'in3_ideal',
             text: 'iDEAL In3',
-            image: '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/In3_ideal.svg'
+            image: url + 'In3_ideal.svg'
           }
         ];
 

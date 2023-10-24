@@ -21,6 +21,11 @@ class ApplePayCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->customVars = [
+            'servicesSelectableByClient' => 'applepay',
+            'continueOnIncomplete' => '1',
+        ];
     }
 
     public function startPayment()

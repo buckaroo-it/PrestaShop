@@ -3,6 +3,7 @@ import { computed, ref, watch, inject } from 'vue';
 
 export const useApi = (endpoint: string, access_token?: string) => {
     const signedJWT = inject('signedJWT')
+    const baseUrl = inject('baseUrl')
 
     var endPoint = endpoint
     var headers = {
@@ -15,7 +16,7 @@ export const useApi = (endpoint: string, access_token?: string) => {
     const error = ref();
 
     const api = axios.create({
-        baseURL: ''
+        baseURL: baseUrl + ''
     })
 
     const get = (query?: Record<string, any>) => {
@@ -66,18 +67,12 @@ export const useApi = (endpoint: string, access_token?: string) => {
             .finally(() => (loading.value = false));
     };
 
-
-    // Similar structure for post, postData, and del...
-
     const errorMessage = computed(() => {
         return error.value ? error.value.message : null;
     });
 
     watch(error, (currentError) => {
-        // If you want to handle a 401 Unauthorized error by redirecting
-        // if (currentError?.response?.status === 401 && router) {
-        //     router.push('/login');
-        // }
+
     });
 
     return {
@@ -86,7 +81,6 @@ export const useApi = (endpoint: string, access_token?: string) => {
         error,
         get,
         post,
-        // Add other methods here like post, postData, del...
         errorMessage
     };
 };

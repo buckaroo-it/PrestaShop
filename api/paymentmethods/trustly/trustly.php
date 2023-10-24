@@ -21,20 +21,6 @@ class Trustly extends PaymentMethod
     public function __construct()
     {
         $this->type = 'trustly';
-        $this->mode = $this->getMode($this->type);
-    }
-
-    public function getPayload($data)
-    {
-        $payload = [
-            'customer' => [
-                'firstName' => $data['first_name'],
-                'lastName' => $data['last_name'],
-            ],
-            'country' => $data['country'],
-        ];
-
-        return $payload;
     }
 
     // @codingStandardsIgnoreStart
@@ -43,5 +29,10 @@ class Trustly extends PaymentMethod
         $this->payload = $this->getPayload($customVars);
 
         return parent::pay();
+    }
+
+    public function getPayload($data)
+    {
+        return array_merge_recursive($this->payload, $data);
     }
 }

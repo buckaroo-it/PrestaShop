@@ -24,14 +24,10 @@ export default defineConfig({
     },
     plugins: [vue()],
     build: {
-        outDir: '', // Set this to the appropriate path
+        outDir: '',
         rollupOptions: {
-            output:{
-              assetFileNames: 'assets/[name].[ext]',
-            },
-            // specify the path to your main JS file here
             input: '/src/main.ts',
         },
     },
-    base: './', // Set this to the appropriate public path
+    base: './',
 })

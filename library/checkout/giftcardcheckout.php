@@ -18,10 +18,20 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class GiftCardCheckout extends Checkout
 {
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->customVars = [
+            'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
+            'continueOnIncomplete' => '1',
+        ];
     }
+
 
     public function startPayment()
     {

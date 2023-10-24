@@ -18,19 +18,10 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class PayPerEmail extends PaymentMethod
 {
-    /**
-     * @var BuckarooConfigService
-     */
-    protected $buckarooConfigService;
-
-    /** @var Buckaroo3 */
-    public $module;
-
     public function __construct()
     {
         $this->type = 'payperemail';
         $this->version = '1';
-        $this->mode = $this->getMode($this->type);
     }
 
     public function pay($customVars = [])

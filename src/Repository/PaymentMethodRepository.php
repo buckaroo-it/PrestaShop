@@ -24,37 +24,6 @@ use Doctrine\ORM\EntityRepository;
 
 class PaymentMethodRepository extends EntityRepository implements BkPaymentMethodRepositoryInterface
 {
-    public function findOneByName($name)
-    {
-        return $this->findOneBy(['name' => $name]);
-    }
-
-    public function findOneById($id)
-    {
-        return $this->findOneBy(['id' => $id]);
-    }
-
-    public function findAllPaymentMethods()
-    {
-        return $this->findAll();
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getPaymentMethodsFromDBWithConfig()
-    {
-        return $this->fetchMethodsFromDBWithConfig(1);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function getVerificationMethodsFromDBWithConfig()
-    {
-        return $this->fetchMethodsFromDBWithConfig(0);
-    }
-
     public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array
     {
         $qb = $this->_em->createQueryBuilder();

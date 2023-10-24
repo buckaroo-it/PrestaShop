@@ -14,13 +14,19 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
+use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
+
 require_once dirname(__FILE__) . '/../response.php';
 require_once dirname(__FILE__) . '/../../../library/logger.php';
 
 class IdinResponse extends Response
 {
+    protected $buckarooIdinService;
+
     public function __construct($transactionResponse = null)
     {
+        $this->buckarooIdinService = new BuckarooIdinService();
         $this->parsePostResponseChild();
         parent::__construct($transactionResponse);
     }
@@ -30,25 +36,10 @@ class IdinResponse extends Response
         if ($customerId = \Tools::getValue('ADD_cid')) {
             if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
                 if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
-                    // Check if there's already a record for this customer in the bk_customer_idin table
-                    $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_customer_idin WHERE customer_id = ' . (int) $customerId;
-                    $exists = \Db::getInstance()->getValue($sqlCheck);
-
-                    if ($exists) {
-                        // If there's a record, update it
-                        $sql = 'UPDATE ' . _DB_PREFIX_ . 'bk_customer_idin SET buckaroo_idin_consumerbin="' . pSQL($consumerbin) .
-                            '", buckaroo_idin_iseighteenorolder="' . pSQL($iseighteenorolder) .
-                            '" WHERE customer_id=' . (int) pSQL($customerId);
+                    if ($this->buckarooIdinService->checkCustomerIdExists($customerId)) {
+                        $this->buckarooIdinService->updateCustomerData($customerId, $consumerbin, $iseighteenorolder);
                     } else {
-                        // If there isn't, insert a new record
-                        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_customer_idin (customer_id, buckaroo_idin_consumerbin, buckaroo_idin_iseighteenorolder) VALUES (' .
-                            (int) $customerId . ', "' . pSQL($consumerbin) . '", "' . pSQL($iseighteenorolder) . '")';
-                    }
-
-                    try {
-                        \Db::getInstance()->execute($sql);
-                    } catch (Exception $e) {
-                        throw new Exception('Error while saving iDIN data: ' . $e->getMessage());
+                        $this->buckarooIdinService->insertCustomerData($customerId, $consumerbin, $iseighteenorolder);
                     }
                 }
             }

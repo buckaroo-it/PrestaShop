@@ -131,8 +131,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $logger->logDebug('Get checkout class: ');
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
 
-        $rawPaymentMethodRepository = new RawPaymentMethodRepository();
-        $payment_method_tr = $rawPaymentMethodRepository->getPaymentMethodsLabel($payment_method);
+        $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
         if (!$this->checkout->isVerifyRequired()) {
             $this->module->validateOrder(

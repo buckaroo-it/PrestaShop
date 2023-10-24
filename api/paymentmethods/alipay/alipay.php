@@ -21,13 +21,5 @@ class Alipay extends PaymentMethod
     public function __construct()
     {
         $this->type = 'alipay';
-        $this->mode = $this->getMode($this->type);
-    }
-
-    // @codingStandardsIgnoreStart
-    public function pay($customVars = [])
-    {
-        // @codingStandardsIgnoreEnd
-        return parent::pay();
     }
 }

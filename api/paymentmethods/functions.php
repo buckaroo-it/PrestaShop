@@ -25,13 +25,3 @@ function autoload($payment_method)
         exit('Class not found!');
     }
 }
-
-function initials($str)
-{
-    $ret = '';
-    foreach (explode(' ', $str) as $word) {
-        $ret .= Tools::strtoupper($word[0]) . '.';
-    }
-
-    return $ret;
-}

@@ -2,7 +2,7 @@
     <div class="border-b h-16 flex justify-between items-center">
         <div class="px-5 space-y-1 flex items-center  space-x-3">
             <div class="w-8">
-                <img v-if="payment.icon" :src="`/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" />
+                <img v-if="payment.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" />
             </div>
 
             <div>
@@ -20,9 +20,6 @@
 
         <div v-if="!loading" class="h-full">
             <div class="p-5 space-y-5">
-<!--                <div>-->
-<!--                    {{ payment.variants }}-->
-<!--                </div>-->
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">
@@ -125,10 +122,9 @@
 </template>
 
 <script>
-import {ref, provide, inject, computed} from 'vue'
+import { ref, provide, computed, inject } from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
-import { usePaymentCountryConfig } from "../../lib/paymentCountryConfig";
 import { useToastr } from "../../lib/toastr"
 import {useCountries} from "../../lib/countries";
 
@@ -151,47 +147,20 @@ export default {
                 this.config.countries = value
             },
             deep: true
-        },
-        'config.payment_fee'(value) {
-            if(value) {
-                if(value < 0) {
-                    this.config.payment_fee = 0
-
-                    return
-                }
-
-                if(value > 999) {
-                    this.config.payment_fee = 999
-
-                    return
-                }
-
-                this.config.payment_fee = parseFloat(value.toString().match( /\d+/g ).join(''))
-                return;
-            }
-
-            this.config.payment_fee = ''
-        },
-        payment() {
-            this.setEndpoint(`payment/${ this.payment.name }/config`)
-
-            this.getConfig()
-        },
+        }
     },
     setup(props) {
 
-        const { get, data, loading, post, setEndpoint } = useApi(`/index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
+        const { get, data, loading, post, setEndpoint } = useApi(`index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
         const { toastr } = useToastr()
         const { countries } = useCountries()
         const selectCountry = ref(null)
         const showAllCountries = ref(false)
+        const baseUrl = inject('baseUrl');
 
         const config = ref({
             mode: 'off',
             frontend_label: '',
-            payment_fee: null,
-            min_order_amount: null,
-            max_order_amount: null,
             countries: []
         })
 
@@ -210,9 +179,6 @@ export default {
                         mode: 'off',
                         display_type: 'dropdown',
                         frontend_label: '',
-                        payment_fee: null,
-                        min_order_amount: null,
-                        max_order_amount: null,
                         countries: []
                     }
                 }
@@ -272,7 +238,8 @@ export default {
             setMode,
             loading,
             selectCountry,
-            enabledCountries
+            enabledCountries,
+            baseUrl
         }
     }
 }

@@ -127,30 +127,6 @@
                 </div>
               </div>
 
-<!--              <div class="py-5 flex justify-between items-center">-->
-<!--                <div>-->
-<!--                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>-->
-<!--                  <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_label')"></div>-->
-<!--                </div>-->
-<!--                <div>-->
-<!--                  <label for="default-toggle" class="!inline-flex !relative !items-center !cursor-pointer">-->
-<!--                    <input type="checkbox" :value="true" id="default-toggle" class="sr-only peer" v-model="settings.refund_enabled">-->
-<!--                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-secondary rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>-->
-<!--                  </label>-->
-<!--                </div>-->
-<!--              </div>-->
-
-<!--              <div class="space-y-1">-->
-<!--                <div class="relative">-->
-<!--                  <input type="text" id="refund_label" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="settings.refund_label" />-->
-<!--                  <label for="refund_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">-->
-<!--                    {{ $t('dashboard.pages.settings.refunds_label') }}-->
-<!--                  </label>-->
-<!--                </div>-->
-
-<!--                <div class="text-gray-400 text-xs" v-html="$t('dashboard.pages.settings.refunds_label_explanation')"></div>-->
-<!--              </div>-->
-
               <div class="py-3 space-y-5 flex justify-between items-center">
                 <div>
                   <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
@@ -268,8 +244,8 @@ export default {
     const settings = ref(null)
     const showAdvanceSettings = ref(false)
 
-    const {get, post, data, loading} = useApi('/index.php?fc=module&module=buckaroo3&controller=settings')
-    const testCredentialsApi = useApi(`/index.php?fc=module&module=buckaroo3&controller=testCredentialsApi`);
+    const {get, post, data, loading} = useApi('index.php?fc=module&module=buckaroo3&controller=settings')
+    const testCredentialsApi = useApi(`index.php?fc=module&module=buckaroo3&controller=testCredentialsApi`);
     const {toastr} = useToastr()
     const credentialsAreValid = ref(null)
     const getSettings = () => {

@@ -26,10 +26,8 @@
       <div v-if="selectedPayment" class="overflow-y-scroll h-full">
         <DefaultPaymentConfig :payment="selectedPayment">
           <AfterpayPaymentConfig v-if="selectedPayment.name === 'afterpay'"  />
-<!--          <BancontactPaymentConfig v-if="selectedPayment.name === 'bancontact'" />-->
           <BillinkPaymentConfig v-if="selectedPayment.name === 'billink'" />
           <CreditCardPaymentConfig v-if="selectedPayment.name === 'creditcard'" />
-<!--          <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />-->
           <In3PaymentConfig v-if="selectedPayment.name === 'in3'" />
           <IdealPaymentConfig v-if="selectedPayment.name === 'ideal'" />
           <PayPalPaymentConfig v-if="selectedPayment.name === 'paypal'" />
@@ -53,7 +51,6 @@ import TransferPaymentConfig from "../components/payments/TransferPaymentConfig.
 import CreditCardPaymentConfig from "../components/payments/CreditCardPaymentConfig.vue";
 import BancontactPaymentConfig from "../components/payments/BancontactPaymentConfig.vue";
 import BillinkPaymentConfig from "../components/payments/BillinkPaymentConfig.vue";
-import GiftcardPaymentConfig from '../components/payments/GiftcardPaymentConfig.vue';
 import In3PaymentConfig from '../components/payments/In3PaymentConfig.vue';
 import PayPerEmailPaymentConfig from '../components/payments/PayPerEmailPaymentConfig.vue';
 import PayByBankPaymentConfig from "../components/payments/PayByBankPaymentConfig.vue";
@@ -75,7 +72,6 @@ export default {
     BancontactPaymentConfig,
     BillinkPaymentConfig,
     CreditCardPaymentConfig,
-    GiftcardPaymentConfig,
     In3PaymentConfig,
     TransferPaymentConfig,
     PayPerEmailPaymentConfig,
@@ -83,7 +79,7 @@ export default {
   },
   setup() {
     const payments = ref([])
-    const { get, data, loading } = useApi('/index.php?fc=module&module=buckaroo3&controller=paymentMethods')
+    const { get, data, loading } = useApi('index.php?fc=module&module=buckaroo3&controller=paymentMethods')
     const selectedPayment = ref(null)
 
     const getPayments = () => {

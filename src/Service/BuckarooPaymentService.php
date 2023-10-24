@@ -26,7 +26,7 @@ use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 class BuckarooPaymentService
 {
     public $module;
-    private BuckarooOrderingService $orderingService;
+    private $bkOrderingRepository;
     private $paymentMethodRepository;
     private $context;
     private BuckarooConfigService $buckarooConfigService;
@@ -43,7 +43,7 @@ class BuckarooPaymentService
         $context,
         $capayableIn3,
         $buckarooFeeService,
-        $buckarooOrderingService,
+        $bkOrderingRepository,
         $paymentMethodRepository
     ) {
         $this->module = $module;
@@ -51,7 +51,7 @@ class BuckarooPaymentService
         $this->issuersPayByBank = $issuersPayByBank;
         $this->logger = $logger;
         $this->context = $context;
-        $this->orderingService = $buckarooOrderingService;
+        $this->bkOrderingRepository = $bkOrderingRepository;
         $this->capayableIn3 = $capayableIn3;
         $this->buckarooFeeService = $buckarooFeeService;
         $this->paymentMethodRepository = $paymentMethodRepository;
@@ -61,10 +61,10 @@ class BuckarooPaymentService
     {
         $payment_options = [];
         libxml_use_internal_errors(true);
-        $paymentMethods = $this->paymentMethodRepository->findAllPaymentMethods();
+        $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $countryId = $this->context->country->id;
-        $positions = $this->orderingService->getPositionByCountryId($countryId);
+        $countryId = $this->context->country->iso_code;
+        $positions = $this->bkOrderingRepository->fetchPositions($countryId) ?? $this->bkOrderingRepository->fetchPositions(null);
 
         $positions = array_flip($positions);
 
@@ -152,7 +152,7 @@ class BuckarooPaymentService
             $shippingCountry = \Country::getIsoById($shippingAddress->id_country);
         }
 
-        $customerType = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
+        $customerType = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
         if (\AfterPayCheckout::CUSTOMER_TYPE_B2C !== $customerType) {
             $nlCompanyExists =
@@ -337,14 +337,14 @@ class BuckarooPaymentService
 
     public function showAfterpayCoc($cart)
     {
-        $afterpay_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('afterpay', 'customer_type');
+        $afterpay_customer_type = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
         return $this->shouldShowCoc($cart, $afterpay_customer_type, \AfterPayCheckout::CUSTOMER_TYPE_B2B, \AfterPayCheckout::CUSTOMER_TYPE_B2C);
     }
 
     public function showBillinkCoc($cart)
     {
-        $billink_customer_type = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'customer_type');
+        $billink_customer_type = $this->buckarooConfigService->getConfigValue('billink', 'customer_type');
 
         return $this->shouldShowCoc($cart, $billink_customer_type, \BillinkCheckout::CUSTOMER_TYPE_B2B, \BillinkCheckout::CUSTOMER_TYPE_B2C);
     }

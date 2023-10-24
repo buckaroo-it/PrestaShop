@@ -61,11 +61,19 @@ class ConfigurationRepository extends EntityRepository implements BkConfiguratio
      */
     public function getActiveCreditCards(): array
     {
-        $paymentName = 'creditcard';
-        $paymentMethod = $this->getPaymentMethodByName($paymentName);
+        $paymentMethod = $this->getPaymentMethodByName('creditcard');
 
         $configArray = $this->getConfigArray($paymentMethod->getId());
+        $result = $configArray['activeCreditcards'] ?? [];
 
-        return $configArray['activeCreditcards'] ?? [];
+        $issuerArray = [];
+        foreach ($result as $card) {
+            $issuerArray[strtolower($card['service_code'])] = [
+                'name' => $card['name'],
+                'logo' => $card['icon'],
+            ];
+        }
+
+        return $issuerArray;
     }
 }

@@ -40,7 +40,7 @@ class BuckarooFeeService
     public function getBuckarooFees(): array
     {
         $result = [];
-        $paymentMethods = $this->paymentMethodRepository->findAllPaymentMethods();
+        $paymentMethods = $this->paymentMethodRepository->findAll();
 
         foreach ($paymentMethods as $method) {
             $buckarooFee = $this->getBuckarooFeeValue($method->getName());

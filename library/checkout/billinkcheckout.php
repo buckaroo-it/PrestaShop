@@ -31,7 +31,7 @@ class BillinkCheckout extends Checkout
     {
         parent::setCheckout();
 
-        $this->customerType = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'customer_type');
+        $this->customerType = $this->buckarooConfigService->getConfigValue('billink', 'customer_type');
 
         $this->customVars = [
             'vATNumber' => $this->invoice_address->vat_number,
@@ -83,7 +83,7 @@ class BillinkCheckout extends Checkout
                 'lastName' => $this->invoice_address->lastname,
                 'birthDate' => $birthDate,
                 'title' => Tools::getValue('bpe_billink_person_gender'),
-                'initials' => initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
+                'initials' => $this->initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
             ],
             'address' => [
                 'street' => $address_components['street'],
@@ -112,7 +112,7 @@ class BillinkCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getSpecificValueFromConfig('billink', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('billink', 'wrapping_vat');
 
         if ($wrappingVat == null) {
             $wrappingVat = 2;
@@ -253,7 +253,7 @@ class BillinkCheckout extends Checkout
                     'lastName' => $this->shipping_address->lastname,
                     'birthDate' => $birthDate,
                     'title' => Tools::getValue('bpe_billink_person_gender'),
-                    'initials' => initials($this->shipping_address->firstname . ' ' . $this->shipping_address->lastname),
+                    'initials' => $this->initials($this->shipping_address->firstname . ' ' . $this->shipping_address->lastname),
                 ],
                 'address' => [
                     'street' => $street,
