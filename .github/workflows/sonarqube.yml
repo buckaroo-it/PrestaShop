@@ -6,10 +6,8 @@ on:
       - master
       - develop
       - "prestashop-plugin-vue"
-      - "sonarqube"
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
   build:
     name: SonarQube Analysis
@@ -23,4 +21,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_ROOT_CERT: ${{ secrets.SONAR_ROOT_CERT }}
