@@ -276,6 +276,7 @@ class Buckaroo3 extends PaymentModule
     public function hookDisplayBackOfficeHeader()
     {
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
+        $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
     }
 
     public function getContent()
@@ -283,8 +284,7 @@ class Buckaroo3 extends PaymentModule
         $jwt = new JWTAuth();
         $token = $this->generateToken($jwt);
         $this->context->smarty->assign([
-            'pathApp' => $this->getPathUri() . 'dev/assets/main.39e55f8f.js',
-            'pathCss' => $this->getPathUri() . 'dev/assets/main.1885b933.css',
+            'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
             'jwt' => $token,
         ]);
