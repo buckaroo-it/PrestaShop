@@ -333,7 +333,7 @@
     "dashboard.pages.payments.idin.display_mode.product": "Specific products",
     "dashboard.pages.payments.idin.display_mode.global": "Global",
     "dashboard.pages.payments.idin.display_mode_label": "With this setting you can select whether iDIN is enabled for all the products in the store (globally) or only for specific products.\nFor specific products you also need to enable it for the products in the PrestaShop catalog.",
-    "dashboard.pages.settings.credentials_label": "Get your Buckaroo website credentials from the <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
+    "dashboard.pages.settings.credentials_label": "Get your Buckaroo credentials from the <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
     "dashboard.pages.settings.refunds_label_label": "When enabled you can do (partial) refunds directly from your PrestaShop admin area <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
     "dashboard.pages.settings.refunds_label_explanation": "This description is used for the refunds and will be visible in Buckaroo and on the bank statement of the consumer. We recommend using the webshop name so customers can easily recognize the payment.",
     "dashboard.pages.settings.settings": "Settings",

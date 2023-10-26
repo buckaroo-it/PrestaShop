@@ -333,7 +333,7 @@
   "dashboard.pages.payments.idin.display_mode.product": "Specifieke producten",
   "dashboard.pages.payments.idin.display_mode.global": "Globaal",
   "dashboard.pages.payments.idin.display_mode_label": "Met deze instelling kunt u selecteren of iDIN is ingeschakeld voor alle producten in de winkel (globaal) of alleen voor specifieke producten. Voor specifieke producten dient u het ook in te schakelen voor de producten in de PrestaShop-catalogus.",
-  "dashboard.pages.settings.credentials_label": "Haal uw Buckaroo website gegevens op uit de <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
+  "dashboard.pages.settings.credentials_label": "Haal uw Buckaroo gegevens op uit de <a href='https://plaza.buckaroo.nl' target='_blank' class='text-secondary font-semibold'>Buckaroo Plaza</a>",
   "dashboard.pages.settings.refunds_label_label": "Indien ingeschakeld, kunt u (gedeeltelijke) terugbetalingen rechtstreeks vanuit uw PrestaShop-beheergebied uitvoeren <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
   "dashboard.pages.settings.refunds_label_explanation": "Deze omschrijving wordt gebruikt bij de terugbetaling en zal zichtbaar zijn in Buckaroo en op het bankafschrift van de consument. Wij adviseren om de webshopnaam te gebruiken, zodat klanten de betaling gemakkelijk kunnen herkennen.",
   "dashboard.pages.settings.settings": "Instellingen",
