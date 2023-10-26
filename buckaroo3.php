@@ -266,7 +266,7 @@ class Buckaroo3 extends PaymentModule
             $userProvider->getUsername()
         )->getValue();
         $this->context->smarty->assign([
-            'pathApp' => $this->_path . 'views/js/buckaroo.vue.js?2135132',
+            'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
             'adminUrl' => explode("?",$this->context->link->getAdminLink(AdminDashboard::class))[0],
             'token' => $token,
