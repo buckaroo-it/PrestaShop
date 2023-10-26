@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Entity;
+namespace Buckaroo\PrestaShop\Src\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 

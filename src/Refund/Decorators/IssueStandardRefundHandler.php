@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund\Decorators;
+namespace Buckaroo\PrestaShop\Src\Refund\Decorators;
 
-use Buckaroo\Prestashop\Refund\Handler;
+use Buckaroo\PrestaShop\Src\Refund\Handler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssueStandardRefundHandlerInterface;
 

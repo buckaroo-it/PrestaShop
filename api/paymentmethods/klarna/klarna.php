@@ -22,7 +22,6 @@ class Klarna extends PaymentMethod
     {
         $this->type = 'klarnakp';
         $this->version = '0';
-        $this->mode = Config::getMode('KLARNA');
     }
 
     // @codingStandardsIgnoreStart

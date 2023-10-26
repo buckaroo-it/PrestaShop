@@ -14,6 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class Belfius extends PaymentMethod
@@ -22,6 +23,5 @@ class Belfius extends PaymentMethod
     {
         $this->type = 'belfius';
         $this->version = 0;
-        $this->mode = Config::getMode('belfius');
     }
 }

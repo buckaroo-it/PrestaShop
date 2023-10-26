@@ -22,6 +22,5 @@ class Sofortbanking extends PaymentMethod
     {
         $this->type = 'sofortueberweisung';
         $this->version = 1;
-        $this->mode = Config::getMode('sofortbanking');
     }
 }

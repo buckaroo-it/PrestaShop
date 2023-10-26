@@ -14,6 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class Idin extends PaymentMethod
@@ -25,14 +26,14 @@ class Idin extends PaymentMethod
     {
         $this->type = 'idin';
         $this->version = 0;
-        $this->mode = Config::getMode($this->type);
     }
 
     public function verify($customVars = [])
     {
-        $this->data['customVars'][$this->type]['issuerId'] = $this->getIssuer($this->issuer);
+        $this->payload['issuer'] = $this->getIssuer($this->issuer);
+
         if (isset($customVars['cid'])) {
-            $this->data['customParameters']['cid'] = $customVars['cid'];
+            $this->payload['additionalParameters']['cid'] = $customVars['cid'];
         }
 
         return parent::verify();
@@ -43,11 +44,6 @@ class Idin extends PaymentMethod
     {
         // @codingStandardsIgnoreEnd
         return null;
-    }
-
-    public function refund()
-    {
-        return parent::refund();
     }
 
     protected function getIssuer($issuer)

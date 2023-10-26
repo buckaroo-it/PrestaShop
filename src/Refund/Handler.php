@@ -15,11 +15,11 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund;
+namespace Buckaroo\PrestaShop\Src\Refund;
 
-use Buckaroo\Prestashop\Refund\Request\Builder;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
+use Buckaroo\PrestaShop\Src\Refund\Request\Builder;
+use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
@@ -128,7 +128,7 @@ class Handler
     /**
      * Get refund data
      *
-     * @param Order $order
+     * @param Order                                                $order
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      *
      * @return OrderRefundSummary
@@ -142,6 +142,7 @@ class Handler
         } else {
             $shippingRefundAmount = new DecimalNumber((string) ($command->refundShippingCost() ? $order->total_shipping_tax_incl : 0));
         }
+
         /* @var OrderRefundSummary $orderRefundSummary */
         return $this->orderRefundCalculator->computeOrderRefund(
             $order,

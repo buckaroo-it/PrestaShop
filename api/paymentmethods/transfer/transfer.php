@@ -23,7 +23,6 @@ class Transfer extends PaymentMethod
     {
         $this->type = 'transfer';
         $this->version = 1;
-        $this->mode = Config::getMode($this->type);
     }
 
     public function pay($customVars = [])
@@ -35,17 +34,6 @@ class Transfer extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'customer' => [
-                'firstName' => $data['CustomerFirstName'],
-                'lastName' => $data['CustomerLastName'],
-            ],
-            'email' => $data['CustomerEmail'],
-            'country' => $data['CustomerCountry'],
-            'dateDue' => $data['DateDue'],
-            'sendMail' => $data['SendMail'],
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

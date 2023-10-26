@@ -22,7 +22,6 @@ class SepaDirectDebit extends PaymentMethod
     {
         $this->type = 'sepadirectdebit';
         $this->version = '1';
-        $this->mode = Config::getMode('SDD');
     }
 
     public function pay($customVars = [])
@@ -30,16 +29,9 @@ class SepaDirectDebit extends PaymentMethod
         return null;
     }
 
-    public function getPayload($customVars)
+    public function getPayload($data)
     {
-        $payload = [
-            'iban' => $customVars['iban'],
-            'bic' => $customVars['bic'],
-            'collectdate' => date('d-m-Y'),
-            'customer' => $customVars['customer'],
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 
     public function payDirectDebit($customVars)

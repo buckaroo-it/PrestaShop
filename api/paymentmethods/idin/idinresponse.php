@@ -14,25 +14,33 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../response.php';
 
-// TODO - Fix IDIN
+use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
+
+require_once dirname(__FILE__) . '/../response.php';
+require_once dirname(__FILE__) . '/../../../library/logger.php';
+
 class IdinResponse extends Response
 {
-    public $idinConsumerbin;
-    public $idinIseighteenorolder;
-    public $buckarooCid;
+    protected $buckarooIdinService;
+
+    public function __construct($transactionResponse = null)
+    {
+        $this->buckarooIdinService = new BuckarooIdinService();
+        $this->parsePostResponseChild();
+        parent::__construct($transactionResponse);
+    }
 
     protected function parsePostResponseChild()
     {
-        if ($customerId = Tools::getValue('add_cid')) {
-            if ($consumerbin = pSQL(Tools::getValue('brq_service_idin_consumerbin'))) {
-                if ($iseighteenorolder = pSQL(Tools::getValue('brq_service_idin_iseighteenorolder'))) {
-                    Db::getInstance()->execute(
-                        'UPDATE ' . _DB_PREFIX_ . 'customer SET buckaroo_idin_consumerbin="' .
-                        $consumerbin . '", buckaroo_idin_iseighteenorolder="' . $iseighteenorolder . '" WHERE id_customer=' .
-                        (int) $customerId
-                    );
+        if ($customerId = \Tools::getValue('ADD_cid')) {
+            if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
+                if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
+                    if ($this->buckarooIdinService->checkCustomerIdExists($customerId)) {
+                        $this->buckarooIdinService->updateCustomerData($customerId, $consumerbin, $iseighteenorolder);
+                    } else {
+                        $this->buckarooIdinService->insertCustomerData($customerId, $consumerbin, $iseighteenorolder);
+                    }
                 }
             }
         }

@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund\Request;
+namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
 use Tax;

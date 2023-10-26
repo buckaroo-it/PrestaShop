@@ -29,6 +29,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         parent::__construct();
         $this->setContainer();
     }
+
     /**
      * @see FrontController::initContent()
      */
@@ -216,11 +217,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         exit;
     }
 
-    private function setContainer() {
+    private function setContainer()
+    {
         global $kernel;
 
-        if(!$kernel){
-            require_once _PS_ROOT_DIR_.'/app/AppKernel.php';
+        if (!$kernel) {
+            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
             $kernel = new \AppKernel('prod', false);
             $kernel->boot();
         }

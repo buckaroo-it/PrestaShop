@@ -15,7 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-use PrestaShop\Decimal\Number;
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
+use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
@@ -29,7 +31,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const CHECKOUT_TYPE_GIROPAY = 'giropay';
     public const CHECKOUT_TYPE_KBC = 'kbc';
-    public const CHECKOUT_TYPE_MISTERCASH = 'bancontactmrcash';
+    public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
     public const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
     public const CHECKOUT_TYPE_SOFORTBANKING = 'sofortueberweisung';
@@ -48,6 +50,8 @@ abstract class Checkout
     public const CHECKOUT_TYPE_PRZELEWY24 = 'przelewy24';
     public const CHECKOUT_TYPE_TINKA = 'tinka';
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
+    public const CHECKOUT_TYPE_WECHATPAY = 'wechatpay';
+    public const CHECKOUT_TYPE_ALIPAY = 'alipay';
 
     // Request types (Payment Methods).
     public static $payment_method_type = [
@@ -57,7 +61,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY => 'Giropay',
         Checkout::CHECKOUT_TYPE_KBC => 'Kbc',
-        Checkout::CHECKOUT_TYPE_MISTERCASH => 'MisterCash',
+        Checkout::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         Checkout::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
         Checkout::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
         Checkout::CHECKOUT_TYPE_SOFORTBANKING => 'Sofortbanking',
@@ -76,6 +80,8 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_PRZELEWY24 => 'Przelewy24',
         Checkout::CHECKOUT_TYPE_TINKA => 'Tinka',
         Checkout::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
+        Checkout::CHECKOUT_TYPE_WECHATPAY => 'Wechatpay',
+        Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
     ];
 
     // protected $current_order;
@@ -104,14 +110,31 @@ abstract class Checkout
     {
         return $this->reference;
     }
-
+    public $platformName;
+    public $platformVersion;
+    public $moduleSupplier;
+    public $moduleName;
+    public $moduleVersion;
     public $returnUrl;
     public $pushUrl;
+
+    /** @var Buckaroo3 */
+    public $module;
+
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
+    /**
+     * @var BuckarooFeeService
+     */
+    protected $buckarooFeeService;
 
     public function __construct($cart)
     {
         $this->initialize();
-
+        $this->module = \Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
@@ -120,6 +143,8 @@ abstract class Checkout
             $this->shipping_address = new Address((int) $cart->id_address_delivery);
         }
         $this->products = $this->cart->getProducts();
+        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
+        $this->buckarooFeeService = $this->module->getBuckarooFeeService();
     }
 
     abstract protected function initialize();
@@ -129,12 +154,9 @@ abstract class Checkout
         $currency = new Currency((int) $this->cart->id_currency);
         $this->payment_request->amountDebit = $originalAmount =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $payment_method = Tools::getValue('method');
-        if ($payment_method == 'bancontactmrcash') {
-            $payment_method = 'MISTERCASH';
-        }
 
         $buckarooFee = $this->getBuckarooFee();
+
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
         }
@@ -144,6 +166,11 @@ abstract class Checkout
         $reference = $this->reference . '_' . $this->cart->id;
         $this->payment_request->invoiceId = $reference;
         $this->payment_request->orderId = $reference;
+        $this->payment_request->platformName = $this->platformName;
+        $this->payment_request->platformVersion = $this->platformVersion;
+        $this->payment_request->moduleSupplier = $this->moduleSupplier;
+        $this->payment_request->moduleName = $this->moduleName;
+        $this->payment_request->moduleVersion = $this->moduleVersion;
         $this->payment_request->returnUrl = $this->returnUrl;
         $this->payment_request->pushUrl = $this->pushUrl;
     }
@@ -151,11 +178,7 @@ abstract class Checkout
     public function getBuckarooFee()
     {
         $payment_method = Tools::getValue('method');
-        if ($payment_method == 'bancontactmrcash') {
-            $payment_method = 'MISTERCASH';
-        }
-
-        if ($buckarooFee = Config::get('BUCKAROO_' . Tools::strtoupper($payment_method) . '_FEE')) {
+        if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
 
@@ -172,6 +195,11 @@ abstract class Checkout
         }
     }
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     * @throws Exception
+     */
     public function updateOrderFee($buckarooFee)
     {
         $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
@@ -183,17 +211,17 @@ abstract class Checkout
             'currency' => $currency->iso_code,
         ]);
 
-        $orderFeeNumber = new Number((string) 0);
-        $originalAmount = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $totalPrice = new Number((string) ($originalAmount + $buckarooFee));
+        $orderFeeNumber = new DecimalNumber((string) 0);
+        $originalAmount = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
+        $totalPrice = new DecimalNumber((string) ($originalAmount + $buckarooFee));
         $orderFeeNumber->plus($totalPrice);
 
-        $orderid = Order::getOrderByCartId($this->cart->id);
+        $orderid = Order::getIdByCartId($this->cart->id);
 
         $order = new Order($orderid);
 
-        $order->total_paid_tax_excl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_excl));
-        $order->total_paid_tax_incl = $orderFeeNumber->plus(new Number((string) $order->total_paid_tax_incl));
+        $order->total_paid_tax_excl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_excl));
+        $order->total_paid_tax_incl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_incl));
         $order->total_paid = $totalPrice->toPrecision(2);
         $order->update();
     }
@@ -248,7 +276,9 @@ abstract class Checkout
      *
      * @param $payment_method
      * @param $cart
+     *
      * @return Address subclass
+     *
      * @throws Exception
      */
     final public static function getInstance($payment_method, $cart)
@@ -341,7 +371,7 @@ abstract class Checkout
         return $phone;
     }
 
-    protected function prepareWrappingArticle()
+    protected function prepareWrappingArticle($wrappingVat)
     {
         $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($wrappingCost <= 0) {
@@ -352,8 +382,8 @@ abstract class Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => $wrappingCost,
-            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
-            'description' => 'Wrapping'
+            'vatPercentage' => $wrappingVat,
+            'description' => 'Wrapping',
         ];
     }
 
@@ -387,7 +417,6 @@ abstract class Checkout
         return $mergeProducts;
     }
 
-
     protected function prepareShippingCostArticle()
     {
         $shippingCost = round($this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING), 2);
@@ -409,6 +438,16 @@ abstract class Checkout
             'price' => $shippingCost,
         ];
     }
+
+    public function initials($str)
+    {
+        $ret = '';
+        foreach (explode(' ', $str) as $word) {
+            $ret .= Tools::strtoupper($word[0]) . '.';
+        }
+
+        return $ret;
+    }
 }
 
 function checkoutautoload($payment_method)
@@ -421,3 +460,5 @@ function checkoutautoload($payment_method)
         exit('Class not found!');
     }
 }
+
+

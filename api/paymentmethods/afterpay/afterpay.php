@@ -15,13 +15,13 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
+
 class AfterPay extends PaymentMethod
 {
     public function __construct()
     {
         $this->type = 'afterpay';
         $this->version = '1';
-        $this->mode = Config::getMode('AFTERPAY');
     }
 
     // @codingStandardsIgnoreStart

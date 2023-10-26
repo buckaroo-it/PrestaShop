@@ -20,14 +20,30 @@ class TrustlyCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     final public function setCheckout()
     {
         parent::setCheckout();
 
         $this->customVars = [
-            'first_name' => $this->invoice_address->firstname,
-            'last_name' => $this->invoice_address->lastname,
+            'customer' => $this->getCustomer(),
             'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
+        ];
+    }
+
+    /**
+     * Get customer data
+     *
+     * @return array
+     */
+    protected function getCustomer()
+    {
+        return [
+            'firstName' => $this->invoice_address->firstname,
+            'lastName' => $this->invoice_address->lastname,
         ];
     }
 

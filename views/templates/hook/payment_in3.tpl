@@ -16,7 +16,7 @@
     <div id="booIn3Err" class="booBlAnimError">
         {l s='Phone number is required' mod='buckaroo3'}
     </div>
-        <input type="hidden" name="buckarooKey" value="IN3">
+        <input type="hidden" name="buckarooKey" value="in3">
         <form name="booIn3Form" id="booIn3Form"
               action="{$link->getModuleLink('buckaroo3', 'request', ['method' => {$in3Method|escape:'html':'UTF-8'}])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
 

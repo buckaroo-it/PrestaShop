@@ -15,12 +15,12 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund\Request\Response;
+namespace Buckaroo\PrestaShop\Src\Refund\Request\Response;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
-use Buckaroo\Prestashop\Refund\Payment\Service as PaymentService;
-use Buckaroo\Prestashop\Refund\Settings;
-use Buckaroo\Prestashop\Refund\StatusService;
+use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
+use Buckaroo\PrestaShop\Src\Refund\Payment\Service as PaymentService;
+use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\PrestaShop\Src\Refund\StatusService;
 use Buckaroo\Transaction\Response\TransactionResponse;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;

@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund\Payment;
+namespace Buckaroo\PrestaShop\Src\Refund\Payment;
 
 class Service
 {

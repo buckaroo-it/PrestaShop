@@ -3,3 +3,75 @@ buckaroo_refund:
     methods: [POST]
     defaults:
       _controller: 'buckaroo.refund_controller::refund'
+
+buckaroo_config_paymentMethod:
+    path: buckaroo3/config/payment/methods
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.paymentMethod::initContent'
+    options:
+        expose: true
+
+buckaroo_config_countries:
+    path: buckaroo3/config/countries
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.countries::initContent'
+    options:
+        expose: true
+
+buckaroo_config_creditcards:
+    path: buckaroo3/config/creditcards
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.creditcards::initContent'
+    options:
+        expose: true
+
+buckaroo_config_orderings:
+    path: buckaroo3/config/orderings
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.orderings::initContent'
+    options:
+        expose: true
+
+buckaroo_config_methodMode:
+    path: buckaroo3/config/methodMode
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.methodMode::initContent'
+    options:
+        expose: true
+
+buckaroo_config_methods:
+    path: buckaroo3/config/methods
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.methods::initContent'
+    options:
+        expose: true
+
+buckaroo_config_settings:
+    path: buckaroo3/config/settings
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.settings::initContent'
+    options:
+        expose: true
+
+buckaroo_config_testCredentials:
+    path: buckaroo3/config/testCredentials
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.testCredentials::initContent'
+    options:
+        expose: true
+
+buckaroo_config_verificationMethods:
+    path: buckaroo3/config/verificationMethods
+    methods: [POST, GET]
+    defaults:
+      _controller: 'buckaroo.config.controllers.verificationMethods::initContent'
+    options:
+        expose: true

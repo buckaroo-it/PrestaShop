@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\Prestashop\Refund\Admin;
+namespace Buckaroo\PrestaShop\Src\Refund\Admin;
 
-use Buckaroo\Prestashop\Entity\BkRefundRequest;
+use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 use PrestaShopBundle\Service\Routing\Router;
 
@@ -58,7 +58,7 @@ class Provider
      * Get available amount for refund
      *
      * @param \Order $order
-     * @param array $refunds
+     * @param array  $refunds
      *
      * @return float
      */
@@ -79,9 +79,10 @@ class Provider
         );
 
         $amount = $order->total_paid - $refunded;
-        if(abs($amount) <= 0.005) {
+        if (abs($amount) <= 0.005) {
             return 0;
         }
+
         return round($amount, 2);
     }
 

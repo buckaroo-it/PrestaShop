@@ -14,7 +14,7 @@
 *}
 
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="PAYBYBANK">
+    <input type="hidden" name="buckarooKey" value="paybybank">
     <form id="bk-paybybank-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank'])|escape:'quotes':'UTF-8'}" method="post">
         <p> {l s='Choose your bank' mod='buckaroo3'}</p>
 
@@ -76,7 +76,7 @@
                                                 class=""
                                                 alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                                 title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                                src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/paybybank/SVG/{$issuer['logo']|escape:'url':'UTF-8'}"
+                                                src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo/PayByBank issuers/{$issuer['logo']|escape:'url':'UTF-8'}"
                                         />
                                     {/if}
                                     <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>

@@ -29,9 +29,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     {
         $cookie = new Cookie('ps');
         $logger = new Logger(Logger::INFO, 'return');
-        // print_r($_POST);
-        // print_r($_GET);
-        // exit;
+
         $response = ResponseFactory::getResponse();
         $logger->logDebug('Checkout response', $response);
         if ($response->isValid()) {

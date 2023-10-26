@@ -14,10 +14,10 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-use Buckaroo\BuckarooClient;
 
-require_once _PS_MODULE_DIR_ . 'buckaroo3/config.php';
-require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
+namespace Buckaroo\PrestaShop\Classes;
+
+use Buckaroo\BuckarooClient;
 
 class IssuersIdeal
 {
@@ -25,19 +25,20 @@ class IssuersIdeal
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE_DATE';
 
     protected const ISSUERS_IMAGES = [
-        'ABNANL2A' => 'ABNAMRO.png',
-        'ASNBNL21' => 'ASNBANK.png',
-        'INGBNL2A' => 'ING.png',
-        'RABONL2U' => 'Rabobank.png',
-        'SNSBNL2A' => 'SNS.png',
-        'RBRBNL21' => 'Regiobank.png',
-        'TRIONL2U' => 'Triodos.png',
-        'FVLBNL22' => 'vanLanschot.png',
-        'KNABNL2H' => 'KNAB.png',
-        'BUNQNL2A' => 'Bunq.png',
-        'REVOLT21' => 'Revolut.png',
-        'BITSNL2A' => 'YourSafe.png',
-        'NTSBDEB1' => 'n26.svg'
+        'ABNANL2A' => 'ABNAMRO.svg',
+        'ASNBNL21' => 'ASNBank.svg',
+        'INGBNL2A' => 'ING.svg',
+        'RABONL2U' => 'Rabobank.svg',
+        'SNSBNL2A' => 'SNS.svg',
+        'RBRBNL21' => 'RegioBank.svg',
+        'TRIONL2U' => 'Triodos.svg',
+        'FVLBNL22' => 'vanLanschot.svg',
+        'KNABNL2H' => 'KNAB.svg',
+        'BUNQNL2A' => 'Bunq.svg',
+        'REVOLT21' => 'Revolut.svg',
+        'NNBANL2G' => 'NN.svg',
+        'BITSNL2A' => 'YourSafe.svg',
+        'NTSBDEB1' => 'n26.svg',
     ];
 
     public function get()
@@ -45,7 +46,7 @@ class IssuersIdeal
         $issuers = $this->getCacheIssuers();
         $cacheDate = $this->getCacheDate();
 
-        if (!is_array($issuers) || $cacheDate !== (new DateTime())->format('Y-m-d')) {
+        if (!is_array($issuers) || $cacheDate !== (new \DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
 
@@ -81,6 +82,8 @@ class IssuersIdeal
      * update cache with issues from payment engine
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function updateCacheIssuers($issuers)
     {
@@ -97,15 +100,22 @@ class IssuersIdeal
         return $issuers;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function requestIssuers()
     {
-        $buckaroo = new BuckarooClient(
-            Configuration::get('BUCKAROO_MERCHANT_KEY'),
-            Configuration::get('BUCKAROO_SECRET_KEY'),
-            Config::getMode('ideal')
-        );
+        if (\Configuration::get('BUCKAROO_MERCHANT_KEY') || \Configuration::get('BUCKAROO_SECRET_KEY')) {
+            $buckaroo = new BuckarooClient(
+                \Configuration::get('BUCKAROO_MERCHANT_KEY'),
+                \Configuration::get('BUCKAROO_SECRET_KEY'),
+                Config::getMode('ideal')
+            );
 
-        return $buckaroo->method('ideal')->issuers();
+            return $buckaroo->method('ideal')->issuers();
+        } else {
+            throw new \Exception('Buckaroo master settings not found.');
+        }
     }
 
     /**
@@ -120,8 +130,8 @@ class IssuersIdeal
         if (!is_array($issuers)) {
             return;
         }
-        Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
-        Configuration::updateValue(self::CACHE_ISSUERS_DATE_KEY, (new DateTime())->format('Y-m-d'));
+        \Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
+        \Configuration::updateValue(self::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
     }
 
     /**
@@ -131,7 +141,7 @@ class IssuersIdeal
      */
     private function getCacheIssuers()
     {
-        $issuersString = Configuration::get(self::CACHE_ISSUERS_KEY);
+        $issuersString = \Configuration::get(self::CACHE_ISSUERS_KEY);
         if (!is_string($issuersString)) {
             return;
         }
@@ -146,6 +156,6 @@ class IssuersIdeal
      */
     private function getCacheDate()
     {
-        return Configuration::get(self::CACHE_ISSUERS_DATE_KEY);
+        return \Configuration::get(self::CACHE_ISSUERS_DATE_KEY);
     }
 }

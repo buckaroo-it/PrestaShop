@@ -134,7 +134,7 @@ paymentMethodValidation={
             }
         }
     },
-    init: function (e) {  
+    init: function (e) {
         this.valid = true;
         $('.buckaroo-validation-message').remove();
         // we validate all at the required fields pertaining to a selected method/form
@@ -265,6 +265,7 @@ $(document).ready(function () {
 
     new BuckarooCheckout().listen();
     new BuckarooPayByBank().init();
+    new BuckarooApplePay().init();
 });
 
 class BuckarooCheckout {
@@ -386,5 +387,16 @@ class BuckarooPayByBank {
         jQuery('[data-module-name="PAYBYBANK"]')
             .closest('.payment-option')
             .find('img').attr('src', img)
+    }
+}
+class BuckarooApplePay {
+    get isApplePayAvailable(){
+        return !!(window.ApplePaySession && ApplePaySession.canMakePayments());
+    }
+    init(){
+        this.togglePayment(this.isApplePayAvailable)
+    }
+    togglePayment(value = false) {
+        jQuery('[data-module-name="applepay"]').closest('.payment-option').toggle(value);
     }
 }

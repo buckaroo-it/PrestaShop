@@ -21,7 +21,6 @@ class In3 extends PaymentMethod
     public function __construct()
     {
         $this->type = 'in3';
-        $this->mode = Config::getMode($this->type);
     }
 
     public function pay($customVars = [])
@@ -33,19 +32,6 @@ class In3 extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'description' => $this->description,
-            'invoiceDate' => date('d-m-Y'),
-            'version' => $this->version,
-            'billing' => $data['billing'],
-            'articles' => $data['articles'],
-        ];
-
-        // Add shipping address if is different
-        if ($data['shipping']) {
-            $payload['shipping'] = $data['shipping'];
-        }
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

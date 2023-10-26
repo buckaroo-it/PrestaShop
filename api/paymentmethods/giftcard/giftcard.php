@@ -21,17 +21,6 @@ class GiftCard extends PaymentMethod
     public function __construct()
     {
         $this->type = 'giftcard';
-        $this->mode = Config::getMode('GIFTCARD');
-    }
-
-    public function getPayload($data)
-    {
-        $payload = [
-            'servicesSelectableByClient' => Config::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
-            'continueOnIncomplete' => '1',
-        ];
-
-        return $payload;
     }
 
     public function pay($customVars = [])
@@ -39,5 +28,10 @@ class GiftCard extends PaymentMethod
         $this->payload = $this->getPayload($customVars);
 
         return parent::executeCustomPayAction('payRedirect');
+    }
+
+    public function getPayload($data)
+    {
+        return array_merge_recursive($this->payload, $data);
     }
 }

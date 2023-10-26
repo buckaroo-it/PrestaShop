@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="CREDITCARD">
+    <input type="hidden" name="buckarooKey" value="creditcard">
     <form id="booCreditCardForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         {l s='Choose your credit or debit card' mod='buckaroo3'}<br/><br/>
         <fieldset>
@@ -49,7 +49,7 @@
                                             class=""
                                             alt="{l s=$issuer['name'] mod='buckaroo3'}"
                                             title="{l s=$issuer['name'] mod='buckaroo3'}"
-                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo_images/creditcard/SVG/{$issuer['logo']|escape:'html':'UTF-8'}"
+                                            src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo/Creditcard issuers/SVG/{$issuer['logo']|escape:'html':'UTF-8'}"
                                     />
                                 {/if}
                                 <strong>{l s=$issuer['name'] mod='buckaroo3'}</strong>

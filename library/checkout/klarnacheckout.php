@@ -21,6 +21,10 @@ class KlarnaCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     final public function setCheckout()
     {
         parent::setCheckout();
@@ -36,6 +40,10 @@ class KlarnaCheckout extends Checkout
         ];
     }
 
+    /**
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     */
     public function getBillingAddress()
     {
         return [
@@ -53,11 +61,10 @@ class KlarnaCheckout extends Checkout
                 ),
             ],
             'phone' => [
-                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address)
+                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address),
             ],
             'email' => $this->customer->email,
         ];
-
     }
 
     public function getShippingAddress()
@@ -108,8 +115,13 @@ class KlarnaCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $products = array_merge($products, $this->prepareWrappingArticle());
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle());
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat');
+
+        if ($wrappingVat == null) {
+            $wrappingVat = 2;
+        }
+        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
+        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
         $mergedProducts = $this->mergeProductsBySKU($products);
 
         $shippingCostArticle = $this->prepareShippingCostArticle();
@@ -120,7 +132,7 @@ class KlarnaCheckout extends Checkout
         return $mergedProducts;
     }
 
-    private function prepareBuckarooFeeArticle()
+    private function prepareBuckarooFeeArticle($wrappingVat)
     {
         $buckarooFee = $this->getBuckarooFee();
         if ($buckarooFee <= 0) {
@@ -131,8 +143,8 @@ class KlarnaCheckout extends Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
-            'vatPercentage' => Configuration::get('BUCKAROO_KLARNA_WRAPPING_VAT'),
-            'description' => 'buckaroo_fee'
+            'vatPercentage' => $wrappingVat,
+            'description' => 'buckaroo_fee',
         ];
     }
 

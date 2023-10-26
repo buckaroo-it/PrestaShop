@@ -22,7 +22,6 @@ class PayPerEmail extends PaymentMethod
     {
         $this->type = 'payperemail';
         $this->version = '1';
-        $this->mode = Config::getMode($this->type);
     }
 
     public function pay($customVars = [])
@@ -34,19 +33,6 @@ class PayPerEmail extends PaymentMethod
 
     public function getPayload($data)
     {
-        $payload = [
-            'customer' => [
-                'gender' => $data['gender'],
-                'firstName' => $data['first_name'],
-                'lastName' => $data['last_name'],
-            ],
-            'email' => $data['email'],
-            'merchantSendsEmail' => Config::get('BUCKAROO_PAYPEREMAIL_SEND_EMAIL'),
-            'expirationDate' => date('Y-m-d', strtotime('+' . (int) Config::get('BUCKAROO_PAYPEREMAIL_EXPIRE_DAYS') . 'day')),
-            'paymentMethodsAllowed' => Config::get('BUCKAROO_PAYPEREMAIL_ALLOWED_METHODS'), // 'ideal,mastercard,paypal',
-            'attachment' => '',
-        ];
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 }

@@ -16,44 +16,33 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+
 class PayPal extends PaymentMethod
 {
+    /**
+     * @var BuckarooConfigService
+     */
+    protected $buckarooConfigService;
+
     public function __construct()
     {
         $this->type = 'paypal';
         $this->version = 1;
-        $this->mode = Config::getMode($this->type);
+
+        $this->buckarooConfigService = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService();
     }
 
     // Seller protection payload
     public function getPayload($data)
     {
-        $payload = [
-            'customer' => [
-                'name' => $data['customer_name'],
-            ],
-            'address' => [
-                'street' => $data['address']['street'],
-                'street2' => $data['address']['street2'],
-                'city' => $data['address']['city'],
-                'zipcode' => $data['address']['zipcode'],
-                'country' => $data['address']['country'],
-            ],
-            'phone' => [
-                'mobile' => $data['phone'],
-            ],
-        ];
-
-        if ($data['address']['state'] !== null) {
-            $payload['address']['state'] = $data['address']['state'];
-        }
-
-        return $payload;
+        return array_merge_recursive($this->payload, $data);
     }
 
     public function pay($customVars = [])
     {
-        if (Config::get('BUCKAROO_PAYPAL_SELLER_PROTECTION_ENABLED')) {
+        $sellerProtection = $this->buckarooConfigService->getConfigValue('paypal', 'seller_protection');
+        if ($sellerProtection == '1') {
             // Pay with Seller Protection enabled
             $this->payload = $this->getPayload($customVars);
 

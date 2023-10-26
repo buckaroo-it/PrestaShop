@@ -26,10 +26,13 @@ class AfterPayCheckout extends Checkout
     public const CUSTOMER_TYPE_BOTH = 'both';
 
     protected $customVars = [];
+    protected $customerType;
 
     final public function setCheckout()
     {
         parent::setCheckout();
+
+        $this->customerType = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
         $this->customVars = [
             'clientIP' => $_SERVER['REMOTE_ADDR'],
@@ -39,19 +42,21 @@ class AfterPayCheckout extends Checkout
         ];
     }
 
-    public function getCocNumber(){
+    public function getCocNumber()
+    {
         $customerIdentificationNumber = Tools::getValue('customerIdentificationNumber');
+
         if (!empty($customerIdentificationNumber)) {
-            $identificationNumber = $customerIdentificationNumber;
+            return $customerIdentificationNumber;
         }
 
         $cocNumber = Tools::getValue('customerafterpaynew-coc');
 
         if (!empty($cocNumber) && strlen(trim($cocNumber)) !== 0) {
-            $identificationNumber = $cocNumber;
+            return $cocNumber;
         }
 
-        return $identificationNumber;
+        return '';
     }
 
     public function isRedirectRequired()
@@ -64,6 +69,10 @@ class AfterPayCheckout extends Checkout
         return false;
     }
 
+    /**
+     * @throws PrestaShopException
+     * @throws PrestaShopDatabaseException
+     */
     public function getBillingAddress()
     {
         $country = new Country($this->invoice_address->id_country);
@@ -73,9 +82,13 @@ class AfterPayCheckout extends Checkout
             $address_components['house_number'] = $this->invoice_address->address2;
         }
 
+        $category = ($this->customerType == self::CUSTOMER_TYPE_B2C) ? RecipientCategory::PERSON
+            : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? RecipientCategory::COMPANY
+                : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : RecipientCategory::PERSON));
+
         $payload = [
             'recipient' => [
-                'category' => (self::CUSTOMER_TYPE_B2C == Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
+                'category' => $category,
                 'conversationLanguage' => Tools::strtoupper($country->iso_code),
                 'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'firstName' => $this->invoice_address->firstname,
@@ -103,8 +116,7 @@ class AfterPayCheckout extends Checkout
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
 
-
-        if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')) {
+        if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
             if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
                 $payload['recipient']['companyName'] = $this->invoice_address->company;
                 $payload['recipient']['chamberOfCommerce'] = $this->getCocNumber();
@@ -117,8 +129,15 @@ class AfterPayCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $products = array_merge($products, $this->prepareWrappingArticle());
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle());
+
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('afterpay', 'wrapping_vat');
+
+        if ($wrappingVat == null) {
+            $wrappingVat = 2;
+        }
+
+        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
+        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
         $mergedProducts = $this->mergeProductsBySKU($products);
 
         $shippingCostArticle = $this->prepareShippingCostArticle();
@@ -129,7 +148,7 @@ class AfterPayCheckout extends Checkout
         return $mergedProducts;
     }
 
-    private function prepareBuckarooFeeArticle()
+    private function prepareBuckarooFeeArticle($wrappingVat)
     {
         $buckarooFee = $this->getBuckarooFee();
         if ($buckarooFee <= 0) {
@@ -140,8 +159,8 @@ class AfterPayCheckout extends Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
-            'vatPercentage' => Configuration::get('BUCKAROO_AFTERPAY_WRAPPING_VAT'),
-            'description' => 'buckaroo_fee'
+            'vatPercentage' => $wrappingVat,
+            'description' => 'buckaroo_fee',
         ];
     }
 
@@ -177,7 +196,7 @@ class AfterPayCheckout extends Checkout
 
             $payload = [
                 'recipient' => [
-                    'category' => (self::CUSTOMER_TYPE_B2C == Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
+                    'category' => (self::CUSTOMER_TYPE_B2C == $this->customerType) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
                     'conversationLanguage' => Tools::strtoupper($country->iso_code),
                     'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
                     'firstName' => $this->shipping_address->firstname,
@@ -198,7 +217,7 @@ class AfterPayCheckout extends Checkout
                 'email' => !empty($this->customer->email) ? $this->customer->email : '',
             ];
 
-            if (self::CUSTOMER_TYPE_B2C != Config::get('BUCKAROO_AFTERPAY_CUSTOMER_TYPE')) {
+            if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
                 if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
                     $payload['recipient']['companyName'] = $this->invoice_address->company;
                     $payload['recipient']['category'] = RecipientCategory::COMPANY;
@@ -211,7 +230,8 @@ class AfterPayCheckout extends Checkout
         return null;
     }
 
-    public function getBirthDate(){
+    public function getBirthDate()
+    {
         return date(
             'd-m-Y',
             strtotime(

@@ -15,14 +15,13 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo3\Prestashop\Controller;
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\Prestashop\Refund\OrderService;
-use Buckaroo\Prestashop\Refund\Request\Handler as RefundRequestHandler;
-use Buckaroo\Prestashop\Refund\Request\QuantityBasedBuilder;
-use Buckaroo\Prestashop\Refund\Request\Response\Handler as RefundResponseHandler;
-use Currency;
-use Order;
+use Buckaroo\PrestaShop\Src\Refund\OrderService;
+use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
+use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
+use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -81,6 +80,7 @@ class AdminRefundController extends FrameworkBundleAdminController
 
             $message = 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount);
             $this->addFlash('success', $message);
+
             return new JsonResponse(
                 ['error' => false, 'message' => $message]
             );
@@ -93,7 +93,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Send refund request to payment engine, return total amount refunded
      *
      * @param \Order $order
-     * @param float $maxRefundAmount
+     * @param float  $maxRefundAmount
      *
      * @return float
      */
@@ -115,9 +115,9 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Refund individual payment with amount, return remaining amount to be refunded
      *
-     * @param \Order $order
+     * @param \Order        $order
      * @param \OrderPayment $payment
-     * @param float $maxRefundAmount
+     * @param float         $maxRefundAmount
      *
      * @return float
      */
@@ -127,7 +127,7 @@ class AdminRefundController extends FrameworkBundleAdminController
         if ($maxRefundAmount > $payment->amount) {
             $refundAmount = $payment->amount;
         }
-        $maxRefundAmount = $maxRefundAmount - $refundAmount;
+        $maxRefundAmount -= $refundAmount;
 
         try {
             $this->orderService->refund($order, $refundAmount);
@@ -171,6 +171,7 @@ class AdminRefundController extends FrameworkBundleAdminController
     private function renderError(string $message): JsonResponse
     {
         $this->addFlash('error', $message);
+
         return new JsonResponse(['error' => true, 'message' => $message]);
     }
 
@@ -178,9 +179,12 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Format price based on order currency
      *
      * @param \Order $order
-     * @param float $price
+     * @param float  $price
      *
      * @return string
+     *
+     * @throws LocalizationException
+     * @throws \Exception
      */
     private function formatPrice(\Order $order, float $price): string
     {

@@ -15,7 +15,6 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
-// TODO Refactor this
 class IDeal extends PaymentMethod
 {
     public $issuer;
@@ -26,7 +25,6 @@ class IDeal extends PaymentMethod
     {
         $this->type = 'ideal';
         $this->version = 2;
-        $this->mode = Config::getMode($this->type);
     }
 
     // @codingStandardsIgnoreStart
@@ -35,10 +33,5 @@ class IDeal extends PaymentMethod
         $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
 
         return parent::pay();
-    }
-
-    public function refund()
-    {
-        return parent::refund();
     }
 }

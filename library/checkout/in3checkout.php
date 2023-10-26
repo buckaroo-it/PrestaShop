@@ -26,6 +26,7 @@ class In3Checkout extends Checkout
 
         $this->addRequiredDescription();
         $this->customVars = [
+            'invoiceDate' => date('d-m-Y'),
             'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
             'shipping' => $this->getShippingAddress(),
@@ -63,6 +64,7 @@ class In3Checkout extends Checkout
      * Get customer phone
      *
      * @param $address
+     *
      * @return string
      */
     public function getPhone($address)
@@ -158,11 +160,11 @@ class In3Checkout extends Checkout
     {
         $data = [
             'recipient' => [
-                'category'              => 'B2C',
-                'initials'              => initials($this->invoice_address->firstname),
-                'firstName'             => $this->invoice_address->firstname,
-                'lastName'              => $this->invoice_address->lastname,
-                'birthDate'             => date(
+                'category' => 'B2C',
+                'initials' => $this->initials($this->invoice_address->firstname),
+                'firstName' => $this->invoice_address->firstname,
+                'lastName' => $this->invoice_address->lastname,
+                'birthDate' => date(
                     'Y-m-d',
                     strtotime(
                         Tools::getValue('customerbirthdate_y_billing') . '-' .
@@ -170,9 +172,9 @@ class In3Checkout extends Checkout
                         Tools::getValue('customerbirthdate_d_billing')
                     )
                 ),
-                'customerNumber'        => ($this->cart->id_customer) ?: 'guest',
-                'phone'                 => $this->getPhone($this->invoice_address),
-                'country'               => Tools::strtoupper(
+                'customerNumber' => ($this->cart->id_customer) ?: 'guest',
+                'phone' => $this->getPhone($this->invoice_address),
+                'country' => Tools::strtoupper(
                     (new Country($this->invoice_address->id_country))->iso_code
                 ),
             ],
@@ -182,13 +184,10 @@ class In3Checkout extends Checkout
             'email' => $this->customer->email,
         ];
 
-
         $data['address'] = $this->getAddressData($this->invoice_address);
-
 
         return $data;
     }
-
 
     protected function getAddressData($address)
     {
@@ -199,11 +198,11 @@ class In3Checkout extends Checkout
         }
 
         $data = [
-            'street'                => $address_components['street'],
-            'houseNumber'           => $address_components['house_number'],
-            'zipcode'               => $address->postcode,
-            'city'                  => $address->city,
-            'country'               => Tools::strtoupper(
+            'street' => $address_components['street'],
+            'houseNumber' => $address_components['house_number'],
+            'zipcode' => $address->postcode,
+            'city' => $address->city,
+            'country' => Tools::strtoupper(
                 (new Country($address->id_country))->iso_code
             ),
         ];
@@ -224,9 +223,10 @@ class In3Checkout extends Checkout
     {
         if (!empty($this->shipping_address)) {
             return [
-                'address' => $this->getAddressData($this->shipping_address)
+                'address' => $this->getAddressData($this->shipping_address),
             ];
         }
+
         return null;
     }
 }
