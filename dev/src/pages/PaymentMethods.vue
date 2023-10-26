@@ -79,7 +79,7 @@ export default {
   },
   setup() {
     const payments = ref([])
-    const { get, data, loading } = useApi('index.php?fc=module&module=buckaroo3&controller=paymentMethods')
+    const { get, data, loading } = useApi('buckaroo_config_methods')
     const selectedPayment = ref(null)
 
     const getPayments = () => {

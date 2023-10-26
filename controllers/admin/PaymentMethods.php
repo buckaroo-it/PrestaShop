@@ -15,41 +15,43 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include_once dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
-class Buckaroo3VerificationMethodsModuleFrontController extends BaseApiController
+use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+
+class PaymentMethods extends BaseApiController
 {
-    private $buckarooConfigService;
+    private BuckarooConfigService $buckarooConfigService;
 
-    public function __construct()
+    public function __construct(BuckarooConfigService $buckarooConfigService)
     {
-        parent::__construct();
-
-        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
+        $this->buckarooConfigService = $buckarooConfigService;
     }
 
     public function initContent()
     {
-        parent::initContent();
-        $this->authenticate();
-
         $data = $this->getAllPaymentMethods();
 
-        $this->sendResponse($data);
+       return $this->sendResponse($data);
     }
 
     public function getAllPaymentMethods()
     {
         $payments = $this->getPaymentConfigurations();
 
-        return [
+        $data = [
             'status' => true,
             'payments' => $payments,
         ];
+
+        return $data;
     }
 
+    /**
+     * @throws Exception
+     */
     private function getPaymentConfigurations()
     {
-        return $this->buckarooConfigService->getVerificationMethodsFromDBWithConfig();
+        return $this->buckarooConfigService->getPaymentMethodsFromDBWithConfig();
     }
 }

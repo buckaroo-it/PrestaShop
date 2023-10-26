@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NOTICE OF LICENSE
  *
@@ -17,25 +18,24 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Buckaroo\PrestaShop\Src\Repository\BkConfigurationRepositoryInterface;
-use Buckaroo\PrestaShop\Src\Repository\BkPaymentMethodRepositoryInterface;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 
 class BuckarooConfigService
 {
-    private BkPaymentMethodRepositoryInterface $paymentMethodRepository;
-    private BkConfigurationRepositoryInterface $configurationRepository;
+    private $paymentMethodRepository;
+    private $configurationRepository;
     private $orderingRepository;
 
-    public function __construct(
-        BkPaymentMethodRepositoryInterface $paymentMethodRepository,
-        $orderingRepository,
-        BkConfigurationRepositoryInterface $configurationRepository
-    ) {
-        $this->configurationRepository = $configurationRepository;
-        $this->paymentMethodRepository = $paymentMethodRepository;
-        $this->orderingRepository = $orderingRepository;
+    public function __construct(EntityManager $entityManager)
+    {
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
+        $this->orderingRepository = $entityManager->getRepository(BkOrdering::class);
     }
 
     public function getConfigArrayForMethod($method)

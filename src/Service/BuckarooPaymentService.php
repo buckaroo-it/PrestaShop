@@ -19,7 +19,11 @@ namespace Buckaroo\PrestaShop\Src\Service;
 
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
@@ -35,26 +39,17 @@ class BuckarooPaymentService
     private $issuersPayByBank;
     private $capayableIn3;
 
-    public function __construct(
-        $module,
-        $buckarooConfigService,
-        $issuersPayByBank,
-        $logger,
-        $context,
-        $capayableIn3,
-        $buckarooFeeService,
-        $bkOrderingRepository,
-        $paymentMethodRepository
-    ) {
-        $this->module = $module;
+    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3)
+    {
+        $this->module = \Module::getInstanceByName('buckaroo3');
+        $this->logger = new \Logger(\Logger::INFO, '');
+        $this->context = \Context::getContext();
+        $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->buckarooFeeService = $buckarooFeeService;
         $this->buckarooConfigService = $buckarooConfigService;
         $this->issuersPayByBank = $issuersPayByBank;
-        $this->logger = $logger;
-        $this->context = $context;
-        $this->bkOrderingRepository = $bkOrderingRepository;
         $this->capayableIn3 = $capayableIn3;
-        $this->buckarooFeeService = $buckarooFeeService;
-        $this->paymentMethodRepository = $paymentMethodRepository;
     }
 
     public function getPaymentOptions($cart)
@@ -263,6 +258,10 @@ class BuckarooPaymentService
 
     public function getBuckarooLabel($method, $label)
     {
+        if ($method == 'in3' && $this->capayableIn3->isV3()) {
+           $label = 'iDEAL In3';
+        }
+
         if ($method == 'in3Old') {
             $method = 'in3';
         }

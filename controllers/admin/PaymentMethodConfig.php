@@ -15,32 +15,30 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
+use Tools;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
 
-class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiController
+
+class PaymentMethodConfig extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;
-    public $module;
 
-    public function __construct()
+    public function __construct(BuckarooConfigService $buckarooConfigService)
     {
-        parent::__construct();
-        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
+        $this->buckarooConfigService = $buckarooConfigService;
     }
 
     public function initContent()
     {
-        parent::initContent();
-        $this->authenticate();
-
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $this->handleGet();
+                return $this->handleGet();
                 break;
             case 'POST':
-                $this->handlePost();
+                return $this->handlePost();
                 break;
         }
     }
@@ -51,9 +49,7 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
         $paymentName = Tools::getValue('paymentName');
 
         if (!$paymentName) {
-            $this->sendErrorResponse('Payment name is missing.', 400);
-
-            return;
+            return $this->sendErrorResponse('Payment name is missing.', 400);
         }
 
         $data = [
@@ -63,7 +59,7 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
             ],
         ];
 
-        $this->sendResponse($data);
+       return $this->sendResponse($data);
     }
 
     private function handlePost()
@@ -72,11 +68,9 @@ class Buckaroo3PaymentMethodConfigModuleFrontController extends BaseApiControlle
 
         $paymentName = Tools::getValue('paymentName');
         if (!$paymentName || !$data) {
-            $this->sendErrorResponse('Invalid data provided.', 400);
-
-            return;
+           return  $this->sendErrorResponse('Invalid data provided.', 400);
         }
         $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
-        $this->sendResponse(['status' => $result]);
+       return $this->sendResponse(['status' => $result]);
     }
 }

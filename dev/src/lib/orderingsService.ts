@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { useApi } from "./api";
 
 export const useOrderingsService = () => {
-    const { get, post, data } = useApi(`index.php?fc=module&module=buckaroo3&controller=orderings`);
+    const { get, post, data } = useApi(`buckaroo_config_orderings`);
     const paymentOrderings = ref(null);
 
     const getOrdering = (countryCode: string) => {

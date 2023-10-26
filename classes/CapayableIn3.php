@@ -16,15 +16,8 @@
  */
 
 namespace Buckaroo\PrestaShop\Classes;
-
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-
 class CapayableIn3
 {
-    /**
-     * @var BuckarooConfigService
-     */
-    protected BuckarooConfigService $buckarooConfigService;
     protected $apiVersion;
     protected $paymentLogo;
     public const VERSION_V2 = 'V2';
@@ -32,11 +25,10 @@ class CapayableIn3
     public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
-    public function __construct()
+    public function __construct($buckarooConfigService)
     {
-        $this->buckarooConfigService = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService();
-        $this->apiVersion = $this->buckarooConfigService->getConfigValue('in3', 'version');
-        $this->paymentLogo = $this->buckarooConfigService->getConfigValue('in3', 'payment_logo');
+        $this->apiVersion = $buckarooConfigService->getConfigValue('in3', 'version');
+        $this->paymentLogo = $buckarooConfigService->getConfigValue('in3', 'payment_logo');
     }
 
     public function isV3(): bool

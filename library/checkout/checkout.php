@@ -14,7 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
@@ -124,6 +126,11 @@ abstract class Checkout
      */
     protected $buckarooConfigService;
 
+    /**
+     * @var BuckarooFeeService
+     */
+    protected $buckarooFeeService;
+
     public function __construct($cart)
     {
         $this->initialize();
@@ -137,6 +144,7 @@ abstract class Checkout
         }
         $this->products = $this->cart->getProducts();
         $this->buckarooConfigService = $this->module->getBuckarooConfigService();
+        $this->buckarooFeeService = $this->module->getBuckarooFeeService();
     }
 
     abstract protected function initialize();
@@ -170,8 +178,7 @@ abstract class Checkout
     public function getBuckarooFee()
     {
         $payment_method = Tools::getValue('method');
-        $buckarooFeeService = $this->module->getBuckarooFeeService();
-        if ($buckarooFee = $buckarooFeeService->getBuckarooFeeValue($payment_method)) {
+        if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
             // Remove any whitespace from the fee.
             $buckarooFee = trim($buckarooFee);
 

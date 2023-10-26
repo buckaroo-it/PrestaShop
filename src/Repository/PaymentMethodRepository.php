@@ -17,7 +17,6 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-use Buckaroo\PrestaShop\Classes\CapayableIn3;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
@@ -40,7 +39,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
             throw new \Exception('Database error: Could not fetch payment methods with config');
         }
 
-        $capayableIn3 = new CapayableIn3();
+        $capayableIn3 = \Module::getInstanceByName('buckaroo3')->get('buckaroo.classes.issuers.capayableIn3');
 
         $payments = [];
         foreach ($results as $result) {
