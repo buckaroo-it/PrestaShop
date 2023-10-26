@@ -15,32 +15,26 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService;
 
-class Buckaroo3SettingsModuleFrontController extends BaseApiController
+class Settings extends BaseApiController
 {
     private BuckarooSettingsService $settingsService;
 
     public function __construct()
     {
-        parent::__construct();
         $this->settingsService = new BuckarooSettingsService();
     }
 
     public function initContent()
     {
-        parent::initContent();
-        $this->authenticate();
-
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $this->handleGet();
-                break;
+                return $this->handleGet();
             case 'POST':
-                $this->handlePost();
-                break;
+                return $this->handlePost();
         }
     }
 
@@ -51,7 +45,7 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
             'settings' => $this->settingsService->getSettings(),
         ];
 
-        $this->sendResponse($data);
+       return $this->sendResponse($data);
     }
 
     private function handlePost()
@@ -66,9 +60,8 @@ class Buckaroo3SettingsModuleFrontController extends BaseApiController
                 'settings' => $this->settingsService->getSettings(),
             ];
 
-            $this->sendResponse($data);
-        } else {
-            $this->sendErrorResponse('Invalid input data', 400);
+           return $this->sendResponse($data);
         }
+        return $this->sendErrorResponse('Invalid input data', 400);
     }
 }

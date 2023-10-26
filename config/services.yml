@@ -109,3 +109,89 @@ services:
       - '@=service("prestashop.adapter.data_provider.currency").getDefaultCurrency()'
     tags:
       - { name: form.type }
+
+  buckaroo.config.api.config.service:
+    class:  Buckaroo\PrestaShop\Src\Service\BuckarooConfigService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.paymentMethod:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethodConfig
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.countries.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.countries:
+    class: Buckaroo\PrestaShop\Controllers\admin\Countries
+    arguments:
+      - "@buckaroo.config.countries.service"
+    public: true
+
+  buckaroo.config.controllers.creditcards:
+    class: Buckaroo\PrestaShop\Controllers\admin\Creditcards
+    public: true
+
+  buckaroo.config.controllers.orderings:
+    class: Buckaroo\PrestaShop\Controllers\admin\Orderings
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.methodMode:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethodMode
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.controllers.methods:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethods
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+  
+  buckaroo.config.controllers.settings:
+    class: Buckaroo\PrestaShop\Controllers\admin\Settings
+    public: true
+
+  buckaroo.config.controllers.testCredentials:
+    class: Buckaroo\PrestaShop\Controllers\admin\TestCredentialsApi
+    public: true
+    
+  buckaroo.config.controllers.verificationMethods:
+    class: Buckaroo\PrestaShop\Controllers\admin\VerificationMethods
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.api.fee.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooFeeService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.classes.issuers.payByBank:
+    class: Buckaroo\PrestaShop\Classes\IssuersPayByBank
+    public: true
+
+  buckaroo.classes.issuers.capayableIn3:
+    class: Buckaroo\PrestaShop\Classes\CapayableIn3
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.api.payment.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.config.api.fee.service"
+      - "@buckaroo.config.api.config.service"
+      - "@buckaroo.classes.issuers.payByBank"
+      - "@buckaroo.classes.issuers.capayableIn3"
+    public: true

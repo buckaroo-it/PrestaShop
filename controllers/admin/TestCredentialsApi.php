@@ -15,16 +15,12 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\BuckarooClient;
 
-class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
+class TestCredentialsApi extends BaseApiController
 {
-    public function initContent()
-    {
-        parent::initContent();
-    }
 
     /**
      * @throws PrestaShopException
@@ -34,15 +30,15 @@ class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
         $data = $this->getJsonInput();
 
         if (empty($data['website_key']) || empty($data['secret_key'])) {
-            $this->ajaxRender(json_encode([
+            return $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing website_key or secret_key',
-            ]));
+            ]);
         }
 
         $buckarooClient = new BuckarooClient($data['website_key'], $data['secret_key']);
         $status = $buckarooClient->confirmCredential();
 
-        $this->ajaxRender(json_encode(['status' => $status]));
+        return $this->sendResponse(['status' => $status]);
     }
 }

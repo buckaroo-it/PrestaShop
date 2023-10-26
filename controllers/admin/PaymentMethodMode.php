@@ -15,40 +15,33 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
+use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
 
-class Buckaroo3PaymentMethodModeModuleFrontController extends BaseApiController
+class PaymentMethodMode extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;
 
-    public function __construct()
+    public function __construct(BuckarooConfigService $buckarooConfigService)
     {
-        parent::__construct();
-
-        $this->buckarooConfigService = $this->module->getBuckarooConfigService();
+        $this->buckarooConfigService = $buckarooConfigService;
     }
 
-    public function initContent()
+    public function initContent(Request $request)
     {
-        parent::initContent();
-        $this->authenticate();
-
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->sendErrorResponse('Invalid request method', 405); // 405: Method Not Allowed
-
-            return;
+            return $this->sendErrorResponse('Invalid request method', 405); // 405: Method Not Allowed
         }
 
         $data = $this->getJsonInput();
         if (!isset($data['name'], $data['mode'])) {
-            $this->sendErrorResponse('Required data not provided', 400); // 400: Bad Request
-
-            return;
+            return $this->sendErrorResponse('Required data not provided', 400); // 400: Bad Request
         }
 
         $this->buckarooConfigService->updatePaymentMethodMode($data['name'], $data['mode']);
-        $this->sendResponse(['status' => true]);
+       return $this->sendResponse(['status' => true]);
     }
 }
