@@ -25,7 +25,7 @@ class TestCredentialsApi extends BaseApiController
     /**
      * @throws PrestaShopException
      */
-    public function postProcess()
+    public function initContent()
     {
         $data = $this->getJsonInput();
 
