@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - "prestashop-plugin-vue"
       - develop
       - 'releases/**'
   pull_request:
