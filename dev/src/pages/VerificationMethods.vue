@@ -50,7 +50,7 @@ export default {
   },
   setup() {
     const payments = ref([])
-    const { get, data, loading } = useApi('index.php?fc=module&module=buckaroo3&controller=verificationMethods')
+    const { get, data, loading } = useApi('buckaroo_config_verificationMethods')
     const selectedVerification = ref(null)
 
     const getPayments = () => {

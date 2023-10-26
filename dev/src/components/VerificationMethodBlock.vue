@@ -53,7 +53,7 @@ export default {
     },
     setup(props) {
         const { toastr } = useToastr()
-        const { post, data, loading, setEndpoint } = useApi('index.php?fc=module&module=buckaroo3&controller=paymentMethodMode')
+        const { post, data, loading, setEndpoint } = useApi('buckaroo_config_methodMode')
         const paymentState = ref((props.payment.config)? (props.payment.config.value.enabled ?? 0) : 0)
         const baseUrl = inject('baseUrl');
 

@@ -15,34 +15,30 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include_once dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
+use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
-class Buckaroo3CountriesModuleFrontController extends BaseApiController
+class Creditcards extends BaseApiController
 {
-    private BuckarooCountriesService $buckarooCountriesService;
-    public $module;
+    private RawCreditCardsRepository $creditCardsRepository;
 
     public function __construct()
     {
-        parent::__construct();
-
-        $this->buckarooCountriesService = $this->module->getBuckarooCountriesService();
+        $this->creditCardsRepository = new RawCreditCardsRepository();
     }
 
     public function initContent()
     {
-        parent::initContent();
-        $this->authenticate();
 
-        $countries = $this->buckarooCountriesService->synchronizeCountries();
+        $countries = $this->creditCardsRepository->getCreditCardsFromDB();
 
         $data = [
             'status' => true,
-            'countries' => $countries,
+            'creditcards' => $countries,
         ];
 
-        $this->sendResponse($data);
+       return $this->sendResponse($data);
     }
 }

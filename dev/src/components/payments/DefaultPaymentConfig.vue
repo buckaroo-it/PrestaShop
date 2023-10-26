@@ -191,7 +191,7 @@ export default {
     },
     setup(props) {
 
-        const { get, data, loading, post, setEndpoint } = useApi(`index.php?fc=module&module=buckaroo3&controller=paymentMethodConfig&paymentName=${props.payment.name}`)
+        const { get, data, loading, post, setEndpoint } = useApi(`buckaroo_config_paymentMethod`)
         const { toastr } = useToastr()
         const { countries } = useCountries()
         const selectCountry = ref(null)
@@ -210,7 +210,7 @@ export default {
         provide('config', config)
 
         const getConfig = () => {
-            get().then(() => {
+            get({paymentName:props.payment.name}).then(() => {
               if(data.value.status) {
                     if(data.value.config) {
                         config.value = data.value.config.value
@@ -232,7 +232,7 @@ export default {
         }
 
         const updateConfig = () => {
-            post(config.value).then(() => {
+            post(config.value, {paymentName:props.payment.name}).then(() => {
                 if(data.value.status) {
                     toastr.success(`Settings successfully updated.`)
 

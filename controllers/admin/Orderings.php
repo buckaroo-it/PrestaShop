@@ -15,43 +15,40 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include_once dirname(__FILE__) . '/BaseApiController.php';
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
-class Buckaroo3OrderingsModuleFrontController extends BaseApiController
+use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
+
+class Orderings extends BaseApiController
 {
     private $bkOrderingRepository;
     public $module;
 
-    public function __construct()
+    public function __construct(EntityManager $entityManager)
     {
-        parent::__construct();
-
-        $this->bkOrderingRepository = $this->module->getBuckarooOrderingRepository();
+        $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
     }
 
     public function initContent()
     {
-        parent::initContent();
-        $this->authenticate();
-
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
-                $this->handleGet();
-                break;
+                return $this->handleGet();
             case 'POST':
-                $this->handlePost();
-                break;
+                return $this->handlePost();
         }
     }
 
     private function handleGet()
     {
-        $countryCode = Tools::getValue('country');
+        $countryCode = \Tools::getValue('country');
         $countryCode = !empty($countryCode) ? $countryCode : null;
 
         $ordering = $this->getOrdering($countryCode);
 
-        $this->sendResponse([
+       return $this->sendResponse([
             'status' => true,
             'orderings' => $ordering,
         ]);
@@ -70,16 +67,14 @@ class Buckaroo3OrderingsModuleFrontController extends BaseApiController
         $value = $this->getValueOrNull($data, 'value');
 
         if (!$value) {
-            $this->sendResponse([
+           return $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing or invalid data',
             ]);
-
-            return;
         }
 
         $result = $this->bkOrderingRepository->updateOrdering(json_encode($value), $countryId);
-        $this->sendResponse(['status' => $result]);
+       return $this->sendResponse(['status' => $result]);
     }
 
     private function getValueOrNull(array $data, $key)

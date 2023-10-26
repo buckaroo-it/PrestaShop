@@ -8,7 +8,7 @@ const query = ref(null)
 
 export const useCountries = () => {
 
-    const { get, data } = useApi('index.php?fc=module&module=buckaroo3&controller=countries')
+    const { get, data } = useApi('buckaroo_config_countries')
 
     get().then(() => {
         if(data.value.status) {
