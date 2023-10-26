@@ -102,7 +102,7 @@ class Handler
     private function createNegativePayment(\Order $order)
     {
         if (
-            \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT) == true
+            \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT)
             && $this->refundIsSuccessful()
         ) {
             $this->paymentService->create(

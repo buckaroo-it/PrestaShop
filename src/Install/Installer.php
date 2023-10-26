@@ -165,10 +165,9 @@ class Installer implements InstallerInterface
         $destinationFile = $destinationDir . 'Mail.php';
 
         // Check if destination directory exists, create it if necessary
-        if (!is_dir($destinationDir)) {
-            if (!mkdir($destinationDir, 0755, true)) {
-                throw new \Exception("Failed to create destination directory '{$destinationDir}'");
-            }
+        if (!is_dir($destinationDir)
+            && !mkdir($destinationDir, 0755, true)) {
+            throw new \Exception("Failed to create destination directory '{$destinationDir}'");
         }
 
         // Attempt to copy the file
@@ -187,10 +186,9 @@ class Installer implements InstallerInterface
         $destinationFile = $destinationDir . 'Product.php';
 
         // Check if destination directory exists, create it if necessary
-        if (!is_dir($destinationDir)) {
-            if (!mkdir($destinationDir, 0755, true)) {
-                throw new \Exception("Failed to create destination directory '{$destinationDir}'");
-            }
+        if (!is_dir($destinationDir)
+            && !mkdir($destinationDir, 0755, true)) {
+            throw new \Exception("Failed to create destination directory '{$destinationDir}'");
         }
 
         // Attempt to copy the file

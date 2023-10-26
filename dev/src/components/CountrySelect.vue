@@ -7,7 +7,7 @@
 
         <ul class="text-sm" v-if="query">
             <li v-for="country in filteredCountries" class="p-3 flex space-x-2 hover:bg-secondary hover:text-gray-700 cursor-pointer" @click="selectCountry(country)">
-                <img :src="`/img/flags/${ country.icon }`" class="w-4" />
+                <img :src="`/img/flags/${ country.icon }`" class="w-4" alt=""/>
                 <span class="block">{{ $t(`countries.${ country.name }`) }}</span>
             </li>
         </ul>

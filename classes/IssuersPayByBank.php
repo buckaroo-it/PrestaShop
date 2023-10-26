@@ -84,7 +84,7 @@ class IssuersPayByBank
         $selectedIssuer = array_filter($issuers, function ($issuer) {
             return $issuer['selected'];
         });
-        if (count($selectedIssuer) > 0) {
+        if (!empty($selectedIssuer)) {
             $selectedIssuer = reset($selectedIssuer);
 
             return '../../PayByBank issuers/' . $selectedIssuer['logo'];

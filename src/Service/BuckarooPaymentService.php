@@ -235,20 +235,21 @@ class BuckarooPaymentService
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
+        $logoPath =  '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
         // Custom conditions for specific payment methods
         switch ($method) {
             case 'paybybank':
-                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $this->issuersPayByBank->getSelectedIssuerLogo();
+                $logoPath .= $this->issuersPayByBank->getSelectedIssuerLogo();
                 break;
             case 'in3Old':
             case 'in3':
-                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $this->capayableIn3->getLogo();
+                $logoPath .= $this->capayableIn3->getLogo();
                 break;
             case 'idin':
                 $logoPath = '/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/' . $details->getIcon();
                 break;
             default:
-                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
+                $logoPath .= $details->getIcon();
                 break;
         }
         $newOption->setLogo($logoPath);
@@ -281,7 +282,8 @@ class BuckarooPaymentService
 
     private function getLabel($configArray, $defaultLabel)
     {
-        return (isset($configArray['frontend_label']) && $configArray['frontend_label'] !== '') ? $configArray['frontend_label'] : $defaultLabel;
+        return (isset($configArray['frontend_label'])
+            && $configArray['frontend_label'] !== '') ? $configArray['frontend_label'] : $defaultLabel;
     }
 
     /**
@@ -338,14 +340,23 @@ class BuckarooPaymentService
     {
         $afterpay_customer_type = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
-        return $this->shouldShowCoc($cart, $afterpay_customer_type, \AfterPayCheckout::CUSTOMER_TYPE_B2B, \AfterPayCheckout::CUSTOMER_TYPE_B2C);
+        return $this->shouldShowCoc(
+            $cart,
+            $afterpay_customer_type,
+            \AfterPayCheckout::CUSTOMER_TYPE_B2B,
+            \AfterPayCheckout::CUSTOMER_TYPE_B2C
+        );
     }
 
     public function showBillinkCoc($cart)
     {
         $billink_customer_type = $this->buckarooConfigService->getConfigValue('billink', 'customer_type');
 
-        return $this->shouldShowCoc($cart, $billink_customer_type, \BillinkCheckout::CUSTOMER_TYPE_B2B, \BillinkCheckout::CUSTOMER_TYPE_B2C);
+        return $this->shouldShowCoc(
+            $cart,
+            $billink_customer_type,
+            \BillinkCheckout::CUSTOMER_TYPE_B2B,
+            \BillinkCheckout::CUSTOMER_TYPE_B2C);
     }
 
     private function shouldShowCoc($cart, $customer_type, $typeB2B, $typeB2C)
@@ -379,14 +390,12 @@ class BuckarooPaymentService
      *
      * @param mixed $id
      *
-     * @return \Address|null
+     * @return \Address|void
      */
     protected function getAddressById($id)
     {
-        if (!is_int($id)) {
-            return;
+        if (is_int($id)) {
+            return new \Address($id);
         }
-
-        return new \Address($id);
     }
 }

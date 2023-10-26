@@ -400,61 +400,37 @@ class Buckaroo3 extends PaymentModule
         if (!$this->active) {
             return;
         }
+        if(Tools::getValue('response_received')
+            || (Tools::getValue('id_order') && Tools::getValue('success'))){
 
-        if (Tools::getValue('response_received')) {
-            switch (Tools::getValue('response_received')) {
-                case 'transfer':
-                    $order = new Order(Tools::getValue('id_order'));
-                    $price = $order->getOrdersTotalPaid();
-                    $message = $this->context->cookie->HtmlText;
-                    $this->context->smarty->assign(
-                        [
-                            'is_guest' => ($this->context->customer->is_guest
-                                || $this->context->customer->id == false),
-                            'order' => $order,
-                            'message' => $message,
-                            'price' => $this->formatPrice($price),
-                        ]
-                    );
+            $order = new Order(Tools::getValue('id_order'));
+            $price = $this->formatPrice($order->getOrdersTotalPaid());
+            $isGuest = $this->context->customer->is_guest || !$this->context->customer->id;
 
-                    return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
-                default:
-                    $order = new Order(Tools::getValue('id_order'));
-                    $price = $order->getOrdersTotalPaid();
-                    $this->context->smarty->assign(
-                        [
-                            'is_guest' => ($this->context->customer->is_guest
-                                || $this->context->customer->id == false),
-                            'order' => $order,
-                            'price' => $this->formatPrice($price),
-                        ]
-                    );
+            if(Tools::getValue('response_received') == 'transfer'){
 
-                    return $this->display(__FILE__, 'payment_return_success.tpl');
+                $this->context->smarty->assign(
+                    [
+                        'is_guest' =>  $isGuest,
+                        'order' => $order,
+                        'price' => $price,
+                        'message' => $this->context->cookie->HtmlText
+                    ]
+                );
+                return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
             }
-        } else {
-            if (Tools::getValue('id_order') && Tools::getValue('success')) {
-                $order = new Order(Tools::getValue('id_order'));
-                if ($order) {
-                    $price = $order->getOrdersTotalPaid();
-                    $this->context->smarty->assign(
-                        [
-                            'is_guest' => ($this->context->customer->is_guest || $this->context->customer->id == false), // phpcs:ignore
-                            'order' => $order,
-                            'price' => $this->formatPrice($price),
-                        ]
-                    );
+            $this->context->smarty->assign(
+                [
+                    'is_guest' => $isGuest,
+                    'order' => $order,
+                    'price' => $this->formatPrice($price),
+                ]
+            );
+            return $this->display(__FILE__, 'payment_return_success.tpl');
 
-                    return $this->display(__FILE__, 'payment_return_success.tpl');
-                } else {
-                    Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
-                    exit;
-                }
-            } else {
-                Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
-                exit;
-            }
         }
+        Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
+        exit;
     }
 
     public function hookDisplayHeader()
@@ -581,16 +557,13 @@ class Buckaroo3 extends PaymentModule
     {
         $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
         $configArray = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
-        if ($configArray === null) {
-            return false;
+        if (!empty($configArray)) {
+            if ($isLive === 0) {
+                return isset($configArray['mode']) && $configArray['mode'] === 'test';
+            } elseif ($isLive === 1) {
+                return isset($configArray['mode']) && $configArray['mode'] === 'live';
+            }
         }
-
-        if ($isLive === 0) {
-            return isset($configArray['mode']) && $configArray['mode'] === 'test';
-        } elseif ($isLive === 1) {
-            return isset($configArray['mode']) && $configArray['mode'] === 'live';
-        }
-
         return false;
     }
 

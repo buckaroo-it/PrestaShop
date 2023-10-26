@@ -84,7 +84,6 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
     ];
 
-    // protected $current_order;
     protected $payment_request;
     protected $payment_response;
     /* @var $cart CartCore */
