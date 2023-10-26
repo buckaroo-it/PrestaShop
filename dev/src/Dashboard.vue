@@ -24,7 +24,7 @@ import VerificationMethods from "./pages/VerificationMethods.vue";
 
 export default {
   name: "Dashboard",
-  props: ['jwt', 'baseUrl'],
+  props: ['token', 'baseUrl'],
   components: {
     VerificationMethods,
     Menu,
@@ -38,7 +38,7 @@ export default {
     const paymentMethodsRef = ref(null)
 
     provide('view', view)
-    provide('signedJWT', props.jwt)
+    provide('csrfToken', props.token)
     provide('baseUrl', props.baseUrl)
 
     const changedView = (view) => {

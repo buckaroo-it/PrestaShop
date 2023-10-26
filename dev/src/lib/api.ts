@@ -1,15 +1,12 @@
 import axios from 'axios';
 import { computed, ref, watch, inject } from 'vue';
+import Router from './router';
 
-export const useApi = (endpoint: string, access_token?: string) => {
-    const signedJWT = inject('signedJWT')
-    const baseUrl = inject('baseUrl')
+export const useApi = (endpoint: string) => {
+    const csrfToken: string = inject('csrfToken')
+    const baseUrl: string = inject('baseUrl')
 
-    var endPoint = endpoint
-    var headers = {
-        Authorization: `Bearer ${signedJWT ?? access_token}`,
-        'Content-Type': 'application/json'
-    }
+    let router = new Router(baseUrl, csrfToken)
 
     const data = ref();
     const loading = ref(false);
@@ -22,26 +19,10 @@ export const useApi = (endpoint: string, access_token?: string) => {
     const get = (query?: Record<string, any>) => {
         loading.value = true
         error.value = undefined
-
-        let queryString = ''
-
-        if (query) {
-            queryString =
-                '?' +
-                Object.entries(query)
-                    .map(
-                        ([key, value]) =>
-                            `${encodeURIComponent(key)}=${encodeURIComponent(
-                                value
-                            )}`
-                    )
-                    .join('&')
-        }
-
+        console.log(router.generate(endpoint, query));
+        
         return api
-            .get(endPoint + queryString, {
-                headers: headers
-            })
+            .get(router.generate(endpoint, query))
             .then((res) => (data.value = res.data))
             .catch((e) => {
                 error.value = e
@@ -51,14 +32,12 @@ export const useApi = (endpoint: string, access_token?: string) => {
             .finally(() => (loading.value = false))
     }
 
-    const post = (payload?: Record<string, any>) => {
+    const post = (payload?: Record<string, any>, query?: Record<string, any>) => {
         loading.value = true
         error.value = undefined
-
+        console.log(router.generate(endpoint, query));
         return api
-            .post(endPoint, payload, {
-                headers: headers
-            })
+            .post(router.generate(endpoint, query), payload)
             .then((res) => (data.value = res.data))
             .catch((e) => {
                 error.value = e;

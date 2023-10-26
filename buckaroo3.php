@@ -281,12 +281,16 @@ class Buckaroo3 extends PaymentModule
 
     public function getContent()
     {
-        $jwt = new JWTAuth();
-        $token = $this->generateToken($jwt);
+        $tokenManager = $this->get('security.csrf.token_manager');
+        $userProvider = $this->get('prestashop.user_provider');
+
+        $token = $tokenManager->getToken(
+            $userProvider->getUsername()
+        )->getValue();
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
-            'baseUrl' => $this->context->shop->getBaseURL(true),
-            'jwt' => $token,
+            'baseUrl' => explode("?",$this->context->link->getAdminLink(AdminDashboard::class))[0],
+            'token' => $token,
         ]);
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
@@ -729,15 +733,7 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooConfigService()
     {
-        if (!isset($this->buckarooConfigService)) {
-            $bkPaymentMethodRepository = $this->getRepository(BkPaymentMethods::class, BkPaymentMethodRepositoryInterface::class);
-            $bkOrderingRepository = $this->getBuckarooOrderingRepository();
-            $bkConfigurationRepository = $this->getRepository(BkConfiguration::class, BkConfigurationRepositoryInterface::class);
-
-            $this->buckarooConfigService = new BuckarooConfigService($bkPaymentMethodRepository, $bkOrderingRepository, $bkConfigurationRepository);
-        }
-
-        return $this->buckarooConfigService;
+        return $this->get('buckaroo.config.api.config.service');
     }
 
     public function getBuckarooFeeService()

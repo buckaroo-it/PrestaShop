@@ -59,7 +59,7 @@ export default {
         const activatedCreditcards = ref(props.modelValue ?? []);
         const baseUrl = inject('baseUrl');
 
-        const { get, data } = useApi('index.php?fc=module&module=buckaroo3&controller=creditcards');
+        const { get, data } = useApi('buckaroo_config_creditcards');
 
         get().then(() => {
             if(data.value.status) {
