@@ -268,7 +268,6 @@ export default {
 
     const testCredentials = async () => {
       credentialsAreValid.value = null;
-
       if (settings.value.website_key && settings.value.secret_key) {
         try {
           await testCredentialsApi.post({

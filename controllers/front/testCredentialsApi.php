@@ -15,17 +15,12 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-include dirname(__FILE__) . '/BaseApiController.php';
+include_once dirname(__FILE__) . '/BaseApiController.php';
 
 use Buckaroo\BuckarooClient;
 
 class Buckaroo3TestCredentialsApiModuleFrontController extends BaseApiController
 {
-    public function initContent()
-    {
-        parent::initContent();
-    }
-
     /**
      * @throws PrestaShopException
      */
