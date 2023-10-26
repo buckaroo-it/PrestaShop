@@ -17,17 +17,16 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Doctrine\ORM\EntityManager;
 use Buckaroo\PrestaShop\Src\Entity\BkCountries;
-use Buckaroo\PrestaShop\Src\Repository\BkCountriesRepositoryInterface;
+use Doctrine\ORM\EntityManager;
 
 class BuckarooCountriesService
 {
-    protected BkCountriesRepositoryInterface $countryRepository;
+    protected $countryRepository;
 
     public function __construct(EntityManager $entityManager)
     {
-        $this->countryRepository = $entityManager->getRepository(BkCountries::class, BkCountriesRepositoryInterface::class);;
+        $this->countryRepository = $entityManager->getRepository(BkCountries::class);
     }
 
     public function synchronizeCountries()

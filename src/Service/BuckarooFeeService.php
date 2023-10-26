@@ -17,20 +17,21 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class BuckarooFeeService
 {
     private $paymentMethodRepository;
     private $configurationRepository;
-    public $logger;
     private $locale;
 
-    public function __construct($bkConfigurationRepository, $bkPaymentMethodRepository, $logger)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->configurationRepository = $bkConfigurationRepository;
-        $this->paymentMethodRepository = $bkPaymentMethodRepository;
-        $this->logger = $logger;
+        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
         $this->locale = \Tools::getContextLocale(\Context::getContext());
     }
 
@@ -68,8 +69,6 @@ class BuckarooFeeService
         $paymentMethod = $this->paymentMethodRepository->findOneByName($method);
 
         if (!$paymentMethod) {
-            $this->logger->logError('Payment method not found: ' . $method);
-
             return null;
         }
 

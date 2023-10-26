@@ -19,9 +19,9 @@ export default class Router {
 
  private token:string;
 
-  constructor(baseUrl: string, token:string) {
+  constructor(adminUrl: string, token:string) {
     Routing.setData(routes);
-    Routing.setBaseUrl(baseUrl);
+    Routing.setBaseUrl(adminUrl);
     this.token = token;
     return this;
   }

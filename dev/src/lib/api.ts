@@ -4,23 +4,22 @@ import Router from './router';
 
 export const useApi = (endpoint: string) => {
     const csrfToken: string = inject('csrfToken')
-    const baseUrl: string = inject('baseUrl')
+    const adminUrl: string = inject('adminUrl')
 
-    let router = new Router(baseUrl, csrfToken)
+    let router = new Router(adminUrl, csrfToken)
 
     const data = ref();
     const loading = ref(false);
     const error = ref();
 
     const api = axios.create({
-        baseURL: baseUrl + ''
+        baseURL: adminUrl + ''
     })
 
     const get = (query?: Record<string, any>) => {
         loading.value = true
         error.value = undefined
-        console.log(router.generate(endpoint, query));
-        
+
         return api
             .get(router.generate(endpoint, query))
             .then((res) => (data.value = res.data))
@@ -35,7 +34,6 @@ export const useApi = (endpoint: string) => {
     const post = (payload?: Record<string, any>, query?: Record<string, any>) => {
         loading.value = true
         error.value = undefined
-        console.log(router.generate(endpoint, query));
         return api
             .post(router.generate(endpoint, query), payload)
             .then((res) => (data.value = res.data))

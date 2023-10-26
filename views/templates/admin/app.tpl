@@ -13,9 +13,10 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <div id="app">
-{$baseUrl|escape:'htmlall':'UTF-8'}
     <Dashboard
             token="{$token|escape:'htmlall':'UTF-8'}"
-            base-url="{$baseUrl|escape:'htmlall':'UTF-8'}"></Dashboard>
+            base-url="{$baseUrl|escape:'htmlall':'UTF-8'}"
+            admin-url="{$adminUrl|escape:'htmlall':'UTF-8'}">
+    </Dashboard>
 </div>
 <script type="module" src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>

@@ -24,19 +24,17 @@ use Doctrine\ORM\OptimisticLockException;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
-use Buckaroo\PrestaShop\Src\Repository\BkConfigurationRepositoryInterface;
-use Buckaroo\PrestaShop\Src\Repository\BkPaymentMethodRepositoryInterface;
 
 class BuckarooConfigService
 {
-    private BkPaymentMethodRepositoryInterface $paymentMethodRepository;
-    private BkConfigurationRepositoryInterface $configurationRepository;
+    private $paymentMethodRepository;
+    private $configurationRepository;
     private $orderingRepository;
 
     public function __construct(EntityManager $entityManager)
     {
-        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class, BkPaymentMethodRepositoryInterface::class);
-        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class, BkConfigurationRepositoryInterface::class);
+        $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
+        $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
         $this->orderingRepository = $entityManager->getRepository(BkOrdering::class);
     }
 

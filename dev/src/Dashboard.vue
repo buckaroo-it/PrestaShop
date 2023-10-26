@@ -24,7 +24,7 @@ import VerificationMethods from "./pages/VerificationMethods.vue";
 
 export default {
   name: "Dashboard",
-  props: ['token', 'baseUrl'],
+  props: ['token', 'baseUrl', 'adminUrl'],
   components: {
     VerificationMethods,
     Menu,
@@ -40,7 +40,10 @@ export default {
     provide('view', view)
     provide('csrfToken', props.token)
     provide('baseUrl', props.baseUrl)
+    provide('adminUrl', props.adminUrl)
 
+    console.log(props.adminUrl);
+    console.log(props.baseUrl);
     const changedView = (view) => {
       if (view === 'payment_methods' && paymentMethodsRef.value) {
         paymentMethodsRef.value.selectedPayment = null

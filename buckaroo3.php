@@ -17,21 +17,15 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
+require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\PrestaShop\Classes\CapayableIn3;
 use Buckaroo\PrestaShop\Classes\IssuersIdeal;
 use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
-use Buckaroo\PrestaShop\Classes\JWTAuth;
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
-use Buckaroo\PrestaShop\Src\Entity\BkCountries;
-use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
@@ -39,29 +33,13 @@ use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
-use Buckaroo\PrestaShop\Src\Repository\BkConfigurationRepositoryInterface;
-use Buckaroo\PrestaShop\Src\Repository\BkCountriesRepositoryInterface;
-use Buckaroo\PrestaShop\Src\Repository\BkPaymentMethodRepositoryInterface;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
-use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
-    use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
-    use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class Buckaroo3 extends PaymentModule
 {
-    public $buckarooPaymentService;
-    public $buckarooFeeService;
-    public $buckarooConfigService;
-    public $buckarooCountriesService;
-    public $bkOrderingRepository;
-    private $issuersPayByBank;
-    private $issuersCreditCard;
-    private $capayableIn3;
     public $symContainer;
-    public $entityManager;
     public $logger;
     private $locale;
 
@@ -288,25 +266,13 @@ class Buckaroo3 extends PaymentModule
             $userProvider->getUsername()
         )->getValue();
         $this->context->smarty->assign([
-            'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
-            'baseUrl' => explode("?",$this->context->link->getAdminLink(AdminDashboard::class))[0],
+            'pathApp' => $this->_path . 'views/js/buckaroo.vue.js?2135132',
+            'baseUrl' => $this->context->shop->getBaseURL(true),
+            'adminUrl' => explode("?",$this->context->link->getAdminLink(AdminDashboard::class))[0],
             'token' => $token,
         ]);
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
-    }
-
-    private function generateToken($jwt)
-    {
-        $data = [];
-
-        if ($this->context->employee->isLoggedBack()) {
-            $data = ['employee_id' => $this->context->employee->id];
-        } elseif ($this->context->customer->isLogged()) {
-            $data = ['user_id' => $this->context->customer->id];
-        }
-
-        return $jwt->encode($data);
     }
 
     private function isActivated()
@@ -390,29 +356,9 @@ class Buckaroo3 extends PaymentModule
             $address_differ = 1;
         }
 
-        $this->issuersPayByBank = new IssuersPayByBank();
+        $buckarooConfigService = $this->getBuckarooConfigService();
 
-        $this->issuersCreditCard = $this->getBuckarooConfigService()->getActiveCreditCards();
-
-        $this->capayableIn3 = new CapayableIn3();
-
-        $this->entityManager = $this->get('doctrine.orm.entity_manager');
-
-        $bkPaymentMethodRepository = $this->getRepository(BkPaymentMethods::class, BkPaymentMethodRepositoryInterface::class);
-
-        $bkOrderingRepository = $this->getBuckarooOrderingRepository();
-
-        $this->buckarooPaymentService = new BuckarooPaymentService(
-            $this,
-            $this->getBuckarooConfigService(),
-            $this->issuersPayByBank,
-            $this->logger,
-            $this->context,
-            $this->capayableIn3,
-            $this->getBuckarooFeeService(),
-            $bkOrderingRepository,
-            $bkPaymentMethodRepository
-        );
+        $buckarooPaymentService = $this->symContainer->get('buckaroo.config.api.payment.service');
 
         try {
             $this->context->smarty->assign(
@@ -431,31 +377,22 @@ class Buckaroo3 extends PaymentModule
                     'phone_afterpay_billing' => $phone_afterpay_billing,
                     'total' => $cart->getOrderTotal(true, 3),
                     'country' => Country::getIsoById(Tools::getCountry()),
-                    'afterpay_show_coc' => $this->buckarooPaymentService->showAfterpayCoc($cart),
-                    'billink_show_coc' => $this->buckarooPaymentService->showBillinkCoc($cart),
+                    'afterpay_show_coc' => $buckarooPaymentService->showAfterpayCoc($cart),
+                    'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
-                    'idealDisplayMode' => $this->buckarooConfigService->getConfigValue('ideal', 'display_type'),
-                    'paybybankIssuers' => $this->issuersPayByBank->getIssuerList(),
-                    'payByBankDisplayMode' => $this->buckarooConfigService->getConfigValue('paybybank', 'display_type'),
-                    'creditcardIssuers' => $this->issuersCreditCard,
-                    'creditCardDisplayMode' => $this->buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'in3Method' => (new CapayableIn3())->getMethod(),
+                    'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
+                    'paybybankIssuers' => (new IssuersPayByBank)->getIssuerList(),
+                    'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
+                    'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
+                    'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
+                    'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                 ]
             );
         } catch (Exception $e) {
             $this->logger->logError('Buckaroo3::hookPaymentOptions - ' . $e->getMessage());
         }
 
-        return $this->buckarooPaymentService->getPaymentOptions($cart);
-    }
-
-    public function getEntityManager()
-    {
-        if (!$this->entityManager) {
-            $this->entityManager = $this->symContainer->get('doctrine.orm.entity_manager');
-        }
-
-        return $this->entityManager;
+        return $buckarooPaymentService->getPaymentOptions($cart);
     }
 
     /**
@@ -527,11 +464,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-        $buckarooFeeService = $this->getBuckarooFeeService();
 
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
-            'buckarooFees' => $buckarooFeeService->getBuckarooFees(),
+            'buckarooFees' => '',
             'buckarooMessages' => [
                 'validation' => [
                     'date' => $this->l('Please enter correct birthdate date'),
@@ -649,7 +585,7 @@ class Buckaroo3 extends PaymentModule
     public function isPaymentModeActive($method)
     {
         $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
+        $configArray = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
         if ($configArray === null) {
             return false;
         }
@@ -665,13 +601,11 @@ class Buckaroo3 extends PaymentModule
 
     public function isIdinProductBoxShow($params)
     {
-        $buckarooConfigService = $this->getBuckarooConfigService();
-
         if (!$this->isPaymentModeActive('idin')) {
             return false;
         }
 
-        switch ($buckarooConfigService->getConfigValue('idin', 'display_mode')) {
+        switch ($this->getBuckarooConfigService()->getConfigValue('idin', 'display_mode')) {
             case 'product':
                 return $this->isProductBuckarooIdinEnabled($params['product']->id);
             case 'global':
@@ -691,13 +625,12 @@ class Buckaroo3 extends PaymentModule
 
     public function isIdinCheckout($cart)
     {
-        $buckarooConfigService = $this->getBuckarooConfigService();
 
         if (!$this->isPaymentModeActive('idin')) {
             return false;
         }
 
-        switch ($buckarooConfigService->getConfigValue('idin', 'display_mode')) {
+        switch ($this->getBuckarooConfigService()->getConfigValue('idin', 'display_mode')) {
             case 'product':
                 foreach ($cart->getProducts(true) as $value) {
                     return $this->isProductBuckarooIdinEnabled($value['id_product']);
@@ -712,41 +645,16 @@ class Buckaroo3 extends PaymentModule
         return false;
     }
 
-    public function getBuckarooCountriesService()
-    {
-        if (!isset($this->buckarooCountriesService)) {
-            $bkCountriesRepository = $this->getRepository(BkCountries::class, BkCountriesRepositoryInterface::class);
-            $this->buckarooCountriesService = new BuckarooCountriesService($bkCountriesRepository);
-        }
-
-        return $this->buckarooCountriesService;
-    }
-
-    public function getBuckarooOrderingRepository()
-    {
-        if (!isset($this->bkOrderingRepository)) {
-            $this->bkOrderingRepository = $this->getEntityManager()->getRepository(BkOrdering::class);
-        }
-
-        return $this->bkOrderingRepository;
-    }
-
     public function getBuckarooConfigService()
     {
-        return $this->get('buckaroo.config.api.config.service');
+        return $this->symContainer->get('buckaroo.config.api.config.service');
     }
 
     public function getBuckarooFeeService()
     {
-        if (!isset($this->buckarooFeeService)) {
-            $bkPaymentMethodRepository = $this->getRepository(BkPaymentMethods::class, BkPaymentMethodRepositoryInterface::class);
-            $bkConfigurationRepository = $this->getRepository(BkConfiguration::class, BkConfigurationRepositoryInterface::class);
-
-            $this->buckarooFeeService = new BuckarooFeeService($bkConfigurationRepository, $bkPaymentMethodRepository, $this->logger);
-        }
-
-        return $this->buckarooFeeService;
+        return $this->symContainer->get('buckaroo.config.api.fee.service');
     }
+
 
     public function hookDisplayProductExtraContent($params)
     {
@@ -801,17 +709,6 @@ class Buckaroo3 extends PaymentModule
         } catch (Exception $e) {
             $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage());
         }
-    }
-
-    private function getRepository($class, $expectedInterface = null)
-    {
-        $repository = $this->getEntityManager()->getRepository($class);
-
-        if ($expectedInterface && !$repository instanceof $expectedInterface) {
-            throw new \RuntimeException("The {$class} repository must implement {$expectedInterface}.");
-        }
-
-        return $repository;
     }
 
     private function setContainer()
