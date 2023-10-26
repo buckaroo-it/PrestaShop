@@ -6,7 +6,6 @@
     "moduleResolution": "Node",
     "strict": false,
     "jsx": "preserve",
-    "outFile": "./dist/index.js",
     "sourceMap": true,
     "resolveJsonModule": true,
     "isolatedModules": true,

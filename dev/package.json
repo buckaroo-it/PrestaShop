@@ -7,7 +7,6 @@
     "build": "vite build",
     "serve:prod": "vite preview"
   },
-  "main": ".src/main.ts",
   "dependencies": {
     "core-js": "^3.8.3",
     "fos-routing": "^0.0.6",

@@ -267,7 +267,7 @@ class BillinkCheckout extends Checkout
             ];
 
             if (self::CUSTOMER_TYPE_B2C != $this->customerType
-                && $this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null) {
+                && ($this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null)) {
                 $payload['recipient']['careOf'] = $this->shipping_address->company;
                 $payload['recipient']['category'] = 'B2B';
             }

@@ -16,7 +16,6 @@
  */
 
 namespace Buckaroo\PrestaShop\Src\Repository;
-use Buckaroo\Exceptions\BuckarooException;
 
 class RawPaymentMethodRepository
 {
@@ -48,7 +47,7 @@ class RawPaymentMethodRepository
         ];
 
         if (!\Db::getInstance()->insert('bk_payment_methods', $data)) {
-            throw new BuckarooException('Database error: Could not insert payment method');
+            throw new \Exception('Database error: Could not insert payment method');
         }
 
         $paymentMethodId = \Db::getInstance()->Insert_ID();
