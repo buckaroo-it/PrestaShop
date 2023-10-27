@@ -3,6 +3,7 @@
 </p>
 
 # Buckaroo PrestaShop Payments Plugin
+[![Latest release](https://badgen.net/github/release/buckaroo-it/PrestaShop)](https://github.com/buckaroo-it/PrestaShop/releases)
 
 ### Index
 - [About](#about)
