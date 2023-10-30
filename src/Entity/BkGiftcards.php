@@ -63,6 +63,11 @@ class BkGiftcards
      */
     private $createdAt;
 
+    public function getId():int
+    {
+        return $this->id;
+    }
+
     public function getCode(): string
     {
         return $this->code;

@@ -18,7 +18,7 @@
 <div rel="booAnimBl" id="iDINBankLinks" class="booBlAnimConts row">
     <div class="col-xs-12 col-md-12">
         <h2> {l s='Age Verification' mod='buckaroo3'}</h2>
-        
+
         <div id="booIdealErr" class="booBlAnimError">
             {*l s='You have to choose a bank first!' mod='buckarooideal'*}
         </div>
@@ -27,6 +27,9 @@
               method="post" style="padding: 10px; background: #d4eded; display: inline-block; width: 100%; ">
             <img src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo/Identification methods/SVG/iDIN.svg" class="middle" style="width: 70px;"/>{l s='To continue you must verify your age using iDIN' mod='buckaroo3'}
             <select name="BPE_Issuer" id="BPE_Issuer">
+{*                {foreach from=$banks item=bank key=k}*}
+{*                    <option value="{$k}">{$bank}</option>*}
+{*                {/foreach}*}
                 <option value="ABNAMRO">{l s='ABN AMRO' mod='buckaroo3'}</option>
                 <option value="INGBANK">{l s='ING' mod='buckaroo3'}</option>
                 <option value="RABOBANK">{l s='Rabobank' mod='buckaroo3'}</option>

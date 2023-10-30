@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -53,7 +52,7 @@ class BuckarooConfigService
     {
         $configArray = $this->getConfigArrayForMethod($method);
 
-        return isset($configArray[$key]) ? $configArray[$key] : null;
+        return $configArray[$key] ?? null;
     }
 
     /**

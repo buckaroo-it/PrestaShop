@@ -24,7 +24,7 @@ final class DatabaseTableInstaller implements InstallerInterface
         $commands = $this->getCommands();
 
         foreach ($commands as $query) {
-            if (false == \Db::getInstance()->execute($query)) {
+            if (!(\Db::getInstance()->execute($query))) {
                 return false;
             }
         }
@@ -49,8 +49,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`payload`         LONGTEXT NOT NULL,
                 `data`            LONGTEXT NOT NULL,
 				`created_at`      DATETIME NOT NULL,
-				INDEX order_id_index (order_id), 
-                INDEX key_index (refund_key) 
+				INDEX order_id_index (order_id),
+                INDEX key_index (refund_key)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
         $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_payment_methods` (

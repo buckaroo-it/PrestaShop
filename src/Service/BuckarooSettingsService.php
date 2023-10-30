@@ -39,7 +39,11 @@ class BuckarooSettingsService
 
     public function isValidData($data)
     {
-        $requiredKeys = ['website_key', 'secret_key', 'transaction_description', 'is_live', 'restock', 'creditSlip', 'voucher', 'negativePayment'];
+        $requiredKeys = [
+            'website_key', 'secret_key',
+            'transaction_description', 'is_live',
+            'restock', 'creditSlip',
+            'voucher', 'negativePayment'];
         foreach ($requiredKeys as $key) {
             if (!isset($data[$key])) {
                 return false;

@@ -406,6 +406,7 @@
     "payment_methods.payconiq": "Payconiq",
     "payment_methods.tinka": "Tinka",
     "payment_methods.paypal": "PayPal",
+    "payment_methods.bancontact": "Bancontact",
     "payment_methods.bancontactmrcash": "Bancontact",
     "payment_methods.sofortueberweisung": "Sofort",
     "payment_methods.giropay": "Giropay",

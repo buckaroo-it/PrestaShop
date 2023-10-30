@@ -3,12 +3,12 @@
         <div>
             <div class="inline-block hover:bg-sixthly p-2 cursor-pointer rounded-lg" @click="showMenu = !showMenu">
                 <div v-if="currentLanguage === 'en'" class="flex space-x-1">
-                    <img src="../../../../../img/flags/gb.jpg" class="w-4"/>
+                    <img src="../../../../../img/flags/gb.jpg" class="w-4" alt=""/>
                     <span class="text-xs">English <i class="fas fa-chevron-down text-[8px]"></i></span>
                 </div>
 
                 <div v-if="currentLanguage === 'nl'" class="flex space-x-1">
-                    <img src="../../../../../img/flags/nl.jpg" class="w-4"/>
+                    <img src="../../../../../img/flags/nl.jpg" class="w-4" alt=""/>
                     <span class="text-xs">Nederlands <i class="fas fa-chevron-down text-[8px]"></i></span>
                 </div>
             </div>
@@ -21,12 +21,8 @@
                     leave-from-class="opacity-100 translate-y-0"
                     leave-to-class="opacity-0 translate-y-3">
             <ul v-if="showMenu" ref="languageMenuRef" class="bg-white text-gray-800 rounded-lg inline-block shadow-xl mt-1 absolute w-1/2 overflow-hidden">
-                <li v-if="currentLanguage !== 'nl'" @click="changeLanguage('nl')" class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="../../../../../img/flags/nl.jpg" class="w-4"/> <div>Nederlands</div></li>
-                <li v-if="currentLanguage !== 'en'" @click="changeLanguage('en')" class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="../../../../../img/flags/gb.jpg" class="w-4"/> <div>English</div></li>
-
-                <!--                <li class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="/images/flags/germany.svg" class="w-4"/> <div>German</div></li>-->
-<!--                <li class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="/images/flags/france.svg" class="w-4"/> <div>French</div></li>-->
-<!--                <li class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="/images/flags/spain.svg" class="w-4"/> <div>Spanish</div></li>-->
+                <li v-if="currentLanguage !== 'nl'" @click="changeLanguage('nl')" class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="../../../../../img/flags/nl.jpg" alt="" class="w-4"/> <div>Nederlands</div></li>
+                <li v-if="currentLanguage !== 'en'" @click="changeLanguage('en')" class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200"><img src="../../../../../img/flags/gb.jpg" alt="" class="w-4"/> <div>English</div></li>
             </ul>
         </Transition>
     </div>

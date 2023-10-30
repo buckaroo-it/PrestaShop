@@ -24,7 +24,7 @@
                         'hover:bg-gray-200 hover:text-gray-700': !activatedCreditcards.find(cc => cc.id === creditcard.id)
                     }"
                     @click="toggleCreditcard(creditcard)">
-                    <img v-if="creditcard.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Creditcard issuers/SVG/${ creditcard.icon }`" class="w-4" />
+                    <img v-if="creditcard.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Creditcard issuers/SVG/${ creditcard.icon }`" class="w-4" alt="" />
                     <span class="block">{{ creditcard.name }}</span>
                 </li>
             </ul>

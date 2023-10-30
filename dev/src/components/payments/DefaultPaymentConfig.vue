@@ -2,7 +2,7 @@
     <div class="border-b h-16 flex justify-between items-center">
         <div class="px-5 space-y-1 flex items-center  space-x-3">
             <div class="w-8">
-              <img v-if="payment.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" />
+              <img v-if="payment.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" alt="" />
             </div>
 
             <div>
@@ -120,7 +120,7 @@
                                 <i class="fas fa-times text-xs"></i>
                             </button>
                             <div class="flex items-center space-x-2">
-                                <img :src="`/img/flags/${ country.icon }`" class="w-4" />
+                                <img :src="`/img/flags/${ country.icon }`" class="w-4" alt="" />
                                 <span class="block">{{ $t(`countries.${ country.name }`) }}</span>
                             </div>
                         </li>

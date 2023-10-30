@@ -16,107 +16,141 @@
  */
 
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
+
     /**
      * @throws PrestaShopException
-     * @throws \PrestaShop\Decimal\Exception\DivisionByZeroException
-     * @throws \PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException
+     * @throws LocalizationException
      */
     public function postProcess()
     {
-        $currency = $this->context->currency;
-
-        $locale = \Tools::getContextLocale($this->context);
-
         $action = Tools::getValue('action');
-        switch ($action) {
-            case 'getTotalCartPrice':
-                $cart = $this->context->cart;
-                $paymentFee = Tools::getValue('paymentFee');
-                if (!$paymentFee) {
-                    $presentedCart = $this->cart_presenter->present($cart);
-                    $this->context->smarty->assign([
-                        'configuration' => $this->getTemplateVarConfiguration(),
-                        'cart' => $presentedCart,
-                        'display_transaction_updated_info' => Tools::getIsset('updatedTransaction'),
-                    ]);
-
-                    $this->ajaxRender(
-                        json_encode(
-                            [
-                                'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
-                            ]
-                        )
-                    );
-                    exit;
-                }
-
-                $paymentFee = trim($paymentFee);
-                $orderTotal = new DecimalNumber((string) $cart->getOrderTotal());
-
-                if (strpos($paymentFee, '%') !== false) {
-                    $paymentFee = str_replace('%', '', $paymentFee);
-                    $paymentFee = new DecimalNumber((string) $paymentFee);
-                    $percentage = $paymentFee->dividedBy(new DecimalNumber('100'));
-                    $paymentFee = $orderTotal->times($percentage);
-                } elseif ($paymentFee > 0) {
-                    // The fee is a flat amount.
-                    $paymentFee = new DecimalNumber((string) $paymentFee);
-                }
-
-                $buckarooFee = $locale->formatPrice($paymentFee->toPrecision(2), $currency->iso_code);
-
-                $orderTotalWithFee = $orderTotal->plus($paymentFee);
-
-                $orderTotalNoTax = new DecimalNumber((string) $cart->getOrderTotal(false));
-                $orderTotalNoTaxWithFee = $orderTotalNoTax->plus($paymentFee);
-
-                $total_including_tax = $orderTotalWithFee->toPrecision(2);
-                $total_excluding_tax = $orderTotalNoTaxWithFee->toPrecision(2);
-
-                $taxConfiguration = new TaxConfiguration();
-                $presentedCart = $this->cart_presenter->present($this->context->cart);
-
-                $presentedCart['totals'] = [
-                    'total' => [
-                        'type' => 'total',
-                        'label' => $this->translator->trans('Total', [], 'Shop.Theme.Checkout'),
-                        'amount' => $taxConfiguration->includeTaxes() ? $total_including_tax : $total_excluding_tax,
-                        'value' => $locale->formatPrice(
-                            $taxConfiguration->includeTaxes() ? $total_including_tax : $total_excluding_tax, $currency->iso_code),
-                    ],
-                    'total_including_tax' => [
-                        'type' => 'total',
-                        'label' => $this->translator->trans('Total (tax incl.)', [], 'Shop.Theme.Checkout'),
-                        'amount' => $total_including_tax,
-                        'value' => $locale->formatPrice($total_including_tax, $currency->iso_code),
-                    ],
-                    'total_excluding_tax' => [
-                        'type' => 'total',
-                        'label' => $this->translator->trans('Total (tax excl.)', [], 'Shop.Theme.Checkout'),
-                        'amount' => $total_excluding_tax,
-                        'value' => $locale->formatPrice($total_excluding_tax, $currency->iso_code),
-                    ],
-                ];
-
-                $this->context->smarty->assign([
-                    'configuration' => $this->getTemplateVarConfiguration(),
-                    'cart' => $presentedCart,
-                    'display_transaction_updated_info' => Tools::getIsset('updatedTransaction'),
-                ]);
-
-                $this->ajaxRender(
-                    json_encode(
-                        [
-                            'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
-                            'paymentFee' => $buckarooFee,
-                        ]
-                    )
-                );
-                break;
-            default:
+        if ($action === 'getTotalCartPrice') {
+            $this->calculateTotalWithPaymentFee();
         }
     }
+
+    /**
+     * @throws PrestaShopException
+     * @throws Exception
+     */
+    private function renderCartSummary(Cart $cart, array $presentedCart = null)
+    {
+        if (!$presentedCart) {
+            $presentedCart = $this->cart_presenter->present($cart);
+        }
+
+        $this->context->smarty->assign([
+            'configuration' => $this->getTemplateVarConfiguration(),
+            'cart' => $presentedCart,
+            'display_transaction_updated_info' => Tools::getIsset('updatedTransaction'),
+        ]);
+
+        $responseArray = [
+            'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
+        ];
+
+        $paymentFee = $presentedCart['totals']['paymentFee'] ?? null;
+        if (isset($paymentFee)) {
+            $responseArray['paymentFee'] = $paymentFee;
+        }
+
+        $this->ajaxRender(json_encode($responseArray));
+    }
+
+    /**
+     * @throws PrestaShopException
+     * @throws LocalizationException
+     */
+    private function calculateTotalWithPaymentFee()
+    {
+        $cart = $this->context->cart;
+        $paymentFeeValue = Tools::getValue('paymentFee');
+        $paymentFeeValue = trim($paymentFeeValue);
+
+        if (!$paymentFeeValue) {
+            $this->renderCartSummary($cart);
+            return;
+        }
+
+        $paymentFee = $this->calculatePaymentFee($paymentFeeValue, $cart);
+        $orderTotals = $this->calculateOrderTotals($cart, $paymentFee);
+
+        $this->updatePresentedCart($cart, $orderTotals, $paymentFee);
+    }
+
+    private function calculatePaymentFee($paymentFeeValue, $cart): DecimalNumber
+    {
+        $orderTotal = new DecimalNumber((string) $cart->getOrderTotal());
+
+        if (strpos($paymentFeeValue, '%') !== false) {
+            $paymentFeeValue = str_replace('%', '', $paymentFeeValue);
+            $paymentFeeValue = new DecimalNumber((string) $paymentFeeValue);
+            $percentage = $paymentFeeValue->dividedBy(new DecimalNumber('100'));
+            return $orderTotal->times($percentage);
+        } elseif ($paymentFeeValue > 0) {
+            return new DecimalNumber((string) $paymentFeeValue);
+        }
+
+        return new DecimalNumber('0');
+    }
+
+    private function calculateOrderTotals($cart, $paymentFee): array
+    {
+        $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal()))->plus($paymentFee);
+        $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false)))->plus($paymentFee);
+
+        return [
+            'total_including_tax' => $orderTotalWithFee->toPrecision(2),
+            'total_excluding_tax' => $orderTotalNoTaxWithFee->toPrecision(2),
+        ];
+    }
+
+    /**
+     * @throws PrestaShopException
+     * @throws LocalizationException
+     * @throws Exception
+     */
+    private function updatePresentedCart($cart, $orderTotals, $paymentFee)
+    {
+        $taxConfiguration = new TaxConfiguration();
+        $presentedCart = $this->cart_presenter->present($cart);
+
+        $buckarooFee = $this->formatPrice($paymentFee->toPrecision(2));
+        $presentedCart['totals'] = [
+            'total' => [
+                'type' => 'total',
+                'label' => $this->translator->trans('Total', [], 'Shop.Theme.Checkout'),
+                'amount' => $taxConfiguration->includeTaxes() ? $orderTotals['total_including_tax'] : $orderTotals['total_excluding_tax'],
+                'value' => $this->formatPrice($taxConfiguration->includeTaxes() ? $orderTotals['total_including_tax'] : $orderTotals['total_excluding_tax']),
+            ],
+            'total_including_tax' => [
+                'type' => 'total',
+                'label' => $this->translator->trans('Total (tax incl.)', [], 'Shop.Theme.Checkout'),
+                'amount' => $orderTotals['total_including_tax'],
+                'value' => $this->formatPrice($orderTotals['total_including_tax']),
+            ],
+            'total_excluding_tax' => [
+                'type' => 'total',
+                'label' => $this->translator->trans('Total (tax excl.)', [], 'Shop.Theme.Checkout'),
+                'amount' => $orderTotals['total_excluding_tax'],
+                'value' => $this->formatPrice($orderTotals['total_excluding_tax']),
+            ],
+            'paymentFee' => $buckarooFee,
+        ];
+
+        $this->renderCartSummary($cart, $presentedCart);
+    }
+
+    /**
+     * @throws LocalizationException
+     */
+    private function formatPrice($amount): string
+    {
+        return $this->context->getCurrentLocale()->formatPrice($amount, $this->context->currency->iso_code);
+    }
+
 }

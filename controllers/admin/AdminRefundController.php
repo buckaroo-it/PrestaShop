@@ -65,11 +65,11 @@ class AdminRefundController extends FrameworkBundleAdminController
         $orderId = $request->get('orderId');
         $refundAmount = $request->get('refundAmount');
 
-        if (!is_scalar($orderId) || $orderId === null) {
+        if (!is_scalar($orderId)) {
             return $this->renderError('Invalid value for `orderId`');
         }
 
-        if (!is_scalar($refundAmount) || $refundAmount === null) {
+        if (!is_scalar($refundAmount)) {
             return $this->renderError('Invalid value for `refundAmount`');
         }
 

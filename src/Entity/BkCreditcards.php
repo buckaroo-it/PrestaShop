@@ -63,6 +63,11 @@ class BkCreditcards
      */
     private $createdAt;
 
+    public function getId():int
+    {
+        return $this->id;
+    }
+
     public function getIcon(): string
     {
         return $this->icon;
