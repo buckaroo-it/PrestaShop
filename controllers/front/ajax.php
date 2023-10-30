@@ -35,7 +35,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
           $this->getTotalCartPrice($locale,$currency);
         }
     }
-    function getTotalCartPrice($locale,$currency){
+    private function getTotalCartPrice($locale,$currency){
         //ToDo Refactor this
         $cart = $this->context->cart;
         $paymentFee = Tools::getValue('paymentFee');
