@@ -17,10 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Tools;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
-
 
 class PaymentMethodConfig extends BaseApiController
 {
@@ -46,7 +43,7 @@ class PaymentMethodConfig extends BaseApiController
     private function handleGet()
     {
         // Fetch the parameter from the GET request
-        $paymentName = Tools::getValue('paymentName');
+        $paymentName = \Tools::getValue('paymentName');
 
         if (!$paymentName) {
             return $this->sendErrorResponse('Payment name is missing.', 400);
@@ -59,18 +56,19 @@ class PaymentMethodConfig extends BaseApiController
             ],
         ];
 
-       return $this->sendResponse($data);
+        return $this->sendResponse($data);
     }
 
     private function handlePost()
     {
         $data = $this->getJsonInput();
 
-        $paymentName = Tools::getValue('paymentName');
+        $paymentName = \Tools::getValue('paymentName');
         if (!$paymentName || !$data) {
-           return  $this->sendErrorResponse('Invalid data provided.', 400);
+            return $this->sendErrorResponse('Invalid data provided.', 400);
         }
         $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
-       return $this->sendResponse(['status' => $result]);
+
+        return $this->sendResponse(['status' => $result]);
     }
 }

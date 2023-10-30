@@ -16,12 +16,12 @@
  */
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
+
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 class BaseApiController extends FrameworkBundleAdminController
 {
-   
     protected function sendResponse($data, $status = 200)
     {
         return new JsonResponse($data, $status);
@@ -29,7 +29,7 @@ class BaseApiController extends FrameworkBundleAdminController
 
     protected function sendErrorResponse($message, $status = 400)
     {
-       return $this->sendResponse(['error' => $message], $status);
+        return $this->sendResponse(['error' => $message], $status);
     }
 
     protected function getJsonInput(): array

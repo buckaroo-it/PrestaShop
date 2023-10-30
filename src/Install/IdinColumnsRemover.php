@@ -24,7 +24,7 @@ final class IdinColumnsRemover implements UninstallerInterface
         $commands = $this->getCommands();
 
         foreach ($commands as $query) {
-            if (!(\Db::getInstance()->execute($query))) {
+            if (!\Db::getInstance()->execute($query)) {
                 return false;
             }
         }
@@ -39,16 +39,16 @@ final class IdinColumnsRemover implements UninstallerInterface
         // Remove the `buckaroo_idin` field from the `product` table if it exists
         $columnsToDrop = [
             'product' => ['buckaroo_idin'],
-            'customer' => ['buckaroo_idin_consumerbin','buckaroo_idin_iseighteenorolder']
+            'customer' => ['buckaroo_idin_consumerbin', 'buckaroo_idin_iseighteenorolder'],
         ];
-        foreach ($columnsToDrop as $table => $columnTables){
+        foreach ($columnsToDrop as $table => $columnTables) {
             foreach ($columnTables as $column) {
-                if($this->columnExists(_DB_PREFIX_.$table,$column)){
-
-                    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . $table.'` DROP COLUMN `'. $column .'`';
+                if ($this->columnExists(_DB_PREFIX_ . $table, $column)) {
+                    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . $table . '` DROP COLUMN `' . $column . '`';
                 }
             }
         }
+
         return $sql;
     }
 

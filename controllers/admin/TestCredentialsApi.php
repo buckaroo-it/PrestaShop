@@ -21,7 +21,6 @@ use Buckaroo\BuckarooClient;
 
 class TestCredentialsApi extends BaseApiController
 {
-
     /**
      * @throws PrestaShopException
      */

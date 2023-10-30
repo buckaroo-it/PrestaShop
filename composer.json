@@ -25,8 +25,5 @@
     },
     "type": "prestashop-module",
     "author": "Buckaroo B.V.",
-    "license": "AFL",
-    "require-dev": {
-        "prestashop/autoindex": "^2.1"
-    }
+    "license": "AFL"
 }

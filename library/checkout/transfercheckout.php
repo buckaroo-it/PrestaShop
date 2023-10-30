@@ -30,7 +30,6 @@ class TransferCheckout extends Checkout
         $sendMail = $this->buckarooConfigService->getConfigValue('transfer', 'send_instruction_email');
         $dueDate = $this->buckarooConfigService->getConfigValue('transfer', 'due_days');
 
-
         $this->customVars = [
             'customer' => [
                 'firstName' => $this->invoice_address->firstname,
@@ -39,7 +38,7 @@ class TransferCheckout extends Checkout
             'email' => $this->customer->email,
             'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
             'dateDue' => date('Y-m-d', strtotime('now + ' . (int) $dueDate . ' day')),
-            'sendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE')
+            'sendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE'),
         ];
     }
 

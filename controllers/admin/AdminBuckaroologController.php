@@ -22,6 +22,7 @@ class AdminBuckaroologController extends AdminControllerCore
         $this->bootstrap = true;
         parent::__construct();
     }
+
     public function renderList()
     {
         $file = dirname(__FILE__) . '/../../api/log/report_log.txt';

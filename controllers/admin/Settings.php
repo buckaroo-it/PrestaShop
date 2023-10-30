@@ -45,7 +45,7 @@ class Settings extends BaseApiController
             'settings' => $this->settingsService->getSettings(),
         ];
 
-       return $this->sendResponse($data);
+        return $this->sendResponse($data);
     }
 
     private function handlePost()
@@ -60,8 +60,9 @@ class Settings extends BaseApiController
                 'settings' => $this->settingsService->getSettings(),
             ];
 
-           return $this->sendResponse($data);
+            return $this->sendResponse($data);
         }
+
         return $this->sendErrorResponse('Invalid input data', 400);
     }
 }

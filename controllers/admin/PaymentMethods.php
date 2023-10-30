@@ -32,7 +32,7 @@ class PaymentMethods extends BaseApiController
     {
         $data = $this->getAllPaymentMethods();
 
-       return $this->sendResponse($data);
+        return $this->sendResponse($data);
     }
 
     public function getAllPaymentMethods()

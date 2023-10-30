@@ -17,7 +17,6 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
 class Creditcards extends BaseApiController
@@ -31,7 +30,6 @@ class Creditcards extends BaseApiController
 
     public function initContent()
     {
-
         $countries = $this->creditCardsRepository->getCreditCardsFromDB();
 
         $data = [
@@ -39,6 +37,6 @@ class Creditcards extends BaseApiController
             'creditcards' => $countries,
         ];
 
-       return $this->sendResponse($data);
+        return $this->sendResponse($data);
     }
 }

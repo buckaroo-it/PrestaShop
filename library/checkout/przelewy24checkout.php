@@ -24,7 +24,6 @@ class Przelewy24Checkout extends Checkout
     {
         parent::setCheckout();
 
-
         $this->customVars = [
             'customer' => [
                 'firstName' => $this->invoice_address->firstname,

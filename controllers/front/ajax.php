@@ -20,7 +20,6 @@ use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
-
     /**
      * @throws PrestaShopException
      * @throws LocalizationException
@@ -73,6 +72,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
         if (!$paymentFeeValue) {
             $this->renderCartSummary($cart);
+
             return;
         }
 
@@ -90,6 +90,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             $paymentFeeValue = str_replace('%', '', $paymentFeeValue);
             $paymentFeeValue = new DecimalNumber((string) $paymentFeeValue);
             $percentage = $paymentFeeValue->dividedBy(new DecimalNumber('100'));
+
             return $orderTotal->times($percentage);
         } elseif ($paymentFeeValue > 0) {
             return new DecimalNumber((string) $paymentFeeValue);
@@ -152,5 +153,4 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     {
         return $this->context->getCurrentLocale()->formatPrice($amount, $this->context->currency->iso_code);
     }
-
 }

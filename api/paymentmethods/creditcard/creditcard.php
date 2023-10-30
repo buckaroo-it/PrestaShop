@@ -19,6 +19,7 @@ require_once dirname(__FILE__) . '/../paymentmethod.php';
 class CreditCard extends PaymentMethod
 {
     public $issuer;
+
     public function __construct()
     {
         $this->type = 'creditcard';

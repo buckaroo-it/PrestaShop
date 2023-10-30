@@ -17,9 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Symfony\Component\HttpFoundation\Request;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
+use Symfony\Component\HttpFoundation\Request;
 
 class PaymentMethodMode extends BaseApiController
 {
@@ -42,6 +41,7 @@ class PaymentMethodMode extends BaseApiController
         }
 
         $this->buckarooConfigService->updatePaymentMethodMode($data['name'], $data['mode']);
-       return $this->sendResponse(['status' => true]);
+
+        return $this->sendResponse(['status' => true]);
     }
 }

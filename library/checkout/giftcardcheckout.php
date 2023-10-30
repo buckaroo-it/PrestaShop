@@ -32,7 +32,6 @@ class GiftCardCheckout extends Checkout
         ];
     }
 
-
     public function startPayment()
     {
         $this->payment_response = $this->payment_request->pay($this->customVars);

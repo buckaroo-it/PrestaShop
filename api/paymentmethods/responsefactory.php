@@ -37,11 +37,10 @@ class ResponseFactory
         } elseif (Tools::getValue('brq_primary_service')) {
             $paymentmethod = Tools::getValue('brq_primary_service');
         }
-        if($paymentmethod === 'IDIN'){
+        if ($paymentmethod === 'IDIN') {
             return new IdinResponse($transactionResponse);
         }
 
         return new ResponseDefault($transactionResponse);
-        
     }
 }

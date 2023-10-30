@@ -72,8 +72,8 @@ class BillinkCheckout extends Checkout
         $country = new Country($this->invoice_address->id_country);
 
         $category = self::CUSTOMER_TYPE_B2C;
-        if($this->customerType == self::CUSTOMER_TYPE_B2B
-            || $this->companyExists($this->invoice_address->company)){
+        if ($this->customerType == self::CUSTOMER_TYPE_B2B
+            || $this->companyExists($this->invoice_address->company)) {
             $category = self::CUSTOMER_TYPE_B2B;
         }
 
@@ -103,8 +103,8 @@ class BillinkCheckout extends Checkout
 
         if (self::CUSTOMER_TYPE_B2C != $this->customerType
             && $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
-                $payload['recipient']['careOf'] = $this->invoice_address->company;
-                $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
+            $payload['recipient']['careOf'] = $this->invoice_address->company;
+            $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
         }
 
         return $payload;

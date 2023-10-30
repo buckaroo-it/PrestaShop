@@ -17,9 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Doctrine\ORM\EntityManager;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
+use Doctrine\ORM\EntityManager;
 
 class Orderings extends BaseApiController
 {
@@ -48,7 +47,7 @@ class Orderings extends BaseApiController
 
         $ordering = $this->getOrdering($countryCode);
 
-       return $this->sendResponse([
+        return $this->sendResponse([
             'status' => true,
             'orderings' => $ordering,
         ]);
@@ -67,14 +66,15 @@ class Orderings extends BaseApiController
         $value = $this->getValueOrNull($data, 'value');
 
         if (!$value) {
-           return $this->sendResponse([
+            return $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing or invalid data',
             ]);
         }
 
         $result = $this->bkOrderingRepository->updateOrdering(json_encode($value), $countryId);
-       return $this->sendResponse(['status' => $result]);
+
+        return $this->sendResponse(['status' => $result]);
     }
 
     private function getValueOrNull(array $data, $key)

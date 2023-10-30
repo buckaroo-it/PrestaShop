@@ -262,7 +262,7 @@ class Buckaroo3 extends PaymentModule
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
-            'adminUrl' => explode("?",$this->context->link->getAdminLink(AdminDashboard::class))[0],
+            'adminUrl' => explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0],
             'token' => $token,
         ]);
 
@@ -336,17 +336,17 @@ class Buckaroo3 extends PaymentModule
 
         if (!empty($phone_mobile_billing)) {
             $phone_afterpay_billing = $phone_mobile_billing;
-        } elseif (!empty($phone_billing)){
+        } elseif (!empty($phone_billing)) {
             $phone_afterpay_billing = $phone_billing;
         }
 
         $address_differ = 0;
 
-        if($cart->id_address_delivery != $cart->id_address_invoice){
-            if($lastNameShipping == $lastNameBilling
-                && $firstNameShipping == $firstNameBilling){
+        if ($cart->id_address_delivery != $cart->id_address_invoice) {
+            if ($lastNameShipping == $lastNameBilling
+                && $firstNameShipping == $firstNameBilling) {
                 $address_differ = 2;
-            }else{
+            } else {
                 $address_differ = 1;
             }
         }
@@ -376,7 +376,7 @@ class Buckaroo3 extends PaymentModule
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
                     'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
-                    'paybybankIssuers' => (new IssuersPayByBank)->getIssuerList(),
+                    'paybybankIssuers' => (new IssuersPayByBank())->getIssuerList(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
@@ -400,23 +400,22 @@ class Buckaroo3 extends PaymentModule
         if (!$this->active) {
             return;
         }
-        if(Tools::getValue('response_received')
-            || (Tools::getValue('id_order') && Tools::getValue('success'))){
-
+        if (Tools::getValue('response_received')
+            || (Tools::getValue('id_order') && Tools::getValue('success'))) {
             $order = new Order(Tools::getValue('id_order'));
             $price = $this->formatPrice($order->getOrdersTotalPaid());
             $isGuest = $this->context->customer->is_guest || !$this->context->customer->id;
 
-            if(Tools::getValue('response_received') == 'transfer'){
-
+            if (Tools::getValue('response_received') == 'transfer') {
                 $this->context->smarty->assign(
                     [
-                        'is_guest' =>  $isGuest,
+                        'is_guest' => $isGuest,
                         'order' => $order,
                         'price' => $price,
-                        'message' => $this->context->cookie->HtmlText
+                        'message' => $this->context->cookie->HtmlText,
                     ]
                 );
+
                 return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
             }
             $this->context->smarty->assign(
@@ -426,8 +425,8 @@ class Buckaroo3 extends PaymentModule
                     'price' => $this->formatPrice($price),
                 ]
             );
-            return $this->display(__FILE__, 'payment_return_success.tpl');
 
+            return $this->display(__FILE__, 'payment_return_success.tpl');
         }
         Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
         exit;
@@ -435,7 +434,6 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
             'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
@@ -565,6 +563,7 @@ class Buckaroo3 extends PaymentModule
                 return $configArray['mode'] === 'live';
             }
         }
+
         return false;
     }
 
@@ -594,7 +593,6 @@ class Buckaroo3 extends PaymentModule
 
     public function isIdinCheckout($cart)
     {
-
         if (!$this->isPaymentModeActive('idin')) {
             return false;
         }
@@ -623,7 +621,6 @@ class Buckaroo3 extends PaymentModule
     {
         return $this->symContainer->get('buckaroo.config.api.fee.service');
     }
-
 
     public function hookDisplayProductExtraContent($params)
     {

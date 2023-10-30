@@ -17,12 +17,12 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
+use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
+use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
-use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 
 class BuckarooConfigService
 {

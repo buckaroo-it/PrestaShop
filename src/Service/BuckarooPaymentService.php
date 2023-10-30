@@ -235,7 +235,7 @@ class BuckarooPaymentService
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
-        $logoPath =  '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
+        $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
         // Custom conditions for specific payment methods
         switch ($method) {
             case 'paybybank':
@@ -260,7 +260,7 @@ class BuckarooPaymentService
     public function getBuckarooLabel($method, $label)
     {
         if ($method == 'in3' && $this->capayableIn3->isV3()) {
-           $label = 'iDEAL In3';
+            $label = 'iDEAL In3';
         }
 
         if ($method == 'in3Old') {

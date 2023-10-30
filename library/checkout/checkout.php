@@ -459,5 +459,3 @@ function checkoutautoload($payment_method)
         exit('Class not found!');
     }
 }
-
-

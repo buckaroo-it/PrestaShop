@@ -17,9 +17,9 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Doctrine\ORM\EntityManager;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class BuckarooFeeService

@@ -19,8 +19,7 @@ require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
-    use Buckaroo\PrestaShop\Classes\Config;
-    use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Classes\Config;
 
 abstract class PaymentMethod extends BuckarooAbstract
 {
@@ -82,7 +81,7 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $this->payload = array_merge($this->payload,
             [
-                'currency'=> $this->currency,
+                'currency' => $this->currency,
                 'amountDebit' => $this->amountDebit,
                 'invoice' => $this->invoiceId,
                 'order' => $this->orderId,
@@ -92,7 +91,7 @@ abstract class PaymentMethod extends BuckarooAbstract
                 'platformVersion' => $this->platformVersion,
                 'moduleVersion' => $this->moduleVersion,
                 'moduleSupplier' => $this->moduleSupplier,
-                'moduleName' => $this->moduleName
+                'moduleName' => $this->moduleName,
             ]);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
@@ -115,19 +114,19 @@ abstract class PaymentMethod extends BuckarooAbstract
                 'description' => 'Refund',
                 'quantity' => 1,
                 'price' => round($refund_amount, 2),
-                'vatPercentage' => 0
+                'vatPercentage' => 0,
             ]];
         }
 
         $this->data = array_merge($this->data,
             [
-                'currency'=> $this->currency,
+                'currency' => $this->currency,
                 'amountDebit' => $this->amountDebit,
                 'amountCredit' => $this->amountCredit,
                 'invoice' => $this->invoiceId,
                 'order' => $this->orderId,
                 'description' => $this->description,
-                'originalTransactionKey' => $this->OriginalTransactionKey
+                'originalTransactionKey' => $this->OriginalTransactionKey,
             ]);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
@@ -150,13 +149,13 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $this->payload = array_merge($this->payload,
             [
-                'returnURL'=> $this->returnUrl,
+                'returnURL' => $this->returnUrl,
                 'pushURL' => $this->pushUrl,
                 'platformName' => $this->platformName,
                 'platformVersion' => $this->platformVersion,
                 'moduleVersion' => $this->moduleVersion,
                 'moduleSupplier' => $this->moduleSupplier,
-                'moduleName' => $this->moduleName
+                'moduleName' => $this->moduleName,
             ]);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));

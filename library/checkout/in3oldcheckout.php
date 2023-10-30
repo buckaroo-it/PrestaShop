@@ -34,7 +34,7 @@ class In3OldCheckout extends Checkout
             'phone' => ['mobile' => $this->getPhone($this->invoice_address)],
             'articles' => $this->getArticles(),
             'customer' => $this->getCustomer(),
-            'address' => $this->getAddress()
+            'address' => $this->getAddress(),
         ];
     }
 

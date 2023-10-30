@@ -17,9 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\PrestaShop\Controllers\admin\BaseApiController;
 use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
-use Doctrine\ORM\EntityManager;
 
 class Countries extends BaseApiController
 {
@@ -39,6 +37,6 @@ class Countries extends BaseApiController
             'countries' => $countries,
         ];
 
-       return $this->sendResponse($data);
+        return $this->sendResponse($data);
     }
 }

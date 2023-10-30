@@ -24,7 +24,7 @@ final class DatabaseTableInstaller implements InstallerInterface
         $commands = $this->getCommands();
 
         foreach ($commands as $query) {
-            if (!(\Db::getInstance()->execute($query))) {
+            if (!\Db::getInstance()->execute($query)) {
                 return false;
             }
         }
