@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -23,17 +21,19 @@ class ApplePay extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type    = "applepay";
+        $this->type = 'applepay';
         $this->version = 1;
-        $this->mode    = Config::getMode("applepay");
     }
 
-    public function pay($customVars = array())
+    public function getPayload($data)
     {
-        $this->data['customVars']['continueOnIncomplete'] = 'RedirectToHTML';
-        $this->data['customVars']['servicesSelectableByClient'] = 'applepay';
-        $this->data['customVars']['ServicesExcludedForClient'] = null;
+        return array_merge_recursive($this->payload, $data);
+    }
 
-        return parent::pay($customVars);
+    public function pay($customVars = [])
+    {
+        $this->payload = $this->getPayload($customVars);
+
+        return parent::executeCustomPayAction('payRedirect');
     }
 }

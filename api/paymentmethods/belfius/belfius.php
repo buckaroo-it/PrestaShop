@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -23,8 +21,7 @@ class Belfius extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type    = "belfius";
+        $this->type = 'belfius';
         $this->version = 0;
-        $this->mode    = Config::getMode("belfius");
     }
 }

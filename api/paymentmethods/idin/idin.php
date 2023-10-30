@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -26,88 +24,27 @@ class Idin extends PaymentMethod
 
     public function __construct()
     {
-        $this->type    = "idin";
+        $this->type = 'idin';
         $this->version = 0;
-        $this->mode    = Config::getMode($this->type);
     }
 
-    public function verify($customVars = array())
+    public function verify($customVars = [])
     {
-        $this->data['customVars'][$this->type]['issuerId'] = $this->getIssuer($this->issuer);
+        $this->payload['issuer'] = $this->getIssuer($this->issuer);
+
         if (isset($customVars['cid'])) {
-            $this->data['customParameters']['cid'] = $customVars['cid'];
+            $this->payload['additionalParameters']['cid'] = $customVars['cid'];
         }
 
         return parent::verify();
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
         return null;
     }
-
-    public function refund()
-    {
-        return parent::refund();
-    }
-
-/*    public static function getIssuerList()
-    {
-        $issuerArray = array(
-            'ABNAMRO'  => array(
-                'name' => 'ABN AMRO',
-                'logo' => 'ABNAMRO.png',
-            ),
-            'ASNBANK'  => array(
-                'name' => 'ASN Bank',
-                'logo' => 'ASNBANK.png',
-            ),
-            'INGBANK'  => array(
-                'name' => 'ING',
-                'logo' => 'ING.png',
-            ),
-            'RABOBANK' => array(
-                'name' => 'Rabobank',
-                'logo' => 'Rabobank.png',
-            ),
-            'SNSBANK'  => array(
-                'name' => 'SNS Bank',
-                'logo' => 'SNS.png',
-            ),
-            'SNSREGIO' => array(
-                'name' => 'RegioBank',
-                'logo' => 'Regiobank.png',
-            ),
-            'TRIODOS'  => array(
-                'name' => 'Triodos Bank',
-                'logo' => 'Triodos.png',
-            ),
-            'LANSCHOT' => array(
-                'name' => 'Van Lanschot',
-                'logo' => 'vanLanschot.png',
-            ),
-            'KNAB'     => array(
-                'name' => 'Knab',
-                'logo' => 'KNAB.png',
-            ),
-            'BUNQ'     => array(
-                'name' => 'Bunq',
-                'logo' => 'Bunq.png',
-            ),
-            'HANDNL2A' => array(
-                'name' => 'Handelsbanken',
-                'logo' => 'Handelsbank.png',
-            ),
-            'REVOLT21' => array(
-                'name' => 'Revolut',
-                'logo' => 'Revolut.png',
-            ),
-        );
-
-        return $issuerArray;
-    }*/
 
     protected function getIssuer($issuer)
     {

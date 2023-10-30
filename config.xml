@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
     <name>buckaroo3</name>
-    <displayName><![CDATA[Buckaroo Payments (v 3.4.0)]]></displayName>
-    <version><![CDATA[3.4.0]]></version>
-    <description><![CDATA[Buckaroo Payment module. Compatible with PrestaShop version 1.6.x + 1.7.x]]></description>
+    <displayName><![CDATA[Buckaroo Payments (v 4.0.1)]]></displayName>
+    <version><![CDATA[4.0.1]]></version>
+    <description><![CDATA[Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.2]]></description>
     <author><![CDATA[Buckaroo]]></author>
     <tab><![CDATA[payments_gateways]]></tab>
 	<confirmUninstall><![CDATA[Are you sure you want to delete Buckaroo Payments module?]]></confirmUninstall>
     <is_configurable>1</is_configurable>
     <need_instance>1</need_instance>
-	<limited_countries></limited_countries>
 </module>
