@@ -281,13 +281,26 @@
 
 .form-control-middle {
     width: 70px;
-    display: inline
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
 }
 .form-control-small {
-    width: 50px;
-    display: inline
+    width: 54px !important;
+    display: inline;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
 }
-
+.form-control-large{
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+    color: #495057;
+}
 .padding-right-button {
     margin: 7px;
 }
@@ -318,7 +331,35 @@ p.payment_module a.buckaroo_paylink:after {
     outline: 0.1875rem solid #FF0000;
 }
 /*iDeal slidedown div*/
-
+#bk-ideal-form {
+    margin-bottom: 15px;
+}
+.bk-method-issuer {
+    display: flex;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
+.bk-credit-card {
+    display: flex;
+    vertical-align: middle;
+    margin-bottom: 5px;
+}
+.bk-issuer-logo {
+    max-height: 25px;
+    width: auto;
+    margin: 0 5px;
+}
+.bk-creditcard-logo {
+    max-height: 25px;
+    width: auto;
+    margin: 0 5px;
+}
+.bk-issuer-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0;
+}
 .bankRadioBtn {
     margin-left: 20px;
 
@@ -341,3 +382,109 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     color:#FF0000;
     margin-top:5px;
 }
+
+.payment-option label img {
+    float: left;
+    margin-right: 10px;
+    max-height: 25px;
+    width: 32px;
+}
+
+/* paybybank,ideal, creditcards  */
+
+.bk-toggle-down {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.293 9.293a1 1 0 0 1 1.414 0L12 14.586l5.293-5.293a1 1 0 1 1 1.414 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 0 1 0-1.414z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+.bk-toggle-up {
+    background-image: url("data:image/svg+xml,%3Csvg width='20px' height='20px' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.293 7.293a1 1 0 0 1 1.414 0l6 6a1 1 0 0 1-1.414 1.414L12 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414l6-6z' fill='%230D0D0D'/%3E%3C/svg%3E%0A");
+}
+
+.bk-toggle {
+    height: 20px;
+    width: 20px;
+}
+.bk-toggle-wrap {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+@media screen and (max-width: 768px) {
+    .bk-method-selector .bk-issuer-label img {
+        max-width: 25px;
+        margin: 0 5px;
+    }
+    .bk-method-selector .bk-method-issuer {
+        display: flex;
+    }
+    .bk-method-selector .bk-issuer-label {
+        flex: 1;
+        text-align: left;
+    }
+}
+@media screen and (min-width: 768px) {
+    .bk-creditcard-selector img, .bk-ideal-selector img{
+        max-width: 25px;
+        margin: 0 5px;
+    }
+
+    .bk-creditcard-selector .bk-issuer-label, .bk-ideal-selector .bk-issuer-label {
+        flex: 1;
+        text-align: left;
+    }
+    .bk-method-toggle-list {
+        display: flex;
+        justify-content: center;
+        height: 20px;
+        margin:10px 0;
+    }
+
+    .bk-toggle-text {
+        margin-left: 10px;
+        font-weight: bold;
+    }
+    .bk-paybybank-selector {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .bk-paybybank-selector .bk-method-issuer  {
+        flex: 25% 0;
+        min-width: 55px;
+    }
+
+    .bk-paybybank-selector .bk-issuer-label strong {
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        flex: 100% 0 0;
+        color: #6d6d6d;
+    }
+
+    .bk-paybybank-selector input:checked + .bk-issuer-label strong {
+        color: #000;
+    }
+
+    .bk-paybybank-selector input:checked + .bk-issuer-label {
+        background-color: #EDEDED;
+        border-radius: 5px;
+    }
+    .bk-paybybank-selector .bk-issuer-label{
+        padding-bottom: 5px;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        padding-top: 5px;
+        text-align: center;
+    }
+
+
+    .bk-paybybank-selector .bk-issuer-label img {
+        padding: 10px 20px;
+        width: 70px;
+    }
+
+    .bk-paybybank-selector input {
+        display:none;
+    }
+}
+
+/* end paybybank, ideal, creditcards */

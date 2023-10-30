@@ -1,2 +1,7 @@
-certificate/BuckarooPrivateKey.pem
 /api/log
+composer.lock
+.php-cs-fixer.cache
+var
+tools
+dev/node_modules
+.idea

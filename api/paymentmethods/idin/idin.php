@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -26,31 +24,26 @@ class Idin extends PaymentMethod
 
     public function __construct()
     {
-        $this->type    = "idin";
+        $this->type = 'idin';
         $this->version = 0;
-        $this->mode    = Config::getMode($this->type);
     }
 
-    public function verify($customVars = array())
+    public function verify($customVars = [])
     {
-        $this->data['customVars'][$this->type]['issuerId'] = $this->getIssuer($this->issuer);
+        $this->payload['issuer'] = $this->getIssuer($this->issuer);
+
         if (isset($customVars['cid'])) {
-            $this->data['customParameters']['cid'] = $customVars['cid'];
+            $this->payload['additionalParameters']['cid'] = $customVars['cid'];
         }
 
         return parent::verify();
     }
 
     // @codingStandardsIgnoreStart
-    public function pay($customVars = array())
+    public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
         return null;
-    }
-
-    public function refund()
-    {
-        return parent::refund();
     }
 
     protected function getIssuer($issuer)

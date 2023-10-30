@@ -39,12 +39,12 @@ $bkjq(function($) {
 });
 var paymentMethodValidation;
 paymentMethodValidation={
-    methodSelector: null, // selected method notation from from 'action' attribute
+    methodSelector: null, // selected method notation from 'action' attribute
     formPointer:    null, // JS form object pointer
     valid: true,
     requiredAll: function() {
         that = this;
-        this.formPointer.find('label.required').parent().nextAll().children().not('.buckaroo-validation-message').each(function() {
+        this.formPointer.find('label.required').parent().nextAll().find('input').not('.buckaroo-validation-message').each(function() {
 
             let invalid = !validateRequired($(this).val());
             if(invalid === true) {
@@ -73,8 +73,24 @@ paymentMethodValidation={
 
             if(dateInvalid === true) {
                 this.valid = false;
+            } else {
+                let day = $("#customerbirthdate_d_billing_digi").val();
+                let month = $("#customerbirthdate_m_billing_digi").val() - 1; // months are 0-based in JavaScript
+                let year = $("#customerbirthdate_y_billing_digi").val();
+
+                let inputDate = new Date(year, month, day); // create a date object from input
+                let now = new Date();
+                let eighteenYearsAgo = new Date(now.getFullYear() - 18, now.getMonth(), now.getDate());
+
+                let ageInvalid = inputDate > eighteenYearsAgo;
+                this.displayMessage($("#customerbirthdate_y_billing_digi"), buckarooMessages.validation.age, !ageInvalid);
+
+                if(ageInvalid === true) {
+                    this.valid = false;
+                }
             }
         }
+
         if ($("#customerbirthdate_d_shipping_digi").val()) {
             let dateInvalidShipping = !isValidDate($("#customerbirthdate_d_shipping_digi").val() + $("#customerbirthdate_m_shipping_digi").val() + $("#customerbirthdate_y_shipping_digi").val());
             this.displayMessage($("#customerbirthdate_d_shipping_digi"), buckarooMessages.validation.date, !dateInvalidShipping);
@@ -98,11 +114,31 @@ paymentMethodValidation={
             this.valid = false;
         }
     },
-    init: function (e) {  
+    billinkTrigger: function () {
+        if ($("#customerbirthdate_d_billing_billink").val()) {
+            let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_billink").val() + $("#customerbirthdate_m_billing_billink").val() + $("#customerbirthdate_y_billing_billink").val());
+            this.displayMessage($("#customerbirthdate_d_billing_billink"), buckarooMessages.validation.date, !dateInvalid);
+
+            if(dateInvalid === true) {
+                this.valid = false;
+            }
+        }
+    },
+    payPerEmailTrigger: function () {
+        if ($("#customerbirthdate_d_billing_payperemail").val()) {
+            let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_payperemail").val() + $("#customerbirthdate_m_billing_payperemail").val() + $("#customerbirthdate_y_billing_payperemail").val());
+            this.displayMessage($("#customerbirthdate_d_billing_payperemail"), buckarooMessages.validation.date, !dateInvalid);
+
+            if(dateInvalid === true) {
+                this.valid = false;
+            }
+        }
+    },
+    init: function (e) {
         this.valid = true;
         $('.buckaroo-validation-message').remove();
         // we validate all at the required fields pertaining to a selected method/form
-       this.requiredAll();
+        this.requiredAll();
 
         // we validate based on the selected method
         switch (this.methodSelector){
@@ -113,6 +149,12 @@ paymentMethodValidation={
             case 'afterpay&service=digi':
                this.afterpayDigiTrigger();
                 break;
+            case 'billink':
+                this.billinkTrigger();
+                    break;
+            case 'payperemail':
+                this.payPerEmailTrigger();
+                    break;
             default:
         }
         if (this.valid) {
@@ -179,38 +221,38 @@ $(document).ready(function () {
 
     $('input[name="payment-option"]').on('change', function () {
         var $nextDiv = $(this).closest('.payment-option').parent().next();
-        var paymentFee,
-            paymentFeeDisplay;
+        var paymentFee;
+        let buckarooKey;
         if ($nextDiv.hasClass('js-payment-option-form')) {
             paymentFee = $nextDiv.find('input[name="payment-fee-price"]').val();
-            paymentFeeDisplay = $nextDiv.find('input[name="payment-fee-price-display"]').val();
-            if(buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val()){
-                if(buckarooFees[buckarooKey] != undefined){
+            buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val()
+            if (buckarooKey) {
+                if (buckarooFees[buckarooKey] !== undefined) {
                     paymentFee = buckarooFees[buckarooKey]['buckarooFee'];
-                    paymentFeeDisplay = buckarooFees[buckarooKey]['buckarooFeeDisplay'];
                 }
             }
         } else {
             paymentFee = $nextDiv.next().find('input[name="payment-fee-price"]').val();
-            paymentFeeDisplay = $nextDiv.next().find('input[name="payment-fee-price-display"]').val();
         }
 
-        $('#cart-subtotal-buckarooFee').html('');
-            $.ajax({
-                url: buckarooAjaxUrl,
-                method: 'GET',
-                data: {
-                    'paymentFee': paymentFee,
-                    ajax: 1,
-                    action: 'getTotalCartPrice'
-                },
-                success: function (response) {
-                    response = jQuery.parseJSON(response);
-                    $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
-                    var paymentFeeHtml = '';
-                    if(paymentFee != undefined && paymentFee >0){
-                        paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + paymentFeeDisplay + ' </span> </div>';
-                    }
+        if (!paymentFee) {
+            $('#cart-subtotal-buckarooFee').remove();
+        }
+
+        $.ajax({
+            url: buckarooAjaxUrl,
+            method: 'GET',
+            data: {
+                'paymentFee': paymentFee,
+                ajax: 1,
+                action: 'getTotalCartPrice'
+            },
+            success: function (response) {
+                response = jQuery.parseJSON(response);
+                $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
+                var paymentFeeHtml = '';
+                if(response && response.paymentFee !== undefined){
+                    paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
 
                     if($('#cart-subtotal-buckarooFee').length == 0){
                         $('.cart-summary-subtotals-container').append($('<div id="cart-subtotal-buckarooFee">' + paymentFeeHtml + '</div>'));
@@ -218,6 +260,144 @@ $(document).ready(function () {
                         $('#cart-subtotal-buckarooFee').html(paymentFeeHtml);
                     }
                 }
-            })
+            }
+        })
     })
+
+    new BuckarooCheckout().listen();
+    new BuckarooPayByBank().init();
+    new BuckarooApplePay().init();
 });
+
+class BuckarooCheckout {
+    static MOBILE_WIDTH = 768;
+    static SHOW_MORE_BANKS = 5;
+
+    listen() {
+        this.toggleMethods();
+    }
+
+    toggleMethods() {
+        this.initMethod();
+        jQuery('body').on('click', '.bk-toggle-wrap', (event) => this.handleToggle(event));
+        jQuery(window).on('resize', this.showAllIssuers.bind(this));
+    }
+
+    handleToggle(event) {
+        const toggleWrap = jQuery(event.currentTarget);
+        const parentSelector = toggleWrap.closest('.additional-information').find('.bk-method-selector');
+
+        const toggle = toggleWrap.find('.bk-toggle');
+        const isDown = toggle.hasClass('bk-toggle-down');
+        const textElement = toggleWrap.find('.bk-toggle-text');
+
+        if (isDown) {
+            textElement.text(textElement.attr('text-less'));
+            parentSelector.children().show();
+        } else {
+            textElement.text(textElement.attr('text-more'));
+            this.hideExcessIssuers(parentSelector);
+        }
+
+        toggle.toggleClass('bk-toggle-down bk-toggle-up');
+    }
+
+    hideExcessIssuers(selector) {
+        const isPayByBank = selector.hasClass('bk-paybybank-selector');
+        const selectedIssuer = isPayByBank ? selector.find('input:checked') : null;
+
+        if (isPayByBank && selectedIssuer && selectedIssuer.length) {
+            selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
+        } else {
+            selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+        }
+    }
+
+    initMethod() {
+        jQuery('.bk-method-selector').each((_, elem) => {
+            const selector = jQuery(elem);
+            this.hideExcessIssuers(selector);
+        });
+
+        this.showAllIssuers();
+    }
+
+    showAllIssuers = () => {
+        if (jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH) {
+            jQuery('.bk-toggle-wrap').hide();
+            if (jQuery('.bk-toggle-down').length) {
+                jQuery('.bk-toggle-down').addClass('bk-toggle-up').removeClass('bk-toggle-down');
+                jQuery('.bk-method-selector').children().show();
+                jQuery('.bk-toggle-text').text(jQuery('.bk-toggle-text').attr('text-less'));
+            } else {
+                jQuery('.bk-toggle-wrap').show();
+            }
+        }
+    }
+}
+
+class BuckarooPayByBank {
+
+    isMobile = jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH;
+
+    init() {
+        this.showInput();
+        this.startListeners();
+    }
+
+    startListeners() {
+        jQuery(window).on('resize', this.toggleInputToShow.bind(this));
+        jQuery('.bk-paybybank-mobile select').on('change', this.syncWithRadioGroup.bind(this));
+        jQuery('.bk-paybybank-not-mobile input').on('change', this.syncWithSelect.bind(this));
+    }
+
+    toggleInputToShow() {
+        let isMobile = jQuery(window).width() < BuckarooCheckout.MOBILE_WIDTH;
+
+        if (this.isMobile !== isMobile) {
+            this.isMobile = isMobile;
+            this.showInput();
+        }
+    }
+
+    showInput() {
+        jQuery('.bk-paybybank-mobile').toggle(this.isMobile);
+        jQuery('.bk-paybybank-not-mobile').toggle(!this.isMobile);
+    }
+
+    syncWithRadioGroup() {
+        const value = jQuery('.bk-paybybank-mobile select').val();
+        if(value === "0") {
+            return;
+        }
+        const radioWithValue = jQuery(`.bk-paybybank-selector input[value="${value}"]`);
+        radioWithValue.prop('checked', true);
+        this.changeIcon(value);
+    }
+    syncWithSelect() {
+        const value = jQuery('.bk-paybybank-not-mobile input:checked').val();
+        jQuery('.bk-paybybank-mobile select').val(value);
+        this.changeIcon(value);
+    }
+
+    changeIcon(issuer) {
+        const img = $(`.bk-paybybank-not-mobile #paybybank_issuer_${issuer}`)
+            .closest('.bk-method-issuer')
+            .find('img').attr('src');
+
+        jQuery('[data-module-name="PAYBYBANK"]')
+            .closest('.payment-option')
+            .find('img').attr('src', img)
+    }
+}
+class BuckarooApplePay {
+    get isApplePayAvailable(){
+        return !!(window.ApplePaySession && ApplePaySession.canMakePayments());
+    }
+    init(){
+        this.togglePayment(this.isApplePayAvailable)
+    }
+    togglePayment(value = false) {
+        jQuery('[data-module-name="applepay"]').closest('.payment-option').toggle(value);
+    }
+}

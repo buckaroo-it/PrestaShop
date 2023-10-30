@@ -15,113 +15,105 @@
 <div id="formAddPaymentPanel" class="card mt-2">
     <div class="card-header">
         <h3 class="card-header-title">
-            {l s='Buckaroo payments & refunds' mod='buckaroo3'} ({$order->getOrderPayments()|@count|escape:'quotes':'UTF-8'})
+            {l s='Buckaroo refunds' mod='buckaroo3'}
         </h3>
     </div>
-    {if $messages != ''}
-    <div class="card-body">
-                {if $messageStatus == 0}
-                <div class='alert alert-danger mb-0'><p class="alert-text">{$messages|escape:'html':'UTF-8'}</p></div>
-                {else}
-                <div class='alert alert-success mb-0'><p class="alert-text">{$messages|escape:'html':'UTF-8'}</p></div>
-                {/if}
-    </div>
-    {/if}
-    <div class="card-body">
+
+    <div class="card-body bk-refund-body">
+        <label for="bk-refund-amount">{l s='Refund amount' mod='buckaroo3'}</label>
+        <div class="input-group mb-3">
+            <input type="number" name="refund-amount" id="bk-refund-amount" class="form-control"
+                placeholder="{$maxAvailableAmount|escape:'html':'UTF-8'}">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-primary" id="bk-btn-refund">{l s='Refund' mod='buckaroo3'}</button>
+            </div>
+        </div>
+        <input type="hidden" id="bk-order-id" value="{$orderId|escape:'html':'UTF-8'}" />
+        <small>{l s='Max amount available' mod='buckaroo3'} <strong>{$maxAvailableAmount|escape:'html':'UTF-8'}</strong></small>
+        <hr>
+
+        <h4>{l s='Previous Refunds' mod='buckaroo3'}</h4>
         <table class="table">
             <thead>
-            <tr>
-                <th><span class="title_box ">{l s='Date' mod='buckaroo3'}</span></th>
-                <th><span class="title_box ">{l s='Payment method' mod='buckaroo3'}</span></th>
-                <th><span class="title_box ">{l s='Transaction ID' mod='buckaroo3'}</span></th>
-                <th><span class="title_box ">{l s='Amount' mod='buckaroo3'}</span></th>
-                <th></th>
-            </tr>
+                <tr>
+                    <th><span class="title_box ">{l s='Transaction ID' mod='buckaroo3'}</span></th>
+                    <th class="text-center"><span class="title_box ">{l s='Status' mod='buckaroo3'}</span></th>
+                    <th class="text-right"><span class="title_box ">{l s='Amount' mod='buckaroo3'}</span></th>
+                    <th class="text-right"><span class="title_box ">{l s='Date' mod='buckaroo3'}</span></th>
+                </tr>
             </thead>
             <tbody>
-            {foreach from=$payments item=payment}
-                <tr>
-                    <td>{dateFormat date=$payment->date_add full=true}</td>
-                    <td>{$payment->payment_method|escape:'html':'UTF-8'}</td>
-                    <td>{$payment->transaction_id|escape:'html':'UTF-8'}</td>
-                    <td><input class="buckaroo_part_refund_amount" {if $payment->amount <  0} disabled="disabled" {/if} type="number" step="0.01" max="{$paymentInfo[$payment->id]['available_amount']|escape:'html':'UTF-8'}" value="{$paymentInfo[$payment->id]['available_amount']|escape:'html':'UTF-8'}"></td>
-                    <td class="actions">
-                        {if $payment->payment_method == 'Group transaction'}
-                            Group transaction
-                        {elseif $payment->amount > 0 && $paymentInfo[$payment->id]['available_amount'] == $payment->amount}
-                            <button class="btn btn-sm btn-outline-secondary open_payment_information">
-                                {l s='Details' mod='buckaroo3'}
-                            </button>
-                        {elseif $payment->amount > 0 && $paymentInfo[$payment->id]['available_amount'] === 0}
-                            Fully refunded
-                        {elseif $payment->amount > 0 && $paymentInfo[$payment->id]['available_amount'] > 0}
-                            <button class="btn btn-sm btn-outline-secondary open_payment_information">
-                                {l s='Partially refunded' mod='buckaroo3'}
-                            </button>
-                        {else}
-                            {l s='Refund transaction' mod='buckaroo3'}
-                            
-                        {/if}
-                    </td>
-                </tr>
-                <tr class="payment_information" style="display: none;">
-                    <td colspan="4">
-                        {if $payment->amount > 0 && $payment->transaction_id}
-                            <button style="width: 190px"
-                               type="button"
-                               class="btn btn-primary btn-block buckaroo_part_refund_link"
-                               data-max-amount="{$paymentInfo[$payment->id]['available_amount']|escape:'html':'UTF-8'}"
-                               data-trxid = "{$payment->transaction_id|escape:'html':'UTF-8'}"
-                            >
-                            {l s='Refund' mod='buckaroo3'}
-                            </button>
-                        {else}
-                            {l s='Transaction can\'t be refunded' mod='buckaroo3'}
-                        {/if}
-                    </td>
-                </tr>
-                {foreachelse}
-                <tr>
-                    <td class="list-empty hidden-print" colspan="5">
-                        <div class="list-empty-msg">
-                            <i class="icon-warning-sign list-empty-icon"></i>
-                            {l s='No payment methods are available' mod='buckaroo3'}
-                        </div>
-                    </td>
-                </tr>
-            {/foreach}
+                {foreach from=$refunds item=refund}
+                    <tr>
+
+                        <td><a href="https://plaza.buckaroo.nl/Transaction/Transactions/Details?transactionKey={$refund->getKey()|escape:'html':'UTF-8'}"
+                                target="_blank">{$refund->getKey()|escape:'html':'UTF-8'}<a></td>
+                        <td class="text-center">
+                            <div
+                                class="badge{if ($refund->getStatus() === 'success')} badge-success {else} badge-danger {/if}">
+                                {$refund->getStatus()|escape:'html':'UTF-8'}
+                            </div>
+                        </td>
+                        <td class="text-right">
+                            {Tools::getContextLocale(Context::getContext())->formatPrice($refund->getAmount(), Currency::getIsoCodeById($currencyId))|escape:'html':'UTF-8'}
+                        </td>
+                        <td class="text-right">{dateFormat date=$refund->getCreatedAt()->format('Y-m-d H:i:s') full=true}
+                        </td>
+                    </tr>
+                {/foreach}
             </tbody>
         </table>
     </div>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#formAddPaymentPanel .open_payment_information').on('click',function(){
-            $(this).closest('tr').next('tr.payment_information').toggle();
-        });
-        $('.buckaroo_part_refund_link').on('click', function() {
-            let amount = $(this)
-            .closest('tr')
-            .prev('tr')
-            .find('.buckaroo_part_refund_amount')
-            .val();
-            let max_amount = $(this).data('max-amount');
-            let transaction_id = $(this).data('trxid');
-            if (amount > max_amount) {
-                amount = max_amount;
+<script>
+    $(function() {
+        $('#bk-btn-refund').click(function() {
+            var refundAmount = Number($('#bk-refund-amount').val());
+            if (refundAmount === 0) {
+                alert('{l s="A refund amount grater than 0 is required" mod="buckaroo3"}');
+                return;
+            }
+            if (
+                confirm('{l s="Are you sure you want to do this refund?" mod="buckaroo3"}')
+
+            ) {
+                buckarooToggleRefundButton(true);
+                $.ajax({
+                    type: 'POST',
+                    url: '{$ajaxUrl|escape:'html':'UTF-8'}',
+                    data: {
+                        orderId: $('#bk-order-id').val(),
+                        refundAmount: refundAmount
+                    },
+                    success: function(response) {
+                        buckarooAlert(response.message, response.error === true ? 'danger' :
+                            'success');
+                        buckarooToggleRefundButton(false);
+                        location.replace(location.href);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        buckarooAlert('{l s="An ajax error occured while refunding" mod="buckaroo3"}');
+                        buckarooToggleRefundButton(false);
+                        location.replace(location.href);
+                    }
+                })
             }
 
-            let link = "{$refundLink|escape:'html':'UTF-8'}&action=refund&transaction_id=" +transaction_id + "&id_order={$order->id|escape:'html':'UTF-8'}&refund_amount=" + amount;
-            let confirmMessage = "{l s='Are you sure want to refund amount ?' mod='buckaroo3'}".replace('amount', amount)
-           
-            if (confirm(confirmMessage)) {
-                $(this).prop('disabled', true);
-                window.location = link;
+        });
+
+        function buckarooToggleRefundButton(disabled) {
+            $('#bk-btn-refund').prop('disabled', disabled);
+        }
+
+        function buckarooAlert(message, type = 'danger') {
+            $('.bk-refund-alert-message').remove();
+            if (message && message.length > 0) {
+                const parent = $('.bk-refund-body');
+                parent.prepend(
+                    '<div class="alert alert-' + type + ' bk-refund-alert-message">' + message + '</div>'
+                );
             }
-        })
-        {if $buckarooFee != ''}
-            $('#total_order').before('<tr><td class=text-right>Buckaroo Fee</td><td class="amount text-right nowrap">{$buckarooFee|escape:'html':'UTF-8'}</td></tr>');
-        {/if}
-    });
-</script> 
+        }
+    })
+</script>

@@ -1,89 +1,195 @@
 <?php
 /**
-*
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* It is available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade this file
-*
-*  @author    Buckaroo.nl <plugins@buckaroo.nl>
-*  @copyright Copyright (c) Buckaroo B.V.
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*/
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php');
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/library/logger.php');
-include_once(_PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php');
+namespace Buckaroo\PrestaShop\Controllers\admin;
 
-class AdminRefundController extends AdminControllerCore
+use Buckaroo\PrestaShop\Src\Refund\OrderService;
+use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
+use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
+use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
+use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
+use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+
+class AdminRefundController extends FrameworkBundleAdminController
 {
-    public function __construct()
+    /**
+     * @var QuantityBasedBuilder
+     */
+    private $refundBuilder;
+
+    /**
+     * @var RefundRequestHandler
+     */
+    private $refundHandler;
+
+    /**
+     * @var RefundResponseHandler
+     */
+    private $responseHandler;
+
+    /**
+     * @var OrderService
+     */
+    private $orderService;
+
+    public function __construct(
+        QuantityBasedBuilder $refundBuilder,
+        RefundRequestHandler $refundHandler,
+        RefundResponseHandler $responseHandler,
+        OrderService $orderService
+    ) {
+        $this->refundHandler = $refundHandler;
+        $this->refundBuilder = $refundBuilder;
+        $this->responseHandler = $responseHandler;
+        $this->orderService = $orderService;
+    }
+
+    public function refund(Request $request)
     {
-        parent::__construct();
-        if (Tools::getValue('action') && Tools::getValue('action') == 'refund') {
-            $this->refundAction();
+        $orderId = $request->get('orderId');
+        $refundAmount = $request->get('refundAmount');
+
+        if (!is_scalar($orderId)) {
+            return $this->renderError('Invalid value for `orderId`');
+        }
+
+        if (!is_scalar($refundAmount)) {
+            return $this->renderError('Invalid value for `refundAmount`');
+        }
+
+        $order = new \Order($orderId);
+
+        try {
+            $totalRefundAmount = $this->sendRefundRequests($order, (float) $refundAmount);
+
+            $message = 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount);
+            $this->addFlash('success', $message);
+
+            return new JsonResponse(
+                ['error' => false, 'message' => $message]
+            );
+        } catch (\Throwable $th) {
+            return $this->renderError($th->getMessage());
         }
     }
 
-    public function display()
+    /**
+     * Send refund request to payment engine, return total amount refunded
+     *
+     * @param \Order $order
+     * @param float  $maxRefundAmount
+     *
+     * @return float
+     */
+    private function sendRefundRequests(\Order $order, float $maxRefundAmount): float
     {
-        return true;
-    }
-
-    public function refundAction()
-    {
-        $order = new Order(Tools::getValue("id_order"));
-        $transactions = $order->getOrderPayments();
-        foreach ($transactions as $transaction) {
-            /* @var $transaction OrderPaymentCore */
-            if ($transaction->transaction_id == Tools::getValue("transaction_id")) {
-                //refund this transaction
-                autoload('refunds');
-                $transaction_amount =
-                    Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $transaction->amount;
-                $Refunds = new Refunds($transaction->payment_method);
-                $currency = new Currency((int)$transaction->id_currency);
-                $Refunds->amountDedit = 0;
-                $Refunds->amountCredit = $transaction_amount;
-                $Refunds->currency = $currency->iso_code;
-                $Refunds->description = '';
-                $Refunds->invoiceId = $transaction->order_reference . '_' . $order->id_cart;
-                $Refunds->orderId = $transaction->order_reference . '_' . $order->id_cart;
-                $Refunds->OriginalTransactionKey = $transaction->transaction_id;
-                $Refunds->returnUrl = '';
-                $response = $Refunds->refund();
-                if ($response && $response->isValid() && $response->hasSucceeded()) {
-                    $this->context->cookie->__set('refundStatus', '1');
-                    $this->context->cookie->__set('refundMessage', sprintf(
-                        'Refunded %s - Refund transaction ID: %s',
-                        $transaction_amount . ' ' . $currency->iso_code,
-                        $response->transactions
-                    ));
-                } else {
-                    if (!empty($response->ChannelError)) {
-                        $this->context->cookie->__set('refundStatus', '0');
-                        $this->context->cookie->__set('refundMessage', sprintf(
-                            'Refund failed for transaction ID: %s ' . $response->ChannelError,
-                            $transaction->transaction_id
-                        ));
-                    } else {
-                        $this->context->cookie->__set('refundStatus', '0');
-                        $this->context->cookie->__set('refundMessage', sprintf(
-                            'Refund failed for transaction ID: %s. See error in Buckaroo Payment Plaza',
-                            $transaction->transaction_id
-                        ));
-                    }
+        $refundAmount = $maxRefundAmount;
+        $buckarooPayments = $this->getBuckarooPayments($order);
+        if (count($buckarooPayments)) {
+            foreach ($buckarooPayments as $payment) {
+                if ($payment->amount > 0) {
+                    $refundAmount = $this->sentRefundRequest($order, $payment, $refundAmount);
                 }
-                $this->context->cookie->write();
             }
         }
-        Tools::redirectAdmin('index.php?tab=AdminOrders&id_order=' . (int) $order->id . '&vieworder' . '&token=' . Tools::getAdminTokenLite('AdminOrders').'#formAddPaymentPanel');
-        exit();
+
+        return $maxRefundAmount - $refundAmount;
+    }
+
+    /**
+     * Refund individual payment with amount, return remaining amount to be refunded
+     *
+     * @param \Order        $order
+     * @param \OrderPayment $payment
+     * @param float         $maxRefundAmount
+     *
+     * @return float
+     */
+    private function sentRefundRequest(\Order $order, \OrderPayment $payment, float $maxRefundAmount): float
+    {
+        $refundAmount = $maxRefundAmount;
+        if ($maxRefundAmount > $payment->amount) {
+            $refundAmount = $payment->amount;
+        }
+        $maxRefundAmount -= $refundAmount;
+
+        try {
+            $this->orderService->refund($order, $refundAmount);
+        } catch (\Throwable $th) { // phpcs:ignore
+            // throw $th;
+        }
+
+        $body = $this->refundBuilder->create($order, $payment, $refundAmount);
+        $this->responseHandler->parse(
+            $this->refundHandler->refund(
+                $body,
+                $payment->payment_method
+            ),
+            $body,
+            $order->id
+        );
+
+        return $maxRefundAmount;
+    }
+
+    /**
+     * Get buckaroo payments
+     *
+     * @param \Order $order
+     *
+     * @return array
+     */
+    private function getBuckarooPayments(\Order $order): array
+    {
+        // todo: filter payments for only buckaroo requests
+        return $order->getOrderPayments();
+    }
+
+    /**
+     * Render any errors generated
+     *
+     * @param string $message
+     *
+     * @return JsonResponse
+     */
+    private function renderError(string $message): JsonResponse
+    {
+        $this->addFlash('error', $message);
+
+        return new JsonResponse(['error' => true, 'message' => $message]);
+    }
+
+    /**
+     * Format price based on order currency
+     *
+     * @param \Order $order
+     * @param float  $price
+     *
+     * @return string
+     *
+     * @throws LocalizationException
+     * @throws \Exception
+     */
+    private function formatPrice(\Order $order, float $price): string
+    {
+        return \Tools::getContextLocale(\Context::getContext())->formatPrice(
+            $price, \Currency::getIsoCodeById((int) $order->id_currency)
+        );
     }
 }

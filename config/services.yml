@@ -1,0 +1,197 @@
+services:
+  buckaroo.refund_handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Handler
+    arguments:
+      - "@prestashop.adapter.order.refund.order_refund_calculator"
+      - "@buckaroo.refund.request.handler"
+      - "@buckaroo.refund.request.builder"
+      - "@buckaroo.refund.request.response.handler"
+    public: true
+
+  buckaroo.refund_controller:
+    class: Buckaroo\PrestaShop\Controllers\admin\AdminRefundController
+    arguments:
+      - "@buckaroo.refund.request.quantity_based_builder"
+      - "@buckaroo.refund.request.handler"
+      - "@buckaroo.refund.request.response.handler"
+      - "@buckaroo.refund.order.service"
+    public: true
+
+  buckaroo.refund.request.handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Request\Handler
+    public: true
+  
+  buckaroo.refund.settings:
+    class: Buckaroo\PrestaShop\Src\Refund\Settings
+    public: true
+
+  buckaroo.refund.request.builder:
+    class: Buckaroo\PrestaShop\Src\Refund\Request\Builder
+    public: true
+
+  buckaroo.refund.request.quantity_based_builder:
+    class: Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder
+    public: true
+
+  buckaroo.refund.payment.service:
+    class: Buckaroo\PrestaShop\Src\Refund\Payment\Service
+    public: true
+
+  buckaroo.refund.status.service:
+    class: Buckaroo\PrestaShop\Src\Refund\StatusService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.refund.request.response.handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.refund.payment.service"
+      - "@buckaroo.refund.status.service"
+    public: true
+
+  buckaroo.refund.push.handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Push\Handler
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.refund.payment.service"
+      - "@buckaroo.refund.status.service"
+    public: true
+
+  buckaroo.refund.order.service:
+    class: Buckaroo\PrestaShop\Src\Refund\OrderService
+    arguments:
+      - "@prestashop.core.command_bus"
+      - "@session"
+    public: true
+
+  buckaroo.refund.order.message:
+    class: Buckaroo\PrestaShop\Src\Refund\OrderMessage
+    public: true
+
+  buckaroo.refund.admin.provider:
+    class: Buckaroo\PrestaShop\Src\Refund\Admin\Provider
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@prestashop.router"
+    public: true
+
+  buckaroo.decorator.issue_partial_refund_handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Decorators\IssuePartialRefundHandler
+    decorates: "prestashop.adapter.order.command_handler.issue_partial_refund_handler"
+    arguments:
+      - "@buckaroo.decorator.issue_partial_refund_handler.inner"
+      - "@buckaroo.refund_handler"
+      - "@session"
+    public: false
+
+  buckaroo.decorator.issue_standard_refund_handler:
+    class: Buckaroo\PrestaShop\Src\Refund\Decorators\IssueStandardRefundHandler
+    decorates: "prestashop.adapter.order.command_handler.issue_standard_refund_handler"
+    arguments:
+      - "@buckaroo.decorator.issue_standard_refund_handler.inner"
+      - "@buckaroo.refund_handler"
+    public: false
+
+  Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier:
+    class: Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier
+    autowire: true
+    public: true
+    arguments:
+      $formBuilderModifier: '@form.form_builder_modifier'
+
+  Buckaroo\PrestaShop\Src\Form\Type\IdinTabType:
+    class: Buckaroo\PrestaShop\Src\Form\Type\IdinTabType
+    parent: 'form.type.translatable.aware'
+    public: true
+    arguments:
+      - '@=service("prestashop.adapter.data_provider.currency").getDefaultCurrency()'
+    tags:
+      - { name: form.type }
+
+  buckaroo.config.api.config.service:
+    class:  Buckaroo\PrestaShop\Src\Service\BuckarooConfigService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.paymentMethod:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethodConfig
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.countries.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.countries:
+    class: Buckaroo\PrestaShop\Controllers\admin\Countries
+    arguments:
+      - "@buckaroo.config.countries.service"
+    public: true
+
+  buckaroo.config.controllers.creditcards:
+    class: Buckaroo\PrestaShop\Controllers\admin\Creditcards
+    public: true
+
+  buckaroo.config.controllers.orderings:
+    class: Buckaroo\PrestaShop\Controllers\admin\Orderings
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.config.controllers.methodMode:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethodMode
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.controllers.methods:
+    class: Buckaroo\PrestaShop\Controllers\admin\PaymentMethods
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+  
+  buckaroo.config.controllers.settings:
+    class: Buckaroo\PrestaShop\Controllers\admin\Settings
+    public: true
+
+  buckaroo.config.controllers.testCredentials:
+    class: Buckaroo\PrestaShop\Controllers\admin\TestCredentialsApi
+    public: true
+    
+  buckaroo.config.controllers.verificationMethods:
+    class: Buckaroo\PrestaShop\Controllers\admin\VerificationMethods
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.api.fee.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooFeeService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
+  buckaroo.classes.issuers.payByBank:
+    class: Buckaroo\PrestaShop\Classes\IssuersPayByBank
+    public: true
+
+  buckaroo.classes.issuers.capayableIn3:
+    class: Buckaroo\PrestaShop\Classes\CapayableIn3
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.config.api.payment.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService
+    arguments:
+      - "@doctrine.orm.entity_manager"
+      - "@buckaroo.config.api.fee.service"
+      - "@buckaroo.config.api.config.service"
+      - "@buckaroo.classes.issuers.payByBank"
+      - "@buckaroo.classes.issuers.capayableIn3"
+    public: true

@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -17,48 +15,50 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
-
     /* @var $checkout IDealCheckout */
     public $checkout;
+    public $display_column_left = false;
+    /** @var bool */
+    public $display_column_right = false;
 
     /**
+     * @throws Exception
+     *
      * @see FrontController::postProcess()
      */
     public function postProcess()
     {
-        $logger = new Logger(Logger::INFO, 'request');
+        $logger = new \Logger(CoreLogger::INFO, '');
         $logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
-        $this->display_column_left  = false;
-        $this->display_column_right = false;
-        $cart                       = $this->context->cart;
-        $logger->logDebug("Get cart", $cart);
+        $cart = $this->context->cart;
+        $logger->logDebug('Get cart', $cart->id);
 
         if ($cart->id_customer == 0
             || $cart->id_address_delivery == 0
             || $cart->id_address_invoice == 0
             || !$this->module->active) {
-            $debug = "Customer Id: " . $cart->id_customer . "\nDelivery Address ID: " .
-            $cart->id_address_delivery . "Invoice Address ID: " .
+            $debug = 'Customer Id: ' . $cart->id_customer . "\nDelivery Address ID: " .
+            $cart->id_address_delivery . 'Invoice Address ID: ' .
             $cart->id_address_invoice . "\nModule Active: " . $this->module->active;
 
-            $logger->logError("Validation Error", $debug);
+            $logger->logError('Validation Error', $debug);
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $filename    = Config::get('BUCKAROO_CERTIFICATE_PATH');
-        $merchantkey = Config::get('BUCKAROO_MERCHANT_KEY');
-        $secret_key  = Config::get('BUCKAROO_SECRET_KEY');
-        $thumbprint  = Config::get('BUCKAROO_CERTIFICATE_THUMBPRINT');
-        if (!file_exists($filename) || empty($merchantkey) || empty($secret_key) || empty($thumbprint)) {
+        $merchantkey = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $secret_key = Configuration::get('BUCKAROO_SECRET_KEY');
+        if (empty($merchantkey) || empty($secret_key)) {
             $error = $this->module->l(
-                "<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured."
+                '<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured.'
             );
             Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error&error=' . $error);
         }
@@ -73,47 +73,64 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         if (!$authorized) {
-            $logger->logError("Authorization Error", 'This payment method is not available.');
-            die($this->module->l('This payment method is not available.', 'validation'));
+            $logger->logError('Authorization Error', 'This payment method is not available.');
+            exit($this->module->l('This payment method is not available.', 'validation'));
         }
 
         $customer = new Customer($cart->id_customer);
         if (!Validate::isLoadedObject($customer)) {
-            $logger->logError("Load a customer", 'Failed to load the customer with ID: ' . $cart->id_customer);
+            $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
             Tools::redirect('index.php?controller=order&step=1');
-            exit();
+            exit;
         }
 
-        $currency       = $this->context->currency;
-        $total          = (float) $cart->getOrderTotal(true, Cart::BOTH);
+        $currency = $this->context->currency;
+        $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        if ($buckarooFee = Config::get('BUCKAROO_'.Tools::strtoupper($payment_method).'_FEE')) {
-            if ($buckarooFee>0) {
+        $getBuckarooFeeValue = $this->module->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
+        if ($buckarooFee = $getBuckarooFeeValue) {
+            $buckarooFee = trim($buckarooFee);
+
+            if (strpos($buckarooFee, '%') !== false) {
+                // The fee includes a percentage sign, so treat it as a percentage.
+                // Remove the percentage sign and convert the remaining value to a float.
+                $buckarooFee = str_replace('%', '', $buckarooFee);
+                $total += ($total * ((float) $buckarooFee / 100));
+            } elseif ($buckarooFee > 0) {
+                // The fee is a flat amount.
                 $total += (float) $buckarooFee;
             }
         }
 
         if (empty($payment_method)) {
-            $logger->logError("Load a method", 'Failed to load the method');
+            $logger->logError('Load a method', 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
-            exit();
+            exit;
         }
-        if (Tools::getValue("service")
-            && Tools::getValue("service") != 'digi'
-            && Tools::getValue("service") != 'sepa') {
-            $logger->logError("Load a method", 'Failed to load the method');
+        if (Tools::getValue('service')
+            && Tools::getValue('service') != 'digi'
+            && Tools::getValue('service') != 'sepa') {
+            $logger->logError('Load a method', 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
-            exit();
+            exit;
         }
-        $debug = "Currency: " . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
-        $logger->logInfo("Checkout info", $debug);
+        $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
+        $logger->logInfo('Checkout info', $debug);
 
         $this->checkout = Checkout::getInstance($payment_method, $cart);
-        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") ? 's' : '') . '://' . $_SERVER["SERVER_NAME"] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';//phpcs:ignore
-        $logger->logDebug("Get checkout class: ", $this->checkout);
-        $pending           = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $payment_method_tr = $this->module->getPaymentTranslation($payment_method);
+        $this->checkout->platformName = 'PrestaShop';
+        $this->checkout->platformVersion = _PS_VERSION_;
+        $this->checkout->moduleSupplier = $this->module->author;
+        $this->checkout->moduleName = $this->module->name;
+        $this->checkout->moduleVersion = $this->module->version;
+        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
+        $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
+        $logger->logDebug('Get checkout class: ');
+        $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+
+        $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
+
         if (!$this->checkout->isVerifyRequired()) {
             $this->module->validateOrder(
                 $cart->id,
@@ -127,15 +144,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $customer->secure_key
             );
         }
-        $id_order_cart = Order::getOrderByCartId($cart->id);
-        $order         = new Order($id_order_cart);
+        $id_order_cart = Order::getIdByCartId($cart->id);
+        $order = new Order($id_order_cart);
         $this->checkout->setReference($order->reference);
         $this->checkout->setCheckout();
-        $logger->logDebug("Set checkout info: ", $this->checkout);
+        $logger->logDebug('Set checkout info: ');
 
         if ($this->checkout->isVerifyRequired()) {
             $logger->logInfo('Start verify process');
-            $this->checkout->startVerify(['cid'=>$cart->id_customer]);
+            $this->checkout->startVerify(['cid' => $cart->id_customer]);
         } else {
             $logger->logInfo('Start the payment process');
             $this->checkout->startPayment();
@@ -143,58 +160,53 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($this->checkout->isRequestSucceeded()) {
             $response = $this->checkout->getResponse();
-
-            if (method_exists($response, 'isTest')) {
-                $this->saveOrderInTestMode($id_order_cart, $response->isTest());
-            }
-
             $logger->loginfo('Request succeeded');
 
             if ($this->checkout->isRedirectRequired()) {
-                $oldCart     = new Cart($response->getCartId());
+                $oldCart = new Cart($cart->id);
                 $duplication = $oldCart->duplicate();
                 if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
                     $this->context->cookie->id_cart = $duplication['cart']->id;
                     $this->context->cookie->write();
                 }
+
                 $logger->logInfo('Redirecting ... ');
                 $this->checkout->doRedirect();
-                exit();
+                exit;
             }
 
-            $response = $this->checkout->getResponse();
             $logger->logDebug('Checkout response', $response);
 
             if ($response->hasSucceeded()) {
                 $logger->logInfo('Payment request succeeded. Wait push message!');
-                $id_order          = $this->module->currentOrder;
-                $message           = new Message();
+                $id_order = $this->module->currentOrder;
+                $message = new Message();
                 $message->id_order = $id_order;
-                $message->message  = 'Transaction key: ' . $response->transactions;
+                $message->message = 'Transaction key: ' . $response->transactions;
                 $message->add();
-
+                // TODO fix adding Mandateref & date as message
                 if ($response->payment_method == 'SepaDirectDebit') {
                     /* @var $response Response */
                     foreach ($response->getResponse()->Services->Service->ResponseParameter as $param) {
                         if ($param->Name == 'MandateReference') {
-                            $message           = new Message();
+                            $message = new Message();
                             $message->id_order = $id_order;
-                            $message->message  = 'MandateReference: ' . $param->_;
+                            $message->message = 'MandateReference: ' . $param->_;
                             $message->add();
                         }
                         if ($param->Name == 'MandateDate') {
-                            $message           = new Message();
+                            $message = new Message();
                             $message->id_order = $id_order;
-                            $message->message  = 'MandateDate: ' . $param->_;
+                            $message->message = 'MandateDate: ' . $param->_;
                             $message->add();
                         }
                     }
                 }
                 if ($response->payment_method == 'transfer') {
-                    $this->context->cookie->__set("HtmlText", $response->consumerMessage['HtmlText']);
+                    $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
                 }
                 Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&responce_received=' . $response->payment_method//phpcs:ignore
+                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method// phpcs:ignore
                 );
             } else {
                 $logger->logInfo('Payment request failed/canceled');
@@ -206,17 +218,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $logger->logInfo(
                             'Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status)
                         );
-                        $order           = new Order($id_order);
+                        $order = new Order($id_order);
                         $new_status_code = Buckaroo3::resolveStatusCode($response->status);
-                        $pending         = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                        $canceled           = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
-                        $error              = Configuration::get('PS_OS_ERROR');
+                        $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+                        $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
+                        $error = Configuration::get('PS_OS_ERROR');
                         if ($new_status_code != $order->getCurrentState()
                             && ($pending == $order->getCurrentState()
                                 || $error == $order->getCurrentState()
                                 || $canceled == $order->getCurrentState())
                         ) {
-                            $order_history           = new OrderHistory();
+                            $order_history = new OrderHistory();
                             $order_history->id_order = $id_order;
                             $order_history->changeIdOrderState(
                                 Buckaroo3::resolveStatusCode($response->status),
@@ -228,7 +240,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $logger->logInfo('Find order by cart ID', 'Order not found.');
                     }
 
-                    $oldCart     = new Cart($response->getCartId());
+                    $oldCart = new Cart($cart->id);
                     $duplication = $oldCart->duplicate();
                     if ($duplication
                         && Validate::isLoadedObject($duplication['cart'])
@@ -244,13 +256,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     }
                     $this->displayError($id_order, $error);
                 } else {
-                    $oldCart     = new Cart($cart->id);
+                    $oldCart = new Cart($cart->id);
                     $duplication = $oldCart->duplicate();
                     if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
                         $this->context->cookie->id_cart = $duplication['cart']->id;
                         $this->context->cookie->write();
                     }
-                    $logger->logError('Payment request not valid', $response);
+                    $logger->logInfo('Payment request not valid');
                     $error = null;
                     if (($response->payment_method == 'afterpayacceptgiro'
                         || $response->payment_method == 'afterpaydigiaccept')
@@ -259,55 +271,29 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     }
                     $this->displayError(null, $error);
                 }
-            };
+            }
         } else {
             $response = $this->checkout->getResponse();
-            $logger->logError('Request not succeeded', $this->checkout);
-            $oldCart     = new Cart($cart->id);
+            $logger->logInfo('Request not succeeded');
+
+            $oldCart = new Cart($cart->id);
             $duplication = $oldCart->duplicate();
+
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
                 $this->context->cookie->id_cart = $duplication['cart']->id;
                 $this->context->cookie->write();
             }
+
             $error = null;
-            if (!empty($response) && !empty($response->payment_method)
-                && !empty($response->payment_method)
-                && ($response->payment_method == 'afterpayacceptgiro'
-                    || $response->payment_method == 'afterpaydigiaccept')
-            ) {
-                $error = $response->statusmessage;
+            if ($response->hasSomeError()) {
+                $error = $response->getSomeError();
             }
-            $this->displayError(null, $error);
-        };
-    }
 
-    /**
-     * Save flag for order in test mode
-     *
-     * @param integer $orderId
-     * @param boolean $inTestMode
-     *
-     * @return void
-     */
-    protected function saveOrderInTestMode(int $orderId, bool $inTestMode)
-    {
-        $this->saveOrderData($orderId, 'order_in_test_mode', (int)$inTestMode);
-    }
-
-    /**
-     * Save any additional order data by key/value
-     *
-     * @param integer $orderId
-     * @param string $key
-     * @param mixed $value
-     *
-     * @return void
-     */
-    protected function saveOrderData(int $orderId, string $key, $value)
-    {
-        $sql = "INSERT INTO `" . _DB_PREFIX_ . "buckaroo_order_data`
-        (`id_order`, `key`, `value`) values ({$orderId}, '{$key}', '{$value}')";
-
-        Db::getInstance()->execute($sql);
+            if (isset($error['errorresponsemessage']) && is_array($error)) {
+                $this->displayError(null, $error['errorresponsemessage']);
+            } else {
+                $this->displayError(null, $error);
+            }
+        }
     }
 }

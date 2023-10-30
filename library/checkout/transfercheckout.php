@@ -1,7 +1,5 @@
 <?php
 /**
- *
- *
  * NOTICE OF LICENSE
  *
  * This source file is subject to the Academic Free License (AFL 3.0)
@@ -16,27 +14,32 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 class TransferCheckout extends Checkout
 {
+    public function __construct($cart)
+    {
+        parent::__construct($cart);
+    }
 
     final public function setCheckout()
     {
-
         parent::setCheckout();
 
-        $this->customVars['CustomerEmail']     = $this->customer->email;
-        $this->customVars['CustomerFirstName'] = $this->invoice_address->firstname;
-        $this->customVars['CustomerLastName']  = $this->invoice_address->lastname;
-        $this->customVars['SendMail'] = ((int) Configuration::get('BUCKAROO_TRANSFER_SENDMAIL') == 1 ? 'TRUE' : 'FALSE');//phpcs:ignore
-        $this->customVars['DateDue']           = date(
-            'Y-m-d',
-            strtotime('now + ' . (int) Configuration::get('BUCKAROO_TRANSFER_DATEDUE') . ' day')
-        );
-        $country                             = new Country($this->invoice_address->id_country);
-        $this->customVars['CustomerCountry'] = Tools::strtoupper($country->iso_code);
+        $sendMail = $this->buckarooConfigService->getConfigValue('transfer', 'send_instruction_email');
+        $dueDate = $this->buckarooConfigService->getConfigValue('transfer', 'due_days');
+
+        $this->customVars = [
+            'customer' => [
+                'firstName' => $this->invoice_address->firstname,
+                'lastName' => $this->invoice_address->lastname,
+            ],
+            'email' => $this->customer->email,
+            'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
+            'dateDue' => date('Y-m-d', strtotime('now + ' . (int) $dueDate . ' day')),
+            'sendMail' => ((int) $sendMail == 1 ? 'TRUE' : 'FALSE'),
+        ];
     }
 
     public function isRedirectRequired()
@@ -51,7 +54,7 @@ class TransferCheckout extends Checkout
 
     public function startPayment()
     {
-        $this->payment_response = $this->payment_request->payTransfer($this->customVars);
+        $this->payment_response = $this->payment_request->pay($this->customVars);
     }
 
     protected function initialize()
