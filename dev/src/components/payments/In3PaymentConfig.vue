@@ -45,14 +45,14 @@ export default {
 
         const paymentLogoOptions = [
           {
-            value: 'in3',
-            text: 'IN3',
-            image: url + 'In3.svg'
-          },
-          {
             value: 'in3_ideal',
             text: 'iDEAL In3',
             image: url + 'In3_ideal.svg'
+          },
+          {
+            value: 'in3',
+            text: 'IN3',
+            image: url + 'In3.svg'
           }
         ];
 
