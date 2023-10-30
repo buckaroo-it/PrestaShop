@@ -16,7 +16,7 @@
  */
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
-class MBway extends PaymentMethod
+class Mbway extends PaymentMethod
 {
     public function __construct()
     {
