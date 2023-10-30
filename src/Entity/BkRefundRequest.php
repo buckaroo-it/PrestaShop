@@ -96,6 +96,10 @@ class BkRefundRequest
      */
     private $createdAt;
 
+    public function getId():int
+    {
+        return $this->id;
+    }
     public function setStatus(string $status): self
     {
         $this->status = $status;

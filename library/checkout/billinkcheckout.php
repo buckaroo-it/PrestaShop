@@ -71,9 +71,11 @@ class BillinkCheckout extends Checkout
         }
         $country = new Country($this->invoice_address->id_country);
 
-        $category = ($this->customerType == self::CUSTOMER_TYPE_B2C) ? self::CUSTOMER_TYPE_B2C
-            : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? self::CUSTOMER_TYPE_B2B
-                : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : self::CUSTOMER_TYPE_B2C));
+        $category = self::CUSTOMER_TYPE_B2C;
+        if($this->customerType == self::CUSTOMER_TYPE_B2B
+            || $this->companyExists($this->invoice_address->company)){
+            $category = self::CUSTOMER_TYPE_B2B;
+        }
 
         $payload = [
             'recipient' => [
@@ -99,11 +101,10 @@ class BillinkCheckout extends Checkout
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
 
-        if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
-            if ($this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
+        if (self::CUSTOMER_TYPE_B2C != $this->customerType
+            && $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
                 $payload['recipient']['careOf'] = $this->invoice_address->company;
                 $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
-            }
         }
 
         return $payload;
@@ -265,11 +266,10 @@ class BillinkCheckout extends Checkout
                 ],
             ];
 
-            if (self::CUSTOMER_TYPE_B2C != $this->customerType) {
-                if ($this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null) {
-                    $payload['recipient']['careOf'] = $this->shipping_address->company;
-                    $payload['recipient']['category'] = 'B2B';
-                }
+            if (self::CUSTOMER_TYPE_B2C != $this->customerType
+                && ($this->companyExists($this->shipping_address->company) ? $this->shipping_address->company : null)) {
+                $payload['recipient']['careOf'] = $this->shipping_address->company;
+                $payload['recipient']['category'] = 'B2B';
             }
 
             return $payload;

@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - master
-      - "prestashop-plugin-vue"
       - develop
       - 'releases/**'
   pull_request:
@@ -20,4 +19,3 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_ROOT_CERT: ${{ secrets.SONAR_ROOT_CERT }}

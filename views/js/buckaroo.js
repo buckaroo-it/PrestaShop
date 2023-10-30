@@ -138,7 +138,7 @@ paymentMethodValidation={
         this.valid = true;
         $('.buckaroo-validation-message').remove();
         // we validate all at the required fields pertaining to a selected method/form
-       this.requiredAll();
+        this.requiredAll();
 
         // we validate based on the selected method
         switch (this.methodSelector){
@@ -221,38 +221,38 @@ $(document).ready(function () {
 
     $('input[name="payment-option"]').on('change', function () {
         var $nextDiv = $(this).closest('.payment-option').parent().next();
-        var paymentFee,
-            paymentFeeDisplay;
+        var paymentFee;
+        let buckarooKey;
         if ($nextDiv.hasClass('js-payment-option-form')) {
             paymentFee = $nextDiv.find('input[name="payment-fee-price"]').val();
-            paymentFeeDisplay = $nextDiv.find('input[name="payment-fee-price-display"]').val();
-            if(buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val()){
-                if(buckarooFees[buckarooKey] != undefined){
+            buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val()
+            if (buckarooKey) {
+                if (buckarooFees[buckarooKey] !== undefined) {
                     paymentFee = buckarooFees[buckarooKey]['buckarooFee'];
-                    paymentFeeDisplay = buckarooFees[buckarooKey]['buckarooFeeDisplay'];
                 }
             }
         } else {
             paymentFee = $nextDiv.next().find('input[name="payment-fee-price"]').val();
-            paymentFeeDisplay = $nextDiv.next().find('input[name="payment-fee-price-display"]').val();
         }
 
-        $('#cart-subtotal-buckarooFee').html('');
-            $.ajax({
-                url: buckarooAjaxUrl,
-                method: 'GET',
-                data: {
-                    'paymentFee': paymentFee,
-                    ajax: 1,
-                    action: 'getTotalCartPrice'
-                },
-                success: function (response) {
-                    response = jQuery.parseJSON(response);
-                    $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
-                    var paymentFeeHtml = '';
-                    if(response.paymentFee != undefined ){
-                        paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
-                    }
+        if (!paymentFee) {
+            $('#cart-subtotal-buckarooFee').remove();
+        }
+
+        $.ajax({
+            url: buckarooAjaxUrl,
+            method: 'GET',
+            data: {
+                'paymentFee': paymentFee,
+                ajax: 1,
+                action: 'getTotalCartPrice'
+            },
+            success: function (response) {
+                response = jQuery.parseJSON(response);
+                $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
+                var paymentFeeHtml = '';
+                if(response && response.paymentFee !== undefined){
+                    paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
 
                     if($('#cart-subtotal-buckarooFee').length == 0){
                         $('.cart-summary-subtotals-container').append($('<div id="cart-subtotal-buckarooFee">' + paymentFeeHtml + '</div>'));
@@ -260,7 +260,8 @@ $(document).ready(function () {
                         $('#cart-subtotal-buckarooFee').html(paymentFeeHtml);
                     }
                 }
-            })
+            }
+        })
     })
 
     new BuckarooCheckout().listen();

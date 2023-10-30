@@ -114,13 +114,11 @@ class Handler
     protected function getPaymentKey(TransactionResponse $response): string
     {
         $related = $response->get('RelatedTransactions');
-        if (
-            !is_array($related)
+        if (!is_array($related)
             || !isset($related['RelationType'])
             || !isset($related['RelatedTransactionKey'])
         ) {
-            if (
-                !isset($related[0]['RelationType'])
+            if (!isset($related[0]['RelationType'])
                 || !isset($related[0]['RelatedTransactionKey'])
             ) {
                 return $related[0]['RelatedTransactionKey'];
@@ -146,7 +144,7 @@ class Handler
     private function createNegativePayment(\Order $order, TransactionResponse $response)
     {
         if (
-            \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT) == true
+            \Configuration::get(Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT)
         ) {
             $this->paymentService->create(
                 $order,

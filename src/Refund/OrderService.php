@@ -59,9 +59,9 @@ class OrderService
             $order->id,
             $refundData['products'],
             $refundData['shipping_amount'],
-            \Configuration::get(Settings::LABEL_REFUND_RESTOCK) == true,
+            boolval(\Configuration::get(Settings::LABEL_REFUND_RESTOCK)),
             (bool) $createCreditSlipValue,
-            \Configuration::get(Settings::LABEL_REFUND_VOUCHER) == true,
+            boolval(\Configuration::get(Settings::LABEL_REFUND_VOUCHER)),
             VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
         );
 
@@ -191,7 +191,9 @@ class OrderService
      */
     protected function getProductQuantityAvailable(array $orderDetail): int
     {
-        return (int) $orderDetail['product_quantity'] - (int) $orderDetail['product_quantity_return'] - (int) $orderDetail['product_quantity_refunded'];
+        return (int) $orderDetail['product_quantity']
+            - (int) $orderDetail['product_quantity_return']
+            - (int) $orderDetail['product_quantity_refunded'];
     }
 
     /**

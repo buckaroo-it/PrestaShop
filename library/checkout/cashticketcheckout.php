@@ -21,8 +21,6 @@ class CashTicketCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
-
-        // $this->payment_request->description = 'Pay with cash ticket';
     }
 
     public function isRedirectRequired()

@@ -92,6 +92,8 @@ class RawPaymentMethodRepository
 
             case 'idin':
                 $configValue['display_mode'] = 'global';
+                break;
+            default:
         }
 
         $configData = [

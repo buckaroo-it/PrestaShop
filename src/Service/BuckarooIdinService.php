@@ -35,7 +35,8 @@ class BuckarooIdinService
 
     public function insertCustomerData($customerId, $consumerbin, $iseighteenorolder)
     {
-        $sql = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_customer_idin (customer_id, buckaroo_idin_consumerbin, buckaroo_idin_iseighteenorolder) VALUES (' .
+        $sql = 'INSERT INTO ' . _DB_PREFIX_
+            . 'bk_customer_idin (customer_id, buckaroo_idin_consumerbin, buckaroo_idin_iseighteenorolder) VALUES (' .
             (int) $customerId . ', "' . pSQL($consumerbin) . '", "' . pSQL($iseighteenorolder) . '")';
         return $this->executeQuery($sql);
     }

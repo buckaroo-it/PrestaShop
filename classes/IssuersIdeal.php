@@ -143,7 +143,7 @@ class IssuersIdeal
     {
         $issuersString = \Configuration::get(self::CACHE_ISSUERS_KEY);
         if (!is_string($issuersString)) {
-            return;
+            return null;
         }
 
         return json_decode($issuersString, true);

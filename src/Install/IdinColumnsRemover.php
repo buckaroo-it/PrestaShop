@@ -24,7 +24,7 @@ final class IdinColumnsRemover implements UninstallerInterface
         $commands = $this->getCommands();
 
         foreach ($commands as $query) {
-            if (false == \Db::getInstance()->execute($query)) {
+            if (!(\Db::getInstance()->execute($query))) {
                 return false;
             }
         }
@@ -37,20 +37,18 @@ final class IdinColumnsRemover implements UninstallerInterface
         $sql = [];
 
         // Remove the `buckaroo_idin` field from the `product` table if it exists
-        if ($this->columnExists(_DB_PREFIX_ . 'product', 'buckaroo_idin')) {
-            $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'product` DROP COLUMN `buckaroo_idin`';
-        }
+        $columnsToDrop = [
+            'product' => ['buckaroo_idin'],
+            'customer' => ['buckaroo_idin_consumerbin','buckaroo_idin_iseighteenorolder']
+        ];
+        foreach ($columnsToDrop as $table => $columnTables){
+            foreach ($columnTables as $column) {
+                if($this->columnExists(_DB_PREFIX_.$table,$column)){
 
-        // Remove the `buckaroo_idin_consumerbin` field from the `customer` table if it exists
-        if ($this->columnExists(_DB_PREFIX_ . 'customer', 'buckaroo_idin_consumerbin')) {
-            $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'customer` DROP COLUMN `buckaroo_idin_consumerbin`';
+                    $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . $table.'` DROP COLUMN `'. $column .'`';
+                }
+            }
         }
-
-        // Remove the `buckaroo_idin_iseighteenorolder` field from the `customer` table if it exists
-        if ($this->columnExists(_DB_PREFIX_ . 'customer', 'buckaroo_idin_iseighteenorolder')) {
-            $sql[] = 'ALTER TABLE `' . _DB_PREFIX_ . 'customer` DROP COLUMN `buckaroo_idin_iseighteenorolder`';
-        }
-
         return $sql;
     }
 
