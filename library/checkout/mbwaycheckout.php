@@ -16,7 +16,7 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-class MultibancoCheckout extends Checkout
+class MbwayCheckout extends Checkout
 {
     protected $customVars = [];
 

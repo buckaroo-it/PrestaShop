@@ -52,6 +52,8 @@ abstract class Checkout
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
     public const CHECKOUT_TYPE_WECHATPAY = 'wechatpay';
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
+    public const CHECKOUT_TYPE_MBWAY = 'mbway';
+    public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
 
     // Request types (Payment Methods).
     public static $payment_method_type = [
@@ -82,6 +84,8 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
         Checkout::CHECKOUT_TYPE_WECHATPAY => 'Wechatpay',
         Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
+        Checkout::CHECKOUT_TYPE_MBWAY => 'Mbway',
+        Checkout::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
     ];
 
     protected $payment_request;
@@ -293,12 +297,13 @@ abstract class Checkout
     }
 
     /**
-     * Given an checkout_type_id, return an instance of that subclass.
+     * Given a checkout_type_id, return an instance of that subclass.
      *
-     * @param int checkout_type_id
-     * @param array $data
+     * @param $payment_method
      *
      * @return Address subclass
+     *
+     * @throws Exception
      */
     final public static function getInstanceRefund($payment_method)
     {
