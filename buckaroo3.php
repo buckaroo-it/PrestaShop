@@ -422,7 +422,7 @@ class Buckaroo3 extends PaymentModule
                 [
                     'is_guest' => $isGuest,
                     'order' => $order,
-                    'price' => $this->formatPrice($price),
+                    'price' => $price,
                 ]
             );
 
