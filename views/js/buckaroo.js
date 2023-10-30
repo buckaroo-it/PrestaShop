@@ -238,7 +238,7 @@ $(document).ready(function () {
         }
 
         $('#cart-subtotal-buckarooFee').html('');
-            $.ajax({
+        $.ajax({
                 url: buckarooAjaxUrl,
                 method: 'GET',
                 data: {

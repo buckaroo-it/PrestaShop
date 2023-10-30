@@ -557,11 +557,12 @@ class Buckaroo3 extends PaymentModule
     {
         $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
         $configArray = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
-        if (!empty($configArray)) {
+
+        if (!empty($configArray) && isset($configArray['mode'])) {
             if ($isLive === 0) {
-                return isset($configArray['mode']) && $configArray['mode'] === 'test';
+                return $configArray['mode'] === 'test';
             } elseif ($isLive === 1) {
-                return isset($configArray['mode']) && $configArray['mode'] === 'live';
+                return $configArray['mode'] === 'live';
             }
         }
         return false;

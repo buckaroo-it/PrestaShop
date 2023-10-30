@@ -29,16 +29,14 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
         $currency = $this->context->currency;
 
         $locale = \Tools::getContextLocale($this->context);
-
         $action = Tools::getValue('action');
-        switch ($action) {
-            case 'getTotalCartPrice':
-                $this->getTotalCartPrice($currency,$locale);
-                break;
-            default:
+
+        if($action == 'getTotalCartPrice'){
+          $this->getTotalCartPrice($locale,$currency);
         }
     }
-    private function getTotalCartPrice($currency,$locale){
+    function getTotalCartPrice($locale,$currency){
+        //ToDo Refactor this
         $cart = $this->context->cart;
         $paymentFee = Tools::getValue('paymentFee');
         if (!$paymentFee) {
