@@ -438,7 +438,7 @@ class Buckaroo3 extends PaymentModule
 
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
-            'buckarooFees' => '',
+            'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
             'buckarooMessages' => [
                 'validation' => [
                     'date' => $this->l('Please enter correct birthdate date'),
