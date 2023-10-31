@@ -150,13 +150,20 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->checkout->setCheckout();
         $logger->logDebug('Set checkout info: ');
 
-        if ($this->checkout->isVerifyRequired()) {
-            $logger->logInfo('Start verify process');
-            $this->checkout->startVerify(['cid' => $cart->id_customer]);
-        } else {
-            $logger->logInfo('Start the payment process');
-            $this->checkout->startPayment();
+        try {
+            if ($this->checkout->isVerifyRequired()) {
+                $logger->logInfo('Start verify process');
+                $this->checkout->startVerify(['cid' => $cart->id_customer]);
+            } else {
+                $logger->logInfo('Start the payment process');
+                $this->checkout->startPayment();
+            }
+        }catch (Exception $e) {
+            $logger->logError('Set checkout info: ', $e->getMessage());
+            $this->displayError(null, $e->getMessage());
+            return;
         }
+
 
         if ($this->checkout->isRequestSucceeded()) {
             $response = $this->checkout->getResponse();

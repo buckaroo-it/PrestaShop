@@ -78,7 +78,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_WECHATPAY => 'Wechatpay',
         PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
         PaymentRequestFactory::REQUEST_TYPE_MULTIBANCO => 'Multibanco',
-        PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'MBway',
+        PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'Mbway',
     ];
 
     final public static function create($request_type_id, $data = [])
