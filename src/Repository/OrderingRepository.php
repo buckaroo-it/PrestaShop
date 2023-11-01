@@ -170,6 +170,8 @@ class OrderingRepository extends EntityRepository
         $ordering = new BkOrdering();
         $ordering->setCountryId($countryId);
         $ordering->setValue(json_encode($paymentMethodIds));
+        $ordering->setCreatedAt(new \DateTime());
+        $ordering->setUpdatedAt(new \DateTime());
 
         $this->_em->persist($ordering);
         $this->_em->flush();
@@ -194,6 +196,9 @@ class OrderingRepository extends EntityRepository
             // Add paymentMethodId to the ordering for the country
             $paymentMethodIds[] = $paymentMethodId;
             $ordering->setValue(json_encode($paymentMethodIds));
+            $ordering->setCreatedAt(new \DateTime());
+            $ordering->setUpdatedAt(new \DateTime());
+
             $this->_em->persist($ordering);
             $this->_em->flush();
 
