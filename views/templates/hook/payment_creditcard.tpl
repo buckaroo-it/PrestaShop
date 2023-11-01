@@ -19,7 +19,7 @@
         <fieldset>
             {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_CreditCard" id="buckaroo-method-issuer">
+                    <select name="BPE_CreditCard" id="buckaroo-method-issuer" class="form-control" >
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
@@ -34,7 +34,7 @@
                     </select>
                 </p>
             {else}
-                <div class="bk-method-selector bk-creditcard-selector">
+                <div class="bk-method-selector bk-creditcard-selector bk-paybybank-selector">
                     {foreach $creditcardIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
@@ -42,6 +42,9 @@
                                     id="creditcard_issuer_{$key|escape:'html':'UTF-8'}"
                                     value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
+                                    {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
+                                        checked
+                                    {/if}
                             />
                             <label for="creditcard_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
@@ -56,14 +59,6 @@
                             </label>
                         </div>
                     {/foreach}
-                </div>
-                <div class="bk-method-toggle-list">
-                    <div class="bk-toggle-wrap">
-                        <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
-                            {l s='More banks' mod='buckaroo3'}
-                        </div>
-                        <div class="bk-toggle bk-toggle-down"></div>
-                    </div>
                 </div>
             {/if}
         </fieldset>
