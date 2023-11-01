@@ -233,6 +233,7 @@
     "dashboard.channel_selector.select_channel": "Select Channel",
     "dashboard.channel_selector.select_channel_label": "Each channel has its configuration settings.",
     "dashboard.country_select.search_countries": "Search Countries",
+    "dashboard.advanced_config.title": "Advanced Configurations",
     "dashboard.menu.channel": "Channel",
     "dashboard.menu.settings": "Settings",
     "dashboard.menu.payment_methods": "Payment methods",

@@ -114,6 +114,8 @@
 
                     <CountrySelect v-model="selectCountry" />
 
+                    <AdvancedConfig />
+
                     <ul class="flex flex-wrap text-sm">
                         <li v-for="country in enabledCountries" class="rounded flex border border-gray-300 p-2 space-x-2 my-1 mr-2 shadow text-sm">
                             <button class="hover:text-red-500" @click="removeCountry(country)">
@@ -144,6 +146,7 @@
 <script>
 import { inject, ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
+import AdvancedConfig from "../fields/AdvancedConfig.vue";
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
 import {useCountries} from "../../lib/countries";
@@ -153,6 +156,7 @@ export default {
     props: ['payment'],
     components: {
         CountrySelect,
+        AdvancedConfig
     },
     watch: {
         selectCountry(value) {
