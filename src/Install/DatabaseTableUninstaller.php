@@ -36,7 +36,6 @@ final class DatabaseTableUninstaller implements UninstallerInterface
         $tablesToDrop = [
             'bk_configuration',
             'bk_payment_methods',
-            'bk_countries',
             'bk_ordering',
             'bk_creditcards',
             'bk_giftcards',

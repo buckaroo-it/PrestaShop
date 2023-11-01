@@ -26,9 +26,13 @@ class VerificationMethods extends BaseApiController
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function initContent()
     {
         $data = $this->getAllPaymentMethods();
@@ -36,6 +40,9 @@ class VerificationMethods extends BaseApiController
         return $this->sendResponse($data);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getAllPaymentMethods()
     {
         $payments = $this->getPaymentConfigurations();
@@ -46,6 +53,9 @@ class VerificationMethods extends BaseApiController
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
     private function getPaymentConfigurations()
     {
         return $this->buckarooConfigService->getVerificationMethodsFromDBWithConfig();

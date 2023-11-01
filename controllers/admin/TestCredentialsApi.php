@@ -21,9 +21,7 @@ use Buckaroo\BuckarooClient;
 
 class TestCredentialsApi extends BaseApiController
 {
-    /**
-     * @throws PrestaShopException
-     */
+
     public function initContent()
     {
         $data = $this->getJsonInput();

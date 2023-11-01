@@ -25,9 +25,13 @@ class Creditcards extends BaseApiController
 
     public function __construct()
     {
+        parent::__construct();
         $this->creditCardsRepository = new RawCreditCardsRepository();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function initContent()
     {
         $countries = $this->creditCardsRepository->getCreditCardsFromDB();

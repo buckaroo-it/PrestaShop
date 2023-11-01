@@ -25,6 +25,7 @@ class PaymentMethods extends BaseApiController
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 
@@ -39,12 +40,10 @@ class PaymentMethods extends BaseApiController
     {
         $payments = $this->getPaymentConfigurations();
 
-        $data = [
+        return [
             'status' => true,
             'payments' => $payments,
         ];
-
-        return $data;
     }
 
     /**
