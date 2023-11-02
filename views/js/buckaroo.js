@@ -314,7 +314,6 @@ class BuckarooCheckout {
             }
         }
     }
-
     initMethod() {
         jQuery('.bk-method-selector').each((_, elem) => {
             const selector = jQuery(elem);
