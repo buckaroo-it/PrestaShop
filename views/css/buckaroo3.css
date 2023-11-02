@@ -422,12 +422,12 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     }
 }
 @media screen and (min-width: 768px) {
-    .bk-paybybank-selector img, .bk-ideal-selector img{
+    .bk-creditcard-selector img, .bk-ideal-selector img{
         max-width: 25px;
         margin: 0 5px;
     }
 
-    .bk-paybybank-selector .bk-issuer-label, .bk-ideal-selector .bk-issuer-label {
+    .bk-creditcard-selector .bk-issuer-label, .bk-ideal-selector .bk-issuer-label {
         flex: 1;
         text-align: left;
     }
