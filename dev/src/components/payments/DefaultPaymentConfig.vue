@@ -114,8 +114,6 @@
 
                     <CountrySelect v-model="selectCountry" />
 
-                    <AdvancedConfig />
-
                     <ul class="flex flex-wrap text-sm">
                         <li v-for="country in enabledCountries" class="rounded flex border border-gray-300 p-2 space-x-2 my-1 mr-2 shadow text-sm">
                             <button class="hover:text-red-500" @click="removeCountry(country)">
@@ -134,6 +132,7 @@
                     </ul>
                 </div>
 
+              <AdvancedConfig />
             </div>
         </div>
 
