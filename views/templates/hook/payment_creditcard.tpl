@@ -42,9 +42,6 @@
                                     id="creditcard_issuer_{$key|escape:'html':'UTF-8'}"
                                     value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
-                                    {if (isset($issuer["selected"]) && $issuer["selected"] === true)}
-                                        checked
-                                    {/if}
                             />
                             <label for="creditcard_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
