@@ -75,7 +75,7 @@ class IssuersPayByBank
             return !$issuer['selected'];
         });
 
-        return $this->orderByPopularity(array_merge($savedIssuer, $issuers));
+        return array_merge($savedIssuer, $issuers);
     }
 
     public function getSelectedIssuerLogo()
