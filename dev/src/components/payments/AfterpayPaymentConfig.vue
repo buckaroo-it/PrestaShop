@@ -73,10 +73,7 @@ export default {
     setup(props) {
       const { t } = useI18n();
       const config = inject('config')
-      const selectCountry = (country) => {
-        emit('update:modelValue', country)
-        query.value = null
-      }
+
         const vatOptions = [
           { text: t('1 = High rate'), value: '1' },
           { text: t('2 = Low rate'), value: '2' },
