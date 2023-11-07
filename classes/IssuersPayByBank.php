@@ -75,7 +75,7 @@ class IssuersPayByBank
             return !$issuer['selected'];
         });
 
-        return array_merge($savedIssuer, $issuers);
+        return $this->orderByPopularity(array_merge($savedIssuer, $issuers));
     }
 
     public function getSelectedIssuerLogo()
@@ -91,5 +91,37 @@ class IssuersPayByBank
         } else {
             return 'PayByBank.gif?v';
         }
+    }
+    public function orderByPopularity($issuers = []){
+        $issuersByPopularity = [
+            'N26',
+            'ING',
+            'ABN AMRO',
+            'Rabobank',
+            'Knab',
+            'BUNQ',
+            'SNS Bank',
+            'RegioBank',
+            'ASN Bank',
+            'Revolut',
+            'Triodos',
+            'van',
+            'Lanschot',
+            'Bankiers',
+            'Nationale',
+            'Nederlanden',
+            'YourSafe',
+        ];
+        $ordered = [];
+        $issuerNames = array_map(function ($issuer) {
+            return $issuer['name'];
+        },$issuers);
+        foreach($issuersByPopularity as $issuer) {
+            $issuerIndex = array_search($issuer,$issuerNames);
+            if($issuerIndex){
+                $ordered[$issuerIndex] = $issuers[$issuerIndex];
+            }
+        }
+        return $ordered + $issuers;
     }
 }
