@@ -26,6 +26,7 @@ class PaymentMethodMode extends BaseApiController
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 

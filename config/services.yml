@@ -130,8 +130,6 @@ services:
 
   buckaroo.config.controllers.countries:
     class: Buckaroo\PrestaShop\Controllers\admin\Countries
-    arguments:
-      - "@buckaroo.config.countries.service"
     public: true
 
   buckaroo.config.controllers.creditcards:
@@ -180,6 +178,10 @@ services:
     class: Buckaroo\PrestaShop\Classes\IssuersPayByBank
     public: true
 
+  buckaroo.repository.country.repository:
+    class: Buckaroo\PrestaShop\Src\Repository\CountryRepository
+    public: true
+
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
     arguments:
@@ -194,4 +196,5 @@ services:
       - "@buckaroo.config.api.config.service"
       - "@buckaroo.classes.issuers.payByBank"
       - "@buckaroo.classes.issuers.capayableIn3"
+      - "@buckaroo.repository.country.repository"
     public: true

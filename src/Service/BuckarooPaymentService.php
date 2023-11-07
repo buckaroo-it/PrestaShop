@@ -30,16 +30,17 @@ use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 class BuckarooPaymentService
 {
     public $module;
+    protected $logger;
     private $bkOrderingRepository;
     private $paymentMethodRepository;
     private $context;
     private BuckarooConfigService $buckarooConfigService;
     private BuckarooFeeService $buckarooFeeService;
-    protected $logger;
     private $issuersPayByBank;
     private $capayableIn3;
+    private $countryRepository;
 
-    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3)
+    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->logger = new \Logger(\Logger::INFO, '');
@@ -50,6 +51,7 @@ class BuckarooPaymentService
         $this->buckarooConfigService = $buckarooConfigService;
         $this->issuersPayByBank = $issuersPayByBank;
         $this->capayableIn3 = $capayableIn3;
+        $this->countryRepository = $countryRepository;
     }
 
     public function getPaymentOptions($cart)
@@ -58,8 +60,13 @@ class BuckarooPaymentService
         libxml_use_internal_errors(true);
         $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $countryId = $this->context->country->iso_code;
-        $positions = $this->bkOrderingRepository->fetchPositions($countryId) ?? $this->bkOrderingRepository->fetchPositions(null);
+        $isoCode2 = $this->context->country->iso_code;
+        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+
+        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
+        $activeMethodIds = array_column($activePaymentMethods, 'id');
+
+        $positions = $this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds);
 
         $positions = array_flip($positions);
 
@@ -74,14 +81,8 @@ class BuckarooPaymentService
                 $method = $this->capayableIn3->getMethod();
             }
 
-            if ($method == 'idin') {
-                if ($this->module->isIdinCheckout($cart)) {
-                    if ($this->isCustomerIdinValid($cart)) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
+            if ($method == 'idin' && (!$this->module->isIdinCheckout($cart) || $this->isCustomerIdinValid($cart))) {
+                continue;
             }
 
             if ($isMethodValid) {
