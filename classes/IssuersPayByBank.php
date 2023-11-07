@@ -26,21 +26,25 @@ class IssuersPayByBank
         $savedBankIssuer = \Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
 
         $issuerArray = [
-            'ABNANL2A' => [
-                'name' => 'ABN AMRO',
-                'logo' => 'ABNAMRO.svg',
-            ],
-            'ASNBNL21' => [
-                'name' => 'ASN Bank',
-                'logo' => 'ASNBank.svg',
+            'NTSBDEB1' => [
+                'name' => 'N26',
+                'logo' => 'n26.svg',
             ],
             'INGBNL2A' => [
                 'name' => 'ING',
                 'logo' => 'ING.svg',
             ],
+            'ABNANL2A' => [
+                'name' => 'ABN AMRO',
+                'logo' => 'ABNAMRO.svg',
+            ],
             'RABONL2U' => [
                 'name' => 'Rabobank',
                 'logo' => 'Rabobank.svg',
+            ],
+            'KNABNL2H' => [
+                'name' => 'Knab',
+                'logo' => 'KNAB.svg',
             ],
             'SNSBNL2A' => [
                 'name' => 'SNS Bank',
@@ -50,13 +54,9 @@ class IssuersPayByBank
                 'name' => 'RegioBank',
                 'logo' => 'RegioBank.svg',
             ],
-            'KNABNL2H' => [
-                'name' => 'Knab',
-                'logo' => 'KNAB.svg',
-            ],
-            'NTSBDEB1' => [
-                'name' => 'N26',
-                'logo' => 'n26.svg',
+            'ASNBNL21' => [
+                'name' => 'ASN Bank',
+                'logo' => 'ASNBank.svg',
             ],
         ];
 
