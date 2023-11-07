@@ -18,7 +18,6 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Repository\RawCountryRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
@@ -71,9 +70,6 @@ class Installer implements InstallerInterface
         $this->copyEmailTemplates();
         $this->copyProductTemplates();
         $this->databaseTableInstaller->install();
-
-        $countryRepository = new RawCountryRepository();
-        $countryRepository->insertCountries();
 
         $paymentMethodRepository = new RawPaymentMethodRepository();
         $paymentMethodRepository->insertPaymentMethods();

@@ -99,6 +99,8 @@ import { useCountries } from "../lib/countries";
 
 import CountrySelect from "../components/CountrySelect.vue";
 import draggable from 'vuedraggable';
+import { useToastr } from "../lib/toastr.ts"
+import {useI18n} from "vue-i18n";
 
 export default {
   name: "OrderPaymentMethods",
@@ -110,6 +112,8 @@ export default {
     const { filteredCountries, query } = useCountries();
     const orderingsService = useOrderingsService();
     const selectedCountry = ref(null);
+    const {toastr} = useToastr()
+    const { t } = useI18n();
 
     watch(selectedCountry, (newVal, oldVal) => {
       orderingsService.getOrdering(
@@ -120,7 +124,7 @@ export default {
     const update = () => {
       orderingsService.updateOrderings(orderingsService.paymentOrderings.value)
           .then(() => {
-            if(data.value.status) {
+            if(orderingsService.data.value.status) {
               toastr.success(t('dashboard.pages.order_payment_methods.payment_method_order_updated_successfully'))
               return;
             }

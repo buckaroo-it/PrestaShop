@@ -23,10 +23,10 @@ use Doctrine\ORM\EntityManager;
 class Orderings extends BaseApiController
 {
     private $bkOrderingRepository;
-    public $module;
 
     public function __construct(EntityManager $entityManager)
     {
+        parent::__construct();
         $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
     }
 
@@ -45,17 +45,12 @@ class Orderings extends BaseApiController
         $countryCode = \Tools::getValue('country');
         $countryCode = !empty($countryCode) ? $countryCode : null;
 
-        $ordering = $this->getOrdering($countryCode);
+        $ordering = $this->bkOrderingRepository->getOrdering($countryCode);
 
         return $this->sendResponse([
             'status' => true,
             'orderings' => $ordering,
         ]);
-    }
-
-    private function getOrdering($countryCode)
-    {
-        return $this->bkOrderingRepository->getOrdering($countryCode);
     }
 
     private function handlePost()

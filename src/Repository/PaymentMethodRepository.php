@@ -23,22 +23,44 @@ use Doctrine\ORM\EntityRepository;
 
 class PaymentMethodRepository extends EntityRepository implements BkPaymentMethodRepositoryInterface
 {
-    public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array
+    /**
+     * Fetches payment methods from the database.
+     *
+     * @param int $isPaymentMethod
+     * @return array
+     */
+    private function fetchPaymentMethods(int $isPaymentMethod): array
     {
         $qb = $this->_em->createQueryBuilder();
-
-        $qb->select('pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
+        $qb->select('pm.id, pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
             ->from(BkPaymentMethods::class, 'pm')
             ->where('pm.is_payment_method = :isPaymentMethod')
             ->setParameter('isPaymentMethod', $isPaymentMethod)
             ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
 
-        $results = $qb->getQuery()->getArrayResult();
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array
+    {
+        $results = $this->fetchPaymentMethods($isPaymentMethod);
 
         if (!$results) {
             throw new \Exception('Database error: Could not fetch payment methods with config');
         }
 
+        return $this->formatPaymentMethods($results);
+    }
+
+    /**
+     * Formats payment methods with configuration.
+     *
+     * @param array $results
+     * @return array
+     * @throws Exception
+     */
+    private function formatPaymentMethods(array $results): array
+    {
         $capayableIn3 = \Module::getInstanceByName('buckaroo3')->get('buckaroo.classes.issuers.capayableIn3');
 
         $payments = [];
@@ -64,5 +86,56 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
         }
 
         return $payments;
+    }
+
+    public function getActivePaymentMethods($countryId)
+    {
+        $results = $this->fetchPaymentMethods(1);
+
+        return $this->filterPaymentMethodsByCountry($results, $countryId);
+    }
+
+    /**
+     * Filters payment methods by country.
+     *
+     * @param array $results
+     * @param int $countryId
+     * @return array
+     */
+    private function filterPaymentMethodsByCountry(array $results, int $countryId): array
+    {
+        $filteredResults = [];
+        foreach ($results as $result) {
+            $configValue = json_decode($result['config_value'], true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                continue;
+            }
+
+            if ($this->isCountryInConfig($configValue, $countryId)) {
+                $filteredResults[] = $result;
+            }
+        }
+        return $filteredResults;
+    }
+
+
+    /**
+     * Checks if a country is in the configuration.
+     *
+     * @param array|null $configValue
+     * @param int $countryId
+     * @return bool
+     */
+    private function isCountryInConfig(?array $configValue, int $countryId): bool
+    {
+        if (isset($configValue['countries']) && is_array($configValue['countries'])) {
+            foreach ($configValue['countries'] as $country) {
+                if (isset($country['id']) && $country['id'] == $countryId) {
+                    return true;
+                }
+                return false;
+            }
+        }
+        return true;
     }
 }

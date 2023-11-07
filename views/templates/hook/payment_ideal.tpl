@@ -58,14 +58,6 @@
                         </div>
                     {/foreach}
                 </div>
-                <div class="bk-method-toggle-list">
-                    <div class="bk-toggle-wrap">
-                        <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
-                            {l s='More banks' mod='buckaroo3'}
-                        </div>
-                        <div class="bk-toggle bk-toggle-down"></div>
-                    </div>
-                </div>
             {/if}
         </fieldset>
     </form>

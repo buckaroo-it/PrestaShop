@@ -306,13 +306,14 @@ class BuckarooCheckout {
         const isPayByBank = selector.hasClass('bk-paybybank-selector');
         const selectedIssuer = isPayByBank ? selector.find('input:checked') : null;
 
-        if (isPayByBank && selectedIssuer && selectedIssuer.length) {
-            selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
-        } else {
-            selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+        if (isPayByBank) {
+            if(selectedIssuer && selectedIssuer.length){
+                selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
+            }else {
+                selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+            }
         }
     }
-
     initMethod() {
         jQuery('.bk-method-selector').each((_, elem) => {
             const selector = jQuery(elem);
