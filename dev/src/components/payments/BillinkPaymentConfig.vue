@@ -55,14 +55,23 @@
             </div>
         </div>
     </div>
+  <FinancialWarning @set-warning="setWarning" :enabled="config.financial_warning" />
 </template>
 
 <script>
 import { inject } from "vue";
 import { useI18n } from "vue-i18n";
-
+import FinancialWarning from "../fields/FinancialWarning.vue";
 export default {
   name: "BillinkPaymentConfig",
+  components: {
+    FinancialWarning
+  },
+  methods: {
+    setWarning(value) {
+      this.config.financial_warning = value
+    }
+  },
   setup(props) {
     const { t } = useI18n();
 

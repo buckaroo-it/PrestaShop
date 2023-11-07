@@ -53,19 +53,30 @@
         </div>
       </div>
     </div>
+    <FinancialWarning @set-warning="setWarning" :enabled="config.financial_warning" />
 </template>
 
 <script>
-import { inject } from 'vue'
+import {inject} from 'vue'
 import {useI18n} from "vue-i18n";
-
+import FinancialWarning from "../fields/FinancialWarning.vue";
 export default {
     name: "AfterpayPaymentConfig",
+    components: {
+        FinancialWarning
+    },
+    methods: {
+      setWarning(value) {
+        this.config.financial_warning = value
+      }
+    },
     setup(props) {
       const { t } = useI18n();
-
       const config = inject('config')
-
+      const selectCountry = (country) => {
+        emit('update:modelValue', country)
+        query.value = null
+      }
         const vatOptions = [
           { text: t('1 = High rate'), value: '1' },
           { text: t('2 = Low rate'), value: '2' },
@@ -83,7 +94,7 @@ export default {
         return {
           config,
           vatOptions,
-          customerTypeOptions
+          customerTypeOptions,
         }
     }
 }

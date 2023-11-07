@@ -139,5 +139,10 @@
                 </label>
             </div>
         </div>
+        {if ($country == 'NL' && $methodsWithFinancialWarning['afterpay'] === 1 ) }
+            <p class="small">
+                {l s=$methodsWithFinancialWarning['warningText'] sprintf=['afterpay'] mod='buckaroo3'}
+            </p>
+        {/if}
     </form>
 </section>
