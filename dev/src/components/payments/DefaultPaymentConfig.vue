@@ -131,7 +131,6 @@
                         </li>
                     </ul>
                 </div>
-
             </div>
         </div>
 
@@ -146,7 +145,7 @@ import { inject, ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
-import {useCountries} from "../../lib/countries";
+import { useCountries } from "../../lib/countries";
 
 export default {
     name: "DefaultPaymentConfig.vue",
@@ -187,7 +186,7 @@ export default {
             }
 
             this.config.payment_fee = ''
-        }
+        },
     },
     setup(props) {
 
@@ -204,13 +203,13 @@ export default {
             payment_fee: null,
             min_order_amount: null,
             max_order_amount: null,
-            countries: []
+            countries: [],
         })
 
         provide('config', config)
 
         const getConfig = () => {
-            get({paymentName:props.payment.name}).then(() => {
+            get({paymentName:props.payment.name}).then((e) => {
               if(data.value.status) {
                     if(data.value.config) {
                         config.value = data.value.config.value
@@ -225,7 +224,7 @@ export default {
                         payment_fee: null,
                         min_order_amount: null,
                         max_order_amount: null,
-                        countries: []
+                        countries: [],
                     }
                 }
             })
@@ -290,7 +289,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -28,5 +28,10 @@
                     <input name="customer_phone" id="customer_phone" value="{$phone|escape:'html':'UTF-8'}" type="text" class="form-control form-control-large"/>
                 </div>
             </div>
+            {if ($country == 'NL' && $methodsWithFinancialWarning['in3']) }
+                <p class="small">
+                    {l s=$methodsWithFinancialWarning['warningText'] sprintf=['in3'] mod='buckaroo3'}
+                </p>
+            {/if}
         </form>
 </section>

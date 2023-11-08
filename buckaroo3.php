@@ -355,6 +355,7 @@ class Buckaroo3 extends PaymentModule
 
         $buckarooPaymentService = $this->symContainer->get('buckaroo.config.api.payment.service');
 
+
         try {
             $this->context->smarty->assign(
                 [
@@ -378,6 +379,7 @@ class Buckaroo3 extends PaymentModule
                     'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
                     'paybybankIssuers' => (new IssuersPayByBank())->getIssuerList(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
+                    'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'in3Method' => $this->symContainer->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
