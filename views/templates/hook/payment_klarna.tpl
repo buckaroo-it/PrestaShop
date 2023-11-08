@@ -27,7 +27,7 @@
                     <option value="2">{l s='She/her' mod='buckaroo3'}</option>
                 </select>
             </div>
-            {if ($country == 'NL' && $methodsWithFinancialWarning['klarna'] === 1 ) }
+            {if ($country == 'NL' && $methodsWithFinancialWarning['klarna']) }
                 <p class="small">
                     {l s=$methodsWithFinancialWarning['warningText'] sprintf=['klarna'] mod='buckaroo3'}
                 </p>

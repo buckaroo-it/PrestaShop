@@ -410,7 +410,7 @@ class BuckarooPaymentService
         ];
         $methods = [];
         foreach ($buyNowPayLaterMethods as $method){
-            $methods[$method] = $this->buckarooConfigService->getConfigValue($method, 'financial_warning') ?? 1;
+            $methods[$method] = $this->buckarooConfigService->getConfigValue($method, 'financial_warning') ?? true;
         }
         $methods['warningText'] = 'Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt,
                 voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt

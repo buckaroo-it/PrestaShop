@@ -61,7 +61,7 @@ class RawPaymentMethodRepository
         switch ($paymentName) {
             case 'klarna':
             case 'tinka':
-                $configValue['financial_warning'] = 1;
+                $configValue['financial_warning'] = true;
                 break;
 
             case 'creditcard':
@@ -72,7 +72,7 @@ class RawPaymentMethodRepository
 
             case 'in3':
                 $configValue['version'] = 'V3';
-                $configValue['financial_warning'] = 1;
+                $configValue['financial_warning'] = true;
                 break;
 
             case 'paypal':
@@ -83,7 +83,7 @@ class RawPaymentMethodRepository
             case 'billink':
                 $configValue['wrapping_vat'] = '2';
                 $configValue['customer_type'] = 'B2C';
-                $configValue['financial_warning'] = 1;
+                $configValue['financial_warning'] = true;
                 break;
 
             case 'payperemail':

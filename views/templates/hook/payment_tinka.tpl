@@ -33,7 +33,7 @@
                 {l s='YYYY' mod='buckaroo3'}
             </div>
         </div>
-        {if ($country == 'NL' && $methodsWithFinancialWarning['tinka'] === 1 ) }
+        {if ($country == 'NL' && $methodsWithFinancialWarning['tinka']) }
             <p class="small">
                 {l s=$methodsWithFinancialWarning['warningText'] sprintf=['tinka'] mod='buckaroo3'}
             </p>
