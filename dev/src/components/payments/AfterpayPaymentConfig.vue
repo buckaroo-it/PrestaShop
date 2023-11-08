@@ -53,7 +53,7 @@
         </div>
       </div>
     </div>
-    <FinancialWarning @set-warning="setWarning" :enabled="config.financial_warning" />
+    <FinancialWarning />
 </template>
 
 <script>
@@ -64,11 +64,6 @@ export default {
     name: "AfterpayPaymentConfig",
     components: {
         FinancialWarning
-    },
-    methods: {
-      setWarning(value) {
-        this.config.financial_warning = value
-      }
     },
     setup(props) {
       const { t } = useI18n();

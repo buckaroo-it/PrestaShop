@@ -30,7 +30,7 @@
           </div>
         </div>
     </div>
-  <FinancialWarning @set-warning="setWarning" :enabled="config.financial_warning" />
+  <FinancialWarning/>
 </template>
 
 <script>
@@ -41,11 +41,6 @@ export default {
     name: "In3PaymentConfig",
     components: {
         FinancialWarning
-    },
-    methods: {
-      setWarning(value) {
-        this.config.financial_warning = value
-      }
     },
     setup(props) {
         const config = inject('config')
