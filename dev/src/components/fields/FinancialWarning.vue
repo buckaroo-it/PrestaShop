@@ -22,12 +22,6 @@ import {inject} from "vue";
 
 export default {
   name:'FinancialWarning.vue',
-  props: {
-    enabled: {
-      type: Boolean,
-      default: true
-    }
-  },
   setup(props) {
     const config = inject('config')
 
