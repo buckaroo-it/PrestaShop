@@ -48,7 +48,7 @@ class BuckarooIdinService
     {
         $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
 
-        return Db::getInstance()->getValue($sqlCheck);
+        return \Db::getInstance()->getValue($sqlCheck);
     }
 
     public function updateProductData($productId, $buckarooIdin)
