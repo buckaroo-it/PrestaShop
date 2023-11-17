@@ -409,7 +409,7 @@
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.sofortueberweisung": "Sofort",
   "payment_methods.giropay": "Giropay",
-  "payment_methods.klarna": "Klarna",
+  "payment_methods.klarnakp": "Klarna",
   "payment_methods.afterpay": "Riverty",
   "payment_methods.trustly": "Trustly",
   "payment_methods.transfer": "Transfer",

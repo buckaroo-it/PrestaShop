@@ -59,7 +59,7 @@ class RawPaymentMethodRepository
         $configValue = ['mode' => 'off'];
 
         switch ($paymentName) {
-            case 'klarna':
+            case 'klarnakp':
             case 'tinka':
                 $configValue['financial_warning'] = true;
                 break;
@@ -129,7 +129,7 @@ class RawPaymentMethodRepository
             ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'afterpay', 'label' => 'Riverty | AfterPay', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
-            ['name' => 'klarna', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
+            ['name' => 'klarnakp', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
             ['name' => 'applepay', 'label' => 'Apple Pay', 'icon' => 'ApplePay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'in3', 'label' => 'In3', 'icon' => 'In3.svg', 'template' => 'payment_in3.tpl', 'is_payment_method' => '1'],
             ['name' => 'billink', 'label' => 'Billink', 'icon' => 'Billink.svg', 'template' => 'payment_billink.tpl', 'is_payment_method' => '1'],

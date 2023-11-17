@@ -115,7 +115,7 @@ class KlarnaCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarnakp', 'wrapping_vat');
 
         if ($wrappingVat == null) {
             $wrappingVat = 2;
