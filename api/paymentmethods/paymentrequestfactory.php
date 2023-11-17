@@ -30,7 +30,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_CREDITCARD = 'creditcard';
     public const REQUEST_TYPE_TRANSFER = 'transfer';
     public const REQUEST_TYPE_AFTERPAY = 'afterpay';
-    public const REQUEST_TYPE_KLARNA = 'klarna';
+    public const REQUEST_TYPE_KLARNA = 'klarnakp';
     public const REQUEST_TYPE_APPLEPAY = 'applepay';
     public const REQUEST_TYPE_BELFIUS = 'belfius';
     public const REQUEST_TYPE_IDIN = 'idin';

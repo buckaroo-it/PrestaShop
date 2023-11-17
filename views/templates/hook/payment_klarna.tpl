@@ -13,8 +13,8 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="klarna">
-    <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'klarna'])|escape:'quotes':'UTF-8'}" method="post">
+    <input type="hidden" name="buckarooKey" value="klarnakp">
+    <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'klarnakp'])|escape:'quotes':'UTF-8'}" method="post">
         <div class="row row-padding">
             <div class="col-xs-5">
                 <label class="required">{l s='Please select gender:' mod='buckaroo3'}</label>
