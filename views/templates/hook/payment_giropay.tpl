@@ -1,1 +1,1 @@
-//depeciated
+//depreciated
