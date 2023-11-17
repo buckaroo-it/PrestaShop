@@ -121,7 +121,7 @@ class RawPaymentMethodRepository
             ['name' => 'paybybank', 'label' => 'PayByBank', 'icon' => 'PayByBank.gif', 'template' => 'payment_paybybank.tpl', 'is_payment_method' => '1'],
             ['name' => 'paypal', 'label' => 'PayPal', 'icon' => 'PayPal.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl', 'is_payment_method' => '1'],
-            ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => 'payment_giropay.tpl', 'is_payment_method' => '1'],
+            ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'kbc', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
