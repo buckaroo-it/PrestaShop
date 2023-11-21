@@ -247,8 +247,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayBackOfficeHeader()
     {
+        if((Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3')){
+            $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
+        }
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
-        $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
     }
 
     public function getContent()

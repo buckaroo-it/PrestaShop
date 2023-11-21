@@ -40,7 +40,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 && !empty($response->statuscode)
                 && ($response->statuscode == 791)
             ) {
-                $response->statuscode == 890;
+                $response->statuscode = 890;
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
@@ -53,11 +53,6 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
                     Tools::redirect('index.php?controller=order&step=1');
                     exit;
-                }
-
-                $payment_method = $response->payment_method;
-                if ($payment_method == 'bancontactmrcash') {
-                    $payment_method = 'MISTERCASH';
                 }
 
                 $this->context->cart->delete();

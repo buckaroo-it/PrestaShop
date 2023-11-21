@@ -88,8 +88,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
-        $getBuckarooFeeValue = $this->module->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
-        if ($buckarooFee = $getBuckarooFeeValue) {
+        if (empty($payment_method)) {
+            $logger->logError('Load a method', 'Failed to load the method');
+            Tools::redirect('index.php?controller=order&step=1');
+            exit;
+        }
+        $buckarooFee = $this->module->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
+        if ($buckarooFee) {
             $buckarooFee = trim($buckarooFee);
 
             if (strpos($buckarooFee, '%') !== false) {
@@ -101,12 +106,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 // The fee is a flat amount.
                 $total += (float) $buckarooFee;
             }
-        }
-
-        if (empty($payment_method)) {
-            $logger->logError('Load a method', 'Failed to load the method');
-            Tools::redirect('index.php?controller=order&step=1');
-            exit;
         }
         if (Tools::getValue('service')
             && Tools::getValue('service') != 'digi'
@@ -189,24 +188,24 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $id_order = $this->module->currentOrder;
                 $message = new Message();
                 $message->id_order = $id_order;
-                $message->message = 'Transaction key: ' . $response->transactions;
+                /* @var $response Response */
+                $message->message = 'Transaction key: ' . $response->getResponse()->getTransactionKey();
                 $message->add();
-                // TODO fix adding Mandateref & date as message
                 if ($response->payment_method == 'SepaDirectDebit') {
                     /* @var $response Response */
-                    foreach ($response->getResponse()->Services->Service->ResponseParameter as $param) {
-                        if ($param->Name == 'MandateReference') {
-                            $message = new Message();
-                            $message->id_order = $id_order;
-                            $message->message = 'MandateReference: ' . $param->_;
-                            $message->add();
-                        }
-                        if ($param->Name == 'MandateDate') {
-                            $message = new Message();
-                            $message->id_order = $id_order;
-                            $message->message = 'MandateDate: ' . $param->_;
-                            $message->add();
-                        }
+                    $parameters = $response->getResponse()->getServiceParameters();
+
+                    if (!empty($parameters['mandateReference'])) {
+                        $message = new Message();
+                        $message->id_order = $id_order;
+                        $message->message = 'MandateReference: ' . $parameters['mandateReference'];
+                        $message->add();
+                    }
+                    if (!empty($parameters['mandateDate'])) {
+                        $message = new Message();
+                        $message->id_order = $id_order;
+                        $message->message = 'MandateDate: ' . $parameters['mandateDate'];
+                        $message->add();
                     }
                 }
                 if ($response->payment_method == 'transfer') {
