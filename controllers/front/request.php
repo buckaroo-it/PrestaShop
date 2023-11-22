@@ -16,14 +16,14 @@
  */
 
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
-
+use Buckaroo\Transaction\Response\TransactionResponse;
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
-    /* @var $checkout IDealCheckout */
+    /* @var $checkout Checkout */
     public $checkout;
     public $display_column_left = false;
     /** @var bool */
@@ -54,9 +54,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $merchantkey = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $merchant_key = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $secret_key = Configuration::get('BUCKAROO_SECRET_KEY');
-        if (empty($merchantkey) || empty($secret_key)) {
+        if (empty($merchant_key) || empty($secret_key)) {
             $error = $this->module->l(
                 '<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured.'
             );
@@ -163,143 +163,127 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return;
         }
 
-
         if ($this->checkout->isRequestSucceeded()) {
-            $response = $this->checkout->getResponse();
-            $logger->loginfo('Request succeeded');
-
-            if ($this->checkout->isRedirectRequired()) {
-                $oldCart = new Cart($cart->id);
-                $duplication = $oldCart->duplicate();
-                if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                    $this->context->cookie->id_cart = $duplication['cart']->id;
-                    $this->context->cookie->write();
-                }
-
-                $logger->logInfo('Redirecting ... ');
-                $this->checkout->doRedirect();
-                exit;
-            }
-
-            $logger->logDebug('Checkout response', $response);
-
-            if ($response->hasSucceeded()) {
-                $logger->logInfo('Payment request succeeded. Wait push message!');
-                $id_order = $this->module->currentOrder;
-                $message = new Message();
-                $message->id_order = $id_order;
-                /* @var $response Response */
-                $message->message = 'Transaction key: ' . $response->getResponse()->getTransactionKey();
-                $message->add();
-                if ($response->payment_method == 'SepaDirectDebit') {
-                    /* @var $response Response */
-                    $parameters = $response->getResponse()->getServiceParameters();
-
-                    if (!empty($parameters['mandateReference'])) {
-                        $message = new Message();
-                        $message->id_order = $id_order;
-                        $message->message = 'MandateReference: ' . $parameters['mandateReference'];
-                        $message->add();
-                    }
-                    if (!empty($parameters['mandateDate'])) {
-                        $message = new Message();
-                        $message->id_order = $id_order;
-                        $message->message = 'MandateDate: ' . $parameters['mandateDate'];
-                        $message->add();
-                    }
-                }
-                if ($response->payment_method == 'transfer') {
-                    $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
-                }
-                Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cart->id . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method// phpcs:ignore
-                );
-            } else {
-                $logger->logInfo('Payment request failed/canceled');
-                if ($response->isValid()) {
-                    $logger->logInfo('Payment request valid');
-                    $id_order = Order::getOrderByCartId($response->getCartId());
-                    if ($id_order) {
-                        $logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
-                        $logger->logInfo(
-                            'Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status)
-                        );
-                        $order = new Order($id_order);
-                        $new_status_code = Buckaroo3::resolveStatusCode($response->status);
-                        $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                        $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
-                        $error = Configuration::get('PS_OS_ERROR');
-                        if ($new_status_code != $order->getCurrentState()
-                            && ($pending == $order->getCurrentState()
-                                || $error == $order->getCurrentState()
-                                || $canceled == $order->getCurrentState())
-                        ) {
-                            $order_history = new OrderHistory();
-                            $order_history->id_order = $id_order;
-                            $order_history->changeIdOrderState(
-                                Buckaroo3::resolveStatusCode($response->status),
-                                $id_order
-                            );
-                            $order_history->add(true);
-                        }
-                    } else {
-                        $logger->logInfo('Find order by cart ID', 'Order not found.');
-                    }
-
-                    $oldCart = new Cart($cart->id);
-                    $duplication = $oldCart->duplicate();
-                    if ($duplication
-                        && Validate::isLoadedObject($duplication['cart'])
-                        && $duplication['success']) {
-                        $this->context->cookie->id_cart = $duplication['cart']->id;
-                        $this->context->cookie->write();
-                    }
-                    $error = null;
-                    if (($response->payment_method == 'afterpayacceptgiro'
-                        || $response->payment_method == 'afterpaydigiaccept')
-                        && $response->statusmessage) {
-                        $error = $response->statusmessage;
-                    }
-                    $this->displayError($id_order, $error);
-                } else {
-                    $oldCart = new Cart($cart->id);
-                    $duplication = $oldCart->duplicate();
-                    if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                        $this->context->cookie->id_cart = $duplication['cart']->id;
-                        $this->context->cookie->write();
-                    }
-                    $logger->logInfo('Payment request not valid');
-                    $error = null;
-                    if (($response->payment_method == 'afterpayacceptgiro'
-                        || $response->payment_method == 'afterpaydigiaccept')
-                        && $response->statusmessage) {
-                        $error = $response->statusmessage;
-                    }
-                    $this->displayError(null, $error);
-                }
-            }
+            $this->handleSuccessfulRequest($logger,$cart->id,$customer);
         } else {
-            $response = $this->checkout->getResponse();
-            $logger->logInfo('Request not succeeded');
+            $this->handleFailedRequest($logger,$cart->id);
+        }
+    }
+    private function handleSuccessfulRequest($logger,$cartId,$customer){
 
-            $oldCart = new Cart($cart->id);
-            $duplication = $oldCart->duplicate();
+        /* @var $response Response */
+        $response = $this->checkout->getResponse();
+        $logger->loginfo('Request succeeded');
 
-            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                $this->context->cookie->id_cart = $duplication['cart']->id;
-                $this->context->cookie->write();
+        if ($this->checkout->isRedirectRequired()) {
+            $this->setCartCookie($cartId);
+            $logger->logInfo('Redirecting ... ');
+            $this->checkout->doRedirect();
+            exit;
+        }
+
+        $logger->logDebug('Checkout response', $response);
+
+        if ($response->hasSucceeded()) {
+            $logger->logInfo('Payment request succeeded. Wait push message!');
+            $id_order = $this->module->currentOrder;
+
+            /* @var $responseData TransactionResponse */
+            $responseData = $response->getResponse();
+            $this->createTransactionMessage($id_order,'Transaction Key: '. $responseData->getTransactionKey());
+            if($response->payment_method == 'SepaDirectDebit'){
+
+                $parameters = $responseData->getServiceParameters();
+                if (!empty($parameters['mandateReference'])) {
+                    $this->createTransactionMessage($id_order,'MandateReference: '. $parameters['mandateReference']);
+                }
+                if (!empty($parameters['mandateDate'])) {
+                    $this->createTransactionMessage($id_order,'MandateDate: '. $parameters['mandateDate']);
+                }
             }
-
-            $error = null;
-            if ($response->hasSomeError()) {
-                $error = $response->getSomeError();
+            if ($response->payment_method == 'transfer') {
+                $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
             }
+            Tools::redirect(
+                'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method// phpcs:ignore
+            );
+        } else {
+            $logger->logInfo('Payment request failed/canceled');
 
-            if (isset($error['errorresponsemessage']) && is_array($error)) {
-                $this->displayError(null, $error['errorresponsemessage']);
+            $this->setCartCookie($cartId);
+
+            if ($response->isValid()) {
+                $logger->logInfo('Payment request valid');
+                $id_order = Order::getOrderByCartId($response->getCartId());
+                if ($id_order) {
+                    $logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
+                    $logger->logInfo(
+                        'Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status)
+                    );
+                    $order = new Order($id_order);
+                    $new_status_code = Buckaroo3::resolveStatusCode($response->status);
+                    $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+                    $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
+                    $error = Configuration::get('PS_OS_ERROR');
+                    if ($new_status_code != $order->getCurrentState()
+                        && ($pending == $order->getCurrentState()
+                            || $error == $order->getCurrentState()
+                            || $canceled == $order->getCurrentState())
+                    ) {
+                        $order_history = new OrderHistory();
+                        $order_history->id_order = $id_order;
+                        $order_history->changeIdOrderState(
+                            Buckaroo3::resolveStatusCode($response->status),
+                            $id_order
+                        );
+                        $order_history->add(true);
+                    }
+                } else {
+                    $logger->logInfo('Find order by cart ID', 'Order not found.');
+                }
             } else {
-                $this->displayError(null, $error);
+                $logger->logInfo('Payment request not valid');
+            };
+            $error = null;
+            if (($response->payment_method == 'afterpayacceptgiro'
+                    || $response->payment_method == 'afterpaydigiaccept')
+                && $response->statusmessage) {
+                $error = $response->statusmessage;
             }
+            $this->displayError(null, $error);
+        }
+    }
+    private function handleFailedRequest($logger,$cartId){
+
+        $response = $this->checkout->getResponse();
+        $logger->logInfo('Request not succeeded');
+
+        $this->setCartCookie($cartId);
+
+        $error = null;
+        if($response->getResponse() instanceof TransactionResponse){
+            $error = $response->getSomeError();
+        }
+
+        if (isset($error['errorresponsemessage']) && is_array($error)) {
+            $this->displayError(null, $error['errorresponsemessage']);
+        } else {
+            $this->displayError(null, $error);
+        }
+    }
+    private function createTransactionMessage($orderId,$messageString){
+        $message = new Message();
+        $message->id_order = $orderId;
+        $message->message = $messageString;
+        $message->add();
+
+    }
+    private function setCartCookie($cartId){
+        $oldCart = new Cart($cartId);
+        $duplication = $oldCart->duplicate();
+        if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+            $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cookie->write();
         }
     }
 }

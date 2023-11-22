@@ -191,16 +191,16 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->get('IsTest') === true;
     }
-
     public function isValid()
     {
         if (!$this->validated) {
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'));
-                $reply_handler = new ReplyHandler($buckaroo->client()->config(), json_encode($this->response->getData()));
-                $reply_handler->validate();
-                $this->validated = $reply_handler->isValid();
-
+                try {
+                    $reply_handler = new ReplyHandler($buckaroo->client()->config(), $_POST);
+                    $reply_handler->validate();
+                    return $this->validated = $reply_handler->isValid();
+                } catch (Exception $e) {}
             } else if($this->response) {
                 $this->validated = (!$this->response->isValidationFailure());
             }
@@ -212,16 +212,16 @@ abstract class Response extends BuckarooAbstract
     public function hasSucceeded()
     {
         if (isset($this->response)) {
-            if ($this->isValid()) {
-                if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
-                    return true;
+            try {
+                if($this->isValid()){
+                    if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
+                        return true;
+                    }
                 }
-            }
-        } else if ($this->status === self::BUCKAROO_PENDING_PAYMENT || $this->status === self::BUCKAROO_SUCCESS) {
+            } catch (Exception $e){}
+        } else if (in_array($this->status,[self::BUCKAROO_PENDING_PAYMENT,self::BUCKAROO_SUCCESS])) {
             return true;
         }
-
-
         return false;
     }
 

@@ -55,9 +55,9 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
                 && !empty($response->statuscode)
-                && ($response->statuscode == 791)
+                && ($response->statuscode == $response::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
             ) {
-                $response->statuscode = 890;
+                $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
