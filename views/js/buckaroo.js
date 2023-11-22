@@ -196,7 +196,7 @@ function buckaroo($) {
                     break;
                 default:
             }
-            if (this.valid) {
+            if (methodValidator.valid) {
                 console.log(methodValidator.methodSelector + ' is validated!');
                 return false;
             } else {

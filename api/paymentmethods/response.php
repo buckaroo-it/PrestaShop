@@ -197,7 +197,7 @@ abstract class Response extends BuckarooAbstract
         if (!$this->validated) {
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'));
-                $reply_handler = new ReplyHandler($buckaroo->client()->config(), json_encode($this->getData()));
+                $reply_handler = new ReplyHandler($buckaroo->client()->config(), json_encode($this->response->getData()));
                 $reply_handler->validate();
                 $this->validated = $reply_handler->isValid();
 
