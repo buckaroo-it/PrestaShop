@@ -2,13 +2,13 @@ buckaroo_refund:
     path: buckaroo3/refund
     methods: [POST]
     defaults:
-      _controller: 'buckaroo.refund_controller::refund'
+        _controller: 'buckaroo.refund_controller::refund'
 
 buckaroo_config_paymentMethod:
     path: buckaroo3/config/payment/methods
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.paymentMethod::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\PaymentMethodConfig::initContent'
     options:
         expose: true
 
@@ -16,7 +16,7 @@ buckaroo_config_countries:
     path: buckaroo3/config/countries
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.countries::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Countries::initContent'
     options:
         expose: true
 
@@ -24,7 +24,7 @@ buckaroo_config_creditcards:
     path: buckaroo3/config/creditcards
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.creditcards::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Creditcards::initContent'
     options:
         expose: true
 
@@ -32,7 +32,7 @@ buckaroo_config_orderings:
     path: buckaroo3/config/orderings
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.orderings::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Orderings::initContent'
     options:
         expose: true
 
@@ -40,7 +40,7 @@ buckaroo_config_methodMode:
     path: buckaroo3/config/methodMode
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.methodMode::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\PaymentMethodMode::initContent'
     options:
         expose: true
 
@@ -48,7 +48,7 @@ buckaroo_config_methods:
     path: buckaroo3/config/methods
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.methods::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\PaymentMethods::initContent'
     options:
         expose: true
 
@@ -56,7 +56,7 @@ buckaroo_config_settings:
     path: buckaroo3/config/settings
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.settings::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Settings::initContent'
     options:
         expose: true
 
@@ -64,7 +64,7 @@ buckaroo_config_testCredentials:
     path: buckaroo3/config/testCredentials
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.testCredentials::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\TestCredentialsApi::initContent'
     options:
         expose: true
 
@@ -72,6 +72,6 @@ buckaroo_config_verificationMethods:
     path: buckaroo3/config/verificationMethods
     methods: [POST, GET]
     defaults:
-      _controller: 'buckaroo.config.controllers.verificationMethods::initContent'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\VerificationMethods::initContent'
     options:
         expose: true

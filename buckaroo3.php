@@ -197,7 +197,7 @@ class Buckaroo3 extends PaymentModule
                 ),
             ];
             $defaultOrderState->module_name = $this->name;
-            $defaultOrderState->send_mail = 0;
+            $defaultOrderState->send_email = 0;
             $defaultOrderState->template = '';
             $defaultOrderState->invoice = 0;
             $defaultOrderState->color = '#FFF000';
@@ -248,6 +248,9 @@ class Buckaroo3 extends PaymentModule
     public function hookDisplayBackOfficeHeader()
     {
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
+        if(!(Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3')){
+            return;
+        }
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
     }
 
@@ -490,7 +493,8 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        if (Order::getByCartId($cart->id)->module !== $this->name) {
+        $order = Order::getByCartId($cart->id);
+        if (!$order || $order->module !== $this->name) {
             return true;
         }
 
