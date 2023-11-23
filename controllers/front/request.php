@@ -131,13 +131,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
-
-//        $context = Context::getContext();
-//        if(empty($context->employee))
-//        {
-//            $context->employee = new Employee(1);
-//        }
-
         if (!$this->checkout->isVerifyRequired()) {
             $this->module->validateOrder(
                 (int) $cart->id,
