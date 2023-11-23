@@ -14,7 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-abstract class BuckarooAbstract
+use Buckaroo\Resources\Constants\ResponseStatus;
+
+abstract class BuckarooAbstract extends ResponseStatus
 {
     public const BUCKAROO_SUCCESS = 'BUCKAROO_SUCCESS';
     public const BUCKAROO_FAILED = 'BUCKAROO_FAILED';
@@ -30,47 +32,47 @@ abstract class BuckarooAbstract
      *  This is the list for the BPE 3.0 gateway.
      */
     public $responseCodes = [
-        190 => [
+        self::BUCKAROO_STATUSCODE_SUCCESS => [
             'message' => 'Success',
             'status' => self::BUCKAROO_SUCCESS,
         ],
-        490 => [
+        self::BUCKAROO_STATUSCODE_FAILED => [
             'message' => 'Payment failure',
             'status' => self::BUCKAROO_FAILED,
         ],
-        491 => [
+        self::BUCKAROO_STATUSCODE_VALIDATION_FAILURE => [
             'message' => 'Validation error',
             'status' => self::BUCKAROO_FAILED,
         ],
-        492 => [
+        self::BUCKAROO_STATUSCODE_TECHNICAL_ERROR => [
             'message' => 'Technical error',
             'status' => self::BUCKAROO_ERROR,
         ],
-        690 => [
+        self::BUCKAROO_STATUSCODE_REJECTED => [
             'message' => 'Payment rejected',
             'status' => self::BUCKAROO_FAILED,
         ],
-        790 => [
+        self::BUCKAROO_STATUSCODE_WAITING_ON_USER_INPUT => [
             'message' => 'Waiting for user input',
             'status' => self::BUCKAROO_PENDING_PAYMENT,
         ],
-        791 => [
+        self::BUCKAROO_STATUSCODE_PENDING_PROCESSING => [
             'message' => 'Waiting for processor',
             'status' => self::BUCKAROO_PENDING_PAYMENT,
         ],
-        792 => [
+        self::BUCKAROO_STATUSCODE_WAITING_ON_CONSUMER => [
             'message' => 'Waiting on consumer action',
             'status' => self::BUCKAROO_PENDING_PAYMENT,
         ],
-        793 => [
+        self::BUCKAROO_STATUSCODE_PAYMENT_ON_HOLD => [
             'message' => 'Payment on hold',
             'status' => self::BUCKAROO_PENDING_PAYMENT,
         ],
-        890 => [
+        self::BUCKAROO_STATUSCODE_CANCELLED_BY_USER => [
             'message' => 'Cancelled by consumer',
             'status' => self::BUCKAROO_CANCELED,
         ],
-        891 => [
+        self::BUCKAROO_STATUSCODE_CANCELLED_BY_MERCHANT => [
             'message' => 'Cancelled by merchant',
             'status' => self::BUCKAROO_FAILED,
         ],

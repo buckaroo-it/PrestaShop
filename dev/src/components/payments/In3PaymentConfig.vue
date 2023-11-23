@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { inject, ref, computed, watch } from "vue";
+import { inject } from "vue";
 import FinancialWarning from "../fields/FinancialWarning.vue";
 
 export default {

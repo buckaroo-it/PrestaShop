@@ -155,7 +155,7 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDebit = $originalAmount =
+        $this->payment_request->amountDebit =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         $buckarooFee = $this->getBuckarooFee();

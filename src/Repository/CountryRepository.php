@@ -41,10 +41,7 @@ class CountryRepository
     {
         $langId = \Context::getContext()->language->id;
         $rawCountries = \Country::getCountries($langId, true);
-        $countries = $this->processCountries($rawCountries);
-
-
-        return $countries;
+        return $this->processCountries($rawCountries);
     }
 
     public function getCountryByIsoCode2($isoCode2)

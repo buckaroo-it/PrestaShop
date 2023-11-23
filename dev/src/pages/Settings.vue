@@ -215,7 +215,7 @@
 </template>
 
 <script>
-import { ref, inject, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useApi } from "../lib/api.ts";
 import { useToastr } from "../lib/toastr.ts"
 import { useI18n } from 'vue-i18n';

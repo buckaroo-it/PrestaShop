@@ -54,7 +54,7 @@ abstract class Response extends BuckarooAbstract
     // if is errors, othervise = null
     public $parameterError;
 
-    protected TransactionResponse $response;
+    protected ?TransactionResponse $response = null;
 
     public function __construct(TransactionResponse $response = null)
     {
@@ -122,47 +122,6 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    /*TODO - Remove unused code
-    public function __construct($data = null)
-    {
-        $logger = new Logger(Logger::INFO, 'response');
-        $logger->logInfo("\n\n\n\n***************** Response ***********************");
-        if ($this->isPushRequest()) {
-            $logger->logInfo("Type: Push");
-            $logger->logInfo("POST", print_r($_POST, true));
-        } else {
-            $logger->logInfo("Type: Response");
-            if (!is_null($data)) {
-                if ($data[0] != false) {
-                    $logger->logInfo("Data[0]: ", print_r($data[0], true));
-                }
-                if ($data[1] != false) {
-                    $logger->logInfo("Data[1]: ", $data[1]->saveHTML());
-                }
-                if ($data[2] != false) {
-                    $logger->logInfo("Data[2]: ", $data[2]->saveHTML());
-                }
-            }
-        }
-
-        $this->isPush   = $this->isPushRequest();
-        $this->received = false;
-
-        if ($this->isPush) {
-            //Push response
-            $this->received = true;
-        } else {
-            if (!is_null($data) && $data[0] != false) {
-                //if valid response
-                $this->setResponse($data[0]);
-                $this->received = true;
-            } else {
-                $this->status = self::REQUEST_ERROR;
-            }
-        }
-    }
-    */
-
     /**
      * @return bool
      */
@@ -218,15 +177,6 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->isRejected();
     }
-
-    /**
-     * @return bool
-     */
-    public function isValidationFailure(): bool
-    {
-        return $this->response->isValidationFailure();
-    }
-
     // Determine if is buckaroo response or push
     private function isPushRequest()
     {
@@ -237,45 +187,55 @@ abstract class Response extends BuckarooAbstract
         return false;
     }
 
+    public function getServiceParameters()
+    {
+        return $this->response->getServiceParameters();
+    }
+
+    public function hasSomeError()
+    {
+        return $this->response->hasSomeError();
+    }
+
+    public function getSomeError()
+    {
+        return $this->response->getSomeError();
+    }
     public function isTest()
     {
         return $this->response->get('IsTest') === true;
     }
-
     public function isValid()
     {
-        return true;
-        /* TODO - fix validation
         if (!$this->validated) {
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'));
-                $reply_handler = new ReplyHandler($buckaroo->client()->config(), json_encode($this->getData()));
-                $reply_handler->validate();
-                $this->validated = $reply_handler->isValid();
-
-            } else {
-                $this->validated = (!$this->isValidationFailure());
+                try {
+                    $reply_handler = new ReplyHandler($buckaroo->client()->config(), $_POST);
+                    $reply_handler->validate();
+                    return $this->validated = $reply_handler->isValid();
+                } catch (Exception $e) {}
+            } else if($this->response) {
+                $this->validated = (!$this->response->isValidationFailure());
             }
 
         }
         return $this->validated;
-        */
     }
 
     public function hasSucceeded()
     {
         if (isset($this->response)) {
-            if ($this->isValid()) {
-                if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
-                    return true;
+            try {
+                if($this->isValid()){
+                    if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
+                        return true;
+                    }
                 }
-            }
-        } else {
-            if ($this->status === self::BUCKAROO_PENDING_PAYMENT || $this->status === self::BUCKAROO_SUCCESS) {
-                return true;
-            }
+            } catch (Exception $e){}
+        } else if (in_array($this->status,[self::BUCKAROO_PENDING_PAYMENT,self::BUCKAROO_SUCCESS])) {
+            return true;
         }
-
         return false;
     }
 
@@ -292,33 +252,6 @@ abstract class Response extends BuckarooAbstract
     public function getResponse()
     {
         return $this->response;
-    }
-
-    // TODO - remove unused code
-    public function getData($key = null)
-    {
-        $data = $this->response->data();
-
-        if (isset($key, $data[$key])) {
-            return $data[$key];
-        } else {
-            return $data;
-        }
-    }
-
-    public function getServiceParameters()
-    {
-        return $this->response->getServiceParameters();
-    }
-
-    public function hasSomeError()
-    {
-        return $this->response->hasSomeError();
-    }
-
-    public function getSomeError()
-    {
-        return $this->response->getSomeError();
     }
 
     private function setPostVariable($key)
