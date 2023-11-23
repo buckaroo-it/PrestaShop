@@ -2,6 +2,19 @@
     <div>
       <div class="p-5 space-y-5">
         <div class="space-y-2">
+          <h2 class="font-semibold text-sm">
+            {{ $t(`dashboard.config.showIssuers`) }}
+          </h2>
+          <div class="text-gray-400 text-xs" v-html="$t(`dashboard.config.showIssuers.label`)">
+          </div>
+        </div>
+        <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="showIssuers">
+          <option :value="true">{{ $t(`dashboard.config.showIssuers.enabled`) }}</option>
+          <option :value="false">{{ $t(`dashboard.config.showIssuers.disabled`) }}</option>
+        </select>
+      </div>
+      <div class="p-5 space-y-5">
+        <div class="space-y-2">
           <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.display_type`) }}</h2>
           <div class="text-gray-400 text-xs" v-html="$t(`dashboard.pages.payments.display_type_label`)"></div>
         </div>
@@ -24,15 +37,27 @@
 </template>
 
 <script>
-import {inject} from "vue";
+import {computed, inject} from "vue";
+import ToggleField from "@/components/fields/ToggleField.vue";
 
 export default {
     name: "IdealPaymentConfig",
+    components: {
+      ToggleField
+    },
     setup(props) {
         const config = inject('config')
-
+        const showIssuers = computed({
+          get() {
+            return config.value.show_issuers !== false
+          },
+          set(value) {
+            config.value.show_issuers = !!value
+          }
+        })
         return {
-            config
+            config,
+            showIssuers
         }
     }
 }

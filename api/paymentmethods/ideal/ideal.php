@@ -20,17 +20,23 @@ class IDeal extends PaymentMethod
     public $issuer;
     protected $data;
     protected $payload;
+    protected $issuerIsRequired;
 
     public function __construct()
     {
         $this->type = 'ideal';
         $this->version = 2;
+        $this->issuerIsRequired = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService()->getConfigValue($this->mode, 'show_issuer') ?? true;
     }
 
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
-        $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
+        if($this->issuerIsRequired){
+            $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
+        }else{
+            $this->payload['continueOnIncomplete'] = 1;
+        }
 
         return parent::pay();
     }
