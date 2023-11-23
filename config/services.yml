@@ -174,27 +174,8 @@ services:
       - "@doctrine.orm.entity_manager"
     public: true
 
-  buckaroo.classes.issuers.payByBank:
-    class: Buckaroo\PrestaShop\Classes\IssuersPayByBank
-    public: true
-
-  buckaroo.repository.country.repository:
-    class: Buckaroo\PrestaShop\Src\Repository\CountryRepository
-    public: true
-
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
     arguments:
       - "@buckaroo.config.api.config.service"
-    public: true
-
-  buckaroo.config.api.payment.service:
-    class: Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService
-    arguments:
-      - "@doctrine.orm.entity_manager"
-      - "@buckaroo.config.api.fee.service"
-      - "@buckaroo.config.api.config.service"
-      - "@buckaroo.classes.issuers.payByBank"
-      - "@buckaroo.classes.issuers.capayableIn3"
-      - "@buckaroo.repository.country.repository"
     public: true

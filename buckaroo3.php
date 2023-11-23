@@ -39,7 +39,6 @@ use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class Buckaroo3 extends PaymentModule
 {
-    public $symContainer;
     public $logger;
     private $locale;
 
@@ -56,15 +55,12 @@ class Buckaroo3 extends PaymentModule
 
         parent::__construct();
 
-        $this->setContainer();
-
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.2');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
         $this->logger = new \Logger(CoreLogger::INFO, '');
-        $this->locale = \Tools::getContextLocale($this->context);
 
         $response = ResponseFactory::getResponse();
         if ($response && $response->isValid()) {
@@ -295,7 +291,7 @@ class Buckaroo3 extends PaymentModule
         if (!$this->isActivated()) {
             return [];
         }
-
+        
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
@@ -353,11 +349,10 @@ class Buckaroo3 extends PaymentModule
                 $address_differ = 1;
             }
         }
-
+        
         $buckarooConfigService = $this->getBuckarooConfigService();
 
-        $buckarooPaymentService = $this->symContainer->get('buckaroo.config.api.payment.service');
-
+        $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
 
         try {
             $this->context->smarty->assign(
@@ -385,7 +380,7 @@ class Buckaroo3 extends PaymentModule
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'in3Method' => $this->symContainer->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
+                    'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                 ]
             );
         } catch (Exception $e) {
@@ -620,12 +615,12 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooConfigService()
     {
-        return $this->symContainer->get('buckaroo.config.api.config.service');
+        return $this->get('buckaroo.config.api.config.service');
     }
 
     public function getBuckarooFeeService()
     {
-        return $this->symContainer->get('buckaroo.config.api.fee.service');
+        return $this->get('buckaroo.config.api.fee.service');
     }
 
     public function hookDisplayProductExtraContent($params)
@@ -683,18 +678,6 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    private function setContainer()
-    {
-        global $kernel;
-
-        if (!$kernel) {
-            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
-            $kernel = new \AppKernel('prod', false);
-            $kernel->boot();
-        }
-        $this->symContainer = $kernel->getContainer();
-    }
-
     /**
      * @throws LocalizationException
      */
@@ -702,6 +685,6 @@ class Buckaroo3 extends PaymentModule
     {
         $currency = \Context::getContext()->currency;
 
-        return $this->locale->formatPrice($amount, $currency->iso_code);
+        return \Tools::getContextLocale($this->context)->formatPrice($amount, $currency->iso_code);
     }
 }
