@@ -26,7 +26,7 @@ class IDeal extends PaymentMethod
     {
         $this->type = 'ideal';
         $this->version = 2;
-        $this->issuerIsRequired = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService()->getConfigValue($this->mode, 'show_issuer') ?? true;
+        $this->issuerIsRequired = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService()->getConfigValue($this->type, 'show_issuers') ?? true;
     }
 
     // @codingStandardsIgnoreStart
@@ -37,7 +37,6 @@ class IDeal extends PaymentMethod
         }else{
             $this->payload['continueOnIncomplete'] = 1;
         }
-
         return parent::pay();
     }
 }
