@@ -187,6 +187,20 @@ abstract class Response extends BuckarooAbstract
         return false;
     }
 
+    public function getServiceParameters()
+    {
+        return $this->response->getServiceParameters();
+    }
+
+    public function hasSomeError()
+    {
+        return $this->response->hasSomeError();
+    }
+
+    public function getSomeError()
+    {
+        return $this->response->getSomeError();
+    }
     public function isTest()
     {
         return $this->response->get('IsTest') === true;
