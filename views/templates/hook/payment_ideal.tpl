@@ -16,6 +16,7 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="ideal">
     <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
+    {if $showIdealIssuers}
        <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <fieldset>
             {if $idealDisplayMode === 'dropdown'}
@@ -60,5 +61,6 @@
                 </div>
             {/if}
         </fieldset>
+        {/if}
     </form>
 </section>
