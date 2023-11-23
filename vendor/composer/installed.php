@@ -3,7 +3,7 @@
         'name' => 'buckaroo/prestashop',
         'pretty_version' => 'dev-develop',
         'version' => 'dev-develop',
-        'reference' => 'f9b12c447c8a8415386938ab9c3884931489eb70',
+        'reference' => '064d499918cf6caec454cdbb0aa16cd625940d3f',
         'type' => 'prestashop-module',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'buckaroo/prestashop' => array(
             'pretty_version' => 'dev-develop',
             'version' => 'dev-develop',
-            'reference' => 'f9b12c447c8a8415386938ab9c3884931489eb70',
+            'reference' => '064d499918cf6caec454cdbb0aa16cd625940d3f',
             'type' => 'prestashop-module',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
