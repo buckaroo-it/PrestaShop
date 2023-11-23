@@ -5,8 +5,9 @@ namespace Buckaroo\Transaction\Request\HttpClient;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Exceptions\TransferException;
 use Buckaroo\Handlers\Logging\Subject;
-use GuzzleHttp\Client as GuzzleClientV5;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 
 class GuzzleHttpClientV5 extends HttpClientAbstract
@@ -22,7 +23,7 @@ class GuzzleHttpClientV5 extends HttpClientAbstract
         parent::__construct($logger);
         $this->logger = $logger;
 
-        $this->httpClient = new GuzzleClientV5([
+        $this->httpClient = new Client([
             'timeout' => self::TIMEOUT,
             'connect_timeout' => self::CONNECT_TIMEOUT,
         ]);
@@ -35,8 +36,7 @@ class GuzzleHttpClientV5 extends HttpClientAbstract
      * @param string|null $data
      * @return array|mixed
      * @throws TransferException
-     * @throws BuckarooException
-     * @throws BuckarooException
+     * @throws BuckarooException|GuzzleException
      */
 
     public function call(string $url, array $headers, string $method, string $data = null)

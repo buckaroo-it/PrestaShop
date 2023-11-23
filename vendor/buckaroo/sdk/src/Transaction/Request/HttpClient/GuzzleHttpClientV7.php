@@ -2,6 +2,7 @@
 
 namespace Buckaroo\Transaction\Request\HttpClient;
 
+use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Exceptions\TransferException;
 use Buckaroo\Handlers\Logging\Subject;
 use GuzzleHttp\Client;
@@ -41,7 +42,7 @@ class GuzzleHttpClientV7 extends HttpClientAbstract
      * @param string|null $data
      * @return array|mixed
      * @throws TransferException
-     * @throws \Buckaroo\Exceptions\BuckarooException
+     * @throws BuckarooException
      */
     public function call(string $url, array $headers, string $method, string $data = null)
     {
@@ -57,8 +58,7 @@ class GuzzleHttpClientV7 extends HttpClientAbstract
 
             $this->logger->info('RESPONSE HEADERS: ' . json_encode($response->getHeaders()));
             $this->logger->info('RESPONSE BODY: ' . $response->getBody());
-        } catch (GuzzleException $e)
-        {
+        } catch (GuzzleException $e) {
             throw new TransferException($this->logger, "Transfer failed", 0, $e);
         }
 
