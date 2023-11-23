@@ -35,7 +35,7 @@
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
           <TinkaPaymentConfig v-if="selectedPayment.name === 'tinka'" />
-          <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
+          <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarnakp'" />
         </DefaultPaymentConfig>
       </div>
     </div>

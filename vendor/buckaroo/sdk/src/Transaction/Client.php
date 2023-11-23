@@ -31,6 +31,7 @@ use Buckaroo\Services\TransactionHeaders\ChannelHeader;
 use Buckaroo\Services\TransactionHeaders\DefaultHeader;
 use Buckaroo\Services\TransactionHeaders\HmacHeader;
 use Buckaroo\Services\TransactionHeaders\SoftwareHeader;
+use Buckaroo\Transaction\Request\HttpClient\HttpClientFactory;
 use Buckaroo\Transaction\Request\HttpClient\HttpClientGuzzle;
 use Buckaroo\Transaction\Request\HttpClient\HttpClientInterface;
 use Buckaroo\Transaction\Request\Request;
@@ -61,7 +62,7 @@ class Client
     public function __construct(?Config $config)
     {
         $this->config = $config;
-        $this->httpClient = new HttpClientGuzzle($config->getLogger());
+        $this->httpClient = HttpClientFactory::createClient($config->getLogger());
     }
 
     /**
@@ -238,7 +239,7 @@ class Client
             throw new BuckarooException(
                 $this->logger,
                 "No config has been configured.
-                 Please pass your credentials to the constructor or set up a Config object."
+             Please pass your credentials to the constructor or set up a Config object."
             );
         }
 

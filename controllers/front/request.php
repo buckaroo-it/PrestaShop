@@ -54,9 +54,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             Tools::redirect('index.php?controller=order&step=1');
         }
 
-        $merchant_key = Configuration::get('BUCKAROO_MERCHANT_KEY');
-        $secret_key = Configuration::get('BUCKAROO_SECRET_KEY');
-        if (empty($merchant_key) || empty($secret_key)) {
+        $merchantKey = Configuration::get('BUCKAROO_MERCHANT_KEY');
+        $secretKey = Configuration::get('BUCKAROO_SECRET_KEY');
+        if (empty($merchantKey) || empty($secretKey)) {
             $error = $this->module->l(
                 '<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured.'
             );
@@ -132,9 +132,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if (!$this->checkout->isVerifyRequired()) {
             $this->module->validateOrder(
-                $cart->id,
+                (int) $cart->id,
                 $pending,
-                $total,
+                (float) $total,
                 $payment_method_tr,
                 null,
                 null,

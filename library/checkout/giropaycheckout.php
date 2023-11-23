@@ -21,7 +21,6 @@ class GiropayCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
-        $this->payment_request->bic = Tools::getValue('BPE_Bic');
     }
 
     public function startPayment()
