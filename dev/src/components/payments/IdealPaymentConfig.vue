@@ -38,13 +38,9 @@
 
 <script>
 import {computed, inject} from "vue";
-import ToggleField from "@/components/fields/ToggleField.vue";
 
 export default {
     name: "IdealPaymentConfig",
-    components: {
-      ToggleField
-    },
     setup(props) {
         const config = inject('config')
         const showIssuers = computed({
