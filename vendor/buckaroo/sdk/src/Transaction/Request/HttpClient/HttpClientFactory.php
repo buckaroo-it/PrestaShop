@@ -14,6 +14,7 @@ class HttpClientFactory
         // Extract the major version number
         $majorVersion = (int) explode('.', $versionString)[0];
 
+        // Instantiate the appropriate client based on the major version
         if ($majorVersion === 5) {
             return new GuzzleHttpClientV5($logger);
         }
