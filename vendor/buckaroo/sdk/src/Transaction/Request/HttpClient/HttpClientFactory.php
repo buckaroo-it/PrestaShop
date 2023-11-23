@@ -16,8 +16,7 @@ class HttpClientFactory
 
         if ($majorVersion === 5) {
             return new GuzzleHttpClientV5($logger);
-        } else {
-            return new GuzzleHttpClientV7($logger);
         }
+        return new GuzzleHttpClientV7($logger);
     }
 }
