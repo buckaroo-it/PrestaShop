@@ -15,10 +15,14 @@
 import { createI18n } from 'vue-i18n';
 import en from '../lang/php_en.json';
 import nl from '../lang/php_nl.json';
+import fr from '../lang/php_fr.json';
+import de from '../lang/php_de.json';
 
 const messages = {
     en: en,
-    nl: nl
+    nl: nl,
+    fr: fr,
+    de: de,
 };
 
 const i18n = createI18n({
