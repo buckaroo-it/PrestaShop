@@ -15,7 +15,7 @@
 
 
 <div style="display: none">
-<div rel="booAnimBl" id="iDINBankLinks" class="booBlAnimConts row">
+<div rel="booAnimBl" id="iDINBankLinks" class="booBlAnimCont row">
     <div class="col-xs-12 col-md-12">
         <h2> {l s='Age Verification' mod='buckaroo3'}</h2>
 
