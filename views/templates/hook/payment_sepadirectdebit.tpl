@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    
+
     <div id="booSepaDirectdebitErr" class="booBlAnimError">
         {l s='You have to fill in all fields properly!' mod='buckaroo3'}
     </div>
@@ -29,17 +29,17 @@
             </div>
             <div class="col-xs-7"><input name="bpe_sepadirectdebit_bank_account_holder"
                                          id="bpe_sepadirectdebit_bank_account_holder" value="{$customer_name|escape:'html':'UTF-8'}"
-                                         type="text" class="form-control form-control-large"/></div>
+                                         type="text" class="form-control bk-form-control-large"/></div>
         </div>
         <div class="row row-padding">
             <div class="col-xs-3"><label class="required" >{l s='IBAN' mod='buckaroo3'}:</label></div>
             <div class="col-xs-7"><input name="bpe_sepadirectdebit_iban" id="bpe_sepadirectdebit_iban" value=""
-                                         type="text" class="form-control form-control-large" autocomplete="off"/></div>
+                                         type="text" class="form-control bk-form-control-large" autocomplete="off"/></div>
         </div>
         <div class="row row-padding">
             <div class="col-xs-3"><label  style="text-align: inherit;">{l s='BIC' mod='buckaroo3'}:</label></div>
             <div class="col-xs-7"><input name="bpe_sepadirectdebit_bic" id="bpe_sepadirectdebit_bic" value=""
-                                         type="text" class="form-control form-control-large" autocomplete="off"/></div>
+                                         type="text" class="form-control bk-form-control-large" autocomplete="off"/></div>
             <div class="col-xs-2 form-control-comment">
                 {l s='Optional' d='Shop.Forms.Labels'}
             </div>
