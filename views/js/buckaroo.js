@@ -242,11 +242,12 @@ function buckaroo($) {
         hideExcessIssuers(selector) {
             const isPayByBank = selector.hasClass('bk-paybybank-selector');
             const selectedIssuer = isPayByBank ? selector.find('input:checked') : null;
-
-            if (isPayByBank && selectedIssuer && selectedIssuer.length) {
-                selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
-            } else {
-                selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+            if (isPayByBank) {
+                if (selectedIssuer && selectedIssuer.length) {
+                    selector.children().not(selectedIssuer.closest('.bk-method-issuer')).hide();
+                } else {
+                    selector.children(`:nth-child(n+${BuckarooCheckout.SHOW_MORE_BANKS})`).hide();
+                }
             }
         }
 
