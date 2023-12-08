@@ -23,8 +23,8 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\PrestaShop\Classes\IssuersIdeal;
-use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
+use Buckaroo\PrestaShop\Classes\Issuers\Ideal as IssuersIdeal;
+use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
@@ -290,7 +290,7 @@ class Buckaroo3 extends PaymentModule
         if (!$this->isActivated()) {
             return [];
         }
-        
+
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
@@ -348,7 +348,7 @@ class Buckaroo3 extends PaymentModule
                 $address_differ = 1;
             }
         }
-        
+
         $buckarooConfigService = $this->getBuckarooConfigService();
 
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
@@ -374,7 +374,7 @@ class Buckaroo3 extends PaymentModule
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
                     'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
-                    'paybybankIssuers' => (new IssuersPayByBank())->getIssuerList(),
+                    'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),

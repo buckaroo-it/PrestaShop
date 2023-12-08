@@ -27,8 +27,8 @@
                         </option>
                         {foreach $idealIssuers as $key => $issuer}
                             <div>
-                                <option value="{$issuer['id']|escape:'html':'UTF-8'}"
-                                        id="bankMethod{$issuer['id']|escape:'html':'UTF-8'}">
+                                <option value="{$key|escape:'html':'UTF-8'}"
+                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
                             </div>
@@ -41,11 +41,11 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_Issuer"
-                                    id="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}"
-                                    value="{$issuer['id']|escape:'html':'UTF-8'}"
+                                    id="ideal_issuer_{$key|escape:'html':'UTF-8'}"
+                                    value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
                             />
-                            <label for="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}" class="bk-issuer-label">
+                            <label for="ideal_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
