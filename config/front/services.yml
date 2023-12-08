@@ -15,7 +15,7 @@ services:
       - "@buckaroo.config.api.config.service"
     public: true
   buckaroo.classes.issuers.payByBank:
-    class: Buckaroo\PrestaShop\Classes\IssuersPayByBank
+    class: Buckaroo\PrestaShop\Classes\Issuers\PayByBank
     public: true
   buckaroo.repository.country.repository:
     class: Buckaroo\PrestaShop\Src\Repository\CountryRepository

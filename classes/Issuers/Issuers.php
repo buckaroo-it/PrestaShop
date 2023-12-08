@@ -15,15 +15,15 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\PrestaShop\Classes;
+namespace Buckaroo\PrestaShop\Classes\Issuers;
 
+use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\BuckarooClient;
 
-class IssuersIdeal
+abstract class Issuers
 {
-    protected const CACHE_ISSUERS_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE';
-    protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE_DATE';
-
+    protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_ISSUERS_CACHE_DATE';
+    protected const CACHE_ISSUERS_KEY = 'BUCKAROO_ISSUERS_CACHE';
     protected const ISSUERS_IMAGES = [
         'ABNANL2A' => 'ABNAMRO.svg',
         'ASNBNL21' => 'ASNBank.svg',
@@ -38,10 +38,17 @@ class IssuersIdeal
         'REVOLT21' => 'Revolut.svg',
         'NNBANL2G' => 'NN.svg',
         'BITSNL2A' => 'YourSafe.svg',
-        'NTSBDEB1' => 'n26.svg',
+        'NTSBDEB1' => 'N26.svg'
     ];
+    public function __construct($method)
+    {
+        $this->method = $method;
+    }
 
-    public function get()
+    /**
+     * @throws \Exception
+     */
+    public function get(): array
     {
         $issuers = $this->getCacheIssuers();
         $cacheDate = $this->getCacheDate();
@@ -49,7 +56,6 @@ class IssuersIdeal
         if (!is_array($issuers) || $cacheDate !== (new \DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
-
         return $issuers;
     }
 
@@ -60,22 +66,17 @@ class IssuersIdeal
      *
      * @return array
      */
-    private function addLogos($issuers)
+    private function formatIssuers($issuers): array
     {
-        return array_map(
-            function ($issuer) {
-                $logo = null;
-                if (
-                    isset($issuer['id'], self::ISSUERS_IMAGES[$issuer['id']])
-                ) {
-                    $logo = self::ISSUERS_IMAGES[$issuer['id']];
-                }
-                $issuer['logo'] = $logo;
-
-                return $issuer;
-            },
-            $issuers
-        );
+        return array_reduce($issuers, function ($result,$issuer) {
+            if(isset($issuer['id']) && isset(self::ISSUERS_IMAGES[$issuer['id']])){
+                $result[$issuer['id']] = [
+                    'name' => $issuer['name'],
+                    'logo' => self::ISSUERS_IMAGES[$issuer['id']]
+                ];
+            }
+            return $result;
+        }, array());
     }
 
     /**
@@ -85,12 +86,11 @@ class IssuersIdeal
      *
      * @throws \Exception
      */
-    private function updateCacheIssuers($issuers)
+    private function updateCacheIssuers($issuers): array
     {
-        $retrievedIssuers = $this->addLogos(
+        $retrievedIssuers = $this->formatIssuers(
             $this->requestIssuers()
         );
-
         if (count($retrievedIssuers)) {
             $this->saveIssuers($retrievedIssuers);
 
@@ -109,10 +109,10 @@ class IssuersIdeal
             $buckaroo = new BuckarooClient(
                 \Configuration::get('BUCKAROO_MERCHANT_KEY'),
                 \Configuration::get('BUCKAROO_SECRET_KEY'),
-                Config::getMode('ideal')
+                Config::getMode($this->method)
             );
 
-            return $buckaroo->method('ideal')->issuers();
+            return $buckaroo->method($this->method)->issuers();
         } else {
             throw new \Exception('Buckaroo master settings not found.');
         }
@@ -130,8 +130,8 @@ class IssuersIdeal
         if (!is_array($issuers)) {
             return;
         }
-        \Configuration::updateValue(self::CACHE_ISSUERS_KEY, json_encode($issuers));
-        \Configuration::updateValue(self::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
+        \Configuration::updateValue($this::CACHE_ISSUERS_KEY, json_encode($issuers));
+        \Configuration::updateValue($this::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
     }
 
     /**
@@ -145,7 +145,6 @@ class IssuersIdeal
         if (!is_string($issuersString)) {
             return null;
         }
-
         return json_decode($issuersString, true);
     }
 

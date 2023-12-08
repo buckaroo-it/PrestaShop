@@ -15,20 +15,26 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\PrestaShop\Classes;
+namespace Buckaroo\PrestaShop\Classes\Issuers;
 
-class IssuersPayByBank
+class PayByBank extends Issuers
 {
     protected const CACHE_LAST_ISSUER_LABEL = 'BUCKAROO_LAST_PAYBYBANK_ISSUER';
+    protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_PAYBYBANK_ISSUERS_CACHE_DATE';
+    protected const CACHE_ISSUERS_KEY = 'BUCKAROO_PAYBYBANK_ISSUERS_CACHE';
 
-    public function getIssuerList()
+    public function __construct()
+    {
+        parent::__construct('paybybank');
+    }
+    public function get(): array
     {
         $savedBankIssuer = \Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
 
-        $issuerArray = [
+        $issuerArray = array_merge([
             'NTSBDEB1' => [
                 'name' => 'N26',
-                'logo' => 'n26.svg',
+                'logo' => 'N26.svg',
             ],
             'INGBNL2A' => [
                 'name' => 'ING',
@@ -58,7 +64,7 @@ class IssuersPayByBank
                 'name' => 'ASN Bank',
                 'logo' => 'ASNBank.svg',
             ],
-        ];
+        ],parent::get());
 
         $issuers = [];
 
@@ -74,13 +80,12 @@ class IssuersPayByBank
         $issuers = array_filter($issuers, function ($issuer) {
             return !$issuer['selected'];
         });
-
         return array_merge($savedIssuer, $issuers);
     }
 
     public function getSelectedIssuerLogo()
     {
-        $issuers = $this->getIssuerList();
+        $issuers = $this->get();
         $selectedIssuer = array_filter($issuers, function ($issuer) {
             return $issuer['selected'];
         });
