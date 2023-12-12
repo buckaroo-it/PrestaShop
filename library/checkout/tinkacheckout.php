@@ -24,9 +24,8 @@ class TinkaCheckout extends Checkout
     {
         parent::setCheckout();
         $this->customVars = [
-            'description' => 'This is a test order',
             'paymentMethod' => 'Credit',
-            'deliveryMethod' => 'Locker',
+            'deliveryMethod' => $this->cart->id_carrier === 1 ? 'CompanyStore' : 'ShippingPartner',
             'deliveryDate' => date('Y-m-d'),
             'articles' => $this->getArticles(),
             'customer' => $this->getCustomer(),

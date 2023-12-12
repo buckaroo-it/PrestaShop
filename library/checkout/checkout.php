@@ -163,9 +163,9 @@ abstract class Checkout
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
         }
-
+        $order = Order::getByCartId($this->cart->id);
+        $this->payment_request->setDescription($order);
         $this->payment_request->currency = $currency->iso_code;
-        $this->payment_request->description = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
         $reference = $this->reference . '_' . $this->cart->id;
         $this->payment_request->invoiceId = $reference;
         $this->payment_request->orderId = $reference;
