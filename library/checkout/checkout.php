@@ -37,7 +37,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_SOFORTBANKING = 'sofortueberweisung';
     public const CHECKOUT_TYPE_TRANSFER = 'transfer';
     public const CHECKOUT_TYPE_AFTERPAY = 'afterpay';
-    public const CHECKOUT_TYPE_KLARNA = 'klarnakp';
+    public const CHECKOUT_TYPE_KLARNA = 'klarna';
     public const CHECKOUT_TYPE_APPLEPAY = 'applepay';
     public const CHECKOUT_TYPE_BELFIUS = 'belfius';
     public const CHECKOUT_TYPE_IDIN = 'idin';

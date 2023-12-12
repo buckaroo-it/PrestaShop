@@ -32,7 +32,6 @@ class KlarnaCheckout extends Checkout
         $country = new Country($this->invoice_address->id_country);
 
         $this->customVars = [
-            'gender' => Tools::getValue('bpe_klarna_invoice_person_gender'),
             'operatingCountry' => Tools::strtoupper($country->iso_code),
             'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
@@ -50,6 +49,8 @@ class KlarnaCheckout extends Checkout
             'recipient' => [
                 'firstName' => $this->invoice_address->firstname,
                 'lastName' => $this->invoice_address->lastname,
+                'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male': 'female',
+                'category' => 'B2C'
             ],
             'address' => [
                 'street' => $this->invoice_address->address1,
@@ -92,11 +93,12 @@ class KlarnaCheckout extends Checkout
                 $city = $sendCloudData['city'];
                 $country = $sendCloudData['country'];
             }
-
             return [
                 'recipient' => [
                     'firstName' => $this->shipping_address->firstname,
                     'lastName' => $this->shipping_address->lastname,
+                    'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male': 'female',
+                    'category' => 'B2C'
                 ],
                 'address' => [
                     'street' => $street,
@@ -115,7 +117,7 @@ class KlarnaCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarnakp', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat');
 
         if ($wrappingVat == null) {
             $wrappingVat = 2;
@@ -160,7 +162,7 @@ class KlarnaCheckout extends Checkout
 
     public function startPayment()
     {
-        $this->payment_response = $this->payment_request->payKlarna($this->customVars);
+        $this->payment_response = $this->payment_request->pay($this->customVars);
     }
 
     protected function initialize()
