@@ -20,27 +20,18 @@ class Klarna extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'klarnakp';
-        $this->version = '0';
-    }
-
-    // @codingStandardsIgnoreStart
-    public function pay($customVars = [])
-    {
-        // @codingStandardsIgnoreEnd
-        return null;
+        $this->type = 'klarna';
+        $this->version = 0;
     }
 
     public function getPayload($data)
     {
         return array_merge_recursive($this->payload, $data);
     }
-
-    // @codingStandardsIgnoreStart
-    public function payKlarna($customVars = [])
+    public function pay($customVars = [])
     {
         $this->payload = $this->getPayload($customVars);
 
-        return parent::executeCustomPayAction('reserve');
+        return parent::pay();
     }
 }

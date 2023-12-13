@@ -413,7 +413,7 @@
   "payment_methods.idin": "IDIN",
   "payment_methods.in3": "Dans3",
   "payment_methods.kbc": "KBC",
-  "payment_methods.klarnakp": "Klarna",
+  "payment_methods.klarna": "Klarna",
   "payment_methods.mbway": "VOIE MB",
   "payment_methods.multibanco": "Multibanco",
   "payment_methods.paybybank": "Payer par banque",
