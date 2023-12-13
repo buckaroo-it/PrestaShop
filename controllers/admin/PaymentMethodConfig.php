@@ -36,10 +36,8 @@ class PaymentMethodConfig extends BaseApiController
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 return $this->handleGet();
-                break;
             case 'POST':
                 return $this->handlePost();
-                break;
         }
     }
 

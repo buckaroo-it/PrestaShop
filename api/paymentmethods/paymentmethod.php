@@ -79,11 +79,11 @@ abstract class PaymentMethod extends BuckarooAbstract
     {
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
 
-        $this->payload = array_merge($this->payload,
-            [
+        $this->payload = array_merge([
                 'currency' => $this->currency,
                 'amountDebit' => $this->amountDebit,
                 'invoice' => $this->invoiceId,
+                'description' => $this->description,
                 'order' => $this->orderId,
                 'returnURL' => $this->returnUrl,
                 'pushURL' => $this->pushUrl,
@@ -92,7 +92,7 @@ abstract class PaymentMethod extends BuckarooAbstract
                 'moduleVersion' => $this->moduleVersion,
                 'moduleSupplier' => $this->moduleSupplier,
                 'moduleName' => $this->moduleName,
-            ]);
+            ],$this->payload);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
         // Pay
@@ -163,5 +163,28 @@ abstract class PaymentMethod extends BuckarooAbstract
         $response = $buckaroo->method('idin')->verify($this->payload);
 
         return ResponseFactory::getResponse($response);
+    }
+    public function setDescription(\Order $order){
+        $description = (string) Configuration::get('BUCKAROO_TRANSACTION_LABEL');
+        $patterns = ['/{order_number}/','/{shop_name}/'];
+        $replacement = [$order->reference,\Context::getContext()->shop->name];
+
+        $description = preg_replace($patterns, $replacement, $description);
+        preg_match_all('/{\w+}/',$description,$matches);
+
+        if (!empty($matches[0])) {
+            $patterns = [];
+            $replacement = [];
+            foreach ($matches[0] as $match){
+                $property = trim($match, '{}');
+                if (isset($order->$property)) {
+                    $replacement[] = $order->$property;
+                    $patterns[] = "/$match/";
+                }
+            }
+            $patterns[] = '/{\w+}/';
+            $description = preg_replace($patterns, $replacement, $description);
+        }
+        $this->description = $description;
     }
 }
