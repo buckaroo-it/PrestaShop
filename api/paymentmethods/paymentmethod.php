@@ -164,17 +164,15 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         return ResponseFactory::getResponse($response);
     }
-    public function setDescription(\Order $order){
+    public function setDescription($cartId){
         $description = (string) Configuration::get('BUCKAROO_TRANSACTION_LABEL');
-        $patterns = ['/{order_number}/','/{shop_name}/'];
-        $replacement = [$order->reference,\Context::getContext()->shop->name];
-
-        $description = preg_replace($patterns, $replacement, $description);
         preg_match_all('/{\w+}/',$description,$matches);
 
         if (!empty($matches[0])) {
-            $patterns = [];
-            $replacement = [];
+            $order = \Order::getByCartId($cartId);
+            $patterns = ['/{order_number}/','/{shop_name}/'];
+            $replacement = [$order->reference,\Context::getContext()->shop->name];
+
             foreach ($matches[0] as $match){
                 $property = trim($match, '{}');
                 if (isset($order->$property)) {
@@ -185,6 +183,7 @@ abstract class PaymentMethod extends BuckarooAbstract
             $patterns[] = '/{\w+}/';
             $description = preg_replace($patterns, $replacement, $description);
         }
+
         $this->description = $description;
     }
 }

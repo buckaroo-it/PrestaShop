@@ -163,8 +163,7 @@ abstract class Checkout
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
         }
-        $order = Order::getByCartId($this->cart->id);
-        $this->payment_request->setDescription($order);
+        $this->payment_request->setDescription($this->cart->id);
         $this->payment_request->currency = $currency->iso_code;
         $reference = $this->reference . '_' . $this->cart->id;
         $this->payment_request->invoiceId = $reference;
@@ -343,6 +342,8 @@ abstract class Checkout
             $result['street'] = $address;
         }
 
+        $logger = new \Logger(CoreLogger::INFO, '');
+        $logger->logInfo(json_encode($result) . '-----------'.json_encode($matches));
         return $result;
     }
 
