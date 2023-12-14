@@ -27,17 +27,6 @@
                     <option value="2">{l s='She/her' mod='buckaroo3'}</option>
                 </select>
             </div>
-            <div {if (!is_null($houseNumber))} style="display: none" {/if}>
-                <div class="col-xs-5">
-                    <label class="required">{l s='House number' mod='buckaroo3'}:</label>
-                </div>
-                <div class="col-xs-7">
-                    <input name="bpe_klarna_house_number" id="bpe_klarna_house_number"
-                           value="{$houseNumber|escape:'html':'UTF-8'}"
-                           type="text"
-                           class="form-control bk-form-control-large"/>
-                </div>
-            </div>
             {if ($country == 'NL' && $methodsWithFinancialWarning['klarna']) }
                 <p class="small">
                     {l s=$methodsWithFinancialWarning['warningText'] sprintf=['klarna'] mod='buckaroo3'}

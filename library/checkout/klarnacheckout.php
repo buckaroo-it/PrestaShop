@@ -49,6 +49,9 @@ class KlarnaCheckout extends Checkout
     }
     protected function getAddress(array $address): array
     {
+        $address_components = $this->getAddressComponents($address['address1']); // phpcs:ignore
+        $address = array_merge($address,$address_components);
+
         return [
             'recipient' => [
                 'firstName' => $address['firstname'],
@@ -57,8 +60,8 @@ class KlarnaCheckout extends Checkout
                 'category' => 'B2C'
             ],
             'address' => [
-                'street' => $address['street'] ?? $address['address1'],
-                'houseNumber' => Tools::getValue('bpe_klarna_house_number'),
+                'street' => $address['street'],
+                'houseNumber' => $address['house_number'],
                 'houseNumberAdditional' => $address['address2'],
                 'zipcode' => $address['zipcode'] ?? $address['postcode'],
                 'city' => $address['city'],
@@ -69,12 +72,10 @@ class KlarnaCheckout extends Checkout
     }
     public function getShippingAddress()
     {
-            $carrierHandler = new CarrierHandler($this->cart);
-            $sendCloudData = $carrierHandler->handleSendCloud() ?? [];
+        $carrierHandler = new CarrierHandler($this->cart);
+        $sendCloudData = $carrierHandler->handleSendCloud() ?? [];
 
-            $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
-
-            return $this->getAddress(array_merge((array) $this->shipping_address,$address_components,$sendCloudData));
+        return $this->getAddress(array_merge((array) $this->shipping_address,$sendCloudData));
     }
 
     public function getArticles()
