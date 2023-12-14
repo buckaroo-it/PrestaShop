@@ -305,6 +305,7 @@ class Buckaroo3 extends PaymentModule
         $lastNameShipping = '';
         $phone = '';
         $phone_mobile = '';
+        $address1 = '';
 
         foreach ($addresses as $address) {
             if ($address['id_address'] == $cart->id_address_delivery) {
@@ -312,6 +313,7 @@ class Buckaroo3 extends PaymentModule
                 $phone_mobile = $address['phone_mobile'];
                 $firstNameShipping = $address['firstname'];
                 $lastNameShipping = $address['lastname'];
+                $address1 = $address['address1'];
             }
             if ($address['id_address'] == $cart->id_address_invoice) {
                 $company = $address['company'];
@@ -320,6 +322,16 @@ class Buckaroo3 extends PaymentModule
                 $phone_mobile_billing = $address['phone_mobile'];
                 $firstNameBilling = $address['firstname'];
                 $lastNameBilling = $address['lastname'];
+                $address1 = $address['address1'];
+            }
+        }
+        $houseNumber = null;
+        //Trim spaces
+        $trimAddress = preg_replace('!\s+!', ' ',$address1);
+        foreach (explode(' ',$trimAddress) as $item){
+            if(is_numeric($item)){
+                $houseNumber = $item;
+                break;
             }
         }
         $phone_afterpay_shipping = '';
@@ -380,7 +392,8 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
-                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true
+                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
+                    'houseNumber' => $houseNumber
                 ]
             );
         } catch (Exception $e) {

@@ -141,10 +141,8 @@ abstract class Checkout
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
-        $this->shipping_address = null;
-        if ($cart->id_address_invoice != $cart->id_address_delivery) {
-            $this->shipping_address = new Address((int) $cart->id_address_delivery);
-        }
+        $this->shipping_address = $cart->id_address_invoice != $cart->id_address_delivery ?
+            new Address((int) $cart->id_address_delivery) : $this->invoice_address;
         $this->products = $this->cart->getProducts();
         $this->buckarooConfigService = $this->module->getBuckarooConfigService();
         $this->buckarooFeeService = $this->module->getBuckarooFeeService();

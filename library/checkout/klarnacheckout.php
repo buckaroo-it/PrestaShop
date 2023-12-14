@@ -45,73 +45,36 @@ class KlarnaCheckout extends Checkout
      */
     public function getBillingAddress()
     {
+        return $this->getAddress((array) $this->invoice_address);
+    }
+    protected function getAddress(array $address): array
+    {
         return [
             'recipient' => [
-                'firstName' => $this->invoice_address->firstname,
-                'lastName' => $this->invoice_address->lastname,
+                'firstName' => $address['firstname'],
+                'lastName' => $address['lastname'],
                 'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male': 'female',
                 'category' => 'B2C'
             ],
             'address' => [
-                'street' => $this->invoice_address->address1,
-                'houseNumber' => $this->invoice_address->address2,
-                'zipcode' => $this->invoice_address->postcode,
-                'city' => $this->invoice_address->city,
-                'country' => Tools::strtoupper(
-                    (new Country($this->invoice_address->id_country))->iso_code
-                ),
-            ],
-            'phone' => [
-                'mobile' => $this->getPhone($this->invoice_address) ?: $this->getPhone($this->shipping_address),
+                'street' => $address['street'] ?? $address['address1'],
+                'houseNumber' => Tools::getValue('bpe_klarna_house_number'),
+                'houseNumberAdditional' => $address['address2'],
+                'zipcode' => $address['zipcode'] ?? $address['postcode'],
+                'city' => $address['city'],
+                'country' => Tools::strtoupper((new Country($address['id_country']))->iso_code),
             ],
             'email' => $this->customer->email,
         ];
     }
-
     public function getShippingAddress()
     {
-        if (!empty($this->shipping_address)) {
-            $country = new Country($this->invoice_address->id_country);
+            $carrierHandler = new CarrierHandler($this->cart);
+            $sendCloudData = $carrierHandler->handleSendCloud() ?? [];
 
             $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
-            $street = $address_components['street'];
-            if (empty($address_components['house_number'])) {
-                $houseNumber = $this->invoice_address->address2;
-            } else {
-                $houseNumber = $address_components['house_number'];
-            }
-            $zipcode = $this->shipping_address->postcode;
-            $city = $this->shipping_address->city;
 
-            $carrierHandler = new CarrierHandler($this->cart);
-            $sendCloudData = $carrierHandler->handleSendCloud();
-
-            if ($sendCloudData) {
-                $street = $sendCloudData['street'];
-                $houseNumber = $sendCloudData['houseNumber'];
-                $zipcode = $sendCloudData['zipcode'];
-                $city = $sendCloudData['city'];
-                $country = $sendCloudData['country'];
-            }
-            return [
-                'recipient' => [
-                    'firstName' => $this->shipping_address->firstname,
-                    'lastName' => $this->shipping_address->lastname,
-                    'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male': 'female',
-                    'category' => 'B2C'
-                ],
-                'address' => [
-                    'street' => $street,
-                    'houseNumber' => $houseNumber,
-                    'zipcode' => $zipcode,
-                    'city' => $city,
-                    'country' => Tools::strtoupper($country->iso_code),
-                ],
-                'email' => $this->customer->email,
-            ];
-        }
-
-        return null;
+            return $this->getAddress(array_merge((array) $this->shipping_address,$address_components,$sendCloudData));
     }
 
     public function getArticles()
