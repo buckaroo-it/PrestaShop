@@ -380,7 +380,7 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
-                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true
+                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                 ]
             );
         } catch (Exception $e) {
