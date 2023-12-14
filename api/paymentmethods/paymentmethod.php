@@ -174,10 +174,12 @@ abstract class PaymentMethod extends BuckarooAbstract
             $replacement = [$order->reference,\Context::getContext()->shop->name];
 
             foreach ($matches[0] as $match){
-                $property = trim($match, '{}');
-                if (isset($order->$property)) {
-                    $replacement[] = $order->$property;
-                    $patterns[] = "/$match/";
+                if(!in_array("/$match/",$patterns)) {
+                    $property = trim($match, '{}');
+                    if (isset($order->$property)) {
+                        $replacement[] = $order->$property;
+                        $patterns[] = "/$match/";
+                    }
                 }
             }
             $patterns[] = '/{\w+}/';
