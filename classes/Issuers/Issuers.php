@@ -97,7 +97,7 @@ abstract class Issuers
             return $retrievedIssuers;
         }
 
-        return $issuers;
+        return $issuers ?? [];
     }
 
     /**
