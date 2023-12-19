@@ -238,7 +238,7 @@ class Client
             throw new BuckarooException(
                 $this->logger,
                 "No config has been configured.
-             Please pass your credentials to the constructor or set up a Config object."
+                 Please pass your credentials to the constructor or set up a Config object."
             );
         }
 
