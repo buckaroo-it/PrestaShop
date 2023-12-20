@@ -31,15 +31,15 @@
 
                     <div class="flex rounded shadow border justify-between md:w-80 w-full overflow-hidden font-bold md:text-sm text-xs">
                         <button class="w-1/3 h-12 space-x-1 hover:bg-green-500 hover:text-white" v-bind:class="{'bg-green-500 text-white': config.mode === 'live' }" @click="setMode('live')">
-                            <i v-if="config.mode === 'live'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'live'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.live`) }}</span>
                         </button>
                         <button class="w-1/3 h-12 space-x-1 hover:bg-yellow-400 hover:text-white" v-bind:class="{'bg-yellow-400 text-white': config.mode === 'test' }" @click="setMode('test')">
-                            <i v-if="config.mode === 'test'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'test'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.test`) }}</span>
                         </button>
                         <button class="w-1/3 h-12 space-x-1 hover:bg-gray-800 hover:text-white" v-bind:class="{'bg-gray-800 text-white': config.mode === 'off' }" @click="setMode('off')">
-                            <i v-if="config.mode === 'off'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'off'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.off`) }}</span>
                         </button>
                     </div>
