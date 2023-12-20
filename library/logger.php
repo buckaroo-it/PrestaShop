@@ -16,6 +16,10 @@
  */
 require_once dirname(__FILE__) . '/../api/corelogger.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Logger extends CoreLogger
 {
     private $logtype = 'plugin';

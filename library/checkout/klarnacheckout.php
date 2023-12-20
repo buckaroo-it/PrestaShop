@@ -17,6 +17,10 @@
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class KlarnaCheckout extends Checkout
 {
     protected $customVars = [];

@@ -21,6 +21,10 @@ use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Checkout
 {
     protected $customVars = [];
