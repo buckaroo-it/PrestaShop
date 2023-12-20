@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Classes\Issuers;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PayByBank extends Issuers
 {
     protected const CACHE_LAST_ISSUER_LABEL = 'BUCKAROO_LAST_PAYBYBANK_ISSUER';

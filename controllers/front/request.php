@@ -22,6 +22,10 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
     /* @var $checkout Checkout */

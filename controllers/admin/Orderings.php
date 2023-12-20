@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Doctrine\ORM\EntityManager;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Orderings extends BaseApiController
 {
     private $bkOrderingRepository;

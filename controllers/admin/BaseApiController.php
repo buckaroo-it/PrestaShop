@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BaseApiController extends FrameworkBundleAdminController
 {
     protected function sendResponse($data, $status = 200)

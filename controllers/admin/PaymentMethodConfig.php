@@ -21,6 +21,10 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethodConfig extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;
