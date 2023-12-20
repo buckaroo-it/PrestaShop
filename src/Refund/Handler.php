@@ -133,7 +133,7 @@ class Handler
     /**
      * Get refund data
      *
-     * @param Order                                                $order
+     * @param Order $order
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      *
      * @return OrderRefundSummary
