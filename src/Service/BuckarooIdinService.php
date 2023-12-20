@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooIdinService
 {
     public function checkCustomerIdExists($customerId)

@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class AbstractBuilder
 {
     protected function buildCommon(\Order $order, \OrderPayment $payment, float $refundAmount): array

@@ -22,6 +22,10 @@ use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssuePartialRefundHandlerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
 {
     public const KEY_SKIP_REFUND_REQUEST = 'buckaroo_skip_refund';

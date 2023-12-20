@@ -18,6 +18,10 @@ require_once dirname(__FILE__) . '/idin/idinresponse.php';
 require_once dirname(__FILE__) . '/responsedefault.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class ResponseFactory
 {
     final public static function getResponse($transactionResponse = null)
@@ -40,6 +44,7 @@ class ResponseFactory
         if ($paymentmethod === 'IDIN') {
             return new IdinResponse($transactionResponse);
         }
+
         return new ResponseDefault($transactionResponse);
     }
 }

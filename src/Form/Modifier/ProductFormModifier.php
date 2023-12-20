@@ -23,6 +23,10 @@ use Buckaroo\PrestaShop\Src\Form\Type\IdinTabType;
 use PrestaShopBundle\Form\FormBuilderModifier;
 use Symfony\Component\Form\FormBuilderInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 final class ProductFormModifier
 {
     /**
@@ -40,7 +44,7 @@ final class ProductFormModifier
     }
 
     /**
-     * @param int|null             $productId
+     * @param int|null $productId
      * @param FormBuilderInterface $productFormBuilder
      */
     public function modify(

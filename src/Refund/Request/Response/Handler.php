@@ -25,6 +25,10 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**

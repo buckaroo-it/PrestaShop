@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Classes;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class CapayableIn3
 {
     protected $apiVersion;

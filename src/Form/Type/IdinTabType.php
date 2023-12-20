@@ -24,6 +24,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class IdinTabType extends TranslatorAwareType
 {
     /**
@@ -33,8 +37,8 @@ class IdinTabType extends TranslatorAwareType
 
     /**
      * @param TranslatorInterface $translator
-     * @param array               $locales
-     * @param \Currency           $defaultCurrency
+     * @param array $locales
+     * @param \Currency $defaultCurrency
      */
     public function __construct(
         TranslatorInterface $translator,

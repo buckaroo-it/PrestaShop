@@ -21,6 +21,10 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Response extends BuckarooAbstract
 {
     // false if not received response
@@ -177,6 +181,7 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->isRejected();
     }
+
     // Determine if is buckaroo response or push
     private function isPushRequest()
     {
@@ -201,25 +206,29 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->getSomeError();
     }
+
     public function isTest()
     {
         return $this->response->get('IsTest') === true;
     }
+
     public function isValid()
     {
         if (!$this->validated) {
             if ($this->isPush) {
-                $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'),  Configuration::get('BUCKAROO_SECRET_KEY'));
+                $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                 try {
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $_POST);
                     $reply_handler->validate();
+
                     return $this->validated = $reply_handler->isValid();
-                } catch (Exception $e) {}
-            } else if($this->response) {
+                } catch (Exception $e) {
+                }
+            } elseif ($this->response) {
                 $this->validated = (!$this->response->isValidationFailure());
             }
-
         }
+
         return $this->validated;
     }
 
@@ -227,15 +236,17 @@ abstract class Response extends BuckarooAbstract
     {
         if (isset($this->response)) {
             try {
-                if($this->isValid()){
+                if ($this->isValid()) {
                     if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
                         return true;
                     }
                 }
-            } catch (Exception $e){}
-        } else if (in_array($this->status,[self::BUCKAROO_PENDING_PAYMENT,self::BUCKAROO_SUCCESS])) {
+            } catch (Exception $e) {
+            }
+        } elseif (in_array($this->status, [self::BUCKAROO_PENDING_PAYMENT, self::BUCKAROO_SUCCESS])) {
             return true;
         }
+
         return false;
     }
 

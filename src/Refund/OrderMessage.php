@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class OrderMessage
 {
     public function add(\Order $order, string $description)

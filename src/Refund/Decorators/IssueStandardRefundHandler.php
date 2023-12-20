@@ -21,6 +21,10 @@ use Buckaroo\PrestaShop\Src\Refund\Handler;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssueStandardRefundHandlerInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
 {
     /**

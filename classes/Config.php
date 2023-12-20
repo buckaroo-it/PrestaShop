@@ -19,6 +19,10 @@ namespace Buckaroo\PrestaShop\Classes;
 
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Config
 {
     /**

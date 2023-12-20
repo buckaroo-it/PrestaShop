@@ -25,6 +25,10 @@ use Buckaroo\Resources\Constants\ResponseStatus;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**

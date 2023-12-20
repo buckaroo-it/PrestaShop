@@ -16,6 +16,9 @@
  */
 include_once dirname(__FILE__) . '/functions.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class PaymentRequestFactory
 {
     public const REQUEST_TYPE_PAYPAL = 'paypal';

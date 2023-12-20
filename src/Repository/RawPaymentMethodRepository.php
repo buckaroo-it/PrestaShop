@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class RawPaymentMethodRepository
 {
     /**
@@ -67,6 +71,7 @@ class RawPaymentMethodRepository
             case 'creditcard':
             case 'ideal':
                 $configValue['show_issuers'] = true;
+                // no break
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;

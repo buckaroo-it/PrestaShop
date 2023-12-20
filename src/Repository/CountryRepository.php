@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class CountryRepository
 {
     private function processCountries($countries)
@@ -41,6 +45,7 @@ class CountryRepository
     {
         $langId = \Context::getContext()->language->id;
         $rawCountries = \Country::getCountries($langId, true);
+
         return $this->processCountries($rawCountries);
     }
 

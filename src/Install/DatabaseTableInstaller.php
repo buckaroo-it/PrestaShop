@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Install;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 final class DatabaseTableInstaller implements InstallerInterface
 {
     public function install()
