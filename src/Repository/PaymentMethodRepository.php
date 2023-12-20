@@ -106,7 +106,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      * Filters payment methods by country.
      *
      * @param array $results
-     * @param int   $countryId
+     * @param int $countryId
      *
      * @return array
      */
@@ -131,7 +131,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      * Checks if a country is in the configuration.
      *
      * @param array|null $configValue
-     * @param int        $countryId
+     * @param int $countryId
      *
      * @return bool
      */

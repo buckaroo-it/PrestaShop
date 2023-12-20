@@ -23,7 +23,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-
 /**
  * @ORM\Table(indexes={@ORM\Index(name="name", columns={"name"})})
  *

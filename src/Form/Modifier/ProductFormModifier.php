@@ -27,7 +27,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-
 final class ProductFormModifier
 {
     /**
@@ -45,7 +44,7 @@ final class ProductFormModifier
     }
 
     /**
-     * @param int|null             $productId
+     * @param int|null $productId
      * @param FormBuilderInterface $productFormBuilder
      */
     public function modify(
