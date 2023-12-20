@@ -14,25 +14,12 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../paymentmethod.php';
+header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-class Klarna extends PaymentMethod
-{
-    public function __construct()
-    {
-        $this->type = 'klarna';
-        $this->version = 0;
-    }
+header('Cache-Control: no-store, no-cache, must-revalidate');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
 
-    public function getPayload($data)
-    {
-        return array_merge_recursive($this->payload, $data);
-    }
-
-    public function pay($customVars = [])
-    {
-        $this->payload = $this->getPayload($customVars);
-
-        return parent::pay();
-    }
-}
+header('Location: ../../../../../');
+exit;

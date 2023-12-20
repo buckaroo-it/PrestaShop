@@ -32,11 +32,12 @@ class IDeal extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
-        if($this->issuerIsRequired){
+        if ($this->issuerIsRequired) {
             $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
-        }else{
+        } else {
             $this->payload['continueOnIncomplete'] = 1;
         }
+
         return parent::pay();
     }
 }

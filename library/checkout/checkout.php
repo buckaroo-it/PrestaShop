@@ -341,7 +341,8 @@ abstract class Checkout
         }
 
         $logger = new \Logger(CoreLogger::INFO, '');
-        $logger->logInfo(json_encode($result) . '-----------'.json_encode($matches));
+        $logger->logInfo(json_encode($result) . '-----------' . json_encode($matches));
+
         return $result;
     }
 

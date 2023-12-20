@@ -140,12 +140,13 @@ class Buckaroo3 extends PaymentModule
             "' WHERE id_cart = '" . $cart->id . "'";
         Db::getInstance()->execute($sql);
 
-        return '<script>
-        document.addEventListener("DOMContentLoaded", function(){
-            $(".total-value").before(
-                $("<tr><td>Buckaroo Fee</td><td>' . $this->formatPrice($buckarooFee) . '</td></tr>"))
-            });
-        </script>';
+        // Assign data to Smarty
+        $this->context->smarty->assign(array(
+            'orderBuckarooFee' => $this->formatPrice($buckarooFee),
+        ));
+
+        // Fetch and return the template content
+        return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
     }
 
     /**
@@ -243,7 +244,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayBackOfficeHeader()
     {
-        if((Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3')){
+        if (Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3') {
             $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
         }
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');

@@ -80,19 +80,19 @@ abstract class PaymentMethod extends BuckarooAbstract
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
 
         $this->payload = array_merge([
-                'currency' => $this->currency,
-                'amountDebit' => $this->amountDebit,
-                'invoice' => $this->invoiceId,
-                'description' => $this->description,
-                'order' => $this->orderId,
-                'returnURL' => $this->returnUrl,
-                'pushURL' => $this->pushUrl,
-                'platformName' => $this->platformName,
-                'platformVersion' => $this->platformVersion,
-                'moduleVersion' => $this->moduleVersion,
-                'moduleSupplier' => $this->moduleSupplier,
-                'moduleName' => $this->moduleName,
-            ],$this->payload);
+            'currency' => $this->currency,
+            'amountDebit' => $this->amountDebit,
+            'invoice' => $this->invoiceId,
+            'description' => $this->description,
+            'order' => $this->orderId,
+            'returnURL' => $this->returnUrl,
+            'pushURL' => $this->pushUrl,
+            'platformName' => $this->platformName,
+            'platformVersion' => $this->platformVersion,
+            'moduleVersion' => $this->moduleVersion,
+            'moduleSupplier' => $this->moduleSupplier,
+            'moduleName' => $this->moduleName,
+        ], $this->payload);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
         // Pay
@@ -164,17 +164,19 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         return ResponseFactory::getResponse($response);
     }
-    public function setDescription($cartId){
+
+    public function setDescription($cartId)
+    {
         $description = (string) Configuration::get('BUCKAROO_TRANSACTION_LABEL');
-        preg_match_all('/{\w+}/',$description,$matches);
+        preg_match_all('/{\w+}/', $description, $matches);
 
         if (!empty($matches[0])) {
             $order = \Order::getByCartId($cartId);
-            $patterns = ['/{order_number}/','/{shop_name}/'];
-            $replacement = [$order->reference,\Context::getContext()->shop->name];
+            $patterns = ['/{order_number}/', '/{shop_name}/'];
+            $replacement = [$order->reference, \Context::getContext()->shop->name];
 
-            foreach ($matches[0] as $match){
-                if(!in_array("/$match/",$patterns)) {
+            foreach ($matches[0] as $match) {
+                if (!in_array("/$match/", $patterns)) {
                     $property = trim($match, '{}');
                     if (isset($order->$property)) {
                         $replacement[] = $order->$property;

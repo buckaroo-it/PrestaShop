@@ -21,7 +21,6 @@ use Buckaroo\BuckarooClient;
 
 class TestCredentialsApi extends BaseApiController
 {
-
     public function initContent()
     {
         $data = $this->getJsonInput();

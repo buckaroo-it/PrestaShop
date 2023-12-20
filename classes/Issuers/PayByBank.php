@@ -27,6 +27,7 @@ class PayByBank extends Issuers
     {
         parent::__construct('paybybank');
     }
+
     public function get(): array
     {
         $savedBankIssuer = \Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
@@ -64,7 +65,7 @@ class PayByBank extends Issuers
                 'name' => 'ASN Bank',
                 'logo' => 'ASNBank.svg',
             ],
-        ],parent::get());
+        ], parent::get());
 
         $issuers = [];
 
@@ -80,6 +81,7 @@ class PayByBank extends Issuers
         $issuers = array_filter($issuers, function ($issuer) {
             return !$issuer['selected'];
         });
+
         return array_merge($savedIssuer, $issuers);
     }
 

@@ -40,6 +40,7 @@ class ResponseFactory
         if ($paymentmethod === 'IDIN') {
             return new IdinResponse($transactionResponse);
         }
+
         return new ResponseDefault($transactionResponse);
     }
 }

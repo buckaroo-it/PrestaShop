@@ -2,7 +2,7 @@
   <div class="md:border-l-2 md:border-primary space-y-5">
     <div>
       <div class="md:px-8 md:py-5 p-5 md:w-52 w-36">
-        <img src="../../../views/img/logo.png" alt=""/>
+        <img src="../assets/img/logo.png" alt=""/>
       </div>
 
       <LanguageSelector />

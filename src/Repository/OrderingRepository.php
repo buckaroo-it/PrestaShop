@@ -26,6 +26,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 class OrderingRepository extends EntityRepository
 {
     public CountryRepository $countryRepository;
+
     public function __construct(EntityManagerInterface $em, ClassMetadata $class)
     {
         parent::__construct($em, $class);
@@ -113,11 +114,10 @@ class OrderingRepository extends EntityRepository
 
         if (empty($ordering)) {
             $paymentMethods = $paymentMethodRepo->findAll();
-            $paymentMethodIds = array_map(function($paymentMethod) {
+            $paymentMethodIds = array_map(function ($paymentMethod) {
                 return $paymentMethod->getId();
             }, $paymentMethods);
-        }else{
-
+        } else {
             $paymentMethodIds = is_string($ordering->getValue())
                 ? json_decode($ordering->getValue(), true)
                 : $ordering->getValue();

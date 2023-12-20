@@ -41,6 +41,7 @@ class CountryRepository
     {
         $langId = \Context::getContext()->language->id;
         $rawCountries = \Country::getCountries($langId, true);
+
         return $this->processCountries($rawCountries);
     }
 

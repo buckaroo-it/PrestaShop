@@ -73,6 +73,7 @@ class PayPalCheckout extends Checkout
         }
 
         $state = new State((int) $this->invoice_address->id_state);
+
         return [
             'street' => $address_components['street'],
             'street2' => $address_components['house_number'],
