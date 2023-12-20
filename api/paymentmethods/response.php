@@ -21,6 +21,10 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Response extends BuckarooAbstract
 {
     // false if not received response
