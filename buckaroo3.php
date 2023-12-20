@@ -141,9 +141,9 @@ class Buckaroo3 extends PaymentModule
         Db::getInstance()->execute($sql);
 
         // Assign data to Smarty
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'orderBuckarooFee' => $this->formatPrice($buckarooFee),
-        ));
+        ]);
 
         // Fetch and return the template content
         return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
