@@ -19,6 +19,11 @@ namespace Buckaroo\PrestaShop\Src\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+
 /**
  * @ORM\Table(indexes={@ORM\Index(name="order_id_index", columns={"order_id"}), @ORM\Index(name="key_index", columns={"refund_key"})})
  *

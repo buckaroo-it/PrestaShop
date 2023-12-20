@@ -21,6 +21,10 @@ use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethodRepository extends EntityRepository implements BkPaymentMethodRepositoryInterface
 {
     /**

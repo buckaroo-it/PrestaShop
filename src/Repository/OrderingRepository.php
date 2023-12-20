@@ -23,6 +23,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class OrderingRepository extends EntityRepository
 {
     public CountryRepository $countryRepository;

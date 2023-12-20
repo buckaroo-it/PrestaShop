@@ -19,6 +19,10 @@ namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooSettingsService
 {
     public function getSettings()

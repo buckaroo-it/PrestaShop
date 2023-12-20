@@ -27,6 +27,9 @@ use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class BuckarooPaymentService
 {
     public $module;

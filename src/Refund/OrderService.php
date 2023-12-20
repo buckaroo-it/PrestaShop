@@ -23,6 +23,10 @@ use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\VoucherRefundType;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class OrderService
 {
     /**

@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class QuantityBasedBuilder extends AbstractBuilder
 {
     public function create(\Order $order, \OrderPayment $payment, float $amount)

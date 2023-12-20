@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class RawPaymentMethodRepository
 {
     /**

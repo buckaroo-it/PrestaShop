@@ -21,6 +21,10 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**

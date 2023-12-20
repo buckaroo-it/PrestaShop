@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Settings
 {
     public const LABEL_REFUND_RESTOCK = 'BUCKAROO_REFUND_RESTOCK';

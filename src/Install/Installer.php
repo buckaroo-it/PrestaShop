@@ -22,6 +22,10 @@ use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Installer implements InstallerInterface
 {
     /**
