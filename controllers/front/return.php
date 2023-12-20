@@ -22,10 +22,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
 class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
