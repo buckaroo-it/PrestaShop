@@ -15,8 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-require_once dirname(__FILE__) . '/../paymentmethod.php';
+if (!defined('_PS_VERSION_')) { exit; }
 
+require_once dirname(__FILE__) . '/../paymentmethod.php';
 class Idin extends PaymentMethod
 {
     public $issuer;
