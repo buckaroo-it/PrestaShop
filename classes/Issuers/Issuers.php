@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Classes\Issuers;
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Issuers
 {
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_ISSUERS_CACHE_DATE';

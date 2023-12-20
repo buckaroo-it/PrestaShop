@@ -21,6 +21,10 @@ require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class PaymentMethod extends BuckarooAbstract
 {
     protected $type;

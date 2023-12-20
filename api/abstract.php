@@ -20,6 +20,10 @@ if (!defined('_PS_VERSION_')) {
 
 use Buckaroo\Resources\Constants\ResponseStatus;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class BuckarooAbstract extends ResponseStatus
 {
     public const BUCKAROO_SUCCESS = 'BUCKAROO_SUCCESS';
