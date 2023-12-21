@@ -113,8 +113,17 @@ class Handler
      */
     private function getBuckarooPayments(\Order $order): array
     {
-        // todo: filter payments for only buckaroo requests
-        return $order->getOrderPayments();
+        $buckarooPayments = [];
+        $allPayments = $order->getOrderPayments();
+
+        // Check if the order's module is 'buckaroo3'
+        if ($order->module === 'buckaroo3') {
+            foreach ($allPayments as $payment) {
+                $buckarooPayments[] = $payment;
+            }
+        }
+
+        return $buckarooPayments;
     }
 
     /**
