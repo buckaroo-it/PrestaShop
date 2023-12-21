@@ -113,9 +113,8 @@ class Handler
      */
     private function getBuckarooPayments(\Order $order): array
     {
-        return array_filter($order->getOrderPayments(), function ($orderPayment) {
-            return strpos($orderPayment->payment_method, 'Buckaroo Payments') !== false;
-        });
+        // todo: filter payments for only buckaroo requests
+        return $order->getOrderPayments();
     }
 
     /**
