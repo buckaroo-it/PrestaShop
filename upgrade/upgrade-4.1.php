@@ -28,5 +28,6 @@ function upgrade_module_4_1($object)
 
     Db::getInstance()->execute('DROP TABLE IF EXISTS ' . _DB_PREFIX_ . 'bk_countries');
 
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET name = "kbcpaymentbutton" WHERE name = "kbc"');
     return true;
 }
