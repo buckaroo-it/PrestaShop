@@ -20,11 +20,11 @@ if (!defined('_PS_VERSION_')) {
 
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
-class Kbc extends PaymentMethod
+class Kbcpaymentbutton extends PaymentMethod
 {
     public function __construct()
     {
-        $this->type = 'kbc';
+        $this->type = 'kbcpaymentbutton';
         $this->version = 1;
     }
 }

@@ -77,13 +77,7 @@ abstract class AbstractBuilder
      */
     protected function buildIssuers(\OrderPayment $payment): array
     {
-        if (in_array($payment->payment_method, [
-            'creditcard', 'mastercard', 'visa',
-            'amex', 'vpay', 'maestro',
-            'visaelectron', 'cartebleuevisa',
-            'cartebancaire', 'dankort', 'nexi',
-            'postepay',
-        ])) {
+        if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
             return [
                 'name' => $payment->payment_method,
                 'version' => 2,

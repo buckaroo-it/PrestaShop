@@ -48,9 +48,14 @@ class Handler
      * @param string $method
      *
      * @return BuckarooClient
+     * @throws \Exception
      */
     private function getClient(string $method): BuckarooClient
     {
+        if (PaymentMethodHelper::isCreditCardMethod($method)) {
+            $method = 'creditcard';
+        }
+
         return new BuckarooClient(
             \Configuration::get('BUCKAROO_MERCHANT_KEY'),
             \Configuration::get('BUCKAROO_SECRET_KEY'),

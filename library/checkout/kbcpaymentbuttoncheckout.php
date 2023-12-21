@@ -20,7 +20,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class KbcCheckout extends Checkout
+class KbcpaymentbuttonCheckout extends Checkout
 {
     final public function setCheckout()
     {
@@ -44,6 +44,6 @@ class KbcCheckout extends Checkout
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KBC);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KBCPAYMENTBUTTON);
     }
 }
