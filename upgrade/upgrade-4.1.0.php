@@ -21,7 +21,7 @@ if (!defined('_PS_VERSION_')) {
 /**
  * @return mixed
  */
-function upgrade_module_4_1($object)
+function upgrade_module_4_1_0($object)
 {
     $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_ordering WHERE country_id IS NOT NULL';
     Db::getInstance()->execute($sql);
