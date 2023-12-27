@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="p-5 space-y-5">
+        <div class="px-5 space-y-5">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.send_email_instruction`) }}</h2>
             </div>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="p-5 space-y-5">
+        <div class="px-5 space-y-5">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.due_date`) }}</h2>
             </div>

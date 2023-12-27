@@ -19,7 +19,7 @@
                 enter-active-class="transform transition ease-out duration-50">
 
         <div v-if="!loading" class="h-full">
-            <div class="p-5 space-y-5">
+            <div class="px-5 space-y-5">
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">
@@ -61,7 +61,7 @@
 
                 <slot></slot>
 
-                <div class="p-5 space-y-5">
+                <div class="px-5 space-y-5">
                   <div class="space-y-2">
                     <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.idin.display_mode`) }}</h2>
                     <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.idin.display_mode_label`) }}</div>

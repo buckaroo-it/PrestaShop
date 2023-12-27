@@ -48,10 +48,6 @@ export const useApi = (endpoint: string) => {
         return error.value ? error.value.message : null;
     });
 
-    watch(error, (currentError) => {
-
-    });
-
     return {
         loading,
         data,

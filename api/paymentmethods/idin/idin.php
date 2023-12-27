@@ -48,52 +48,34 @@ class Idin extends PaymentMethod
 
     protected function getIssuer($issuer)
     {
-        $issuerCode = '';
         switch ($issuer) {
-            case 'BANKNL2Y':
-                $issuerCode = 'BANKNL2Y';
-                break;
-            case 'ABNAMRO':
-                $issuerCode = 'ABNANL2A';
-                break;
-            case 'ASNBANK':
-                $issuerCode = 'ASNBNL21';
-                break;
-            case 'INGBANK':
-                $issuerCode = 'INGBNL2A';
-                break;
-            case 'RABOBANK':
-                $issuerCode = 'RABONL2U';
-                break;
-            case 'SNSBANK':
-                $issuerCode = 'SNSBNL2A';
-                break;
-            case 'SNSREGIO':
-                $issuerCode = 'RBRBNL21';
-                break;
-            case 'TRIODOS':
-                $issuerCode = 'TRIONL2U';
-                break;
-            case 'LANSCHOT':
-                $issuerCode = 'FVLBNL22';
-                break;
-            case 'KNAB':
-                $issuerCode = 'KNABNL2H';
-                break;
-            case 'BUNQ':
-                $issuerCode = 'BUNQNL2A';
-                break;
             case 'MOYONL21':
-                $issuerCode = 'MOYONL21';
-                break;
             case 'HANDNL2A':
-                $issuerCode = 'HANDNL2A';
-                break;
             case 'REVOLT21':
-                $issuerCode = 'REVOLT21';
-                break;
+            case 'BANKNL2Y':
+                return $issuer;
+            case 'ABNAMRO':
+                return 'ABNANL2A';
+            case 'ASNBANK':
+                return 'ASNBNL21';
+            case 'INGBANK':
+                return 'INGBNL2A';
+            case 'RABOBANK':
+                 return 'RABONL2U';
+            case 'SNSBANK':
+                return 'SNSBNL2A';
+            case 'SNSREGIO':
+                return 'RBRBNL21';
+            case 'TRIODOS':
+                return 'TRIONL2U';
+            case 'LANSCHOT':
+                 return 'FVLBNL22';
+            case 'KNAB':
+                return 'KNABNL2H';
+            case 'BUNQ':
+                return 'BUNQNL2A';
+            default:
+                return '';
         }
-
-        return $issuerCode;
     }
 }

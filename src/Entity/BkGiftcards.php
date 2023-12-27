@@ -17,12 +17,13 @@
 
 namespace Buckaroo\PrestaShop\Src\Entity;
 
+use Buckaroo\Models\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity()
  */
-class BkGiftcards
+class BkGiftcards extends Model
 {
     /**
      * @var int
@@ -33,35 +34,42 @@ class BkGiftcards
      *
      * @ORM\GeneratedValue(strategy="AUTO")
      */
-    private $id;
+    protected $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="code", type="string")
      */
-    private $code;
+    protected $code;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string")
      */
-    private $name;
+    protected $name;
 
     /**
-     * @var string
+     * @var string | null
      *
-     * @ORM\Column(name="logo", type="string")
+     * @ORM\Column(name="logo", type="string" nullable=true)
      */
-    private $logo;
+    protected ?string $logo;
 
     /**
      * @var \DateTime
      *
      * @ORM\Column(name="created_at", type="datetime")
      */
-    private $createdAt;
+    protected $created_at;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     */
+    protected $updated_at;
 
     public function getId(): int
     {
@@ -93,18 +101,44 @@ class BkGiftcards
         return $this->logo;
     }
 
-    public function setLogo(string $logo): void
+    public function setLogo(?string $logo): void
     {
         $this->logo = $logo;
     }
 
     public function getCreatedAt(): \DateTime
     {
-        return $this->createdAt;
+        return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): void
+    public function setCreatedAt(?\DateTime $createdAt = null): void
     {
-        $this->createdAt = $createdAt;
+        $this->created_at = $createdAt ?? (new \DateTime('now'));
+    }
+
+    public function getUpdatedAt(): \DateTime
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt = null): void
+    {
+        $this->updated_at = $updatedAt ?? (new \DateTime('now'));
+    }
+    public function toSqlData(string ...$exclude):array
+    {
+        $data = [];
+
+        $data['id'] = $this->id ?? null;
+        $data['name'] = isset($this->name) ? pSQL($this->name) : null;
+        $data['code'] = isset($this->code) ? pSQL($this->code) : null;
+        $data['logo'] = isset($this->logo) ? pSQL($this->logo) : null;
+        $data['created_at'] = isset($this->created_at) ? $this->created_at->format('Y-m-d H:i:s') : null;
+        $data['updated_at'] = isset($this->updated_at) ? $this->updated_at->format('Y-m-d H:i:s') : null;
+
+        foreach ($exclude as $column) {
+            unset($data[$column]);
+        }
+        return $data;
     }
 }

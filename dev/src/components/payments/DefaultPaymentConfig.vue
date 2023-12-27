@@ -19,7 +19,7 @@
                 enter-active-class="transform transition ease-out duration-50">
 
         <div v-if="!loading" class="h-full">
-            <div class="p-5 space-y-5">
+            <div class="px-5 space-y-5">
 
                 <div class="px-5 space-y-5">
                     <div class="space-y-2">

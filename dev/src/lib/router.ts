@@ -36,7 +36,6 @@ export default class Router {
    */
   generate(route: string, params: Record<string, unknown> = {}): string {
     const tokenizedParams = Object.assign(params, { _token: this.token });
-
     return Routing.generate(route, tokenizedParams);
   }
 }

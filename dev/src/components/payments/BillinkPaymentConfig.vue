@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="p-5 space-y-5">
+        <div class="px-5 space-y-5">
           <div class="space-y-2">
             <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.vat_type_for_wrap`) }}</h2>
           </div>
@@ -16,7 +16,7 @@
           </div>
         </div>
 
-        <div class="p-5 space-y-5">
+        <div class="px-5 space-y-5">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.customer.type_label`) }}</h2>
             </div>
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <div class="p-5 space-y-5" v-if="config.customer_type === 'both' || config.customer_type === 'b2b'">
+        <div class="px-5 space-y-5" v-if="config.customer_type === 'both' || config.customer_type === 'b2b'">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.order_amount_allowed`) }} ({{ $t(`dashboard.pages.payments.customer.type.b2b`) }})</h2>
                 <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.order_amount_allowed_label`) }}.</div>

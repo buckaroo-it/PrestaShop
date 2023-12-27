@@ -76,4 +76,17 @@ class ConfigurationRepository extends EntityRepository implements BkConfiguratio
 
         return $issuerArray;
     }
+    /**
+     * @throws \Exception
+     */
+    public function getActiveGiftcards(): array
+    {
+        $paymentMethod = $this->getPaymentMethodByName('giftcard');
+
+        $configArray = $this->getConfigArray($paymentMethod->getId());
+
+        $activeGiftcardIds = $configArray['activeGiftcards'] ?? [];
+
+        return RawGiftCardsRepository::getGiftCardsByIds($activeGiftcardIds);
+    }
 }

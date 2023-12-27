@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
@@ -77,6 +78,8 @@ class Installer implements InstallerInterface
 
         $creditCardsRepository = new RawCreditCardsRepository();
         $creditCardsRepository->insertCreditCards();
+
+        RawGiftCardsRepository::insertGiftCards();
 
         return true;
     }

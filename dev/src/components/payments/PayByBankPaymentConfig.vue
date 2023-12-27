@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="p-5 space-y-5">
+      <div class="px-5 space-y-5">
         <div class="space-y-2">
           <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.display_type`) }}</h2>
           <div class="text-gray-400 text-xs" v-html="$t(`dashboard.pages.payments.display_type_label`)"></div>

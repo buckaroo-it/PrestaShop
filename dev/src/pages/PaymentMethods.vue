@@ -36,6 +36,7 @@
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
           <TinkaPaymentConfig v-if="selectedPayment.name === 'tinka'" />
           <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
+          <GiftCardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
         </DefaultPaymentConfig>
       </div>
     </div>
@@ -62,10 +63,12 @@ import Loading from "../components/Loading.vue";
 import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue";
 import TinkaPaymentConfig  from "../components/payments/TinkaPaymentConfig.vue";
 import KlarnaPaymentConfig from "../components/payments/KlarnaPaymentConfig.vue";
+import GiftCardPaymentConfig from "@/components/payments/GiftCardPaymentConfig.vue";
 
 export default {
   name: "PaymentMethods",
   components: {
+    GiftCardPaymentConfig,
     PayPalPaymentConfig,
     IdealPaymentConfig,
     PayByBankPaymentConfig,

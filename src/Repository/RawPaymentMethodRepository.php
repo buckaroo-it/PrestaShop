@@ -125,7 +125,7 @@ class RawPaymentMethodRepository
             ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'kbc', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => 'payment_giftcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
@@ -165,6 +165,7 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodMode($name)
     {
+
         // Fetch the payment method ID
         $paymentId = $this->getPaymentMethodId($name);
 

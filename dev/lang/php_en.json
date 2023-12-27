@@ -264,7 +264,7 @@
   "dashboard.pages.payments.allowed_creditcards": "Allowed Credit- and debitcards",
   "dashboard.pages.payments.allowed_creditcards_label": "Only selected credit- or debitcards will be showed for this method",
   "dashboard.pages.payments.allowed_giftcards": "Allowed giftcards",
-  "dashboard.pages.payments.allowed_giftcards_label": "Only selected giftcards will this method be shown",
+  "dashboard.pages.payments.allowed_giftcards_label": "Only selected giftcards will be shown for this method",
   "dashboard.pages.payments.allowed_methods": "Allowed payment methods",
   "dashboard.pages.payments.clear": "Clear",
   "dashboard.pages.payments.client_side": "Client Side Encryption",

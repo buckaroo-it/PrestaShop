@@ -84,7 +84,7 @@ class RawCreditCardsRepository
     {
         $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_creditcards';
         if (!\Db::getInstance()->execute($sql)) {
-            throw new \Exception('Database error: Could not clear payment methods table');
+            throw new \Exception('Database error: Could not clear creditcards table');
         }
     }
 }

@@ -110,4 +110,8 @@ class BuckarooConfigService
     {
         return $this->configurationRepository->getActiveCreditCards();
     }
+    public function getActiveGiftcards()
+    {
+        return $this->configurationRepository->getActiveGiftcards();
+    }
 }

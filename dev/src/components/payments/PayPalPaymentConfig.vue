@@ -1,6 +1,6 @@
 <template>
     <div>
-      <div class="p-5 space-y-5">
+      <div class="px-5 space-y-5">
         <div class="space-y-2">
           <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.seller_protection`) }}</h2>
         </div>

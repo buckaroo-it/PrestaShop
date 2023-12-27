@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="p-5 space-y-5">
+        <div class="px-5 space-y-5">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.in3.version.label`) }}</h2>
             </div>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <div class="p-5 space-y-5" v-if="config.version === 'V3'">
+        <div class="px-5 space-y-5" v-if="config.version === 'V3'">
           <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.logo`) }}</h2>
           <div class="flex space-x-4">
             <div v-for="option in paymentLogoOptions" :key="option.value" class="radio-image-wrapper">
