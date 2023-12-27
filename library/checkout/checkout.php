@@ -21,6 +21,10 @@ use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Checkout
 {
     protected $customVars = [];
@@ -30,7 +34,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_PAYBYBANK = 'paybybank';
     public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const CHECKOUT_TYPE_GIROPAY = 'giropay';
-    public const CHECKOUT_TYPE_KBC = 'kbc';
+    public const CHECKOUT_TYPE_KBCPAYMENTBUTTON = 'kbcpaymentbutton';
     public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
     public const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
@@ -62,7 +66,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_PAYBYBANK => 'PayByBank',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY => 'Giropay',
-        Checkout::CHECKOUT_TYPE_KBC => 'Kbc',
+        Checkout::CHECKOUT_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         Checkout::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         Checkout::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
         Checkout::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
@@ -141,10 +145,8 @@ abstract class Checkout
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
-        $this->shipping_address = null;
-        if ($cart->id_address_invoice != $cart->id_address_delivery) {
-            $this->shipping_address = new Address((int) $cart->id_address_delivery);
-        }
+        $this->shipping_address = $cart->id_address_invoice != $cart->id_address_delivery ?
+            new Address((int) $cart->id_address_delivery) : $this->invoice_address;
         $this->products = $this->cart->getProducts();
         $this->buckarooConfigService = $this->module->getBuckarooConfigService();
         $this->buckarooFeeService = $this->module->getBuckarooFeeService();
@@ -155,7 +157,7 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDebit = $originalAmount =
+        $this->payment_request->amountDebit =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         $buckarooFee = $this->getBuckarooFee();
@@ -163,9 +165,8 @@ abstract class Checkout
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
         }
-
+        $this->payment_request->setDescription($this->cart->id);
         $this->payment_request->currency = $currency->iso_code;
-        $this->payment_request->description = Configuration::get('BUCKAROO_TRANSACTION_LABEL');
         $reference = $this->reference . '_' . $this->cart->id;
         $this->payment_request->invoiceId = $reference;
         $this->payment_request->orderId = $reference;
@@ -342,6 +343,9 @@ abstract class Checkout
         } else {
             $result['street'] = $address;
         }
+
+        $logger = new \Logger(CoreLogger::INFO, '');
+        $logger->logInfo(json_encode($result) . '-----------' . json_encode($matches));
 
         return $result;
     }

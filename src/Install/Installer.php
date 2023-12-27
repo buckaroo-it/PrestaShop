@@ -18,10 +18,13 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
-use Buckaroo\PrestaShop\Src\Repository\RawCountryRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class Installer implements InstallerInterface
 {
@@ -68,12 +71,7 @@ class Installer implements InstallerInterface
 
         $this->installSpecificTabs();
 
-        $this->copyEmailTemplates();
-        $this->copyProductTemplates();
         $this->databaseTableInstaller->install();
-
-        $countryRepository = new RawCountryRepository();
-        $countryRepository->insertCountries();
 
         $paymentMethodRepository = new RawPaymentMethodRepository();
         $paymentMethodRepository->insertPaymentMethods();
@@ -153,47 +151,5 @@ class Installer implements InstallerInterface
         }
 
         return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function copyEmailTemplates()
-    {
-        $source = _PS_ROOT_DIR_ . '/modules/buckaroo3/classes/Mail.php';
-        $destinationDir = _PS_ROOT_DIR_ . '/override/classes/';
-        $destinationFile = $destinationDir . 'Mail.php';
-
-        // Check if destination directory exists, create it if necessary
-        if (!is_dir($destinationDir)
-            && !mkdir($destinationDir, 0755, true)) {
-            throw new \Exception("Failed to create destination directory '{$destinationDir}'");
-        }
-
-        // Attempt to copy the file
-        if (!copy($source, $destinationFile)) {
-            throw new \Exception("Failed to copy file from '{$source}' to '{$destinationFile}'");
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function copyProductTemplates()
-    {
-        $source = _PS_ROOT_DIR_ . '/modules/buckaroo3/classes/Product.php';
-        $destinationDir = _PS_ROOT_DIR_ . '/override/classes/';
-        $destinationFile = $destinationDir . 'Product.php';
-
-        // Check if destination directory exists, create it if necessary
-        if (!is_dir($destinationDir)
-            && !mkdir($destinationDir, 0755, true)) {
-            throw new \Exception("Failed to create destination directory '{$destinationDir}'");
-        }
-
-        // Attempt to copy the file
-        if (!copy($source, $destinationFile)) {
-            throw new \Exception("Failed to copy file from '{$source}' to '{$destinationFile}'");
-        }
     }
 }

@@ -16,13 +16,16 @@
  */
 include_once dirname(__FILE__) . '/functions.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class PaymentRequestFactory
 {
     public const REQUEST_TYPE_PAYPAL = 'paypal';
     public const REQUEST_TYPE_IDEAL = 'ideal';
     public const REQUEST_TYPE_PAYBYBANK = 'paybybank';
     public const REQUEST_TYPE_GIROPAY = 'giropay';
-    public const REQUEST_TYPE_KBC = 'kbc';
+    public const REQUEST_TYPE_KBCPAYMENTBUTTON = 'kbcpaymentbutton';
     public const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const REQUEST_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
@@ -55,7 +58,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_PAYBYBANK => 'PayByBank',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
         PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
-        PaymentRequestFactory::REQUEST_TYPE_KBC => 'Kbc',
+        PaymentRequestFactory::REQUEST_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         PaymentRequestFactory::REQUEST_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         PaymentRequestFactory::REQUEST_TYPE_SOFORTBANKING => 'Sofortbanking',
         PaymentRequestFactory::REQUEST_TYPE_GIFTCARD => 'GiftCard',

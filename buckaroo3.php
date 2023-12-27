@@ -23,8 +23,8 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\PrestaShop\Classes\IssuersIdeal;
-use Buckaroo\PrestaShop\Classes\IssuersPayByBank;
+use Buckaroo\PrestaShop\Classes\Issuers\Ideal as IssuersIdeal;
+use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
@@ -39,7 +39,6 @@ use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 class Buckaroo3 extends PaymentModule
 {
-    public $symContainer;
     public $logger;
     private $locale;
 
@@ -47,7 +46,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '4.0.1';
+        $this->version = '4.1.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -56,15 +55,12 @@ class Buckaroo3 extends PaymentModule
 
         parent::__construct();
 
-        $this->setContainer();
-
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.2');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
         $this->logger = new \Logger(CoreLogger::INFO, '');
-        $this->locale = \Tools::getContextLocale($this->context);
 
         $response = ResponseFactory::getResponse();
         if ($response && $response->isValid()) {
@@ -76,7 +72,7 @@ class Buckaroo3 extends PaymentModule
                 $this->displayName =
                     (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
             } else {
-                $this->displayName = $this->l('Buckaroo Payments (v 4.0.1)');
+                $this->displayName = $this->l('Buckaroo Payments (v 4.1.0)');
             }
         }
 
@@ -144,12 +140,13 @@ class Buckaroo3 extends PaymentModule
             "' WHERE id_cart = '" . $cart->id . "'";
         Db::getInstance()->execute($sql);
 
-        return '<script>
-        document.addEventListener("DOMContentLoaded", function(){
-            $(".total-value").before(
-                $("<tr><td>Buckaroo Fee</td><td>' . $this->formatPrice($buckarooFee) . '</td></tr>"))
-            });
-        </script>';
+        // Assign data to Smarty
+        $this->context->smarty->assign([
+            'orderBuckarooFee' => $this->formatPrice($buckarooFee),
+        ]);
+
+        // Fetch and return the template content
+        return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
     }
 
     /**
@@ -197,7 +194,7 @@ class Buckaroo3 extends PaymentModule
                 ),
             ];
             $defaultOrderState->module_name = $this->name;
-            $defaultOrderState->send_mail = 0;
+            $defaultOrderState->send_email = 0;
             $defaultOrderState->template = '';
             $defaultOrderState->invoice = 0;
             $defaultOrderState->color = '#FFF000';
@@ -247,8 +244,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayBackOfficeHeader()
     {
+        if (Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3') {
+            $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
+        }
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
-        $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
     }
 
     public function getContent()
@@ -353,7 +352,7 @@ class Buckaroo3 extends PaymentModule
 
         $buckarooConfigService = $this->getBuckarooConfigService();
 
-        $buckarooPaymentService = $this->symContainer->get('buckaroo.config.api.payment.service');
+        $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
 
         try {
             $this->context->smarty->assign(
@@ -376,11 +375,13 @@ class Buckaroo3 extends PaymentModule
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
                     'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
-                    'paybybankIssuers' => (new IssuersPayByBank())->getIssuerList(),
+                    'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
+                    'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'in3Method' => $this->symContainer->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
+                    'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
+                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                 ]
             );
         } catch (Exception $e) {
@@ -488,7 +489,8 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        if (Order::getByCartId($cart->id)->module !== $this->name) {
+        $order = Order::getByCartId($cart->id);
+        if (!$order || $order->module !== $this->name) {
             return true;
         }
 
@@ -614,12 +616,12 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooConfigService()
     {
-        return $this->symContainer->get('buckaroo.config.api.config.service');
+        return $this->get('buckaroo.config.api.config.service');
     }
 
     public function getBuckarooFeeService()
     {
-        return $this->symContainer->get('buckaroo.config.api.fee.service');
+        return $this->get('buckaroo.config.api.fee.service');
     }
 
     public function hookDisplayProductExtraContent($params)
@@ -677,18 +679,6 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    private function setContainer()
-    {
-        global $kernel;
-
-        if (!$kernel) {
-            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
-            $kernel = new \AppKernel('prod', false);
-            $kernel->boot();
-        }
-        $this->symContainer = $kernel->getContainer();
-    }
-
     /**
      * @throws LocalizationException
      */
@@ -696,6 +686,6 @@ class Buckaroo3 extends PaymentModule
     {
         $currency = \Context::getContext()->currency;
 
-        return $this->locale->formatPrice($amount, $currency->iso_code);
+        return \Tools::getContextLocale($this->context)->formatPrice($amount, $currency->iso_code);
     }
 }

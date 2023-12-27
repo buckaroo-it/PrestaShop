@@ -19,6 +19,10 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
 use Buckaroo\Resources\Constants\RecipientCategory;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class AfterPayCheckout extends Checkout
 {
     public const CUSTOMER_TYPE_B2C = 'B2C';

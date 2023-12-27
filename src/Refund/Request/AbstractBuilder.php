@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 use Buckaroo\Resources\Constants\IPProtocolVersion;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class AbstractBuilder
 {
     protected function buildCommon(\Order $order, \OrderPayment $payment, float $refundAmount): array
@@ -73,13 +77,7 @@ abstract class AbstractBuilder
      */
     protected function buildIssuers(\OrderPayment $payment): array
     {
-        if (in_array($payment->payment_method, [
-            'creditcard', 'mastercard', 'visa',
-            'amex', 'vpay', 'maestro',
-            'visaelectron', 'cartebleuevisa',
-            'cartebancaire', 'dankort', 'nexi',
-            'postepay',
-        ])) {
+        if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
             return [
                 'name' => $payment->payment_method,
                 'version' => 2,

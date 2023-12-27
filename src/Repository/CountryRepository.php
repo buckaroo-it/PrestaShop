@@ -17,10 +17,11 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-use Buckaroo\PrestaShop\Src\Entity\BkCountries;
-use Doctrine\ORM\EntityRepository;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-class CountryRepository extends EntityRepository implements BkCountriesRepositoryInterface
+class CountryRepository
 {
     private function processCountries($countries)
     {
@@ -40,52 +41,25 @@ class CountryRepository extends EntityRepository implements BkCountriesRepositor
         return $result;
     }
 
-    public function getCountriesFromDB(): array
+    public function getCountries(): array
     {
-        $countries = $this->findAll();
-        $result = [];
-
-        foreach ($countries as $country) {
-            $result[] = [
-                'id' => $country->getCountryId(),
-                'name' => strtolower($country->getName()),
-                'iso_code_2' => $country->getIsoCode2(),
-                'iso_code_3' => $country->getIsoCode3(),
-                'call_prefix' => $country->getCallPrefix(),
-                'icon' => \Tools::strtolower($country->getIsoCode2()) . '.jpg',
-            ];
-        }
-
-        return $result;
-    }
-
-    public function checkAndInsertNewCountries()
-    {
-        $dbCountries = $this->getCountriesFromDB();
-        $dbCountryIds = array_column($dbCountries, 'id');
-
         $langId = \Context::getContext()->language->id;
         $rawCountries = \Country::getCountries($langId, true);
-        $processedCountries = $this->processCountries($rawCountries);
 
-        $newCountries = array_filter($processedCountries, function ($country) use ($dbCountryIds) {
-            return !in_array($country['id'], $dbCountryIds);
+        return $this->processCountries($rawCountries);
+    }
+
+    public function getCountryByIsoCode2($isoCode2)
+    {
+        $countries = $this->getCountries();
+        $country = array_filter($countries, function ($c) use ($isoCode2) {
+            return $c['iso_code_2'] == $isoCode2;
         });
 
-        if ($newCountries) {
-            foreach ($newCountries as $countryData) {
-                $country = new BkCountries();
-                $country->setCountryId($countryData['id']);
-                $country->setName($countryData['name']);
-                $country->setIsoCode2($countryData['iso_code_2']);
-                $country->setIsoCode3($countryData['iso_code_3']);
-                $country->setCallPrefix($countryData['call_prefix']);
-                $country->setIcon($countryData['icon']);
-                $this->_em->persist($country);
-            }
-            $this->_em->flush();
+        if (empty($country)) {
+            return null;
         }
 
-        return array_merge($dbCountries, $newCountries);
+        return reset($country);
     }
 }

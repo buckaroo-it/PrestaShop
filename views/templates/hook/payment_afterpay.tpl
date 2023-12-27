@@ -27,7 +27,7 @@
             </div>
             <div class="col-sm-7">
                 <input type="text"
-                       class="form-control form-control-large"
+                       class="form-control bk-form-control-large"
                        id="phone_afterpay_billing_digi"
                        name="phone_afterpay_billing"
                        value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
@@ -44,17 +44,17 @@
             <div class="col-xs-7" id="afterpay_digi_date">
                 <input title="Day" name="customerbirthdate_d_billing" id="customerbirthdate_d_billing_digi"
                        type="text" value="{$customer_birthday[2]|escape:'html':'UTF-8'}"
-                       class="form-control form-control-small" style="width: 50px;"
+                       class="form-control bk-form-control-small" style="width: 50px;"
                        autocomplete="off" maxlength="2"/>
                 {l s='DD' mod='buckaroo3'}
                 <input title="Month" name="customerbirthdate_m_billing" id="customerbirthdate_m_billing_digi"
                        type="text" value="{$customer_birthday[1]|escape:'html':'UTF-8'}"
-                       class="form-control form-control-small" style="width: 50px;"
+                       class="form-control bk-form-control-small" style="width: 50px;"
                        autocomplete="off" maxlength="2"/>
                 {l s='MM' mod='buckaroo3'}
                 <input title="Year" name="customerbirthdate_y_billing" id="customerbirthdate_y_billing_digi"
                        type="text" value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
-                       class="form-control form-control-middle" style="width: 70px;"
+                       class="form-control bk-form-control-middle" style="width: 70px;"
                        autocomplete="off" maxlength="4"/>
                 {l s='YYYY' mod='buckaroo3'}
             </div>
@@ -72,17 +72,17 @@
                     <input title="Day" name="customerbirthdate_d_shipping"
                            id="customerbirthdate_d_shipping_digi" type="text"
                            value="{$customer_birthday[2]|escape:'html':'UTF-8'}"
-                           class="form-control form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"/>
                     {l s='DD' mod='buckaroo3'}
                     <input title="Month" name="customerbirthdate_m_shipping"
                            id="customerbirthdate_m_shipping_digi" type="text"
                            value="{$customer_birthday[1]|escape:'html':'UTF-8'}"
-                           class="form-control form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"/>
                     {l s='MM' mod='buckaroo3'}
                     <input title="Year" name="customerbirthdate_y_shipping"
                            id="customerbirthdate_y_shipping_digi" type="text"
                            value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
-                           class="form-control form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"/>
                     {l s='YYYY' mod='buckaroo3'}
                 </div>
             </div>
@@ -98,7 +98,7 @@
                 <div class="col-xs-7">
                     <input title="IdentificationNumber" name="customerIdentificationNumber"
                            id="customerIdentificationNumber" type="text" value=""
-                           class="form-control form-control-large" autocomplete="off"/>
+                           class="form-control bk-form-control-large" autocomplete="off"/>
                 </div>
             </div>
         {/if}
@@ -112,7 +112,7 @@
                 <div class="col-xs-7">
                     <input title="afterpaynew-coc" name="customerafterpaynew-coc"
                            id="customerafterpaynew-coc" type="text" value="" required
-                           class="form-control form-control-large" autocomplete="off"/>
+                           class="form-control bk-form-control-large" autocomplete="off"/>
                 </div>
             </div>
         {/if}
@@ -139,5 +139,10 @@
                 </label>
             </div>
         </div>
+        {if ($country == 'NL' && $methodsWithFinancialWarning['afterpay']) }
+            <p class="small">
+                {l s=$methodsWithFinancialWarning['warningText'] sprintf=['afterpay'] mod='buckaroo3'}
+            </p>
+        {/if}
     </form>
 </section>

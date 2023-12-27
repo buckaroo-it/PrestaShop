@@ -16,6 +16,7 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="ideal">
     <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
+    {if $showIdealIssuers}
        <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <fieldset>
             {if $idealDisplayMode === 'dropdown'}
@@ -26,8 +27,8 @@
                         </option>
                         {foreach $idealIssuers as $key => $issuer}
                             <div>
-                                <option value="{$issuer['id']|escape:'html':'UTF-8'}"
-                                        id="bankMethod{$issuer['id']|escape:'html':'UTF-8'}">
+                                <option value="{$key|escape:'html':'UTF-8'}"
+                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
                                     {l s=$issuer['name'] mod='buckaroo3'}
                                 </option>
                             </div>
@@ -40,11 +41,11 @@
                         <div rel="booRow" class="bk-method-issuer">
                             <input
                                     name="BPE_Issuer"
-                                    id="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}"
-                                    value="{$issuer['id']|escape:'html':'UTF-8'}"
+                                    id="ideal_issuer_{$key|escape:'html':'UTF-8'}"
+                                    value="{$key|escape:'html':'UTF-8'}"
                                     type="radio"
                             />
-                            <label for="ideal_issuer_{$issuer['id']|escape:'html':'UTF-8'}" class="bk-issuer-label">
+                            <label for="ideal_issuer_{$key|escape:'html':'UTF-8'}" class="bk-issuer-label">
                                 {if isset($issuer['logo']) && $issuer['logo'] !== null}
                                     <img
                                             class=""
@@ -58,15 +59,8 @@
                         </div>
                     {/foreach}
                 </div>
-                <div class="bk-method-toggle-list">
-                    <div class="bk-toggle-wrap">
-                        <div class="bk-toggle-text" text-less="{l s='Less banks' mod='buckaroo3'}" text-more="{l s='More banks' mod='buckaroo3'}">
-                            {l s='More banks' mod='buckaroo3'}
-                        </div>
-                        <div class="bk-toggle bk-toggle-down"></div>
-                    </div>
-                </div>
             {/if}
         </fieldset>
+        {/if}
     </form>
 </section>

@@ -25,6 +25,10 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**
@@ -114,17 +118,8 @@ class Handler
     protected function getPaymentKey(TransactionResponse $response): string
     {
         $related = $response->get('RelatedTransactions');
-        if (!is_array($related)
-            || !isset($related['RelationType'])
-            || !isset($related['RelatedTransactionKey'])
-        ) {
-            if (!isset($related[0]['RelationType'])
-                || !isset($related[0]['RelatedTransactionKey'])
-            ) {
-                return $related[0]['RelatedTransactionKey'];
-            }
-
-            return '';
+        if (!isset($related['RelationType'])) {
+            return $related[0]['RelatedTransactionKey'] ?? '';
         }
 
         if ($related['RelationType'] === 'refund') {

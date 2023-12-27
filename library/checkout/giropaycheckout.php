@@ -16,12 +16,15 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class GiropayCheckout extends Checkout
 {
     final public function setCheckout()
     {
         parent::setCheckout();
-        $this->payment_request->bic = Tools::getValue('BPE_Bic');
     }
 
     public function startPayment()

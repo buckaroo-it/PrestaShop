@@ -21,6 +21,10 @@ use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 use PrestaShopBundle\Service\Routing\Router;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Provider
 {
     /**
@@ -58,7 +62,7 @@ class Provider
      * Get available amount for refund
      *
      * @param \Order $order
-     * @param array  $refunds
+     * @param array $refunds
      *
      * @return float
      */

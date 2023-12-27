@@ -16,7 +16,6 @@ import vue from '@vitejs/plugin-vue';
 import {defineConfig} from 'vite'
 
 export default defineConfig({
-
     resolve: {
         alias: {
             '@': '/src',
@@ -35,7 +34,7 @@ export default defineConfig({
                     const info = assetInfo.name.split('.');
                     const extType = info[info.length - 1];
                     if (/\.(png|jpe?g|gif|svg|webp|webm|mp3)$/.test(assetInfo.name)) {
-                        return `media/[name]-[hash].${extType}`;
+                        return `img/[name]-[hash].${extType}`;
                     }
                     if (/\.(css)$/.test(assetInfo.name)) {
                         return `css/buckaroo3.vue.${extType}`;

@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Config
 {
     public const BUCKAROO_TEST = 'BUCKAROO_TEST';

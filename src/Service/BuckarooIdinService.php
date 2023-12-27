@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooIdinService
 {
     public function checkCustomerIdExists($customerId)
@@ -48,7 +52,7 @@ class BuckarooIdinService
     {
         $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
 
-        return Db::getInstance()->getValue($sqlCheck);
+        return \Db::getInstance()->getValue($sqlCheck);
     }
 
     public function updateProductData($productId, $buckarooIdin)

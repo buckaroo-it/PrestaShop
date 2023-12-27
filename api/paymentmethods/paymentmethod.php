@@ -21,6 +21,10 @@ require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class PaymentMethod extends BuckarooAbstract
 {
     protected $type;
@@ -79,20 +83,20 @@ abstract class PaymentMethod extends BuckarooAbstract
     {
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
 
-        $this->payload = array_merge($this->payload,
-            [
-                'currency' => $this->currency,
-                'amountDebit' => $this->amountDebit,
-                'invoice' => $this->invoiceId,
-                'order' => $this->orderId,
-                'returnURL' => $this->returnUrl,
-                'pushURL' => $this->pushUrl,
-                'platformName' => $this->platformName,
-                'platformVersion' => $this->platformVersion,
-                'moduleVersion' => $this->moduleVersion,
-                'moduleSupplier' => $this->moduleSupplier,
-                'moduleName' => $this->moduleName,
-            ]);
+        $this->payload = array_merge([
+            'currency' => $this->currency,
+            'amountDebit' => $this->amountDebit,
+            'invoice' => $this->invoiceId,
+            'description' => $this->description,
+            'order' => $this->orderId,
+            'returnURL' => $this->returnUrl,
+            'pushURL' => $this->pushUrl,
+            'platformName' => $this->platformName,
+            'platformVersion' => $this->platformVersion,
+            'moduleVersion' => $this->moduleVersion,
+            'moduleSupplier' => $this->moduleSupplier,
+            'moduleName' => $this->moduleName,
+        ], $this->payload);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
         // Pay
@@ -107,7 +111,7 @@ abstract class PaymentMethod extends BuckarooAbstract
     public function refundGlobal()
     {
         $refund_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
-        if (in_array($this->type, ['afterpay', 'klarnakp', 'billink'])) {
+        if (in_array($this->type, ['afterpay', 'billink'])) {
             $this->data['articles'] = [[
                 'refundType' => 'Return',
                 'identifier' => 1,
@@ -163,5 +167,31 @@ abstract class PaymentMethod extends BuckarooAbstract
         $response = $buckaroo->method('idin')->verify($this->payload);
 
         return ResponseFactory::getResponse($response);
+    }
+
+    public function setDescription($cartId)
+    {
+        $description = (string) Configuration::get('BUCKAROO_TRANSACTION_LABEL');
+        preg_match_all('/{\w+}/', $description, $matches);
+
+        if (!empty($matches[0])) {
+            $order = \Order::getByCartId($cartId);
+            $patterns = ['/{order_number}/', '/{shop_name}/'];
+            $replacement = [$order->reference, \Context::getContext()->shop->name];
+
+            foreach ($matches[0] as $match) {
+                if (!in_array("/$match/", $patterns)) {
+                    $property = trim($match, '{}');
+                    if (isset($order->$property)) {
+                        $replacement[] = $order->$property;
+                        $patterns[] = "/$match/";
+                    }
+                }
+            }
+            $patterns[] = '/{\w+}/';
+            $description = preg_replace($patterns, $replacement, $description);
+        }
+
+        $this->description = $description;
     }
 }

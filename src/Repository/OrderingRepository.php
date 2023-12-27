@@ -17,35 +17,37 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
-use Buckaroo\PrestaShop\Src\Entity\BkCountries;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class OrderingRepository extends EntityRepository
 {
+    public CountryRepository $countryRepository;
+
+    public function __construct(EntityManagerInterface $em, ClassMetadata $class)
+    {
+        parent::__construct($em, $class);
+        $this->countryRepository = new CountryRepository();
+    }
+
     public function findOneByCountryId($country_id)
     {
         return $this->findOneBy(['country_id' => $country_id]);
     }
 
-    /**
-     * @throws NonUniqueResultException
-     */
-    public function findOneByCountryIsoCode(?string $isoCode2)
+    public function findOneByCountry($countryId)
     {
-        $qb = $this->_em->createQueryBuilder()->select('bo')
-            ->from(BkOrdering::class, 'bo');
-        if ($isoCode2 !== null) {
-            $qb->join(BkCountries::class, 'c', 'WITH', 'bo.country_id = c.country_id')
-                ->where('c.iso_code_2 = :isoCode2')
-                ->setParameter('isoCode2', $isoCode2);
-        } else {
-            $qb->where('bo.country_id IS NULL');
+        if ($countryId === null) {
+            return $this->findOneBy(['country_id' => null]);
         }
 
-        return $qb->getQuery()->getOneOrNullResult();
+        return $this->findOneBy(['country_id' => $countryId]);
     }
 
     public function updateOrdering($value, $countryId = null)
@@ -53,7 +55,6 @@ class OrderingRepository extends EntityRepository
         if (is_string($value)) {
             $value = json_decode($value, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                // Handle JSON decode error
                 return false;
             }
         }
@@ -70,8 +71,10 @@ class OrderingRepository extends EntityRepository
 
     private function updateOrderingForSpecificCountry($value, $countryId)
     {
-        $countryRepo = $this->_em->getRepository(BkCountries::class);
-        $country = $countryRepo->findOneBy(['country_id' => $countryId]);
+        $countries = $this->countryRepository->getCountries();
+        $country = array_filter($countries, function ($c) use ($countryId) {
+            return $c['id'] == $countryId;
+        });
 
         if (!$country) {
             return false;
@@ -86,7 +89,10 @@ class OrderingRepository extends EntityRepository
         $ordering = $orderingRepo->findOneBy(['country_id' => $countryId]);
 
         if (!$ordering) {
-            return false;
+            $ordering = new BkOrdering();
+            $ordering->setCountryId($countryId);
+            $ordering->setCreatedAt(new \DateTime());
+            $ordering->setUpdatedAt(new \DateTime());
         }
 
         $ordering->setValue($value);
@@ -98,26 +104,27 @@ class OrderingRepository extends EntityRepository
 
     public function getOrdering(?string $isoCode2)
     {
-        $ordering = $this->findOneByCountryIsoCode($isoCode2);
+        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+        $ordering = $this->findOneByCountry($country);
 
-        if (empty($ordering)) {
-            return null;
-        }
+        $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
 
         $result = [
-            'id' => $ordering->getId(),
-            'country_id' => $ordering->getCountryId(),
+            'country_id' => empty($ordering) ? $country['id'] : $ordering->getCountryId(),
             'value' => [],
-            'createdAt' => $ordering->getCreatedAt(),
-            'updatedAt' => $ordering->getUpdatedAt(),
             'status' => true,
         ];
 
-        $paymentMethodIds = is_string($ordering->getValue())
-            ? json_decode($ordering->getValue(), true)
-            : $ordering->getValue();
-
-        $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
+        if (empty($ordering)) {
+            $paymentMethods = $paymentMethodRepo->findAll();
+            $paymentMethodIds = array_map(function ($paymentMethod) {
+                return $paymentMethod->getId();
+            }, $paymentMethods);
+        } else {
+            $paymentMethodIds = is_string($ordering->getValue())
+                ? json_decode($ordering->getValue(), true)
+                : $ordering->getValue();
+        }
 
         foreach ($paymentMethodIds as $id) {
             $paymentMethodData = $paymentMethodRepo->findOneBy(['id' => $id]);
@@ -135,12 +142,12 @@ class OrderingRepository extends EntityRepository
         return $result;
     }
 
-    public function fetchPositions($isoCode2)
+    public function fetchPositions($countryId, $activeMethodIds)
     {
-        $ordering = $this->findOneByCountryIsoCode($isoCode2);
+        $ordering = $this->findOneByCountry($countryId);
 
         if (empty($ordering)) {
-            return null;
+            $ordering = $this->findOneByCountry(null);
         }
 
         $positionsArray = json_decode($ordering->getValue(), true);
@@ -148,9 +155,11 @@ class OrderingRepository extends EntityRepository
         $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
 
         foreach ($positionsArray as $id) {
-            $paymentMethodData = $paymentMethodRepo->findOneBy(['id' => $id]);
-            if ($paymentMethodData) {
-                $output[] = $paymentMethodData->getName();
+            if (in_array($id, $activeMethodIds)) {
+                $paymentMethodData = $paymentMethodRepo->findOneBy(['id' => $id]);
+                if ($paymentMethodData) {
+                    $output[] = $paymentMethodData->getName();
+                }
             }
         }
 
@@ -160,7 +169,7 @@ class OrderingRepository extends EntityRepository
     /**
      * Creates a new BkOrdering with given data.
      *
-     * @param int   $countryId
+     * @param int $countryId
      * @param array $paymentMethodIds
      *
      * @return BkOrdering
@@ -170,6 +179,8 @@ class OrderingRepository extends EntityRepository
         $ordering = new BkOrdering();
         $ordering->setCountryId($countryId);
         $ordering->setValue(json_encode($paymentMethodIds));
+        $ordering->setCreatedAt(new \DateTime());
+        $ordering->setUpdatedAt(new \DateTime());
 
         $this->_em->persist($ordering);
         $this->_em->flush();
@@ -181,7 +192,7 @@ class OrderingRepository extends EntityRepository
      * Add a payment method ID to the ordering if it doesn't exist.
      *
      * @param BkOrdering $ordering
-     * @param int        $paymentMethodId
+     * @param int $paymentMethodId
      *
      * @return bool indicates whether the ordering was updated or not
      */
@@ -194,6 +205,9 @@ class OrderingRepository extends EntityRepository
             // Add paymentMethodId to the ordering for the country
             $paymentMethodIds[] = $paymentMethodId;
             $ordering->setValue(json_encode($paymentMethodIds));
+            $ordering->setCreatedAt(new \DateTime());
+            $ordering->setUpdatedAt(new \DateTime());
+
             $this->_em->persist($ordering);
             $this->_em->flush();
 
@@ -206,7 +220,7 @@ class OrderingRepository extends EntityRepository
     /**
      * Remove the given payment method ID from all orderings if it's not in the new country IDs.
      *
-     * @param int   $paymentMethodId
+     * @param int $paymentMethodId
      * @param array $newCountryIds
      */
     public function removePaymentMethodFromOrderings(int $paymentMethodId, array $newCountryIds): void

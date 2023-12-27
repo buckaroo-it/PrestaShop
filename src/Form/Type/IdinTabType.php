@@ -24,6 +24,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Translation\TranslatorInterface;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class IdinTabType extends TranslatorAwareType
 {
     /**
@@ -33,8 +37,8 @@ class IdinTabType extends TranslatorAwareType
 
     /**
      * @param TranslatorInterface $translator
-     * @param array               $locales
-     * @param \Currency           $defaultCurrency
+     * @param array $locales
+     * @param \Currency $defaultCurrency
      */
     public function __construct(
         TranslatorInterface $translator,
@@ -54,13 +58,12 @@ class IdinTabType extends TranslatorAwareType
         $description = $this->trans("To require iDIN for specific products, you'll also need to have iDIN to be enabled for specific products in the Buckaroo App. You can find this setting at the iDIN verification settings.", 'Modules.Buckaroo.Admin');
         $builder
             ->add('idin_description', TextType::class, [
-                'label' => false,
+                'label' => $description,
                 'required' => false,
                 'disabled' => true,
-                'data' => $description,
+                'data' => false,
                 'attr' => [
-                    'readonly' => 'readonly',
-                    'style' => 'border: none; background: transparent;',
+                    'style' => 'display:none;',
                 ],
             ])
             ->add('buckaroo_idin', CheckboxType::class, [

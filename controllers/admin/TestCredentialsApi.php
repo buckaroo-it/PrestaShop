@@ -19,11 +19,12 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\BuckarooClient;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class TestCredentialsApi extends BaseApiController
 {
-    /**
-     * @throws PrestaShopException
-     */
     public function initContent()
     {
         $data = $this->getJsonInput();

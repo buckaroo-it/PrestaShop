@@ -17,20 +17,25 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService;
+use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class Countries extends BaseApiController
 {
-    private BuckarooCountriesService $buckarooCountriesService;
+    public CountryRepository $countryRepository;
 
-    public function __construct(BuckarooCountriesService $buckarooCountriesService)
+    public function __construct()
     {
-        $this->buckarooCountriesService = $buckarooCountriesService;
+        parent::__construct();
+        $this->countryRepository = new CountryRepository();
     }
 
     public function initContent()
     {
-        $countries = $this->buckarooCountriesService->synchronizeCountries();
+        $countries = $this->countryRepository->getCountries();
 
         $data = [
             'status' => true,

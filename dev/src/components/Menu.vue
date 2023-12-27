@@ -2,7 +2,7 @@
   <div class="md:border-l-2 md:border-primary space-y-5">
     <div>
       <div class="md:px-8 md:py-5 p-5 md:w-52 w-36">
-        <img src="../../../views/img/logo.png" alt=""/>
+        <img src="../assets/img/logo.png" alt=""/>
       </div>
 
       <LanguageSelector />
@@ -25,7 +25,7 @@
                 'bg-sixthly text-white': view === 'verification_methods',
                 'hover:bg-seventhly text-eightly': view !== 'verification_methods',
             }">
-        <i class="fas fa-badge-check md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">{{$t(`dashboard.menu.verification_methods`)}}</span>
+        <i class="fas fa-check-circle md:text-base text-xl"></i> <span class="md:inline block md:text-sm text-xs">{{$t(`dashboard.menu.verification_methods`)}}</span>
       </li>
       <li class="text-white md:p-5 p-2 cursor-pointer transition ease-in-out duration-300 flex-1 md:text-left text-left space-y-2 md:block md:space-x-1 flex flex-col justify-center" @click="setView('order_payment_methods')" v-bind:class="{
                 'bg-sixthly text-white': view === 'order_payment_methods',
@@ -63,7 +63,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * NOTICE OF LICENSE
  *
@@ -20,15 +19,23 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class VerificationMethods extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function initContent()
     {
         $data = $this->getAllPaymentMethods();
@@ -36,6 +43,9 @@ class VerificationMethods extends BaseApiController
         return $this->sendResponse($data);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getAllPaymentMethods()
     {
         $payments = $this->getPaymentConfigurations();
@@ -46,6 +56,9 @@ class VerificationMethods extends BaseApiController
         ];
     }
 
+    /**
+     * @throws \Exception
+     */
     private function getPaymentConfigurations()
     {
         return $this->buckarooConfigService->getVerificationMethodsFromDBWithConfig();

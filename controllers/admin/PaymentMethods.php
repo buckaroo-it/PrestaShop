@@ -19,12 +19,17 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethods extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 
@@ -39,12 +44,10 @@ class PaymentMethods extends BaseApiController
     {
         $payments = $this->getPaymentConfigurations();
 
-        $data = [
+        return [
             'status' => true,
             'payments' => $payments,
         ];
-
-        return $data;
     }
 
     /**

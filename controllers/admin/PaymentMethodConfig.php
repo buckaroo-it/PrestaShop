@@ -18,6 +18,12 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class PaymentMethodConfig extends BaseApiController
 {
@@ -25,6 +31,7 @@ class PaymentMethodConfig extends BaseApiController
 
     public function __construct(BuckarooConfigService $buckarooConfigService)
     {
+        parent::__construct();
         $this->buckarooConfigService = $buckarooConfigService;
     }
 
@@ -33,16 +40,13 @@ class PaymentMethodConfig extends BaseApiController
         switch ($_SERVER['REQUEST_METHOD']) {
             case 'GET':
                 return $this->handleGet();
-                break;
             case 'POST':
                 return $this->handlePost();
-                break;
         }
     }
 
     private function handleGet()
     {
-        // Fetch the parameter from the GET request
         $paymentName = \Tools::getValue('paymentName');
 
         if (!$paymentName) {
@@ -52,13 +56,17 @@ class PaymentMethodConfig extends BaseApiController
         $data = [
             'status' => true,
             'config' => [
-                'value' => $this->buckarooConfigService->getConfigArrayForMethod($paymentName),  // Call the repository to fetch the data
+                'value' => $this->buckarooConfigService->getConfigArrayForMethod($paymentName),
             ],
         ];
 
         return $this->sendResponse($data);
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ORMException
+     */
     private function handlePost()
     {
         $data = $this->getJsonInput();
@@ -67,7 +75,7 @@ class PaymentMethodConfig extends BaseApiController
         if (!$paymentName || !$data) {
             return $this->sendErrorResponse('Invalid data provided.', 400);
         }
-        $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);  // Call the repository to update the data
+        $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);
 
         return $this->sendResponse(['status' => $result]);
     }

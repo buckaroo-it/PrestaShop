@@ -14,24 +14,17 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 
 class Giropay extends PaymentMethod
 {
-    public $bic = '';
-
     public function __construct()
     {
         $this->type = 'giropay';
         $this->version = 2;
-    }
-
-    // @codingStandardsIgnoreStart
-    public function pay($customVars = [])
-    {
-        // @codingStandardsIgnoreEnd
-        $this->data['customVars'][$this->type]['bic'] = $this->bic;
-
-        return parent::pay();
     }
 }

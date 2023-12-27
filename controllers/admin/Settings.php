@@ -19,12 +19,17 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Settings extends BaseApiController
 {
     private BuckarooSettingsService $settingsService;
 
     public function __construct()
     {
+        parent::__construct();
         $this->settingsService = new BuckarooSettingsService();
     }
 

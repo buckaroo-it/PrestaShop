@@ -27,19 +27,23 @@ use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class BuckarooPaymentService
 {
     public $module;
+    protected $logger;
     private $bkOrderingRepository;
     private $paymentMethodRepository;
     private $context;
     private BuckarooConfigService $buckarooConfigService;
     private BuckarooFeeService $buckarooFeeService;
-    protected $logger;
     private $issuersPayByBank;
     private $capayableIn3;
+    private $countryRepository;
 
-    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3)
+    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->logger = new \Logger(\Logger::INFO, '');
@@ -50,6 +54,7 @@ class BuckarooPaymentService
         $this->buckarooConfigService = $buckarooConfigService;
         $this->issuersPayByBank = $issuersPayByBank;
         $this->capayableIn3 = $capayableIn3;
+        $this->countryRepository = $countryRepository;
     }
 
     public function getPaymentOptions($cart)
@@ -58,8 +63,13 @@ class BuckarooPaymentService
         libxml_use_internal_errors(true);
         $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $countryId = $this->context->country->iso_code;
-        $positions = $this->bkOrderingRepository->fetchPositions($countryId) ?? $this->bkOrderingRepository->fetchPositions(null);
+        $isoCode2 = $this->context->country->iso_code;
+        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+
+        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
+        $activeMethodIds = array_column($activePaymentMethods, 'id');
+
+        $positions = $this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds);
 
         $positions = array_flip($positions);
 
@@ -74,14 +84,8 @@ class BuckarooPaymentService
                 $method = $this->capayableIn3->getMethod();
             }
 
-            if ($method == 'idin') {
-                if ($this->module->isIdinCheckout($cart)) {
-                    if ($this->isCustomerIdinValid($cart)) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
+            if ($method == 'idin' && (!$this->module->isIdinCheckout($cart) || $this->isCustomerIdinValid($cart))) {
+                continue;
             }
 
             if ($isMethodValid) {
@@ -198,7 +202,7 @@ class BuckarooPaymentService
     /**
      * Check if payment is available by amount
      *
-     * @param float  $cartTotal
+     * @param float $cartTotal
      * @param string $paymentMethod
      *
      * @return bool
@@ -397,5 +401,26 @@ class BuckarooPaymentService
         if (is_int($id)) {
             return new \Address($id);
         }
+    }
+
+    public function paymentMethodsWithFinancialWarning()
+    {
+        $buyNowPayLaterMethods = [
+            'klarna',
+            'afterpay',
+            'billink',
+            'in3',
+            'tinka',
+        ];
+        $methods = [];
+        foreach ($buyNowPayLaterMethods as $method) {
+            $methods[$method] = $this->buckarooConfigService->getConfigValue($method, 'financial_warning') ?? true;
+        }
+        $methods['warningText'] = 'Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt,
+                voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt
+                maken van de diensten van %s. Door verder te gaan, accepteer je de Algemene
+                Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.';
+
+        return $methods;
     }
 }

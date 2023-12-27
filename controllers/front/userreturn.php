@@ -18,6 +18,10 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
@@ -40,7 +44,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 && !empty($response->statuscode)
                 && ($response->statuscode == 791)
             ) {
-                $response->statuscode == 890;
+                $response->statuscode = 890;
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
@@ -53,11 +57,6 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
                     Tools::redirect('index.php?controller=order&step=1');
                     exit;
-                }
-
-                $payment_method = $response->payment_method;
-                if ($payment_method == 'bancontactmrcash') {
-                    $payment_method = 'MISTERCASH';
                 }
 
                 $this->context->cart->delete();

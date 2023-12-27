@@ -31,15 +31,15 @@
 
                     <div class="flex rounded shadow border justify-between md:w-80 w-full overflow-hidden font-bold md:text-sm text-xs">
                         <button class="w-1/3 h-12 space-x-1 hover:bg-green-500 hover:text-white" v-bind:class="{'bg-green-500 text-white': config.mode === 'live' }" @click="setMode('live')">
-                            <i v-if="config.mode === 'live'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'live'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.live`) }}</span>
                         </button>
                         <button class="w-1/3 h-12 space-x-1 hover:bg-yellow-400 hover:text-white" v-bind:class="{'bg-yellow-400 text-white': config.mode === 'test' }" @click="setMode('test')">
-                            <i v-if="config.mode === 'test'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'test'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.test`) }}</span>
                         </button>
                         <button class="w-1/3 h-12 space-x-1 hover:bg-gray-800 hover:text-white" v-bind:class="{'bg-gray-800 text-white': config.mode === 'off' }" @click="setMode('off')">
-                            <i v-if="config.mode === 'off'" class="far fa-check"></i>
+                            <i v-if="config.mode === 'off'" class="fas fa-check"></i>
                             <span>{{ $t(`dashboard.pages.payments.modes_settings.off`) }}</span>
                         </button>
                     </div>
@@ -131,7 +131,6 @@
                         </li>
                     </ul>
                 </div>
-
             </div>
         </div>
 
@@ -146,7 +145,7 @@ import { inject, ref, provide, computed} from 'vue'
 import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
-import {useCountries} from "../../lib/countries";
+import { useCountries } from "../../lib/countries";
 
 export default {
     name: "DefaultPaymentConfig.vue",
@@ -187,7 +186,7 @@ export default {
             }
 
             this.config.payment_fee = ''
-        }
+        },
     },
     setup(props) {
 
@@ -204,13 +203,13 @@ export default {
             payment_fee: null,
             min_order_amount: null,
             max_order_amount: null,
-            countries: []
+            countries: [],
         })
 
         provide('config', config)
 
         const getConfig = () => {
-            get({paymentName:props.payment.name}).then(() => {
+            get({paymentName:props.payment.name}).then((e) => {
               if(data.value.status) {
                     if(data.value.config) {
                         config.value = data.value.config.value
@@ -225,7 +224,7 @@ export default {
                         payment_fee: null,
                         min_order_amount: null,
                         max_order_amount: null,
-                        countries: []
+                        countries: [],
                     }
                 }
             })
@@ -290,7 +289,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -17,6 +17,10 @@
 
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooCommonController extends ModuleFrontController
 {
     private $id_order;

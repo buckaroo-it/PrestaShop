@@ -19,15 +19,23 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Creditcards extends BaseApiController
 {
     private RawCreditCardsRepository $creditCardsRepository;
 
     public function __construct()
     {
+        parent::__construct();
         $this->creditCardsRepository = new RawCreditCardsRepository();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function initContent()
     {
         $countries = $this->creditCardsRepository->getCreditCardsFromDB();

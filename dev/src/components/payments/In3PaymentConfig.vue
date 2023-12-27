@@ -30,13 +30,18 @@
           </div>
         </div>
     </div>
+  <FinancialWarning/>
 </template>
 
 <script>
-import { inject, ref, computed, watch } from "vue";
+import { inject } from "vue";
+import FinancialWarning from "../fields/FinancialWarning.vue";
 
 export default {
     name: "In3PaymentConfig",
+    components: {
+        FinancialWarning
+    },
     setup(props) {
         const config = inject('config')
         const baseUrl = inject('baseUrl');

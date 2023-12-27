@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class RawPaymentMethodRepository
 {
     /**
@@ -59,14 +63,22 @@ class RawPaymentMethodRepository
         $configValue = ['mode' => 'off'];
 
         switch ($paymentName) {
+            case 'klarna':
+            case 'tinka':
+                $configValue['financial_warning'] = true;
+                break;
+
             case 'creditcard':
             case 'ideal':
+                $configValue['show_issuers'] = true;
+                // no break
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;
 
             case 'in3':
                 $configValue['version'] = 'V3';
+                $configValue['financial_warning'] = true;
                 break;
 
             case 'paypal':
@@ -77,6 +89,7 @@ class RawPaymentMethodRepository
             case 'billink':
                 $configValue['wrapping_vat'] = '2';
                 $configValue['customer_type'] = 'B2C';
+                $configValue['financial_warning'] = true;
                 break;
 
             case 'payperemail':
@@ -114,15 +127,15 @@ class RawPaymentMethodRepository
             ['name' => 'paybybank', 'label' => 'PayByBank', 'icon' => 'PayByBank.gif', 'template' => 'payment_paybybank.tpl', 'is_payment_method' => '1'],
             ['name' => 'paypal', 'label' => 'PayPal', 'icon' => 'PayPal.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl', 'is_payment_method' => '1'],
-            ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => 'payment_giropay.tpl', 'is_payment_method' => '1'],
-            ['name' => 'kbc', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'kbcpaymentbutton', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'afterpay', 'label' => 'Riverty | AfterPay', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
-            ['name' => 'klarna', 'label' => 'KlarnaKP', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
+            ['name' => 'klarna', 'label' => 'Klarna', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
             ['name' => 'applepay', 'label' => 'Apple Pay', 'icon' => 'ApplePay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'in3', 'label' => 'In3', 'icon' => 'In3.svg', 'template' => 'payment_in3.tpl', 'is_payment_method' => '1'],
             ['name' => 'billink', 'label' => 'Billink', 'icon' => 'Billink.svg', 'template' => 'payment_billink.tpl', 'is_payment_method' => '1'],

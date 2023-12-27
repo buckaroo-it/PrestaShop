@@ -17,6 +17,9 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class RawOrderingRepository
 {
     private $db;
@@ -51,7 +54,7 @@ class RawOrderingRepository
             }
         }
         $data = $this->prepareData($countryId, $paymentMethodsArray);
-        $result = $this->db->insert('bk_ordering', $data, $null_values = true);
+        $result = $this->db->insert('bk_ordering', $data, true);
         if (!$result) {
             throw new \Exception('Database error: Unable to insert country');
         }

@@ -24,6 +24,10 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooConfigService
 {
     private $paymentMethodRepository;
@@ -72,28 +76,6 @@ class BuckarooConfigService
         // Existing config
         $configArray = $this->configurationRepository->getConfigArray($paymentMethodId);
         $mergedConfig = array_merge($configArray, $data);
-
-        if (isset($data['countries'])) {
-            $newCountryIds = array_column($data['countries'], 'id');
-
-            // Update each country's ordering
-            foreach ($newCountryIds as $countryId) {
-                $ordering = $this->orderingRepository->findOneByCountryId($countryId);
-                if (!$ordering) {
-                    // No existing ordering for this country. Create a new one.
-                    $this->orderingRepository->createNewOrdering($countryId, [$paymentMethodId]);
-                } else {
-                    $paymentMethodIds = json_decode($ordering->getValue(), true);
-
-                    // Check if the paymentMethodId is already in the ordering for the country
-                    if (!in_array($paymentMethodId, $paymentMethodIds)) {
-                        $this->orderingRepository->addPaymentMethodToOrdering($ordering, $paymentMethodId);
-                    }
-                }
-            }
-
-            $this->orderingRepository->removePaymentMethodFromOrderings($paymentMethodId, $newCountryIds);
-        }
 
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
     }

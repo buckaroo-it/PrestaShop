@@ -21,12 +21,16 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**
      * Execute refund request
      *
-     * @param array  $body
+     * @param array $body
      * @param string $method
      *
      * @return TransactionResponse
@@ -44,9 +48,14 @@ class Handler
      * @param string $method
      *
      * @return BuckarooClient
+     * @throws \Exception
      */
     private function getClient(string $method): BuckarooClient
     {
+        if (PaymentMethodHelper::isCreditCardMethod($method)) {
+            $method = 'creditcard';
+        }
+
         return new BuckarooClient(
             \Configuration::get('BUCKAROO_MERCHANT_KEY'),
             \Configuration::get('BUCKAROO_SECRET_KEY'),

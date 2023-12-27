@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Install;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 final class DatabaseTableInstaller implements InstallerInterface
 {
     public function install()
@@ -79,18 +83,6 @@ final class DatabaseTableInstaller implements InstallerInterface
 				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
 				`configurable_id` INT(11) NOT NULL,
 				`value`           TEXT NOT NULL,
-				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
-			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
-
-        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_countries` (
-				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
-				`country_id`      INT(11),
-				`name`            VARCHAR(255) NOT NULL,
-                `iso_code_2`      VARCHAR(2) NOT NULL,
-                `iso_code_3`      VARCHAR(3) NOT NULL,
-				`call_prefix`     INT(11),
-				`icon`            VARCHAR(255),
 				`created_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 `updated_at`      DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
