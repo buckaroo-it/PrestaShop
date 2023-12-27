@@ -17,9 +17,14 @@
 
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\Transaction\Response\TransactionResponse;
+
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
@@ -157,20 +162,22 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $logger->logInfo('Start the payment process');
                 $this->checkout->startPayment();
             }
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             $logger->logError('Set checkout info: ', $e->getMessage());
             $this->displayError(null, $e->getMessage());
+
             return;
         }
 
         if ($this->checkout->isRequestSucceeded()) {
-            $this->handleSuccessfulRequest($logger,$cart->id,$customer);
+            $this->handleSuccessfulRequest($logger, $cart->id, $customer);
         } else {
-            $this->handleFailedRequest($logger,$cart->id);
+            $this->handleFailedRequest($logger, $cart->id);
         }
     }
-    private function handleSuccessfulRequest($logger,$cartId,$customer){
 
+    private function handleSuccessfulRequest($logger, $cartId, $customer)
+    {
         /* @var $response Response */
         $response = $this->checkout->getResponse();
         $logger->loginfo('Request succeeded');
@@ -190,15 +197,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             /* @var $responseData TransactionResponse */
             $responseData = $response->getResponse();
-            $this->createTransactionMessage($id_order,'Transaction Key: '. $responseData->getTransactionKey());
-            if($response->payment_method == 'SepaDirectDebit'){
-
+            $this->createTransactionMessage($id_order, 'Transaction Key: ' . $responseData->getTransactionKey());
+            if ($response->payment_method == 'SepaDirectDebit') {
                 $parameters = $responseData->getServiceParameters();
                 if (!empty($parameters['mandateReference'])) {
-                    $this->createTransactionMessage($id_order,'MandateReference: '. $parameters['mandateReference']);
+                    $this->createTransactionMessage($id_order, 'MandateReference: ' . $parameters['mandateReference']);
                 }
                 if (!empty($parameters['mandateDate'])) {
-                    $this->createTransactionMessage($id_order,'MandateDate: '. $parameters['mandateDate']);
+                    $this->createTransactionMessage($id_order, 'MandateDate: ' . $parameters['mandateDate']);
                 }
             }
             if ($response->payment_method == 'transfer') {
@@ -243,7 +249,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 }
             } else {
                 $logger->logInfo('Payment request not valid');
-            };
+            }
             $error = null;
             if (($response->payment_method == 'afterpayacceptgiro'
                     || $response->payment_method == 'afterpaydigiaccept')
@@ -253,15 +259,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->displayError(null, $error);
         }
     }
-    private function handleFailedRequest($logger,$cartId){
 
+    private function handleFailedRequest($logger, $cartId)
+    {
         $response = $this->checkout->getResponse();
         $logger->logInfo('Request not succeeded');
 
         $this->setCartCookie($cartId);
 
         $error = null;
-        if($response->getResponse() instanceof TransactionResponse){
+        if ($response->getResponse() instanceof TransactionResponse) {
             $error = $response->getSomeError();
         }
 
@@ -271,14 +278,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->displayError(null, $error);
         }
     }
-    private function createTransactionMessage($orderId,$messageString){
+
+    private function createTransactionMessage($orderId, $messageString)
+    {
         $message = new Message();
         $message->id_order = $orderId;
         $message->message = $messageString;
         $message->add();
-
     }
-    private function setCartCookie($cartId){
+
+    private function setCartCookie($cartId)
+    {
         $oldCart = new Cart($cartId);
         $duplication = $oldCart->duplicate();
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {

@@ -19,6 +19,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Payment;
 
 use OrderPayment as DefaultOrderPayment;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class OrderPayment extends DefaultOrderPayment
 {
     public function __construct($id = null, $id_lang = null, $id_shop = null, $translator = null)

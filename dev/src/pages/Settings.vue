@@ -42,7 +42,7 @@
             </div>
 
             <div class="flex flex-col items-end space-y-1" v-if="!testCredentialsApi.loading.value">
-              <button class="border border-blue-500 rounded text-blue-500 text-sm p-1 hover:bg-blue-500 hover:text-white hover:shadow-lg" v-bind:class="{'opacity-25 cursor-not-allowed': (!settings.website_key || !settings.secret_key) }" @click="testCredentials"><i class="fal fa-plug"></i> {{ $t('dashboard.pages.settings.test_connection') }}</button>
+              <button class="border border-blue-500 rounded text-blue-500 text-sm p-1 hover:bg-blue-500 hover:text-white hover:shadow-lg" v-bind:class="{'opacity-25 cursor-not-allowed': (!settings.website_key || !settings.secret_key) }" @click="testCredentials"><i class="fas fa-plug"></i> {{ $t('dashboard.pages.settings.test_connection') }}</button>
               <div v-if="credentialsAreValid === true" class="text-xs text-green-600">{{ $t('dashboard.pages.settings.successfully_verified_the_credentials') }}</div>
               <div v-if="credentialsAreValid === false" class="text-xs text-red-600">{{ $t('dashboard.pages.settings.the_credentials_are_not_valid') }}</div>
             </div>

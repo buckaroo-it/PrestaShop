@@ -14,13 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../paymentmethod.php';
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
-class Kbc extends PaymentMethod
+/**
+ * @return mixed
+ */
+function upgrade_module_4_1_0($object)
 {
-    public function __construct()
-    {
-        $this->type = 'kbc';
-        $this->version = 1;
-    }
+    $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_ordering WHERE country_id IS NOT NULL';
+    Db::getInstance()->execute($sql);
+
+    Db::getInstance()->execute('DROP TABLE IF EXISTS ' . _DB_PREFIX_ . 'bk_countries');
+
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET name = "kbcpaymentbutton" WHERE name = "kbc"');
+    return true;
 }

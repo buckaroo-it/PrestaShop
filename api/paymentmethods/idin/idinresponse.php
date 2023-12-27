@@ -14,12 +14,14 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 
 require_once dirname(__FILE__) . '/../response.php';
 require_once dirname(__FILE__) . '/../../../library/logger.php';
-
 class IdinResponse extends Response
 {
     protected $buckarooIdinService;

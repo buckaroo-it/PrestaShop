@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Refund;
 use Buckaroo\PrestaShop\Src\Entity\BkRefundRequest;
 use Doctrine\ORM\EntityManager;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class StatusService
 {
     /**

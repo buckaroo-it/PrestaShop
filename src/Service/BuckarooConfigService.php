@@ -24,6 +24,10 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooConfigService
 {
     private $paymentMethodRepository;

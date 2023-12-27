@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Classes\Issuers;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Ideal extends Issuers
 {
     protected const CACHE_ISSUERS_KEY = 'BUCKAROO_IDEAL_ISSUERS_CACHE';

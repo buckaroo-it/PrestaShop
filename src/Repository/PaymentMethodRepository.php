@@ -21,12 +21,17 @@ use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethodRepository extends EntityRepository implements BkPaymentMethodRepositoryInterface
 {
     /**
      * Fetches payment methods from the database.
      *
      * @param int $isPaymentMethod
+     *
      * @return array
      */
     private function fetchPaymentMethods(int $isPaymentMethod): array
@@ -56,7 +61,9 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      * Formats payment methods with configuration.
      *
      * @param array $results
+     *
      * @return array
+     *
      * @throws Exception
      */
     private function formatPaymentMethods(array $results): array
@@ -100,6 +107,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      *
      * @param array $results
      * @param int $countryId
+     *
      * @return array
      */
     private function filterPaymentMethodsByCountry(array $results, int $countryId): array
@@ -115,15 +123,16 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
                 $filteredResults[] = $result;
             }
         }
+
         return $filteredResults;
     }
-
 
     /**
      * Checks if a country is in the configuration.
      *
      * @param array|null $configValue
      * @param int $countryId
+     *
      * @return bool
      */
     private function isCountryInConfig(?array $configValue, int $countryId): bool
@@ -133,9 +142,11 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
                 if (isset($country['id']) && $country['id'] == $countryId) {
                     return true;
                 }
+
                 return false;
             }
         }
+
         return true;
     }
 }

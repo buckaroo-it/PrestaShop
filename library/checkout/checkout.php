@@ -21,6 +21,10 @@ use PrestaShop\Decimal\DecimalNumber;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 abstract class Checkout
 {
     protected $customVars = [];
@@ -30,7 +34,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_PAYBYBANK = 'paybybank';
     public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const CHECKOUT_TYPE_GIROPAY = 'giropay';
-    public const CHECKOUT_TYPE_KBC = 'kbc';
+    public const CHECKOUT_TYPE_KBCPAYMENTBUTTON = 'kbcpaymentbutton';
     public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
     public const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
@@ -62,7 +66,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_PAYBYBANK => 'PayByBank',
         Checkout::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
         Checkout::CHECKOUT_TYPE_GIROPAY => 'Giropay',
-        Checkout::CHECKOUT_TYPE_KBC => 'Kbc',
+        Checkout::CHECKOUT_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         Checkout::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         Checkout::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
         Checkout::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
@@ -341,7 +345,8 @@ abstract class Checkout
         }
 
         $logger = new \Logger(CoreLogger::INFO, '');
-        $logger->logInfo(json_encode($result) . '-----------'.json_encode($matches));
+        $logger->logInfo(json_encode($result) . '-----------' . json_encode($matches));
+
         return $result;
     }
 

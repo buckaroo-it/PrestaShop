@@ -18,6 +18,10 @@
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
     /**

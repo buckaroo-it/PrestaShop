@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
 use Tax;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Builder extends AbstractBuilder
 {
     public function create(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary)

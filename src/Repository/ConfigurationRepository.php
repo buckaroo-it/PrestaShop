@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Repository;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class ConfigurationRepository extends EntityRepository implements BkConfigurationRepositoryInterface
 {
     private function getPaymentMethodByName(string $name): ?BkPaymentMethods

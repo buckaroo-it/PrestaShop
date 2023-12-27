@@ -14,6 +14,10 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 function autoload($payment_method)
 {
     require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';

@@ -16,6 +16,10 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class ApplePayCheckout extends Checkout
 {
     final public function setCheckout()

@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Refund\Payment;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Service
 {
     public function create(

@@ -19,6 +19,10 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Repository\CountryRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Countries extends BaseApiController
 {
     public CountryRepository $countryRepository;

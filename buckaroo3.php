@@ -47,7 +47,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '4.0.1';
+        $this->version = '4.1.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -73,7 +73,7 @@ class Buckaroo3 extends PaymentModule
                 $this->displayName =
                     (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
             } else {
-                $this->displayName = $this->l('Buckaroo Payments (v 4.0.1)');
+                $this->displayName = $this->l('Buckaroo Payments (v 4.1.0)');
             }
         }
 
@@ -141,12 +141,13 @@ class Buckaroo3 extends PaymentModule
             "' WHERE id_cart = '" . $cart->id . "'";
         Db::getInstance()->execute($sql);
 
-        return '<script>
-        document.addEventListener("DOMContentLoaded", function(){
-            $(".total-value").before(
-                $("<tr><td>Buckaroo Fee</td><td>' . $this->formatPrice($buckarooFee) . '</td></tr>"))
-            });
-        </script>';
+        // Assign data to Smarty
+        $this->context->smarty->assign([
+            'orderBuckarooFee' => $this->formatPrice($buckarooFee),
+        ]);
+
+        // Fetch and return the template content
+        return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
     }
 
     /**
@@ -244,7 +245,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayBackOfficeHeader()
     {
-        if((Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3')){
+        if (Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3') {
             $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.vue.css', 'all');
         }
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');

@@ -19,6 +19,9 @@ namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class Uninstaller
 {
     /**

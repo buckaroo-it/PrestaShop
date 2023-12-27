@@ -22,6 +22,10 @@ use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class BuckarooFeeService
 {
     private $paymentMethodRepository;

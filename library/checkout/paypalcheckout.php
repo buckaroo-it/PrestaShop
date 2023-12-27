@@ -16,6 +16,10 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PayPalCheckout extends Checkout
 {
     protected $customVars = [];
@@ -73,6 +77,7 @@ class PayPalCheckout extends Checkout
         }
 
         $state = new State((int) $this->invoice_address->id_state);
+
         return [
             'street' => $address_components['street'],
             'street2' => $address_components['house_number'],

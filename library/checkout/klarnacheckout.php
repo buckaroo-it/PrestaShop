@@ -17,6 +17,10 @@
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class KlarnaCheckout extends Checkout
 {
     protected $customVars = [];
@@ -47,17 +51,18 @@ class KlarnaCheckout extends Checkout
     {
         return $this->getAddress((array) $this->invoice_address);
     }
+
     protected function getAddress(array $address): array
     {
         $address_components = $this->getAddressComponents($address['address1']); // phpcs:ignore
-        $address = array_merge($address,$address_components);
+        $address = array_merge($address, $address_components);
 
         return [
             'recipient' => [
                 'firstName' => $address['firstname'],
                 'lastName' => $address['lastname'],
-                'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male': 'female',
-                'category' => 'B2C'
+                'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male' : 'female',
+                'category' => 'B2C',
             ],
             'address' => [
                 'street' => $address['street'],
@@ -70,12 +75,13 @@ class KlarnaCheckout extends Checkout
             'email' => $this->customer->email,
         ];
     }
+
     public function getShippingAddress()
     {
         $carrierHandler = new CarrierHandler($this->cart);
         $sendCloudData = $carrierHandler->handleSendCloud() ?? [];
 
-        return $this->getAddress(array_merge((array) $this->shipping_address,$sendCloudData));
+        return $this->getAddress(array_merge((array) $this->shipping_address, $sendCloudData));
     }
 
     public function getArticles()

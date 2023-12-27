@@ -412,7 +412,7 @@
   "payment_methods.ideal": "Ideal",
   "payment_methods.idin": "iDIN",
   "payment_methods.in3": "In3",
-  "payment_methods.kbc": "KBC",
+  "payment_methods.kbcpaymentbutton": "KBC",
   "payment_methods.klarna": "Klarna",
   "payment_methods.mbway": "MB WEG",
   "payment_methods.multibanco": "Multibanco",

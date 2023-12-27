@@ -27,6 +27,10 @@ use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class Handler
 {
     /**
@@ -109,9 +113,17 @@ class Handler
      */
     private function getBuckarooPayments(\Order $order): array
     {
-        return array_filter($order->getOrderPayments(),function ($orderPayment){
-            return strpos($orderPayment->payment_method,'Buckaroo Payments')!==false;
-        });
+        $buckarooPayments = [];
+        $allPayments = $order->getOrderPayments();
+
+        // Check if the order's module is 'buckaroo3'
+        if ($order->module === 'buckaroo3') {
+            foreach ($allPayments as $payment) {
+                $buckarooPayments[] = $payment;
+            }
+        }
+
+        return $buckarooPayments;
     }
 
     /**
@@ -129,7 +141,7 @@ class Handler
     /**
      * Get refund data
      *
-     * @param Order                                                $order
+     * @param Order $order
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      *
      * @return OrderRefundSummary

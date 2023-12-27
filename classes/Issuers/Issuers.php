@@ -17,8 +17,12 @@
 
 namespace Buckaroo\PrestaShop\Classes\Issuers;
 
-use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Classes\Config;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 abstract class Issuers
 {
@@ -38,8 +42,9 @@ abstract class Issuers
         'REVOLT21' => 'Revolut.svg',
         'NNBANL2G' => 'NN.svg',
         'BITSNL2A' => 'YourSafe.svg',
-        'NTSBDEB1' => 'N26.svg'
+        'NTSBDEB1' => 'N26.svg',
     ];
+
     public function __construct($method)
     {
         $this->method = $method;
@@ -56,6 +61,7 @@ abstract class Issuers
         if (!is_array($issuers) || $cacheDate !== (new \DateTime())->format('Y-m-d')) {
             return $this->updateCacheIssuers($issuers);
         }
+
         return $issuers;
     }
 
@@ -68,15 +74,16 @@ abstract class Issuers
      */
     private function formatIssuers($issuers): array
     {
-        return array_reduce($issuers, function ($result,$issuer) {
-            if(isset($issuer['id']) && isset(self::ISSUERS_IMAGES[$issuer['id']])){
+        return array_reduce($issuers, function ($result, $issuer) {
+            if (isset($issuer['id'], self::ISSUERS_IMAGES[$issuer['id']])) {
                 $result[$issuer['id']] = [
                     'name' => $issuer['name'],
-                    'logo' => self::ISSUERS_IMAGES[$issuer['id']]
+                    'logo' => self::ISSUERS_IMAGES[$issuer['id']],
                 ];
             }
+
             return $result;
-        }, array());
+        }, []);
     }
 
     /**
@@ -145,6 +152,7 @@ abstract class Issuers
         if (!is_string($issuersString)) {
             return null;
         }
+
         return json_decode($issuersString, true);
     }
 

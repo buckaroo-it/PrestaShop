@@ -23,9 +23,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 class OrderingRepository extends EntityRepository
 {
     public CountryRepository $countryRepository;
+
     public function __construct(EntityManagerInterface $em, ClassMetadata $class)
     {
         parent::__construct($em, $class);
@@ -113,11 +117,10 @@ class OrderingRepository extends EntityRepository
 
         if (empty($ordering)) {
             $paymentMethods = $paymentMethodRepo->findAll();
-            $paymentMethodIds = array_map(function($paymentMethod) {
+            $paymentMethodIds = array_map(function ($paymentMethod) {
                 return $paymentMethod->getId();
             }, $paymentMethods);
-        }else{
-
+        } else {
             $paymentMethodIds = is_string($ordering->getValue())
                 ? json_decode($ordering->getValue(), true)
                 : $ordering->getValue();
@@ -166,7 +169,7 @@ class OrderingRepository extends EntityRepository
     /**
      * Creates a new BkOrdering with given data.
      *
-     * @param int   $countryId
+     * @param int $countryId
      * @param array $paymentMethodIds
      *
      * @return BkOrdering
@@ -189,7 +192,7 @@ class OrderingRepository extends EntityRepository
      * Add a payment method ID to the ordering if it doesn't exist.
      *
      * @param BkOrdering $ordering
-     * @param int        $paymentMethodId
+     * @param int $paymentMethodId
      *
      * @return bool indicates whether the ordering was updated or not
      */
@@ -217,7 +220,7 @@ class OrderingRepository extends EntityRepository
     /**
      * Remove the given payment method ID from all orderings if it's not in the new country IDs.
      *
-     * @param int   $paymentMethodId
+     * @param int $paymentMethodId
      * @param array $newCountryIds
      */
     public function removePaymentMethodFromOrderings(int $paymentMethodId, array $newCountryIds): void

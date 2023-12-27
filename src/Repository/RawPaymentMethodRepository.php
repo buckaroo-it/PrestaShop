@@ -17,6 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class RawPaymentMethodRepository
 {
     /**
@@ -67,6 +71,7 @@ class RawPaymentMethodRepository
             case 'creditcard':
             case 'ideal':
                 $configValue['show_issuers'] = true;
+                // no break
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;
@@ -123,7 +128,7 @@ class RawPaymentMethodRepository
             ['name' => 'paypal', 'label' => 'PayPal', 'icon' => 'PayPal.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl', 'is_payment_method' => '1'],
             ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'kbc', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'kbcpaymentbutton', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => 'payment_giftcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],

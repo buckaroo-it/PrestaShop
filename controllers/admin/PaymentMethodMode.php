@@ -20,6 +20,10 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethodMode extends BaseApiController
 {
     private BuckarooConfigService $buckarooConfigService;

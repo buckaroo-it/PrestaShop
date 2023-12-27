@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 ini_set('memory_limit','256M');
 
 $finder = PhpCsFixer\Finder::create()->in([

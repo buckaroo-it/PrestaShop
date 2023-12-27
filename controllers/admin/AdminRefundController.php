@@ -26,6 +26,10 @@ use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class AdminRefundController extends FrameworkBundleAdminController
 {
     /**
@@ -93,7 +97,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Send refund request to payment engine, return total amount refunded
      *
      * @param \Order $order
-     * @param float  $maxRefundAmount
+     * @param float $maxRefundAmount
      *
      * @return float
      */
@@ -115,9 +119,9 @@ class AdminRefundController extends FrameworkBundleAdminController
     /**
      * Refund individual payment with amount, return remaining amount to be refunded
      *
-     * @param \Order        $order
+     * @param \Order $order
      * @param \OrderPayment $payment
-     * @param float         $maxRefundAmount
+     * @param float $maxRefundAmount
      *
      * @return float
      */
@@ -179,7 +183,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      * Format price based on order currency
      *
      * @param \Order $order
-     * @param float  $price
+     * @param float $price
      *
      * @return string
      *

@@ -14,6 +14,10 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 require_once dirname(__FILE__) . '/../paymentmethod.php';
 class IDeal extends PaymentMethod
 {
@@ -32,11 +36,12 @@ class IDeal extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
-        if($this->issuerIsRequired){
+        if ($this->issuerIsRequired) {
             $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';
-        }else{
+        } else {
             $this->payload['continueOnIncomplete'] = 1;
         }
+
         return parent::pay();
     }
 }

@@ -16,7 +16,11 @@
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
-class KbcCheckout extends Checkout
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+class KbcpaymentbuttonCheckout extends Checkout
 {
     final public function setCheckout()
     {
@@ -40,6 +44,6 @@ class KbcCheckout extends Checkout
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KBC);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KBCPAYMENTBUTTON);
     }
 }
