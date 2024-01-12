@@ -156,16 +156,23 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodsFromDB()
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        $sql = new \DbQuery();
 
-        return \Db::getInstance()->executeS($query);
+        $sql->select('id');
+        $sql->from('bk_payment_methods');
+
+        return \Db::getInstance()->executeS($sql);
     }
 
     public function getPaymentMethodId($name)
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
+        $sql = new \DbQuery();
 
-        return \Db::getInstance()->getValue($query);
+        $sql->select('id');
+        $sql->from('bk_payment_methods');
+        $sql->where('name = "' . pSQL($name) . '"');
+
+        return \Db::getInstance()->getValue($sql);
     }
 
     public function getPaymentMethodMode($name)
@@ -173,9 +180,13 @@ class RawPaymentMethodRepository
         // Fetch the payment method ID
         $paymentId = $this->getPaymentMethodId($name);
 
-        // Fetch the existing configuration
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) pSQL($paymentId);
-        $existingConfig = \Db::getInstance()->getValue($query);
+        $sql = new \DbQuery();
+
+        $sql->select('value');
+        $sql->from('bk_configuration');
+        $sql->where('configurable_id = ' . (int) pSQL($paymentId));
+
+        $existingConfig = \Db::getInstance()->getValue($sql);
 
         if ($existingConfig === false) {
             throw new \Exception('Configuration not found for payment id ' . $paymentId);
@@ -197,7 +208,11 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodsLabel($name)
     {
-        $sql = 'SELECT label FROM ' . _DB_PREFIX_ . 'bk_payment_methods where name = "' . pSQL($name) . '"';
+        $sql = new \DbQuery();
+
+        $sql->select('label');
+        $sql->from('bk_payment_methods');
+        $sql->where('name = "' . pSQL($name) . '"');
 
         return \Db::getInstance()->getValue($sql);
     }

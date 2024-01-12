@@ -198,8 +198,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' .
-            (int) $response->getCartId();
+        $cartId = (int) $response->getCartId();
+        $sql = new DbQuery();
+        $sql->select('buckaroo_fee');
+        $sql->from('buckaroo_fee');
+        $sql->where('id_cart = ' . pSQL($cartId));
         $buckarooFee = Db::getInstance()->getValue($sql);
 
         if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
