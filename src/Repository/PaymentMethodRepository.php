@@ -34,21 +34,22 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      *
      * @return array
      */
-    private function fetchPaymentMethods(int $isPaymentMethod): array
+    private function fetchPaymentMethods(int $isPaymentMethod, int $allMethods): array
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('pm.id, pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
-            ->from(BkPaymentMethods::class, 'pm')
-            ->where('pm.is_payment_method = :isPaymentMethod')
-            ->setParameter('isPaymentMethod', $isPaymentMethod)
-            ->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
+            ->from(BkPaymentMethods::class, 'pm');
+        if (!$allMethods)
+            $qb->where('pm.is_payment_method = :isPaymentMethod')
+                ->setParameter('isPaymentMethod', $isPaymentMethod);
+        $qb->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
 
         return $qb->getQuery()->getArrayResult();
     }
 
     public function fetchMethodsFromDBWithConfig(int $isPaymentMethod): array
     {
-        $results = $this->fetchPaymentMethods($isPaymentMethod);
+        $results = $this->fetchPaymentMethods($isPaymentMethod, false);
 
         if (!$results) {
             throw new \Exception('Database error: Could not fetch payment methods with config');
@@ -97,7 +98,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
 
     public function getActivePaymentMethods($countryId)
     {
-        $results = $this->fetchPaymentMethods(1);
+        $results = $this->fetchPaymentMethods(1, true);
 
         return $this->filterPaymentMethodsByCountry($results, $countryId);
     }

@@ -38,7 +38,7 @@
                 <option value="SNSREGIO">{l s='RegioBank' mod='buckaroo3'}</option>
                 <option value="BUNQ">{l s='Bunq' mod='buckaroo3'}</option>
                 <option value="TRIODOS">{l s='Triodos Bank' mod='buckaroo3'}</option>
-                {if $buckaroo_idin_test eq '1'}
+                {if $buckaroo_idin_test eq 'test'}
                     <option value="BANKNL2Y">{l s='TEST BANK' mod='buckaroo3'}</option>
                 {/if}
             </select>

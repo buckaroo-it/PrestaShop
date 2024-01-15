@@ -382,6 +382,7 @@ class Buckaroo3 extends PaymentModule
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
+                    'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                 ]
             );
         } catch (Exception $e) {
@@ -474,7 +475,13 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFeeByCartId($id_cart)
     {
-        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int) $id_cart;
+        $id_cart = (int) $id_cart;
+
+        $sql = new DbQuery();
+
+        $sql->select('buckaroo_fee');
+        $sql->from('buckaroo_fee');
+        $sql->where('id_cart = ' . pSQL($id_cart));
 
         return Db::getInstance()->getValue($sql);
     }
@@ -585,9 +592,14 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    private function isProductBuckarooIdinEnabled($productId)
+    private function isProductBuckarooIdinEnabled(int $productId)
     {
-        $sql = 'SELECT buckaroo_idin FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $sql = new DbQuery();
+
+        $sql->select('buckaroo_idin');
+        $sql->from('bk_product_idin');
+        $sql->where('product_id = ' . pSQL($productId));
+
         $buckarooIdin = Db::getInstance()->getValue($sql);
 
         return $buckarooIdin == 1;

@@ -108,13 +108,14 @@ class BuckarooPaymentService
 
     public function isCustomerIdinValid($cart)
     {
-        $id_customer = $cart->id_customer;
+        $id_customer = (int) $cart->id_customer;
 
-        $query = 'SELECT ci.`buckaroo_idin_iseighteenorolder`'
-            . ' FROM `' . _DB_PREFIX_ . 'bk_customer_idin` ci'
-            . ' WHERE ci.customer_id = ' . (int) $id_customer;
+        $sql = new \DbQuery();
+        $sql->select('buckaroo_idin_iseighteenorolder');
+        $sql->from('bk_customer_idin');
+        $sql->where('customer_id = ' . pSQL($id_customer));
 
-        return \Db::getInstance(_PS_USE_SQL_SLAVE_)->getValue($query) == 'True' ? true : false;
+        return \Db::getInstance()->getValue($sql) === 'True';
     }
 
     private function isMethodUnavailableBySpecificConditions($cart, $method)

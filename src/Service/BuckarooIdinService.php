@@ -23,9 +23,12 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooIdinService
 {
-    public function checkCustomerIdExists($customerId)
+    public function checkCustomerIdExists(int $customerId)
     {
-        $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_customer_idin WHERE customer_id = ' . (int) $customerId;
+        $sqlCheck = new \DbQuery();
+        $sqlCheck->select('COUNT(*)');
+        $sqlCheck->from('bk_customer_idin');
+        $sqlCheck->where('customer_id = ' . pSQL($customerId));
 
         return \Db::getInstance()->getValue($sqlCheck);
     }
@@ -48,9 +51,12 @@ class BuckarooIdinService
         return $this->executeQuery($sql);
     }
 
-    public function checkProductIdExists($productId)
+    public function checkProductIdExists(int $productId)
     {
-        $sqlCheck = 'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $sqlCheck = new \DbQuery();
+        $sqlCheck->select('COUNT(*)');
+        $sqlCheck->from('bk_product_idin');
+        $sqlCheck->where('product_id = ' . pSQL($productId));
 
         return \Db::getInstance()->getValue($sqlCheck);
     }
@@ -69,14 +75,17 @@ class BuckarooIdinService
         return $this->executeQuery($sql);
     }
 
+    /**
+     * @throws \Exception
+     */
     private function executeQuery($sql)
     {
         try {
             \Db::getInstance()->execute($sql);
 
             return true;
-        } catch (Exception $e) {
-            throw new Exception('Error while executing SQL query: ' . $e->getMessage());
+        } catch (\Exception $e) {
+            throw new \Exception('Error while executing SQL query: ' . $e->getMessage());
         }
     }
 }
