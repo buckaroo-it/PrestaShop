@@ -130,12 +130,10 @@ class BillinkCheckout extends Checkout
 
     public function getRecipientCategory()
     {
-        $category = self::CUSTOMER_TYPE_B2C;
-        if ($this->customerType == self::CUSTOMER_TYPE_B2B ||
-            ($this->customerType == self::CUSTOMER_TYPE_BOTH && $this->companyExists($this->invoice_address->company))) {
-            $category = self::CUSTOMER_TYPE_B2B;
+        if ($this->customerType == self::CUSTOMER_TYPE_BOTH && $this->companyExists($this->invoice_address->company)) {
+            return self::CUSTOMER_TYPE_B2B;
         }
-        return $category;
+        return $this->customerType;
     }
 
     protected function prepareProductArticles()
