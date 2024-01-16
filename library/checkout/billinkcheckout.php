@@ -75,15 +75,9 @@ class BillinkCheckout extends Checkout
         }
         $country = new Country($this->invoice_address->id_country);
 
-        $category = self::CUSTOMER_TYPE_B2C;
-        if ($this->customerType == self::CUSTOMER_TYPE_B2B
-            || $this->companyExists($this->invoice_address->company)) {
-            $category = self::CUSTOMER_TYPE_B2B;
-        }
-
         $payload = [
             'recipient' => [
-                'category' => $category,
+                'category' => $this->getRecipientCategory(),
                 'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'firstName' => $this->invoice_address->firstname,
                 'lastName' => $this->invoice_address->lastname,
@@ -132,6 +126,16 @@ class BillinkCheckout extends Checkout
         }
 
         return $mergedProducts;
+    }
+
+    public function getRecipientCategory()
+    {
+        $category = self::CUSTOMER_TYPE_B2C;
+        if ($this->customerType == self::CUSTOMER_TYPE_B2B
+            || $this->companyExists($this->invoice_address->company)) {
+            $category = self::CUSTOMER_TYPE_B2B;
+        }
+        return $category;
     }
 
     protected function prepareProductArticles()
@@ -250,15 +254,9 @@ class BillinkCheckout extends Checkout
                 $country = $sendCloudData['country'];
             }
 
-            $category = self::CUSTOMER_TYPE_B2C;
-            if ($this->customerType == self::CUSTOMER_TYPE_B2B
-                || $this->companyExists($this->invoice_address->company)) {
-                $category = self::CUSTOMER_TYPE_B2B;
-            }
-
             $payload = [
                 'recipient' => [
-                    'category' => $category,
+                    'category' => $this->getRecipientCategory(),
                     'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
                     'firstName' => $this->shipping_address->firstname,
                     'lastName' => $this->shipping_address->lastname,
