@@ -46,7 +46,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '4.1.0';
+        $this->version = '4.1.1';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -72,7 +72,7 @@ class Buckaroo3 extends PaymentModule
                 $this->displayName =
                     (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
             } else {
-                $this->displayName = $this->l('Buckaroo Payments (v 4.1.0)');
+                $this->displayName = $this->l('Buckaroo Payments (v 4.1.1)');
             }
         }
 
