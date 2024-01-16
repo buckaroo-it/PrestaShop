@@ -250,9 +250,15 @@ class BillinkCheckout extends Checkout
                 $country = $sendCloudData['country'];
             }
 
+            $category = self::CUSTOMER_TYPE_B2C;
+            if ($this->customerType == self::CUSTOMER_TYPE_B2B
+                || $this->companyExists($this->invoice_address->company)) {
+                $category = self::CUSTOMER_TYPE_B2B;
+            }
+
             $payload = [
                 'recipient' => [
-                    'category' => RecipientCategory::PERSON,
+                    'category' => $category,
                     'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
                     'firstName' => $this->shipping_address->firstname,
                     'lastName' => $this->shipping_address->lastname,
