@@ -21,6 +21,7 @@ require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
+use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
@@ -72,7 +73,6 @@ class BuckarooPaymentService
         $positions = $this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds);
 
         $positions = array_flip($positions);
-
         foreach ($paymentMethods as $details) {
             $method = $details->getName();
             $isMethodValid = $this->module->isPaymentModeActive($method)
@@ -362,6 +362,22 @@ class BuckarooPaymentService
             $billink_customer_type,
             \BillinkCheckout::CUSTOMER_TYPE_B2B,
             \BillinkCheckout::CUSTOMER_TYPE_B2C);
+    }
+
+    public function areHouseNumberValid($cart) {
+        list($billingAddress, $billingCountry, $shippingAddress, $shippingCountry) = $this->getAddressDetails($cart);
+        return [
+            "billing" =>$this->isHouseNumberValid($billingAddress),
+            "shipping" => $this->isHouseNumberValid($shippingAddress)
+        ];
+    }
+
+    private function isHouseNumberValid($address) {
+        if (is_string($address->address1)) {
+            $address = AddressComponents::getAddressComponents($address->address1);
+            return is_string($address['house_number']) && !empty(trim($address['house_number']));
+        }
+        return false;
     }
 
     private function shouldShowCoc($cart, $customer_type, $typeB2B, $typeB2C)

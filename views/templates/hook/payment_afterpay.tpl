@@ -18,7 +18,7 @@
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'afterpay', 'service' => 'digi'])|escape:'quotes':'UTF-8'}"
           method="post">
         {l s='Please provide additional data for Riverty | AfterPay.' mod='buckaroo3'}<br/><br/>
-        <div class="row row-padding">
+                <div class="row row-padding">
             <div class="col-sm-5">
                 <label for="phone_afterpay_billing_digi"
                        class="required">
@@ -34,6 +34,18 @@
                 >
             </div>
         </div>
+        {if (isset($houseNumbersAreValid['billing']) && $houseNumbersAreValid['billing'] === false)}
+            <div class="alert alert-danger" role="alert" data-alert="danger">
+                {l s='Invalid billing address, cannot find house number' mod='buckaroo3'}
+            </div>
+        {/if}
+
+        {if (isset($houseNumbersAreValid['shipping']) && $houseNumbersAreValid['shipping'] === false)}
+            <div class="alert alert-danger" role="alert" data-alert="danger">
+                {l s='Invalid shipping address, cannot find house number' mod='buckaroo3'}
+            </div>
+        {/if}
+
 
         <div class="row row-padding">
             <div class="col-xs-5">
