@@ -415,8 +415,8 @@ class BuckarooPaymentService
      */
     protected function getAddressById($id)
     {
-        if (is_int($id)) {
-            return new \Address($id);
+        if (is_scalar($id)) {
+            return new \Address((int)$id);
         }
     }
 
