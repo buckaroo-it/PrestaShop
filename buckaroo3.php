@@ -383,7 +383,7 @@ class Buckaroo3 extends PaymentModule
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
-                    'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValid($cart)
+                    'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
                 ]
             );
         } catch (Exception $e) {

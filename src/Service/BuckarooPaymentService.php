@@ -364,11 +364,11 @@ class BuckarooPaymentService
             \BillinkCheckout::CUSTOMER_TYPE_B2C);
     }
 
-    public function areHouseNumberValid($cart) {
+    public function areHouseNumberValidForCountryDE($cart) {
         list($billingAddress, $billingCountry, $shippingAddress, $shippingCountry) = $this->getAddressDetails($cart);
         return [
-            "billing" =>$this->isHouseNumberValid($billingAddress),
-            "shipping" => $this->isHouseNumberValid($shippingAddress)
+            "billing" =>$this->isHouseNumberValid($billingAddress) || $billingCountry !== 'DE',
+            "shipping" => $this->isHouseNumberValid($shippingAddress) || $shippingCountry !== 'DE'
         ];
     }
 
