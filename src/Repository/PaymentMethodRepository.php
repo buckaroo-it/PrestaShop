@@ -143,9 +143,8 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
                 if (isset($country['id']) && $country['id'] == $countryId) {
                     return true;
                 }
-
-                return false;
             }
+            return false;
         }
 
         return true;

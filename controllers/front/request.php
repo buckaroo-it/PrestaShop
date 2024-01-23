@@ -151,10 +151,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $id_order_cart = Order::getIdByCartId($cart->id);
         $order = new Order($id_order_cart);
         $this->checkout->setReference($order->reference);
-        $this->checkout->setCheckout();
-        $logger->logDebug('Set checkout info: ');
+       
 
         try {
+            $this->checkout->setCheckout();
+            $logger->logDebug('Set checkout info: ');
             if ($this->checkout->isVerifyRequired()) {
                 $logger->logInfo('Start verify process');
                 $this->checkout->startVerify(['cid' => $cart->id_customer]);

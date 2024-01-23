@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\DecimalNumber;
@@ -327,27 +328,7 @@ abstract class Checkout
      */
     protected function getAddressComponents($address)
     {
-        $result = [];
-        $result['house_number'] = '';
-        $result['number_addition'] = '';
-
-        $address = str_replace(['?', '*', '[', ']', ',', '!'], ' ', $address);
-        $address = preg_replace('/\s\s+/', ' ', $address);
-
-        preg_match('/^([0-9]*)(.*?)([0-9]+)(.*)/', $address, $matches);
-
-        if (!empty($matches[2])) {
-            $result['street'] = trim($matches[1] . $matches[2]);
-            $result['house_number'] = trim($matches[3]);
-            $result['number_addition'] = trim($matches[4]);
-        } else {
-            $result['street'] = $address;
-        }
-
-        $logger = new \Logger(CoreLogger::INFO, '');
-        $logger->logInfo(json_encode($result) . '-----------' . json_encode($matches));
-
-        return $result;
+       return AddressComponents::getAddressComponents($address);
     }
 
     /**
