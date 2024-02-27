@@ -234,9 +234,13 @@ class Buckaroo3 extends PaymentModule
             return false;
         }
 
-        $refundSettingsService = $this->get('buckaroo.refund.settings');
-        if ($refundSettingsService) {
-            $refundSettingsService->uninstall();
+        try {
+            $refundSettingsService = $this->get('buckaroo.refund.settings');
+            if ($refundSettingsService) {
+                $refundSettingsService->uninstall();
+            }
+        } catch (\Exception $e) {
+             $this->_errors[] = 'Failed to uninstall buckaroo.refund.settings: ' . $e->getMessage();
         }
 
         return parent::uninstall();
