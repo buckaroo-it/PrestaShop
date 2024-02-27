@@ -92,7 +92,6 @@ class OrderingRepository extends EntityRepository
             $ordering = new BkOrdering();
             $ordering->setCountryId($countryId);
             $ordering->setCreatedAt(new \DateTime());
-            $ordering->setUpdatedAt(new \DateTime());
         }
 
         $ordering->setValue($value);
@@ -180,7 +179,6 @@ class OrderingRepository extends EntityRepository
         $ordering->setCountryId($countryId);
         $ordering->setValue(json_encode($paymentMethodIds));
         $ordering->setCreatedAt(new \DateTime());
-        $ordering->setUpdatedAt(new \DateTime());
 
         $this->_em->persist($ordering);
         $this->_em->flush();
@@ -206,7 +204,6 @@ class OrderingRepository extends EntityRepository
             $paymentMethodIds[] = $paymentMethodId;
             $ordering->setValue(json_encode($paymentMethodIds));
             $ordering->setCreatedAt(new \DateTime());
-            $ordering->setUpdatedAt(new \DateTime());
 
             $this->_em->persist($ordering);
             $this->_em->flush();
