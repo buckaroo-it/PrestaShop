@@ -175,6 +175,28 @@ function buckaroo($) {
                 }
             }
         },
+        requiredIssuers: (element, errorLabel, errorMessage) => {
+            let radioInputs = $(`.${element}:input[type="radio"]`);
+            let select = $(`.${element}`);
+
+            if (radioInputs.length !== 0){
+                let inputChecked = radioInputs.filter(':checked');
+
+                if (inputChecked.length === 0) {
+                    methodValidator.valid = false;
+                    methodValidator.displayMessage($(errorLabel), errorMessage, false);
+                }
+                return;
+            }
+
+            if (select.length !== 0) {
+                let selectedOption = select.find('option:selected');
+                if (selectedOption.length === 0 || selectedOption.val() === '0') {
+                    methodValidator.valid = false;
+                    methodValidator.displayMessage($(errorLabel), errorMessage, false);
+                }
+            }
+        },
         init: (e) => {
             methodValidator.valid = true;
             $('.buckaroo-validation-message').remove();
@@ -193,6 +215,15 @@ function buckaroo($) {
                     break;
                 case 'payperemail':
                     methodValidator.payPerEmailTrigger();
+                    break;
+                case 'ideal':
+                    methodValidator.requiredIssuers('ideal_issuer','#booIdealErr','Please select an issuer.');
+                    break;
+                case 'paybybank':
+                    methodValidator.requiredIssuers('paybybank_issuer','#booPayByBankErr','Please select an issuer.');
+                    break;
+                case 'creditcard':
+                    methodValidator.requiredIssuers('creditcard_banks','#booCreditCardErr','Please choose your credit or debit card.');
                     break;
                 default:
             }

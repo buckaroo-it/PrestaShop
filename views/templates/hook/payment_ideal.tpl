@@ -16,12 +16,14 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="ideal">
     <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
+        <div id="booIdealErr" class="booBlAnimError">
+        </div>
     {if $showIdealIssuers}
        <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <fieldset>
             {if $idealDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_Issuer" id="buckaroo-method-issuer">
+                    <select name="BPE_Issuer" id="buckaroo-method-issuer" class="ideal_issuer">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
@@ -40,6 +42,7 @@
                     {foreach $idealIssuers as $key => $issuer}
                         <div rel="booRow" class="bk-method-issuer">
                             <input
+                                    class="ideal_issuer"
                                     name="BPE_Issuer"
                                     id="ideal_issuer_{$key|escape:'html':'UTF-8'}"
                                     value="{$key|escape:'html':'UTF-8'}"
