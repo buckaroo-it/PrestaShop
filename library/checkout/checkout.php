@@ -139,8 +139,13 @@ abstract class Checkout
      */
     protected $buckarooFeeService;
 
-    public function __construct($cart)
+    /**
+     * @var Context
+     */
+    protected $context;
+    public function __construct($cart, $context)
     {
+        $this->context = $context;
         $this->initialize();
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
@@ -286,7 +291,7 @@ abstract class Checkout
      *
      * @throws Exception
      */
-    final public static function getInstance($payment_method, $cart)
+    final public static function getInstance($payment_method, $cart, $context)
     {
         $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
         checkoutautoload($class_name); // Try to find class in api directory
@@ -295,28 +300,7 @@ abstract class Checkout
             throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
         }
 
-        return new $class_name($cart);
-    }
-
-    /**
-     * Given a checkout_type_id, return an instance of that subclass.
-     *
-     * @param $payment_method
-     *
-     * @return Address subclass
-     *
-     * @throws Exception
-     */
-    final public static function getInstanceRefund($payment_method)
-    {
-        $payment_method = Tools::strtolower($payment_method);
-        $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
-        checkoutautoload($class_name); // Try to find class in api directory
-        if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
-        }
-
-        return new $class_name(null);
+        return new $class_name($cart, $context);
     }
 
     /**
@@ -386,10 +370,43 @@ abstract class Checkout
             $tmp['price'] = round($item['price_wt'], 2);
             $tmp['vatPercentage'] = $item['rate'];
             $tmp['description'] = $item['name'];
+            $productImg =  $this->getProductImgUrl($item);
+            if (is_string($productImg) && strlen($productImg)) {
+                $tmp['imageUrl'] = $productImg;
+            }
             $articles[] = $tmp;
         }
 
         return $articles;
+    }
+
+    /**
+     *
+     * @param Product $product
+     *
+     * @return string|null
+     */
+    private function getProductImgUrl($product)
+    {
+        if (!Tools::getValue('method') === "afterpay") {
+            return null;
+        }
+        $cover = Product::getCover($product['id_product']);
+
+        $imageTypes = ImageType::getImagesTypes("products", true);
+        foreach ($imageTypes as $imageType) {
+            if (
+                isset($imageType['height']) &&
+                isset($imageType['width']) &&
+                $imageType['height'] <= 1280 &&
+                $imageType['height'] >= 100 &&
+                $imageType['height'] <= 1280 &&
+                $imageType['height'] >= 100
+            ) {
+                return $this->context->link->getImageLink($product['link_rewrite'], $cover['id_image'], $imageType['name']);
+            }
+        }
+        return null;
     }
 
     protected function mergeProductsBySKU($products)

@@ -122,7 +122,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
         $logger->logInfo('Checkout info', $debug);
 
-        $this->checkout = Checkout::getInstance($payment_method, $cart);
+        $this->checkout = Checkout::getInstance($payment_method, $cart, $this->context);
         $this->checkout->platformName = 'PrestaShop';
         $this->checkout->platformVersion = _PS_VERSION_;
         $this->checkout->moduleSupplier = $this->module->author;
