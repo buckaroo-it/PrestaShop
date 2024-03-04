@@ -175,26 +175,16 @@ function buckaroo($) {
                 }
             }
         },
-        requiredIssuers: (element, errorLabel, errorMessage) => {
-            let radioInputs = $(`.${element}:input[type="radio"]`);
-            let select = $(`.${element}`);
-
-            if (radioInputs.length !== 0){
-                let inputChecked = radioInputs.filter(':checked');
-
-                if (inputChecked.length === 0) {
-                    methodValidator.valid = false;
-                    methodValidator.displayMessage($(errorLabel), errorMessage, false);
-                }
-                return;
+        requiredRadioSelection: (element, errorLabel) => {
+            if ($(`.${element}:input[type="radio"]:checked`).length === 0) {
+                methodValidator.valid = false;
+                methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
             }
-
-            if (select.length !== 0) {
-                let selectedOption = select.find('option:selected');
-                if (selectedOption.length === 0 || selectedOption.val() === '0') {
-                    methodValidator.valid = false;
-                    methodValidator.displayMessage($(errorLabel), errorMessage, false);
-                }
+        },
+        requiredDropDownSelection: (element, errorLabel) => {
+            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val === '0') {
+                methodValidator.valid = false;
+                methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
             }
         },
         init: (e) => {
@@ -216,14 +206,26 @@ function buckaroo($) {
                 case 'payperemail':
                     methodValidator.payPerEmailTrigger();
                     break;
-                case 'ideal':
-                    methodValidator.requiredIssuers('ideal_issuer','#booIdealErr','Please select an issuer.');
-                    break;
                 case 'paybybank':
-                    methodValidator.requiredIssuers('paybybank_issuer','#booPayByBankErr','Please select an issuer.');
+                    if ($('.paybybank_radio').length > 0) {
+                        methodValidator.requiredRadioSelection('paybybank_issuer', '#booPayByBankErr');
+                    } else {
+                        methodValidator.requiredDropDownSelection('paybybank_issuer', '#booPayByBankErr');
+                    }
+                    break;
+                case 'ideal':
+                    if ($('.ideal_radio').length > 0) {
+                        methodValidator.requiredRadioSelection('ideal_issuer', '#booIdealErr');
+                    } else {
+                        methodValidator.requiredDropDownSelection('ideal_issuer', '#booIdealErr');
+                    }
                     break;
                 case 'creditcard':
-                    methodValidator.requiredIssuers('creditcard_banks','#booCreditCardErr','Please choose your credit or debit card.');
+                    if ($('.creditcard_radio').length > 0) {
+                        methodValidator.requiredRadioSelection('creditcard_banks', '#booCreditCardErr');
+                    } else {
+                        methodValidator.requiredDropDownSelection('creditcard_banks', '#booCreditCardErr');
+                    }
                     break;
                 default:
             }

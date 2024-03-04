@@ -18,11 +18,12 @@
     <form id="bk-paybybank-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'paybybank'])|escape:'quotes':'UTF-8'}" method="post">
         <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <div id="booPayByBankErr" class="booBlAnimError">
+            {l s='Please choose your bank.' mod='buckaroo3'}"
         </div>
         <fieldset>
             {if $payByBankDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_Issuer" id="buckaroo-method-issuer" class="paybybank_issuer">
+                    <select name="BPE_Issuer" id="buckaroo-method-issuer" class="paybybank_issuer paybybank_dropdown">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
@@ -40,8 +41,8 @@
                     </select>
                 </p>
             {else}
-                <p class="form-row form-row-wide bk-paybybank-mobile" style="display: none;">
-                    <select id="buckaroo-method-issuer" class="form-control paybybank_issuer">
+                <p class="form-row form-row-wide bk-paybybank-mobile paybybank_radio" style="display: none;">
+                    <select id="buckaroo-method-issuer" class="form-control paybybank_issuer paybybank_dropdown">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>

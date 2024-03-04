@@ -12,18 +12,18 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
-
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="ideal">
     <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
-        <div id="booIdealErr" class="booBlAnimError">
+        <div id="booIdealErr" style=" display:none" class="booBlAnimError">
+            {l s='Please choose your bank.' mod='buckaroo3'}"
         </div>
     {if $showIdealIssuers}
        <p> {l s='Choose your bank' mod='buckaroo3'}</p>
         <fieldset>
             {if $idealDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_Issuer" id="buckaroo-method-issuer" class="ideal_issuer">
+                    <select name="BPE_Issuer" id="buckaroo-method-issuer" class="ideal_issuer ideal_dropdown">
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
@@ -40,7 +40,7 @@
             {else}
                 <div class="bk-method-selector bk-ideal-selector">
                     {foreach $idealIssuers as $key => $issuer}
-                        <div rel="booRow" class="bk-method-issuer">
+                        <div rel="booRow" class="bk-method-issuer ideal_radio">
                             <input
                                     class="ideal_issuer"
                                     name="BPE_Issuer"

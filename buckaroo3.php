@@ -448,6 +448,7 @@ class Buckaroo3 extends PaymentModule
                 'validation' => [
                     'date' => $this->l('Please enter correct birthdate date'),
                     'required' => $this->l('Field is required'),
+                    'bank' => $this->l('Please select your bank'),
                     'agreement' => $this->l('Please accept licence agreements'),
                     'iban' => $this->l('A valid IBAN is required'),
                     'age' => $this->l('You must be at least 18 years old'),

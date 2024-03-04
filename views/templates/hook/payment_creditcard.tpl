@@ -16,12 +16,12 @@
     <input type="hidden" name="buckarooKey" value="creditcard">
     <form id="booCreditCardForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         <div id="booCreditCardErr" class="booBlAnimError">
+            {l s='Please choose your bank.' mod='buckaroo3'}"
         </div>
-        {l s='Choose your credit or debit card' mod='buckaroo3'}<br/><br/>
         <fieldset>
             {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_CreditCard" id="buckaroo-method-issuer" class="form-control creditcard_banks" >
+                    <select name="BPE_CreditCard" id="buckaroo-method-issuer" class="form-control creditcard_banks creditcard_dropdown" >
                         <option value="0" style="color: grey !important">
                             <p> {l s='Select your bank' mod='buckaroo3'}</p>
                         </option>
@@ -38,7 +38,7 @@
             {else}
                 <div class="bk-method-selector bk-creditcard-selector">
                     {foreach $creditcardIssuers as $key => $issuer}
-                        <div rel="booRow" class="bk-method-issuer">
+                        <div rel="booRow" class="bk-method-issuer creditcard_radio">
                             <input
                                     class="creditcard_banks"
                                     name="BPE_CreditCard"
