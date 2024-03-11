@@ -214,10 +214,12 @@ function buckaroo($) {
                     }
                     break;
                 case 'ideal':
-                    if ($('.ideal_radio').length > 0) {
-                        methodValidator.requiredRadioSelection('ideal_issuer', '#booIdealErr');
-                    } else {
-                        methodValidator.requiredDropDownSelection('ideal_issuer', '#booIdealErr');
+                    if ($('.noIdealIssuers').length === 0) {
+                        if ($('.ideal_radio').length > 0) {
+                            methodValidator.requiredRadioSelection('ideal_issuer', '#booIdealErr');
+                        } else {
+                            methodValidator.requiredDropDownSelection('ideal_issuer', '#booIdealErr');
+                        }
                     }
                     break;
                 case 'creditcard':
