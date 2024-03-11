@@ -21,7 +21,7 @@ if (!defined('_PS_VERSION_')) {
 /**
  * @return mixed
  */
-function upgrade_module_4_1_0($object)
+function upgrade_module_4_2_0($object)
 {
     Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "Bancontact" WHERE name = "bancontactmrcash"');
     return true;
