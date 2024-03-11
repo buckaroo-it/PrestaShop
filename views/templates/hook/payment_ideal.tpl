@@ -14,7 +14,7 @@
 *}
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="ideal">
-    <form id="bk-ideal-form" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
+    <form id="bk-ideal-form" {if !$showIdealIssuers}class="noIdealIssuers"{/if} action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'ideal'])|escape:'quotes':'UTF-8'}" method="post">
         <div id="booIdealErr" style=" display:none" class="booBlAnimError">
             {l s='Please choose your bank.' mod='buckaroo3'}"
         </div>
