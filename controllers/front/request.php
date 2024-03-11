@@ -122,14 +122,21 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
         $logger->logInfo('Checkout info', $debug);
 
-        $this->checkout = Checkout::getInstance($payment_method, $cart, $this->context);
-        $this->checkout->platformName = 'PrestaShop';
-        $this->checkout->platformVersion = _PS_VERSION_;
-        $this->checkout->moduleSupplier = $this->module->author;
-        $this->checkout->moduleName = $this->module->name;
-        $this->checkout->moduleVersion = $this->module->version;
-        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
-        $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
+        try{
+            $this->checkout = Checkout::getInstance($payment_method, $cart, $this->context);
+            $this->checkout->platformName = 'PrestaShop';
+            $this->checkout->platformVersion = _PS_VERSION_;
+            $this->checkout->moduleSupplier = $this->module->author;
+            $this->checkout->moduleName = $this->module->name;
+            $this->checkout->moduleVersion = $this->module->version;
+            $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
+            $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
+        } catch (Exception $e) {
+            $logger->logError('Set checkout info: ', $e->getMessage());
+            $this->displayError(null, $e->getMessage());
+
+            return;
+        }
         $logger->logDebug('Get checkout class: ');
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
 

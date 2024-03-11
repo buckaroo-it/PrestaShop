@@ -427,5 +427,6 @@
   "payment_methods.transfer": "Transfert",
   "payment_methods.trustly": "En toute confiance",
   "payment_methods.wechatpay": "WeChatPay",
+  "payment_methods.knaken": "Knaken",
   "verification_methods.idin": "IDIN"
 }
