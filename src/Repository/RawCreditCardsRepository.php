@@ -52,7 +52,7 @@ class RawCreditCardsRepository
         }
     }
 
-    private function getCreditCardsData()
+    public function getCreditCardsData()
     {
         return [
             ['name' => 'American Express', 'service_code' => 'amex', 'icon' => 'AMEX.svg'],

@@ -427,5 +427,7 @@
   "payment_methods.transfer": "Transfert",
   "payment_methods.trustly": "En toute confiance",
   "payment_methods.wechatpay": "WeChatPay",
-  "verification_methods.idin": "IDIN"
+  "verification_methods.idin": "IDIN",
+  "dashboard.pages.payments.displayInCheckout": "Group Credit-debitcards",
+  "dashboard.pages.payments.displayInCheckoutDesc": "Cards option on how to show the brands in the checkout. <br/> <b>Separate</b>: Card issuers are showed seperately in the checkout.</br><b>Grouped</b>: Card issuers are showed within one group."
 }
