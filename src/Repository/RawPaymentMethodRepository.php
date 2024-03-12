@@ -151,6 +151,7 @@ class RawPaymentMethodRepository
             ['name' => 'idin', 'label' => 'iDIN', 'icon' => 'iDIN.svg', 'template' => 'idin.tpl', 'is_payment_method' => '0'],
             ['name' => 'multibanco', 'label' => 'Multibanco', 'icon' => 'Multibanco.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'mbway', 'label' => 'MB WAY', 'icon' => 'MBWay.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'knaken', 'label' => 'Knaken Settle', 'icon' => 'Knaken.svg', 'template' => '', 'is_payment_method' => '1'],
         ];
     }
 

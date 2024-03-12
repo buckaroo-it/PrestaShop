@@ -59,6 +59,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
     public const CHECKOUT_TYPE_MBWAY = 'mbway';
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
+    public const CHECKOUT_TYPE_KNAKEN = 'knaken';
 
     // Request types (Payment Methods).
     public static $payment_method_type = [
@@ -91,6 +92,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
         Checkout::CHECKOUT_TYPE_MBWAY => 'Mbway',
         Checkout::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
+        Checkout::CHECKOUT_TYPE_KNAKEN => 'Knaken',
     ];
 
     protected $payment_request;
@@ -294,6 +296,7 @@ abstract class Checkout
     final public static function getInstance($payment_method, $cart, $context)
     {
         $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
+
         checkoutautoload($class_name); // Try to find class in api directory
 
         if (!class_exists($class_name)) {
@@ -459,7 +462,9 @@ abstract class Checkout
 function checkoutautoload($payment_method)
 {
     $class_name = Tools::strtolower($payment_method);
+
     $path = dirname(__FILE__) . "/{$class_name}.php";
+
     if (file_exists($path)) {
         require_once $path;
     } else {
