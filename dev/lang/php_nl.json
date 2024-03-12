@@ -425,7 +425,7 @@
   "payment_methods.transfer": "Transfer",
   "payment_methods.trustly": "Trustly",
   "payment_methods.wechatpay": "WeChatPay",
-  "payment_methods.knaken": "Knaken",
+  "payment_methods.knaken": "Knaken Settle",
   "verification_methods.idin": "iDIN",
   "dashboard.pages.payments.displayInCheckout": "Group Credit-debitcards",
   "dashboard.pages.payments.displayInCheckoutDesc": "Cards option on how to show the brands in the checkout. <br/> <b>Separate</b>: Card issuers are showed seperately in the checkout.</br><b>Grouped</b>: Card issuers are showed within one group."
