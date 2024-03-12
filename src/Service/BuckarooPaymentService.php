@@ -27,6 +27,7 @@ use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -89,7 +90,11 @@ class BuckarooPaymentService
             }
 
             if ($isMethodValid) {
-                $payment_options[] = $this->createPaymentOption($method, $details);
+                if ($method === 'creditcard' && $this->areCardsSeparate()) {
+                    $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
+                } else {
+                    $payment_options[] = $this->createPaymentOption($method, $details);
+                }
             }
         }
 
@@ -104,6 +109,80 @@ class BuckarooPaymentService
         });
 
         return $payment_options;
+    }
+
+    private function getIndividualCards($method, $details): array
+    {
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
+
+        $methods = [];
+        if (is_array($configArray['activeCreditcards']) && count($configArray['activeCreditcards']) > 0) {
+            foreach ($configArray['activeCreditcards'] as $card) {
+                if (array_key_exists('service_code', $card))
+                    $methods[] = $this->getIndividualCard($method, $details, $card['service_code'], $configArray);
+            }
+        }
+        return $methods;
+    }
+
+    private function getIndividualCard($method, $details, $cardCode, $configArray)
+    {
+        $newOption = new PaymentOption();
+        $cardData  = $this->getCardData($cardCode);
+
+        $title = $this->getCardTitle($cardData['name'] ?? null, $configArray);
+
+        if ($title === null) {
+            $title = $this->getBuckarooLabel($method, $details->getLabel());
+        }
+
+        $newOption->setCallToActionText($title)
+            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
+            ->setModuleName($method);
+
+        
+        $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
+
+        $logoPath = '/modules/buckaroo3/views/img/buckaroo/' . $this->getCardLogoPath($cardData['icon'] ?? null, $details);
+
+        $newOption->setLogo($logoPath);
+
+        return $newOption;
+    }
+
+    private function getCardTitle($title, $configArray)
+    {
+        if (is_string($title)) {
+            $feeLabel = $this->getFeeLabel($configArray);
+
+            return $this->module->l($title . $feeLabel);
+        }
+    }
+
+    private function getCardLogoPath($logo, $details)
+    {
+        if (!is_string($logo)) {
+            return "Payment methods/SVG/" . $details->getIcon();
+        }
+        return "Creditcard issuers/SVG/" . $logo;
+    }
+
+    private function getCardData(string $cardCode): ?array
+    {
+        $repo = new RawCreditCardsRepository();
+
+        foreach ($repo->getCreditCardsData() as $cardData) {
+            if ($cardData['service_code'] === $cardCode) {
+                return $cardData;
+            }
+        }
+    }
+
+
+    private function areCardsSeparate(): bool
+    {
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
+        return ($configArray['display_in_checkout'] ?? "grouped") === "separate";
     }
 
     public function isCustomerIdinValid($cart)
