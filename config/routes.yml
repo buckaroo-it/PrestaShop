@@ -2,7 +2,7 @@ buckaroo_refund:
     path: buckaroo3/refund
     methods: [POST]
     defaults:
-        _controller: 'buckaroo.refund_controller::refund'
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\AdminRefundController::refund'
 
 buckaroo_config_paymentMethod:
     path: buckaroo3/config/payment/methods
