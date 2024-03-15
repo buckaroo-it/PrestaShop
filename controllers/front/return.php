@@ -132,6 +132,9 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
                 $new_status_code = Buckaroo3::resolveStatusCode($response->status);
+                if($order->getCurrentState() == 12 && $new_status_code == 2){
+                    $new_status_code = 9;
+                }
                 $order = new Order($id_order);
 
                 if (!in_array($order->reference, $references)) {
