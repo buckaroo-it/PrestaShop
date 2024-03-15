@@ -460,11 +460,11 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
     }
 
-    public static function resolveStatusCode($status_code, $orderCurrentState = null)
+    public static function resolveStatusCode($status_code, $id_order = null)
     {
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return ($orderCurrentState == Configuration::get('PS_OS_OUTOFSTOCK_UNPAID')) ?
+                return self::isOrderBackOrder($id_order) ?
                     Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
                     (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
@@ -478,6 +478,24 @@ class Buckaroo3 extends PaymentModule
             default:
                 return Configuration::get('PS_OS_ERROR');
         }
+    }
+
+    private static function isOrderBackOrder($orderId)
+    {
+        $order = new Order($orderId);
+        $orderDetails = $order->getOrderDetailList();
+        /** @var OrderDetail $detail */
+        foreach ($orderDetails as $detail) {
+            $orderDetail = new OrderDetail($detail['id_order_detail']);
+            if (
+                Configuration::get('PS_STOCK_MANAGEMENT') &&
+                ($orderDetail->getStockState() || $orderDetail->product_quantity_in_stock < 0)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function getBuckarooFeeByCartId($id_cart)
