@@ -134,6 +134,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $new_status_code = Buckaroo3::resolveStatusCode($response->status,$order->getCurrentState());
 
                 $order = new Order($id_order);
+                $logger->logInfo('Order ' . $order);
+
 
                 if (!in_array($order->reference, $references)) {
                     header('HTTP/1.1 503 Service Unavailable');
