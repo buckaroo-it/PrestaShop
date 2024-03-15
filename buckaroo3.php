@@ -460,12 +460,13 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
     }
 
-    public static function resolveStatusCode($status_code)
+    public static function resolveStatusCode($status_code, $orderStatus = null)
     {
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
-                    Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
+                return ($orderStatus == Configuration::get('PS_OS_OUTOFSTOCK_UNPAID')) ?
+                    Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
+                    (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
                 return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
