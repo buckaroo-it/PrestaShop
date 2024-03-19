@@ -351,17 +351,10 @@ abstract class Checkout
     {
         $products = $this->prepareProductArticles();
 
-        // Get the Tax Rule Group for Wrapping
-        $wrappingTaxRulesGroupId = (int)Configuration::get('PS_GIFT_WRAPPING_TAX_RULES_GROUP');
-        // Get the VAT Rate for the Tax Rule Group
-        $address = new Address($this->cart->id_address_delivery);
-        $tax_manager = TaxManagerFactory::getManager($address, $wrappingTaxRulesGroupId);
-        $tax_calculator = $tax_manager->getTaxCalculator();
-        $wrappingVatRate = $tax_calculator->getTotalRate();
 
         $additionalArticles = [
-            $this->prepareWrappingArticle($wrappingVatRate),
-            $this->prepareBuckarooFeeArticle($wrappingVatRate),
+            $this->prepareWrappingArticle(),
+            $this->prepareBuckarooFeeArticle(),
             $this->prepareShippingCostArticle(),
         ];
 
@@ -374,9 +367,17 @@ abstract class Checkout
         return $this->mergeProductsBySKU($products);
     }
 
-    protected function prepareWrappingArticle($wrappingVatRate)
+    protected function prepareWrappingArticle()
     {
         $wrappingCostInclTax = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+
+        // Get the Tax Rule Group for Wrapping
+        $wrappingTaxRulesGroupId = (int)Configuration::get('PS_GIFT_WRAPPING_TAX_RULES_GROUP');
+        // Get the VAT Rate for the Tax Rule Group
+        $address = new Address($this->cart->id_address_delivery);
+        $tax_manager = TaxManagerFactory::getManager($address, $wrappingTaxRulesGroupId);
+        $tax_calculator = $tax_manager->getTaxCalculator();
+        $wrappingVatRate = $tax_calculator->getTotalRate();
 
         return $wrappingCostInclTax > 0 ? [
             'identifier' => '0',
@@ -387,7 +388,7 @@ abstract class Checkout
         ] : [];
     }
 
-    protected function prepareBuckarooFeeArticle($wrappingVatRate)
+    protected function prepareBuckarooFeeArticle()
     {
         $buckarooFee = $this->getBuckarooFee();
 
@@ -395,7 +396,7 @@ abstract class Checkout
             'identifier' => '0',
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
-            'vatPercentage' => $wrappingVatRate,
+            'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ] : [];
     }
