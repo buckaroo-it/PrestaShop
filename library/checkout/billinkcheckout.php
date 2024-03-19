@@ -108,25 +108,6 @@ class BillinkCheckout extends Checkout
         return $payload;
     }
 
-    public function getArticles()
-    {
-        $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('billink', 'wrapping_vat') ?? 21;
-
-        $additionalArticles = [
-            $this->prepareWrappingArticle($wrappingVat),
-            $this->prepareBuckarooFeeArticle($wrappingVat),
-            $this->prepareShippingCostArticle(),
-        ];
-
-        foreach ($additionalArticles as $article) {
-            if (!empty($article)) {
-                $products[] = $article;
-            }
-        }
-
-        return $this->mergeProductsBySKU($products);
-    }
 
     public function getRecipientCategory()
     {
@@ -153,57 +134,6 @@ class BillinkCheckout extends Checkout
         }
 
         return $articles;
-    }
-
-    protected function prepareWrappingArticle($wrappingVat)
-    {
-        $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
-
-        return $wrappingCost > 0 ? [
-            'identifier' => '0',
-            'quantity' => '1',
-            'price' => $wrappingCost,
-            'priceExcl' => $wrappingCost,
-            'vatPercentage' => $wrappingVat,
-            'description' => 'Wrapping',
-        ] : [];
-    }
-
-    private function prepareBuckarooFeeArticle($wrappingVat)
-    {
-        $buckarooFee = $this->getBuckarooFee();
-
-        return $buckarooFee > 0 ? [
-            'identifier' => '0',
-            'quantity' => '1',
-            'price' => round($buckarooFee, 2),
-            'priceExcl' => round($buckarooFee, 2),
-            'vatPercentage' => $wrappingVat,
-            'description' => 'buckaroo_fee',
-        ] : [];
-    }
-
-    protected function prepareShippingCostArticle()
-    {
-        $shippingCost = round($this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING), 2);
-        if ($shippingCost <= 0) {
-            return null;
-        }
-
-        $carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
-
-        $shippingCostsTax = (version_compare(_PS_VERSION_, '1.7.6.0', '<='))
-            ? $carrier->getTaxesRate(Address::initialize())
-            : $carrier->getTaxesRate();
-
-        return [
-            'identifier' => 'shipping',
-            'quantity' => 1,
-            'price' => $shippingCost,
-            'priceExcl' => $shippingCost,
-            'vatPercentage' => $shippingCostsTax,
-            'description' => 'Shipping Costs',
-        ];
     }
 
     public function getBirthDate()

@@ -1,22 +1,6 @@
 <template>
     <div>
         <div class="p-5 space-y-5">
-          <div class="space-y-2">
-            <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.vat_type_for_wrap`) }}</h2>
-          </div>
-
-          <div class="relative">
-            <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.wrapping_vat">
-              <option v-for="option in vatOptions" :key="option.value" :value="option.value">{{ option.text }}</option>
-            </select>
-
-            <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-              {{ $t(`dashboard.pages.payments.vat_type_for_wrap_select`) }}
-            </label>
-          </div>
-        </div>
-
-        <div class="p-5 space-y-5">
             <div class="space-y-2">
                 <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.customer.type_label`) }}</h2>
             </div>
@@ -72,19 +56,6 @@ export default {
 
     const config = inject('config');
 
-    const vatOptions = [
-      { text: t('21%'), value: '21' },
-      { text: t('20%'), value: '20' },
-      { text: t('19%'), value: '19' },
-      { text: t('16%'), value: '16' },
-      { text: t('12%'), value: '12' },
-      { text: t('9%'), value: '9' },
-      { text: t('7%'), value: '7' },
-      { text: t('6%'), value: '6' },
-      { text: t('5%'), value: '5' },
-      { text: t('0%'), value: '0' },
-    ];
-
     const customerTypeOptions = [
       { text: t('dashboard.pages.payments.customer.type.both'), value: 'both' },
       { text: `${t('dashboard.pages.payments.customer.type.b2c')} (${t('dashboard.pages.payments.customer.type.b2c.long')})`, value: 'B2C' },
@@ -93,7 +64,6 @@ export default {
 
     return {
       config,
-      vatOptions,
       customerTypeOptions
     }
   }

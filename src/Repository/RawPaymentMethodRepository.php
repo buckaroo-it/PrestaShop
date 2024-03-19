@@ -85,14 +85,8 @@ class RawPaymentMethodRepository
                 $configValue['seller_protection'] = '0';
                 break;
 
-            case 'billink':
-                $configValue['wrapping_vat'] = '21';
-                $configValue['customer_type'] = 'B2C';
-                $configValue['financial_warning'] = true;
-                break;
-
             case 'afterpay':
-                $configValue['wrapping_vat'] = '2';
+            case 'billink':
                 $configValue['customer_type'] = 'B2C';
                 $configValue['financial_warning'] = true;
                 break;

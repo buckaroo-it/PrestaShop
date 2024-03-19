@@ -84,42 +84,6 @@ class KlarnaCheckout extends Checkout
         return $this->getAddress(array_merge((array) $this->shipping_address, $sendCloudData));
     }
 
-    public function getArticles()
-    {
-        $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat') ?? 2;
-
-        $additionalArticles = [
-            $this->prepareWrappingArticle($wrappingVat),
-            $this->prepareBuckarooFeeArticle($wrappingVat),
-            $this->prepareShippingCostArticle(),
-        ];
-
-        foreach ($additionalArticles as $article) {
-            if (!empty($article)) {
-                $products[] = $article;
-            }
-        }
-
-        return $this->mergeProductsBySKU($products);
-    }
-
-    private function prepareBuckarooFeeArticle($wrappingVat)
-    {
-        $buckarooFee = $this->getBuckarooFee();
-        if ($buckarooFee <= 0) {
-            return [];
-        }
-
-        return [
-            'identifier' => '0',
-            'quantity' => '1',
-            'price' => round($buckarooFee, 2),
-            'vatPercentage' => $wrappingVat,
-            'description' => 'buckaroo_fee',
-        ];
-    }
-
     public function isRedirectRequired()
     {
         return true;

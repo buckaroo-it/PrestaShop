@@ -347,21 +347,60 @@ abstract class Checkout
         return $phone;
     }
 
-    protected function prepareWrappingArticle($wrappingVat)
+    public function getArticles()
     {
-        $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
-        if ($wrappingCost <= 0) {
-            return [];
+        $products = $this->prepareProductArticles();
+
+        // Get the Tax Rule Group for Wrapping
+        $wrappingTaxRulesGroupId = (int)Configuration::get('PS_GIFT_WRAPPING_TAX_RULES_GROUP');
+        // Get the VAT Rate for the Tax Rule Group
+        $address = new Address($this->cart->id_address_delivery);
+        $tax_manager = TaxManagerFactory::getManager($address, $wrappingTaxRulesGroupId);
+        $tax_calculator = $tax_manager->getTaxCalculator();
+        $wrappingVatRate = $tax_calculator->getTotalRate();
+
+        $additionalArticles = [
+            $this->prepareWrappingArticle($wrappingVatRate),
+            $this->prepareBuckarooFeeArticle($wrappingVatRate),
+            $this->prepareShippingCostArticle(),
+        ];
+
+        foreach ($additionalArticles as $article) {
+            if (!empty($article)) {
+                $products[] = $article;
+            }
         }
 
-        return [
+        return $this->mergeProductsBySKU($products);
+    }
+
+    protected function prepareWrappingArticle($wrappingVatRate)
+    {
+        $wrappingCostInclTax = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+
+        return $wrappingCostInclTax > 0 ? [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => $wrappingCost,
-            'vatPercentage' => $wrappingVat,
+            'price' => $wrappingCostInclTax,
+            'vatPercentage' => $wrappingVatRate,
             'description' => 'Wrapping',
-        ];
+        ] : [];
     }
+
+    protected function prepareBuckarooFeeArticle($wrappingVatRate)
+    {
+        $buckarooFee = $this->getBuckarooFee();
+
+        return $buckarooFee > 0 ? [
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => round($buckarooFee, 2),
+            'vatPercentage' => $wrappingVatRate,
+            'description' => 'buckaroo_fee',
+        ] : [];
+    }
+
+
 
     protected function prepareProductArticles()
     {

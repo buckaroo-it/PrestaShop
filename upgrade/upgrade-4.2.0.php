@@ -59,17 +59,6 @@ function upgrade_module_4_2_0($object)
 
     Db::getInstance()->execute($configInsertQuery);
 
-    $billinkId = Db::getInstance()->getValue('SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "billink"');
-    if ($billinkId) {
-        $existingConfig = Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int)$billinkId);
-        if ($existingConfig) {
-            $configArray = json_decode($existingConfig, true);
-            $configArray['wrapping_vat'] = '21';
-            $configUpdateQuery = 'UPDATE ' . _DB_PREFIX_ . 'bk_configuration SET value = \'' . pSQL(json_encode($configArray)) . '\' WHERE configurable_id = ' . (int)$billinkId;
-            Db::getInstance()->execute($configUpdateQuery);
-        }
-    }
-
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
 
