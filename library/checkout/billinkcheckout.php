@@ -111,21 +111,21 @@ class BillinkCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('billink', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('billink', 'wrapping_vat') ?? 21;
 
-        if ($wrappingVat == null) {
-            $wrappingVat = 2;
+        $additionalArticles = [
+            $this->prepareWrappingArticle($wrappingVat),
+            $this->prepareBuckarooFeeArticle($wrappingVat),
+            $this->prepareShippingCostArticle(),
+        ];
+
+        foreach ($additionalArticles as $article) {
+            if (!empty($article)) {
+                $products[] = $article;
+            }
         }
-        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
-        $mergedProducts = $this->mergeProductsBySKU($products);
 
-        $shippingCostArticle = $this->prepareShippingCostArticle();
-        if ($shippingCostArticle) {
-            $mergedProducts[] = $shippingCostArticle;
-        }
-
-        return $mergedProducts;
+        return $this->mergeProductsBySKU($products);
     }
 
     public function getRecipientCategory()
@@ -143,12 +143,12 @@ class BillinkCheckout extends Checkout
         $articles = [];
         foreach ($this->products as $item) {
             $tmp = [];
-            $tmp['description'] = $item['name'];
             $tmp['identifier'] = $item['id_product'];
             $tmp['quantity'] = $item['quantity'];
             $tmp['price'] = round($item['price_with_reduction'], 2);
             $tmp['priceExcl'] = round($item['price_with_reduction_without_tax'], 2);
             $tmp['vatPercentage'] = $item['rate'];
+            $tmp['description'] = $item['name'];
             $articles[] = $tmp;
         }
 
@@ -159,35 +159,28 @@ class BillinkCheckout extends Checkout
     {
         $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
 
-        if ($wrappingCost <= 0) {
-            return [];
-        }
-
-        return [
+        return $wrappingCost > 0 ? [
             'identifier' => '0',
             'quantity' => '1',
             'price' => $wrappingCost,
             'priceExcl' => $wrappingCost,
             'vatPercentage' => $wrappingVat,
             'description' => 'Wrapping',
-        ];
+        ] : [];
     }
 
     private function prepareBuckarooFeeArticle($wrappingVat)
     {
         $buckarooFee = $this->getBuckarooFee();
-        if ($buckarooFee <= 0) {
-            return [];
-        }
 
-        return [
+        return $buckarooFee > 0 ? [
             'identifier' => '0',
             'quantity' => '1',
             'price' => round($buckarooFee, 2),
             'priceExcl' => round($buckarooFee, 2),
             'vatPercentage' => $wrappingVat,
             'description' => 'buckaroo_fee',
-        ];
+        ] : [];
     }
 
     protected function prepareShippingCostArticle()
@@ -205,11 +198,11 @@ class BillinkCheckout extends Checkout
 
         return [
             'identifier' => 'shipping',
-            'description' => 'Shipping Costs',
-            'vatPercentage' => $shippingCostsTax,
             'quantity' => 1,
             'price' => $shippingCost,
             'priceExcl' => $shippingCost,
+            'vatPercentage' => $shippingCostsTax,
+            'description' => 'Shipping Costs',
         ];
     }
 

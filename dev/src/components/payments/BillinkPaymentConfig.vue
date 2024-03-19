@@ -73,11 +73,16 @@ export default {
     const config = inject('config');
 
     const vatOptions = [
-      { text: t('1 = High rate'), value: '1' },
-      { text: t('2 = Low rate'), value: '2' },
-      { text: t('3 = Zero rate'), value: '3' },
-      { text: t('4 = Null rate'), value: '4' },
-      { text: t('5 = Middle rate'), value: '5' },
+      { text: t('21%'), value: '21' },
+      { text: t('20%'), value: '20' },
+      { text: t('19%'), value: '19' },
+      { text: t('16%'), value: '16' },
+      { text: t('12%'), value: '12' },
+      { text: t('9%'), value: '9' },
+      { text: t('7%'), value: '7' },
+      { text: t('6%'), value: '6' },
+      { text: t('5%'), value: '5' },
+      { text: t('0%'), value: '0' },
     ];
 
     const customerTypeOptions = [

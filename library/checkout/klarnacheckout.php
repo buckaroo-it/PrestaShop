@@ -87,21 +87,21 @@ class KlarnaCheckout extends Checkout
     public function getArticles()
     {
         $products = $this->prepareProductArticles();
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat');
+        $wrappingVat = $this->buckarooConfigService->getConfigValue('klarna', 'wrapping_vat') ?? 2;
 
-        if ($wrappingVat == null) {
-            $wrappingVat = 2;
+        $additionalArticles = [
+            $this->prepareWrappingArticle($wrappingVat),
+            $this->prepareBuckarooFeeArticle($wrappingVat),
+            $this->prepareShippingCostArticle(),
+        ];
+
+        foreach ($additionalArticles as $article) {
+            if (!empty($article)) {
+                $products[] = $article;
+            }
         }
-        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
-        $mergedProducts = $this->mergeProductsBySKU($products);
 
-        $shippingCostArticle = $this->prepareShippingCostArticle();
-        if ($shippingCostArticle) {
-            $mergedProducts[] = $shippingCostArticle;
-        }
-
-        return $mergedProducts;
+        return $this->mergeProductsBySKU($products);
     }
 
     private function prepareBuckarooFeeArticle($wrappingVat)
