@@ -136,44 +136,6 @@ class AfterPayCheckout extends Checkout
         return $payload;
     }
 
-    public function getArticles()
-    {
-        $products = $this->prepareProductArticles();
-
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('afterpay', 'wrapping_vat');
-
-        if ($wrappingVat == null) {
-            $wrappingVat = 2;
-        }
-
-        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
-        $mergedProducts = $this->mergeProductsBySKU($products);
-
-        $shippingCostArticle = $this->prepareShippingCostArticle();
-        if ($shippingCostArticle) {
-            $mergedProducts[] = $shippingCostArticle;
-        }
-
-        return $mergedProducts;
-    }
-
-    private function prepareBuckarooFeeArticle($wrappingVat)
-    {
-        $buckarooFee = $this->getBuckarooFee();
-        if ($buckarooFee <= 0) {
-            return [];
-        }
-
-        return [
-            'identifier' => '0',
-            'quantity' => '1',
-            'price' => round($buckarooFee, 2),
-            'vatPercentage' => $wrappingVat,
-            'description' => 'buckaroo_fee',
-        ];
-    }
-
     public function getShippingAddress()
     {
         if (!empty($this->shipping_address)) {

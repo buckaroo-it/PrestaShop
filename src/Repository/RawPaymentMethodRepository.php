@@ -71,7 +71,7 @@ class RawPaymentMethodRepository
             case 'creditcard':
             case 'ideal':
                 $configValue['show_issuers'] = true;
-                // no break
+
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;
@@ -87,7 +87,6 @@ class RawPaymentMethodRepository
 
             case 'afterpay':
             case 'billink':
-                $configValue['wrapping_vat'] = '2';
                 $configValue['customer_type'] = 'B2C';
                 $configValue['financial_warning'] = true;
                 break;

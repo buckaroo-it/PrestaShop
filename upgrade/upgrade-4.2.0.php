@@ -56,6 +56,7 @@ function upgrade_module_4_2_0($object)
     ];
 
     $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int)$paymentMethodId . ', \'' . pSQL(json_encode($knakenConfig)) . '\')';
+
     Db::getInstance()->execute($configInsertQuery);
 
     $orderingRepository = new RawOrderingRepository();
