@@ -22,11 +22,6 @@ if (!defined('_PS_VERSION_')) {
 
 class TransferCheckout extends Checkout
 {
-    public function __construct($cart)
-    {
-        parent::__construct($cart);
-    }
-
     final public function setCheckout()
     {
         parent::setCheckout();

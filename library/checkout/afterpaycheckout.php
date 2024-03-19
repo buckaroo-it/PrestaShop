@@ -90,6 +90,12 @@ class AfterPayCheckout extends Checkout
             : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? RecipientCategory::COMPANY
                 : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : RecipientCategory::PERSON));
 
+        $countryIso = Tools::strtoupper($country->iso_code);
+
+        if ($countryIso === 'DE' && empty(trim($address_components['house_number']))) {
+            throw new Exception('Invalid billing address, cannot find house number');
+        }
+
         $payload = [
             'recipient' => [
                 'category' => $category,
@@ -115,7 +121,7 @@ class AfterPayCheckout extends Checkout
                 'houseNumberAdditional' => $address_components['number_addition'],
                 'zipcode' => $this->invoice_address->postcode,
                 'city' => $this->invoice_address->city,
-                'country' => Tools::strtoupper($country->iso_code),
+                'country' => $countryIso,
             ],
             'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
@@ -128,44 +134,6 @@ class AfterPayCheckout extends Checkout
         }
 
         return $payload;
-    }
-
-    public function getArticles()
-    {
-        $products = $this->prepareProductArticles();
-
-        $wrappingVat = $this->buckarooConfigService->getConfigValue('afterpay', 'wrapping_vat');
-
-        if ($wrappingVat == null) {
-            $wrappingVat = 2;
-        }
-
-        $products = array_merge($products, $this->prepareWrappingArticle($wrappingVat));
-        $products = array_merge($products, $this->prepareBuckarooFeeArticle($wrappingVat));
-        $mergedProducts = $this->mergeProductsBySKU($products);
-
-        $shippingCostArticle = $this->prepareShippingCostArticle();
-        if ($shippingCostArticle) {
-            $mergedProducts[] = $shippingCostArticle;
-        }
-
-        return $mergedProducts;
-    }
-
-    private function prepareBuckarooFeeArticle($wrappingVat)
-    {
-        $buckarooFee = $this->getBuckarooFee();
-        if ($buckarooFee <= 0) {
-            return [];
-        }
-
-        return [
-            'identifier' => '0',
-            'quantity' => '1',
-            'price' => round($buckarooFee, 2),
-            'vatPercentage' => $wrappingVat,
-            'description' => 'buckaroo_fee',
-        ];
     }
 
     public function getShippingAddress()
@@ -198,10 +166,15 @@ class AfterPayCheckout extends Checkout
                 $country = $sendCloudData['country'];
             }
 
+            $countryIso = Tools::strtoupper($country->iso_code);
+            if ($countryIso === 'DE' && empty(trim($houseNumber))) {
+                throw new Exception('Invalid shipping address, cannot find house number');
+            }
+
             $payload = [
                 'recipient' => [
                     'category' => (self::CUSTOMER_TYPE_B2C == $this->customerType) ? RecipientCategory::PERSON : RecipientCategory::COMPANY,
-                    'conversationLanguage' => Tools::strtoupper($country->iso_code),
+                    'conversationLanguage' => $countryIso,
                     'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
                     'firstName' => $this->shipping_address->firstname,
                     'lastName' => $this->shipping_address->lastname,
@@ -213,7 +186,7 @@ class AfterPayCheckout extends Checkout
                     'houseNumberAdditional' => $houseNumberSuffix,
                     'zipcode' => $zipcode,
                     'city' => $city,
-                    'country' => Tools::strtoupper($country->iso_code),
+                    'country' => $countryIso,
                 ],
                 'phone' => [
                     'mobile' => $phone,

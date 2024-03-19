@@ -131,7 +131,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             } else {
                 $logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
-                $new_status_code = Buckaroo3::resolveStatusCode($response->status);
+                $new_status_code = Buckaroo3::resolveStatusCode($response->status, $id_order);
+
                 $order = new Order($id_order);
 
                 if (!in_array($order->reference, $references)) {
@@ -198,8 +199,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' .
-            (int) $response->getCartId();
+        $cartId = (int) $response->getCartId();
+        $sql = new DbQuery();
+        $sql->select('buckaroo_fee');
+        $sql->from('buckaroo_fee');
+        $sql->where('id_cart = ' . pSQL($cartId));
         $buckarooFee = Db::getInstance()->getValue($sql);
 
         if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {

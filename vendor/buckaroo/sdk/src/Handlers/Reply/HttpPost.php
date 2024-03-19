@@ -61,12 +61,19 @@ class HttpPost implements ReplyStrategy
 
         //Combine the array keys with value
         $data = array_map(function ($value, $key) {
+            if ($key === 'brq_service_knaken_buyer_name') {
+                $key = 'brq_service_knaken_buyer name';
+            }
+    
+            if ($key === 'brq_service_knaken_buyer_uuid') {
+                $key = 'brq_service_knaken_buyer uuid';
+            }
             return $key . '=' . html_entity_decode($value);
         }, $data, array_keys($data));
 
         $dataString = implode('', $data) . trim($this->config->secretKey());
 
-        return hash_equals(
+        return hash_equals( 
             sha1($dataString),
             trim($this->data['brq_signature'] ?? $this->data['BRQ_SIGNATURE'] ?? null)
         );

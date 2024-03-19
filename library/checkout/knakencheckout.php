@@ -10,9 +10,9 @@
  *
  * Do not edit or add to this file if you wish to upgrade this file
  *
- *  @author    Buckaroo.nl <plugins@buckaroo.nl>
- *  @copyright Copyright (c) Buckaroo B.V.
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * @author    Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
@@ -20,14 +20,13 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class CreditCardCheckout extends Checkout
+class KnakenCheckout extends Checkout
 {
     protected $customVars = [];
 
     final public function setCheckout()
     {
         parent::setCheckout();
-        $this->payment_request->issuer = Tools::getValue('BPE_CreditCard', Tools::getValue('cardCode'));
     }
 
     public function startPayment()
@@ -47,6 +46,6 @@ class CreditCardCheckout extends Checkout
 
     protected function initialize()
     {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_CREDITCARD);
+        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KNAKEN);
     }
 }

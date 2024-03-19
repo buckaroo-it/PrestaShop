@@ -46,7 +46,7 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = '4.1.0';
+        $this->version = '4.2.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
@@ -56,7 +56,7 @@ class Buckaroo3 extends PaymentModule
         parent::__construct();
 
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.2');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.4');
 
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
@@ -72,7 +72,7 @@ class Buckaroo3 extends PaymentModule
                 $this->displayName =
                     (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
             } else {
-                $this->displayName = $this->l('Buckaroo Payments (v 4.1.0)');
+                $this->displayName = $this->l('Buckaroo Payments (v 4.2.0)');
             }
         }
 
@@ -234,9 +234,13 @@ class Buckaroo3 extends PaymentModule
             return false;
         }
 
-        $refundSettingsService = $this->get('buckaroo.refund.settings');
-        if ($refundSettingsService) {
-            $refundSettingsService->uninstall();
+        try {
+            $refundSettingsService = $this->get('buckaroo.refund.settings');
+            if ($refundSettingsService) {
+                $refundSettingsService->uninstall();
+            }
+        } catch (\Exception $e) {
+             $this->_errors[] = 'Failed to uninstall buckaroo.refund.settings: ' . $e->getMessage();
         }
 
         return parent::uninstall();
@@ -382,6 +386,8 @@ class Buckaroo3 extends PaymentModule
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
+                    'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
+                    'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
                 ]
             );
         } catch (Exception $e) {
@@ -442,6 +448,7 @@ class Buckaroo3 extends PaymentModule
                 'validation' => [
                     'date' => $this->l('Please enter correct birthdate date'),
                     'required' => $this->l('Field is required'),
+                    'bank' => $this->l('Please select your bank'),
                     'agreement' => $this->l('Please accept licence agreements'),
                     'iban' => $this->l('A valid IBAN is required'),
                     'age' => $this->l('You must be at least 18 years old'),
@@ -453,12 +460,13 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
     }
 
-    public static function resolveStatusCode($status_code)
+    public static function resolveStatusCode($status_code, $id_order = null)
     {
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?
-                    Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') : Configuration::get('PS_OS_PAYMENT');
+                return self::isOrderBackOrder($id_order) ?
+                    Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
+                    (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
                 return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
@@ -472,9 +480,33 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
+    private static function isOrderBackOrder($orderId)
+    {
+        $order = new Order($orderId);
+        $orderDetails = $order->getOrderDetailList();
+        /** @var OrderDetail $detail */
+        foreach ($orderDetails as $detail) {
+            $orderDetail = new OrderDetail($detail['id_order_detail']);
+            if (
+                Configuration::get('PS_STOCK_MANAGEMENT') &&
+                ($orderDetail->getStockState() || $orderDetail->product_quantity_in_stock < 0)
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getBuckarooFeeByCartId($id_cart)
     {
-        $sql = 'SELECT buckaroo_fee FROM ' . _DB_PREFIX_ . 'buckaroo_fee where id_cart = ' . (int) $id_cart;
+        $id_cart = (int) $id_cart;
+
+        $sql = new DbQuery();
+
+        $sql->select('buckaroo_fee');
+        $sql->from('buckaroo_fee');
+        $sql->where('id_cart = ' . pSQL($id_cart));
 
         return Db::getInstance()->getValue($sql);
     }
@@ -585,9 +617,14 @@ class Buckaroo3 extends PaymentModule
         }
     }
 
-    private function isProductBuckarooIdinEnabled($productId)
+    private function isProductBuckarooIdinEnabled(int $productId)
     {
-        $sql = 'SELECT buckaroo_idin FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $sql = new DbQuery();
+
+        $sql->select('buckaroo_idin');
+        $sql->from('bk_product_idin');
+        $sql->where('product_id = ' . pSQL($productId));
+
         $buckarooIdin = Db::getInstance()->getValue($sql);
 
         return $buckarooIdin == 1;

@@ -175,6 +175,18 @@ function buckaroo($) {
                 }
             }
         },
+        requiredRadioSelection: (element, errorLabel) => {
+            if ($(`.${element}:input[type="radio"]:checked`).length === 0) {
+                methodValidator.valid = false;
+                methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
+            }
+        },
+        requiredDropDownSelection: (element, errorLabel) => {
+            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val === '0') {
+                methodValidator.valid = false;
+                methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
+            }
+        },
         init: (e) => {
             methodValidator.valid = true;
             $('.buckaroo-validation-message').remove();
@@ -193,6 +205,29 @@ function buckaroo($) {
                     break;
                 case 'payperemail':
                     methodValidator.payPerEmailTrigger();
+                    break;
+                case 'paybybank':
+                    if ($('.paybybank_radio').length > 0) {
+                        methodValidator.requiredRadioSelection('paybybank_issuer', '#booPayByBankErr');
+                    } else {
+                        methodValidator.requiredDropDownSelection('paybybank_issuer', '#booPayByBankErr');
+                    }
+                    break;
+                case 'ideal':
+                    if ($('.noIdealIssuers').length === 0) {
+                        if ($('.ideal_radio').length > 0) {
+                            methodValidator.requiredRadioSelection('ideal_issuer', '#booIdealErr');
+                        } else {
+                            methodValidator.requiredDropDownSelection('ideal_issuer', '#booIdealErr');
+                        }
+                    }
+                    break;
+                case 'creditcard':
+                    if ($('.creditcard_radio').length > 0) {
+                        methodValidator.requiredRadioSelection('creditcard_banks', '#booCreditCardErr');
+                    } else {
+                        methodValidator.requiredDropDownSelection('creditcard_banks', '#booCreditCardErr');
+                    }
                     break;
                 default:
             }

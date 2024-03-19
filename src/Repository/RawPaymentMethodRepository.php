@@ -71,7 +71,7 @@ class RawPaymentMethodRepository
             case 'creditcard':
             case 'ideal':
                 $configValue['show_issuers'] = true;
-                // no break
+
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;
@@ -87,7 +87,6 @@ class RawPaymentMethodRepository
 
             case 'afterpay':
             case 'billink':
-                $configValue['wrapping_vat'] = '2';
                 $configValue['customer_type'] = 'B2C';
                 $configValue['financial_warning'] = true;
                 break;
@@ -129,7 +128,7 @@ class RawPaymentMethodRepository
             ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl', 'is_payment_method' => '1'],
             ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'kbcpaymentbutton', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'bancontactmrcash', 'label' => 'Bancontact / Mister Cash', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'bancontactmrcash', 'label' => 'Bancontact', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
@@ -151,21 +150,29 @@ class RawPaymentMethodRepository
             ['name' => 'idin', 'label' => 'iDIN', 'icon' => 'iDIN.svg', 'template' => 'idin.tpl', 'is_payment_method' => '0'],
             ['name' => 'multibanco', 'label' => 'Multibanco', 'icon' => 'Multibanco.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'mbway', 'label' => 'MB WAY', 'icon' => 'MBWay.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'knaken', 'label' => 'Knaken Settle', 'icon' => 'Knaken.svg', 'template' => '', 'is_payment_method' => '1'],
         ];
     }
 
     public function getPaymentMethodsFromDB()
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods';
+        $sql = new \DbQuery();
 
-        return \Db::getInstance()->executeS($query);
+        $sql->select('id');
+        $sql->from('bk_payment_methods');
+
+        return \Db::getInstance()->executeS($sql);
     }
 
     public function getPaymentMethodId($name)
     {
-        $query = 'SELECT id FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "' . pSQL($name) . '"';
+        $sql = new \DbQuery();
 
-        return \Db::getInstance()->getValue($query);
+        $sql->select('id');
+        $sql->from('bk_payment_methods');
+        $sql->where('name = "' . pSQL($name) . '"');
+
+        return \Db::getInstance()->getValue($sql);
     }
 
     public function getPaymentMethodMode($name)
@@ -173,9 +180,13 @@ class RawPaymentMethodRepository
         // Fetch the payment method ID
         $paymentId = $this->getPaymentMethodId($name);
 
-        // Fetch the existing configuration
-        $query = 'SELECT value FROM ' . _DB_PREFIX_ . 'bk_configuration WHERE configurable_id = ' . (int) pSQL($paymentId);
-        $existingConfig = \Db::getInstance()->getValue($query);
+        $sql = new \DbQuery();
+
+        $sql->select('value');
+        $sql->from('bk_configuration');
+        $sql->where('configurable_id = ' . (int) pSQL($paymentId));
+
+        $existingConfig = \Db::getInstance()->getValue($sql);
 
         if ($existingConfig === false) {
             throw new \Exception('Configuration not found for payment id ' . $paymentId);
@@ -197,7 +208,11 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodsLabel($name)
     {
-        $sql = 'SELECT label FROM ' . _DB_PREFIX_ . 'bk_payment_methods where name = "' . pSQL($name) . '"';
+        $sql = new \DbQuery();
+
+        $sql->select('label');
+        $sql->from('bk_payment_methods');
+        $sql->where('name = "' . pSQL($name) . '"');
 
         return \Db::getInstance()->getValue($sql);
     }

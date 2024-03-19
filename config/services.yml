@@ -8,7 +8,7 @@ services:
       - "@buckaroo.refund.request.response.handler"
     public: true
 
-  buckaroo.refund_controller:
+  Buckaroo\PrestaShop\Controllers\admin\AdminRefundController:
     class: Buckaroo\PrestaShop\Controllers\admin\AdminRefundController
     arguments:
       - "@buckaroo.refund.request.quantity_based_builder"

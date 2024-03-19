@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\DecimalNumber;
@@ -58,6 +59,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
     public const CHECKOUT_TYPE_MBWAY = 'mbway';
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
+    public const CHECKOUT_TYPE_KNAKEN = 'knaken';
 
     // Request types (Payment Methods).
     public static $payment_method_type = [
@@ -90,6 +92,7 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',
         Checkout::CHECKOUT_TYPE_MBWAY => 'Mbway',
         Checkout::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
+        Checkout::CHECKOUT_TYPE_KNAKEN => 'Knaken',
     ];
 
     protected $payment_request;
@@ -138,8 +141,13 @@ abstract class Checkout
      */
     protected $buckarooFeeService;
 
-    public function __construct($cart)
+    /**
+     * @var Context
+     */
+    protected $context;
+    public function __construct($cart, $context)
     {
+        $this->context = $context;
         $this->initialize();
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
@@ -285,37 +293,17 @@ abstract class Checkout
      *
      * @throws Exception
      */
-    final public static function getInstance($payment_method, $cart)
+    final public static function getInstance($payment_method, $cart, $context)
     {
         $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
+
         checkoutautoload($class_name); // Try to find class in api directory
 
         if (!class_exists($class_name)) {
             throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
         }
 
-        return new $class_name($cart);
-    }
-
-    /**
-     * Given a checkout_type_id, return an instance of that subclass.
-     *
-     * @param $payment_method
-     *
-     * @return Address subclass
-     *
-     * @throws Exception
-     */
-    final public static function getInstanceRefund($payment_method)
-    {
-        $payment_method = Tools::strtolower($payment_method);
-        $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
-        checkoutautoload($class_name); // Try to find class in api directory
-        if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
-        }
-
-        return new $class_name(null);
+        return new $class_name($cart, $context);
     }
 
     /**
@@ -327,27 +315,7 @@ abstract class Checkout
      */
     protected function getAddressComponents($address)
     {
-        $result = [];
-        $result['house_number'] = '';
-        $result['number_addition'] = '';
-
-        $address = str_replace(['?', '*', '[', ']', ',', '!'], ' ', $address);
-        $address = preg_replace('/\s\s+/', ' ', $address);
-
-        preg_match('/^([0-9]*)(.*?)([0-9]+)(.*)/', $address, $matches);
-
-        if (!empty($matches[2])) {
-            $result['street'] = trim($matches[1] . $matches[2]);
-            $result['house_number'] = trim($matches[3]);
-            $result['number_addition'] = trim($matches[4]);
-        } else {
-            $result['street'] = $address;
-        }
-
-        $logger = new \Logger(CoreLogger::INFO, '');
-        $logger->logInfo(json_encode($result) . '-----------' . json_encode($matches));
-
-        return $result;
+       return AddressComponents::getAddressComponents($address);
     }
 
     /**
@@ -379,21 +347,61 @@ abstract class Checkout
         return $phone;
     }
 
-    protected function prepareWrappingArticle($wrappingVat)
+    public function getArticles()
     {
-        $wrappingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
-        if ($wrappingCost <= 0) {
-            return [];
+        $products = $this->prepareProductArticles();
+
+
+        $additionalArticles = [
+            $this->prepareWrappingArticle(),
+            $this->prepareBuckarooFeeArticle(),
+            $this->prepareShippingCostArticle(),
+        ];
+
+        foreach ($additionalArticles as $article) {
+            if (!empty($article)) {
+                $products[] = $article;
+            }
         }
 
-        return [
+        return $this->mergeProductsBySKU($products);
+    }
+
+    protected function prepareWrappingArticle()
+    {
+        $wrappingCostInclTax = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+
+        // Get the Tax Rule Group for Wrapping
+        $wrappingTaxRulesGroupId = (int)Configuration::get('PS_GIFT_WRAPPING_TAX_RULES_GROUP');
+        // Get the VAT Rate for the Tax Rule Group
+        $address = new Address($this->cart->id_address_delivery);
+        $tax_manager = TaxManagerFactory::getManager($address, $wrappingTaxRulesGroupId);
+        $tax_calculator = $tax_manager->getTaxCalculator();
+        $wrappingVatRate = $tax_calculator->getTotalRate();
+
+        return $wrappingCostInclTax > 0 ? [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => $wrappingCost,
-            'vatPercentage' => $wrappingVat,
+            'price' => $wrappingCostInclTax,
+            'vatPercentage' => $wrappingVatRate,
             'description' => 'Wrapping',
-        ];
+        ] : [];
     }
+
+    protected function prepareBuckarooFeeArticle()
+    {
+        $buckarooFee = $this->getBuckarooFee();
+
+        return $buckarooFee > 0 ? [
+            'identifier' => '0',
+            'quantity' => '1',
+            'price' => round($buckarooFee, 2),
+            'vatPercentage' => '0',
+            'description' => 'buckaroo_fee',
+        ] : [];
+    }
+
+
 
     protected function prepareProductArticles()
     {
@@ -405,10 +413,43 @@ abstract class Checkout
             $tmp['price'] = round($item['price_wt'], 2);
             $tmp['vatPercentage'] = $item['rate'];
             $tmp['description'] = $item['name'];
+            $productImg =  $this->getProductImgUrl($item);
+            if (is_string($productImg) && strlen($productImg)) {
+                $tmp['imageUrl'] = $productImg;
+            }
             $articles[] = $tmp;
         }
 
         return $articles;
+    }
+
+    /**
+     *
+     * @param Product $product
+     *
+     * @return string|null
+     */
+    private function getProductImgUrl($product)
+    {
+        if (!Tools::getValue('method') === "afterpay") {
+            return null;
+        }
+        $cover = Product::getCover($product['id_product']);
+
+        $imageTypes = ImageType::getImagesTypes("products", true);
+        foreach ($imageTypes as $imageType) {
+            if (
+                isset($imageType['height']) &&
+                isset($imageType['width']) &&
+                $imageType['height'] <= 1280 &&
+                $imageType['height'] >= 100 &&
+                $imageType['height'] <= 1280 &&
+                $imageType['height'] >= 100
+            ) {
+                return $this->context->link->getImageLink($product['link_rewrite'], $cover['id_image'], $imageType['name']);
+            }
+        }
+        return null;
     }
 
     protected function mergeProductsBySKU($products)
@@ -461,7 +502,9 @@ abstract class Checkout
 function checkoutautoload($payment_method)
 {
     $class_name = Tools::strtolower($payment_method);
+
     $path = dirname(__FILE__) . "/{$class_name}.php";
+
     if (file_exists($path)) {
         require_once $path;
     } else {

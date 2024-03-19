@@ -75,7 +75,12 @@ final class ProductFormModifier
      */
     private function getBuckarooIdinForProduct(int $productId): ?bool
     {
-        $sql = 'SELECT buckaroo_idin FROM ' . _DB_PREFIX_ . 'bk_product_idin WHERE product_id = ' . (int) $productId;
+        $sql = new \DbQuery();
+
+        $sql->select('buckaroo_idin');
+        $sql->from('bk_product_idin');
+        $sql->where('product_id = ' . pSQL($productId));
+
         $result = \Db::getInstance()->getValue($sql);
 
         return $result ? (bool) $result : null;

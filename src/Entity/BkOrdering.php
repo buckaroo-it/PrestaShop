@@ -62,13 +62,6 @@ class BkOrdering
      */
     private $createdAt;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="updated_at", type="datetime")
-     */
-    private $updatedAt;
-
     public function getId(): int
     {
         return $this->id;
@@ -107,15 +100,5 @@ class BkOrdering
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): \DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTime $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
     }
 }
