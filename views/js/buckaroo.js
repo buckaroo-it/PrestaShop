@@ -182,7 +182,7 @@ function buckaroo($) {
             }
         },
         requiredDropDownSelection: (element, errorLabel) => {
-            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val === '0') {
+            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val() === '0') {
                 methodValidator.valid = false;
                 methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
             }
@@ -232,10 +232,8 @@ function buckaroo($) {
                 default:
             }
             if (methodValidator.valid) {
-                console.log(methodValidator.methodSelector + ' is validated!');
                 return false;
             } else {
-                console.log(methodValidator.methodSelector + ' is NOT validated!');
                 e.stopPropagation();
                 return false;
             }
