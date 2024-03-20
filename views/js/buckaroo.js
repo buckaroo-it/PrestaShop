@@ -182,7 +182,7 @@ function buckaroo($) {
             }
         },
         requiredDropDownSelection: (element, errorLabel) => {
-            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val === '0') {
+            if ($(`.${element} option:selected`).length === 0 || $(`.${element} option:selected`).val() === '0') {
                 methodValidator.valid = false;
                 methodValidator.displayMessage($(errorLabel), buckarooMessages.validation.bank, false);
             }
