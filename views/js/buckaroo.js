@@ -232,10 +232,8 @@ function buckaroo($) {
                 default:
             }
             if (methodValidator.valid) {
-                console.log(methodValidator.methodSelector + ' is validated!');
                 return false;
             } else {
-                console.log(methodValidator.methodSelector + ' is NOT validated!');
                 e.stopPropagation();
                 return false;
             }
