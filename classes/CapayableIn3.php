@@ -24,7 +24,6 @@ if (!defined('_PS_VERSION_')) {
 class CapayableIn3
 {
     protected $apiVersion;
-    protected $paymentLogo;
     public const VERSION_V2 = 'V2';
     public const LOGO_IN3_IDEAL = 'in3_ideal';
     public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
@@ -33,7 +32,6 @@ class CapayableIn3
     public function __construct($buckarooConfigService)
     {
         $this->apiVersion = $buckarooConfigService->getConfigValue('in3', 'version');
-        $this->paymentLogo = $buckarooConfigService->getConfigValue('in3', 'payment_logo');
     }
 
     public function isV3(): bool
@@ -46,12 +44,7 @@ class CapayableIn3
         if (!$this->isV3()) {
             return self::LOGO_DEFAULT;
         }
-
-        if ($this->paymentLogo === self::LOGO_IN3_IDEAL) {
-            return self::LOGO_IN3_IDEAL_FILENAME;
-        }
-
-        return self::LOGO_DEFAULT;
+        return self::LOGO_IN3_IDEAL_FILENAME;
     }
 
     public function getMethod(): string
