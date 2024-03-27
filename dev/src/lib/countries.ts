@@ -17,15 +17,14 @@ export const useCountries = () => {
     })
 
     const filteredCountries = computed(() => {
-            if (!query.value || query.value.trim().length === 0) {
-                return countries.value
-            }
-
-            return countries.value.filter((country) => {
-                return country.name.toLowerCase().includes(query.value.toLowerCase()) || (`countries.${ country.name }`).toLowerCase().includes(query.value.toLowerCase())
-            })
+        if (!query.value || query.value.trim().length === 0) {
+            return countries.value;
         }
-    )
+
+        return countries.value.filter((country) => {
+            return country.name.toLowerCase().includes(query.value.toLowerCase());
+        });
+    });
 
     return {
         query,
