@@ -30,7 +30,7 @@ class CountryRepository
         foreach ($countries as $country) {
             $result[] = [
                 'id' => $country['id_country'],
-                'name' => strtolower($country['name']),
+                'name' => $country['name'],
                 'iso_code_2' => $country['iso_code'],
                 'iso_code_3' => \Country::getIsoById($country['id_country']),
                 'call_prefix' => $country['call_prefix'],
