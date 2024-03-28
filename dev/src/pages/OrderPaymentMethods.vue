@@ -21,7 +21,7 @@
                 </li>
                 <li class="w-full md:py-5 md:px-8 px-3 md:text-base text-sm md:space-y-0 space-y-2 font-semibold hover:bg-gray-200 cursor-pointer space-x-2 md:block md:text-left flex flex-col items-center justify-center text-left" v-for="country in filteredCountries" v-bind:class="{'bg-gray-100': selectedCountry && selectedCountry.name === country.name}" @click="selectedCountry = country">
                   <img :src="`/img/flags/${ country.icon }`" alt="" class="w-4 inline" />
-                  <span>{{ $t(`countries.${ country.name }`) }}</span>
+                  <span>{{country.name}}</span>
                 </li>
               </ul>
             </div>
@@ -30,7 +30,7 @@
           <div class="md:w-3/4 w-full flex flex-col h-full">
             <div class="border-b h-16 flex justify-between items-center">
               <div class="px-5 space-y-1">
-                <h2 v-if="selectedCountry" class="font-bold"><img :src="`/img/flags/${ selectedCountry.icon }`" alt="" class="w-6 inline" /> {{ $t(`countries.${ selectedCountry.name }`) }}</h2>
+                <h2 v-if="selectedCountry" class="font-bold"><img :src="`/img/flags/${ selectedCountry.icon }`" alt="" class="w-6 inline" /> {{ selectedCountry.name }}</h2>
                 <h2 v-else class="font-bold">All Countries</h2>
               </div>
 
