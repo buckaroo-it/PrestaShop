@@ -24,6 +24,7 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
@@ -92,6 +93,8 @@ class BuckarooPaymentService
             if ($isMethodValid) {
                 if ($method === 'creditcard' && $this->areCardsSeparate()) {
                     $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
+                } elseif ($method === 'giftcard') {
+                    $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
                 } else {
                     $payment_options[] = $this->createPaymentOption($method, $details);
                 }
@@ -125,6 +128,22 @@ class BuckarooPaymentService
         return $methods;
     }
 
+    private function getIndividualGiftCards($method, $details): array
+    {
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod('giftcard');
+
+        $methods = [];
+        if (is_array($configArray['activeGiftcards']) && count($configArray['activeGiftcards']) > 0) {
+            foreach ($configArray['activeGiftcards'] as $cards) {
+                foreach ($cards as $card){
+                    if (array_key_exists('code', $card)) {
+                        $methods[] = $this->getIndividualGiftCard($method, $details, $card['code'], $cards);
+                    }
+                }
+            }
+        }
+        return $methods;
+    }
     private function getIndividualCard($method, $details, $cardCode, $configArray)
     {
         $newOption = new PaymentOption();
@@ -150,6 +169,37 @@ class BuckarooPaymentService
         return $newOption;
     }
 
+    private function getIndividualGiftCard($method, $details, $cardCode, $configArray)
+    {
+        $newOption = new PaymentOption();
+        $cardData = $this->getGiftCardData($cardCode);
+
+        $title = $this->getCardTitle($cardData['name'] ?? null, $configArray);
+
+        if ($title === null) {
+            $title = $this->getBuckarooLabel($method, $details->getLabel());
+        }
+
+        if (!empty($details->getTemplate())) {
+            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+        } else {
+            $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
+        }
+
+        $newOption->setCallToActionText($title)
+            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
+            ->setModuleName($method);
+
+
+        $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
+
+        $logoPath = '/modules/buckaroo3/views/img/buckaroo/' . $this->getGiftCardLogoPath($cardData);
+
+        $newOption->setLogo($logoPath);
+
+        return $newOption;
+    }
+
     private function getCardTitle($title, $configArray)
     {
         if (is_string($title)) {
@@ -167,12 +217,31 @@ class BuckarooPaymentService
         return "Creditcard issuers/SVG/" . $logo;
     }
 
+    private function getGiftCardLogoPath($cardData)
+    {
+        if ($cardData['is_custom']){
+            return "Giftcards/SVG/BuckarooVoucher.svg";
+
+        }
+        return "Giftcards/SVG/" . $cardData['logo'];
+    }
+
     private function getCardData(string $cardCode): ?array
     {
         $repo = new RawCreditCardsRepository();
 
         foreach ($repo->getCreditCardsData() as $cardData) {
             if ($cardData['service_code'] === $cardCode) {
+                return $cardData;
+            }
+        }
+    }
+
+    private function getGiftCardData(string $cardCode): ?array
+    {
+        $repo = new RawGiftCardsRepository();
+        foreach ($repo->getGiftCardsFromDB() as $cardData) {
+            if ($cardData['code'] === $cardCode) {
                 return $cardData;
             }
         }

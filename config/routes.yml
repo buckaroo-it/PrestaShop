@@ -28,6 +28,30 @@ buckaroo_config_creditcards:
     options:
         expose: true
 
+buckaroo_config_giftcards:
+    path: buckaroo3/config/giftcards
+    methods: [POST, GET]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Giftcards::initContent'
+    options:
+        expose: true
+
+buckaroo_edit_giftcard:
+    path: buckaroo3/config/giftcards/edit
+    methods: [POST]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Giftcards::editGiftCard'
+    options:
+        expose: true
+
+buckaroo_remove_giftcard:
+    path: buckaroo3/config/giftcards/remove
+    methods: [POST]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\Giftcards::removeGiftCard'
+    options:
+        expose: true
+
 buckaroo_config_orderings:
     path: buckaroo3/config/orderings
     methods: [POST, GET]

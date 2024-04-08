@@ -104,6 +104,7 @@
 				`code`            VARCHAR(255) NOT NULL,
 				`name`            VARCHAR(255) NOT NULL,
 				`logo`            VARCHAR(255) NOT NULL,
+				`is_custom`       INT(11) DEFAULT 0 NOT NULL,
                 `created_at`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 

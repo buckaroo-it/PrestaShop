@@ -24,7 +24,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 /**
- * @ORM\Entity()
+ * @ORM\Entity(repositoryClass="Buckaroo\PrestaShop\Src\Repository\GiftCardsRepository")
  */
 class BkGiftcards
 {
@@ -59,6 +59,13 @@ class BkGiftcards
      * @ORM\Column(name="logo", type="string")
      */
     private $logo;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_custom", type="integer")
+     */
+    private $is_custom;
 
     /**
      * @var \DateTime
@@ -102,6 +109,15 @@ class BkGiftcards
         $this->logo = $logo;
     }
 
+    public function getIsCustom(): int
+    {
+        return $this->is_custom;
+    }
+
+    public function setIsCustom(int $is_custom): void
+    {
+        $this->is_custom = $is_custom;
+    }
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -110,5 +126,15 @@ class BkGiftcards
     public function setCreatedAt(\DateTime $createdAt): void
     {
         $this->createdAt = $createdAt;
+    }
+
+    public function getAll()
+    {
+        return [
+            "id" => $this->getId(),
+            "name" => $this->getName(),
+            "service_code" => $this->getCode(),
+            "is_custom" => $this->getIsCustom(),
+            "logo_url" => $this->getLogo()];
     }
 }
