@@ -53,7 +53,7 @@ class GiftCardsRepository extends EntityRepository
 
     public function editGiftCard($id, $name, $code, $logo)
     {
-        $giftCard = $this->_em->getRepository(BkGiftcards::class)->find($id);
+        $giftCard = $this->find($id);
 
         if (!$giftCard) {
             return $this->createGiftCard($name, $code, $logo);
@@ -68,26 +68,33 @@ class GiftCardsRepository extends EntityRepository
         return $giftCard->getAll();
     }
 
-    public function getGiftCards(bool $is_custom): array
+    public function getGiftCards(bool $isCustom)
     {
-        $query = new \DbQuery();
-        $query->select('*');
-        $query->from('bk_giftcards');
-
-        if (!$is_custom) {
-            $query->where('is_custom = 0');
+        if ($isCustom) {
+            $giftCards = $this->findBy(['is_custom' => 1]);
         } else {
-            $query->where('is_custom = 1');
+            $giftCards = $this->findBy(['is_custom' => 0]);
         }
 
-        $result = \Db::getInstance()->executeS($query);
+        $formattedGiftCards = [];
+        foreach ($giftCards as $giftCard) {
+            $formattedGiftCards[] = [
+                'id' => $giftCard->getId(),
+                'code' => $giftCard->getCode(),
+                'name' => $giftCard->getName(),
+                'logo' => $giftCard->getLogo(),
+                'is_custom' => $giftCard->getIsCustom(),
+                'created_at' => $giftCard->getCreatedAt()->format('Y-m-d H:i:s'),
+            ];
+        }
 
-        return $result;
+        return $formattedGiftCards;
+
     }
 
     public function removeGiftCard($id)
     {
-        $giftCard = $this->_em->getRepository(BkGiftcards::class)->find($id);
+        $giftCard = $this->find($id);
 
         if (!$giftCard) {
             throw new \Exception("Gift card not found with ID: $id");
