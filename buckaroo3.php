@@ -110,15 +110,19 @@ class Buckaroo3 extends PaymentModule
      */
     public function hookDisplayAdminOrderMainBottom($params)
     {
-        $refundProvider = $this->get('buckaroo.refund.admin.provider');
+        $order = new Order($params['id_order']);
 
-        $this->smarty->assign(
-            $refundProvider->get(
-                new Order($params['id_order'])
-            )
-        );
+        if ($order->module === 'buckaroo3') {
+            $refundProvider = $this->get('buckaroo.refund.admin.provider');
 
-        return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
+            $this->smarty->assign(
+                $refundProvider->get(
+                    $order
+                )
+            );
+
+            return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
+        }
     }
 
     /**
