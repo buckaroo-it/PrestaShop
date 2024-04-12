@@ -66,7 +66,7 @@ function buckaroo($) {
                 $('.card-block.cart-summary-totals').replaceWith(response.cart_summary_totals);
                 var paymentFeeHtml = '';
                 if (response && response.paymentFee !== undefined) {
-                    paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Buckaroo Fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
+                    paymentFeeHtml = '<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping"> <span class="label"> Payment fee </span> <span class="value"> ' + response.paymentFee + ' </span> </div>';
 
                     if ($('#cart-subtotal-buckarooFee').length == 0) {
                         $('.cart-summary-subtotals-container').append($('<div id="cart-subtotal-buckarooFee">' + paymentFeeHtml + '</div>'));
