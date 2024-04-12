@@ -21,7 +21,7 @@
             <table id="payment-tab" width="100%" class="right">
                 <tr class="bold">
                     <td class="grey" width="50%">
-                        {l s='Buckaroo Fee' mod='buckaroo3'}
+                        {l s='Payment Fee' mod='buckaroo3'}
                     </td>
                     <td class="white" width="50%">
                         {$order_buckaroo_fee|escape:'html':'UTF-8'}

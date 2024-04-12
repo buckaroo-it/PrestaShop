@@ -15,6 +15,6 @@
 <script>
     document.addEventListener("DOMContentLoaded", function(){
         $(".total-value").before(
-            $("<tr><td>Buckaroo Fee</td><td>{$orderBuckarooFee|escape:'htmlall':'UTF-8'}</td></tr>"))
+            $("<tr><td>Payment Fee</td><td>{$orderBuckarooFee|escape:'htmlall':'UTF-8'}</td></tr>"))
     });
 </script>
