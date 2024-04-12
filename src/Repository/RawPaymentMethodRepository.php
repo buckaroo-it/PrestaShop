@@ -64,7 +64,6 @@ class RawPaymentMethodRepository
 
         switch ($paymentName) {
             case 'klarna':
-            case 'tinka':
                 $configValue['financial_warning'] = true;
                 break;
 
@@ -142,7 +141,6 @@ class RawPaymentMethodRepository
             ['name' => 'przelewy24', 'label' => 'Przelewy24', 'icon' => 'Przelewy24.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'payperemail', 'label' => 'PayPerEmail', 'icon' => 'PayPerEmail.svg', 'template' => 'payment_payperemail.tpl', 'is_payment_method' => '1'],
             ['name' => 'payconiq', 'label' => 'Payconiq', 'icon' => 'Payconiq.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'tinka', 'label' => 'Tinka', 'icon' => 'Tinka.svg', 'template' => 'payment_tinka.tpl', 'is_payment_method' => '1'],
             ['name' => 'trustly', 'label' => 'Trustly', 'icon' => 'Trustly.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'transfer', 'label' => 'Bank Transfer', 'icon' => 'SEPA-credittransfer.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'wechatpay', 'label' => 'WeChatPay', 'icon' => 'WeChat Pay.svg', 'template' => '', 'is_payment_method' => '1'],
