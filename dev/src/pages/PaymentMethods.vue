@@ -34,7 +34,6 @@
           <PayByBankPaymentConfig v-if="selectedPayment.name === 'paybybank'" />
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
-          <TinkaPaymentConfig v-if="selectedPayment.name === 'tinka'" />
           <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
           <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
         </DefaultPaymentConfig>
@@ -61,7 +60,6 @@ import IdealPaymentConfig from "../components/payments/IdealPaymentConfig.vue";
 import PaymentMethodBlock from "../components/PaymentMethodBlock.vue";
 import Loading from "../components/Loading.vue";
 import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue";
-import TinkaPaymentConfig  from "../components/payments/TinkaPaymentConfig.vue";
 import GiftcardPaymentConfig  from "../components/payments/GiftcardPaymentConfig.vue";
 import KlarnaPaymentConfig from "../components/payments/KlarnaPaymentConfig.vue";
 
@@ -82,7 +80,6 @@ export default {
     TransferPaymentConfig,
     PayPerEmailPaymentConfig,
     PaymentMethodBlock,
-    TinkaPaymentConfig,
     GiftcardPaymentConfig,
     KlarnaPaymentConfig
   },
