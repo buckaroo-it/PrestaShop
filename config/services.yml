@@ -136,6 +136,12 @@ services:
     class: Buckaroo\PrestaShop\Controllers\admin\Creditcards
     public: true
 
+  Buckaroo\PrestaShop\Controllers\admin\Giftcards:
+    class: Buckaroo\PrestaShop\Controllers\admin\Giftcards
+    arguments:
+      - "@doctrine.orm.entity_manager"
+    public: true
+
   Buckaroo\PrestaShop\Controllers\admin\Orderings:
     class: Buckaroo\PrestaShop\Controllers\admin\Orderings
     arguments:

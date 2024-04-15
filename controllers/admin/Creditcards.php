@@ -38,11 +38,11 @@ class Creditcards extends BaseApiController
      */
     public function initContent()
     {
-        $countries = $this->creditCardsRepository->getCreditCardsFromDB();
+        $creditcards = $this->creditCardsRepository->getCreditCardsFromDB();
 
         $data = [
             'status' => true,
-            'creditcards' => $countries,
+            'creditcards' => $creditcards,
         ];
 
         return $this->sendResponse($data);
