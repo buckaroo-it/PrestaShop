@@ -140,9 +140,6 @@ class Buckaroo3 extends PaymentModule
         if (!$buckarooFee) {
             return '';
         }
-        $sql = 'UPDATE `' . _DB_PREFIX_ . "orders` SET total_paid_tax_incl = '" . $order->total_paid .
-            "' WHERE id_cart = '" . $cart->id . "'";
-        Db::getInstance()->execute($sql);
 
         // Assign data to Smarty
         $this->context->smarty->assign([
@@ -524,43 +521,32 @@ class Buckaroo3 extends PaymentModule
             return true;
         }
 
-        $cart = new Cart($params['cart']->id);
-        $order = Order::getByCartId($cart->id);
-        if (!$order || $order->module !== $this->name) {
-            return true;
-        }
+        try {
+            $cart = new Cart($params['cart']->id);
+            $orderId = Order::getOrderByCartId($cart->id);
+            $order = new Order($orderId);
 
-        if ($params['template'] === 'order_conf'
-            || $params['template'] === 'account'
-            || $params['template'] === 'backoffice_order'
-            || $params['template'] === 'contact_form'
-            || $params['template'] === 'credit_slip'
-            || $params['template'] === 'in_transit'
-            || $params['template'] === 'order_changed'
-            || $params['template'] === 'order_merchant_comment'
-            || $params['template'] === 'order_return_state'
-            || $params['template'] === 'cheque'
-            || $params['template'] === 'payment'
-            || $params['template'] === 'preparation'
-            || $params['template'] === 'shipped'
-            || $params['template'] === 'order_canceled'
-            || $params['template'] === 'payment_error'
-            || $params['template'] === 'outofstock'
-            || $params['template'] === 'bankwire'
-            || $params['template'] === 'refund') {
-            $order = Order::getByCartId($cart->id);
-            if (!$order) {
+            if (!Validate::isLoadedObject($order) || $order->module !== $this->name) {
                 return true;
             }
 
-            $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
-            if ($buckarooFee) {
-                $params['templateVars']['{buckaroo_fee}'] = $this->formatPrice($buckarooFee);
-            } else {
-                $params['templateVars']['{buckaroo_fee}'] = $this->formatPrice(0);
+            $template = $params['template'];
+            $templatesToModify = ['order_conf', 'account', 'backoffice_order', 'contact_form', 'credit_slip', 'in_transit', 'order_changed', 'order_merchant_comment', 'order_return_state', 'cheque', 'payment', 'preparation', 'shipped', 'order_canceled', 'payment_error', 'outofstock', 'bankwire', 'refund'];
+
+            if (in_array($template, $templatesToModify)) {
+                $buckarooFee = $this->getBuckarooFeeByCartId($cart->id);
+
+                $params['templateVars']['{payment_fee}'] = $buckarooFee;
             }
+        } catch (Exception $e) {
+            $this->logger->logError('hookActionEmailSendBefore error: ' . $e->getMessage());
+            return false;
         }
+
+        return true;
     }
+
+
 
     /**
      * @throws SmartyException

@@ -216,6 +216,7 @@ abstract class Checkout
     {
         $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
         $currency = new Currency((int) $this->cart->id_currency);
+
         Db::getInstance()->insert('buckaroo_fee', [
             'reference' => $this->reference,
             'id_cart' => $this->cart->id,
@@ -223,20 +224,22 @@ abstract class Checkout
             'currency' => $currency->iso_code,
         ]);
 
-        $orderFeeNumber = new DecimalNumber((string) 0);
-        $originalAmount = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
-        $totalPrice = new DecimalNumber((string) ($originalAmount + $buckarooFee));
-        $orderFeeNumber->plus($totalPrice);
+        $originalAmountExcl = (float) $this->cart->getOrderTotal(false, Cart::BOTH);
+        $originalAmountIncl = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
+        $totalPriceExcl = new DecimalNumber((string) ($originalAmountExcl + $buckarooFee));
+        $totalPriceIncl = new DecimalNumber((string) ($originalAmountIncl + $buckarooFee));
 
         $orderid = Order::getIdByCartId($this->cart->id);
-
         $order = new Order($orderid);
 
-        $order->total_paid_tax_excl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_excl));
-        $order->total_paid_tax_incl = $orderFeeNumber->plus(new DecimalNumber((string) $order->total_paid_tax_incl));
-        $order->total_paid = $totalPrice->toPrecision(2);
+        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
+        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);
+        $order->total_paid = $totalPriceIncl->toPrecision(2);
+        $order->total_paid_real = $totalPriceIncl->toPrecision(2);
+
         $order->update();
     }
+
 
     public function startPayment()
     {
