@@ -53,7 +53,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_PAYCONIQ = 'payconiq';
     public const CHECKOUT_TYPE_PAYPEREMAIL = 'payperemail';
     public const CHECKOUT_TYPE_PRZELEWY24 = 'przelewy24';
-    public const CHECKOUT_TYPE_TINKA = 'tinka';
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
     public const CHECKOUT_TYPE_WECHATPAY = 'wechatpay';
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
@@ -86,7 +85,6 @@ abstract class Checkout
         Checkout::CHECKOUT_TYPE_PAYCONIQ => 'Payconiq',
         Checkout::CHECKOUT_TYPE_PAYPEREMAIL => 'PayPerEmail',
         Checkout::CHECKOUT_TYPE_PRZELEWY24 => 'Przelewy24',
-        Checkout::CHECKOUT_TYPE_TINKA => 'Tinka',
         Checkout::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
         Checkout::CHECKOUT_TYPE_WECHATPAY => 'Wechatpay',
         Checkout::CHECKOUT_TYPE_ALIPAY => 'Alipay',

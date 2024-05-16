@@ -14,28 +14,20 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once dirname(__FILE__) . '/../paymentmethod.php';
-
-class Tinka extends PaymentMethod
+/**
+ * @return mixed
+ * @throws Exception
+ */
+function upgrade_module_4_2_1($object)
 {
-    public function __construct()
-    {
-        $this->type = 'tinka';
-    }
 
-    public function getPayload($data)
-    {
-        return array_merge_recursive($this->payload, $data);
-    }
+    Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'bk_giftcards` 
+        ADD is_custom INT(11) DEFAULT 0 NOT NULL;');
 
-    public function pay($customVars = [])
-    {
-        $this->payload = $this->getPayload($customVars);
-
-        return parent::pay();
-    }
+    return true;
 }

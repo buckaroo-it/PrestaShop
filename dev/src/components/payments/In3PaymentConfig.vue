@@ -16,19 +16,6 @@
                 </label>
             </div>
         </div>
-
-        <div class="p-5 space-y-5" v-if="config.version === 'V3'">
-          <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.logo`) }}</h2>
-          <div class="flex space-x-4">
-            <div v-for="option in paymentLogoOptions" :key="option.value" class="radio-image-wrapper">
-              <input type="radio" :id="option.value" v-model="config.payment_logo" :value="option.value" class="hidden-radio">
-              <label :for="option.value" class="flex flex-col items-center cursor-pointer">
-                <img :src="option.image" alt="option.text">
-                {{ option.text }}
-              </label>
-            </div>
-          </div>
-        </div>
     </div>
   <FinancialWarning/>
 </template>
@@ -42,28 +29,10 @@ export default {
     components: {
         FinancialWarning
     },
-    setup(props) {
+    setup() {
         const config = inject('config')
-        const baseUrl = inject('baseUrl');
-
-        const url = baseUrl + '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
-
-        const paymentLogoOptions = [
-          {
-            value: 'in3_ideal',
-            text: 'iDEAL In3',
-            image: url + 'In3_ideal.svg'
-          },
-          {
-            value: 'in3',
-            text: 'IN3',
-            image: url + 'In3.svg'
-          }
-        ];
-
       return {
-        config,
-        paymentLogoOptions,
+        config
       }
     }
 }
