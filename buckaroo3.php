@@ -482,19 +482,23 @@ class Buckaroo3 extends PaymentModule
 
     private static function isOrderBackOrder($orderId)
     {
+        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
+            return false; // If stock management is disabled, no order is a backorder
+        }
+
         $order = new Order($orderId);
         $orderDetails = $order->getOrderDetailList();
-        /** @var OrderDetail $detail */
+
         foreach ($orderDetails as $detail) {
             $orderDetail = new OrderDetail($detail['id_order_detail']);
-            if (
-                Configuration::get('PS_STOCK_MANAGEMENT') &&
-                ($orderDetail->getStockState() || $orderDetail->product_quantity_in_stock < 0)
-            ) {
+
+            // If any product is in stock, the order is not a backorder
+            if ($orderDetail->product_quantity_in_stock < 0) {
                 return true;
             }
         }
 
+        // If all products are out of stock, the order is a backorder
         return false;
     }
 
