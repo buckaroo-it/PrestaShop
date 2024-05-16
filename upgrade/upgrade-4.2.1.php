@@ -29,5 +29,7 @@ function upgrade_module_4_2_1($object)
     Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'bk_giftcards` 
         ADD is_custom INT(11) DEFAULT 0 NOT NULL;');
 
+    Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "tinka"');
+
     return true;
 }
