@@ -139,7 +139,7 @@ class Buckaroo3 extends PaymentModule
         }
         $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
-        if (!$buckarooFee)  {
+        if (!$buckarooFee) {
             return '';
         }
 
@@ -183,11 +183,11 @@ class Buckaroo3 extends PaymentModule
 
         (new RefundSettings())->install();
 
-        $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
+        $states = OrderState::getOrderStates((int)Configuration::get('PS_LANG_DEFAULT'));
 
         $currentStates = [];
         foreach ($states as $state) {
-            $state = (object) $state;
+            $state = (object)$state;
             $currentStates[$state->id_order_state] = $state->name;
         }
 
@@ -208,7 +208,7 @@ class Buckaroo3 extends PaymentModule
             $defaultOrderState->logable = 0;
             if ($defaultOrderState->add()) {
                 $source = dirname(__FILE__) . '/logo.gif';
-                $destination = dirname(__FILE__) . '/../../img/os/' . (int) $defaultOrderState->id . '.gif';
+                $destination = dirname(__FILE__) . '/../../img/os/' . (int)$defaultOrderState->id . '.gif';
                 if (!file_exists($destination)) {
                     copy($source, $destination);
                 }
@@ -246,7 +246,7 @@ class Buckaroo3 extends PaymentModule
                 $refundSettingsService->uninstall();
             }
         } catch (\Exception $e) {
-             $this->_errors[] = 'Failed to uninstall buckaroo.refund.settings: ' . $e->getMessage();
+            $this->_errors[] = 'Failed to uninstall buckaroo.refund.settings: ' . $e->getMessage();
         }
 
         return parent::uninstall();
@@ -305,8 +305,8 @@ class Buckaroo3 extends PaymentModule
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
-        $cookie_id_lang = (int) $cookie->id_lang;
-        $id_lang = $cookie_id_lang ? $cookie_id_lang : (int) (Configuration::get('PS_LANG_DEFAULT'));
+        $cookie_id_lang = (int)$cookie->id_lang;
+        $id_lang = $cookie_id_lang ? $cookie_id_lang : (int)(Configuration::get('PS_LANG_DEFAULT'));
         $addresses = $customer->getAddresses($id_lang);
         $company = '';
         $vat = '';
@@ -510,6 +510,25 @@ class Buckaroo3 extends PaymentModule
         return false;
     }
 
+    public function getBuckarooFee($payment_method)
+    {
+        if ($buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method)) {
+            // Remove any whitespace from the fee.
+            $buckarooFee = trim($buckarooFee);
+
+            if (strpos($buckarooFee, '%') !== false) {
+                // The fee includes a percentage sign, so treat it as a percentage.
+                // Remove the percentage sign and convert the remaining value to a float.
+                $buckarooFee = str_replace('%', '', $buckarooFee);
+                $buckarooFee = (float)$this->payment_request->amountDebit * ((float)$buckarooFee / 100);
+            } else {
+                $buckarooFee = (float)$buckarooFee;
+            }
+
+            return $buckarooFee;
+        }
+    }
+
     /**
      * @throws LocalizationException
      */
@@ -536,20 +555,12 @@ class Buckaroo3 extends PaymentModule
             $paymentMethodLabel = $order->payment;
             $buckarooFeeService = $this->getBuckarooFeeService();
             $paymentMethodName = $buckarooFeeService->getPaymentMethodByLabel($paymentMethodLabel);
-            $buckarooFeeValue = $buckarooFeeService->getBuckarooFeeValue($paymentMethodName);
-            // Remove any whitespace from the fee
-            $buckarooFeeValue = trim($buckarooFeeValue);
 
-            if (strpos($buckarooFeeValue, '%') !== false) {
-                // The fee includes a percentage sign, so treat it as a percentage
-                // Remove the percentage sign and convert the remaining value to a float
-                $buckarooFeeValue = str_replace('%', '', $buckarooFeeValue);
-                $buckarooFee = (float) $order->total_paid * ((float) $buckarooFeeValue / 100);
-            } else {
-                $buckarooFee = (float) $buckarooFeeValue;
-            }
+            $buckarooFee = $this->getBuckarooFee($paymentMethodName);
 
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+
+            $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFee > 0) {
                 $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFee);
@@ -557,9 +568,6 @@ class Buckaroo3 extends PaymentModule
             } else {
                 $params['templateVars']['{payment_fee}'] = Tools::displayPrice(0);
             }
-
-            $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
-
         }
 
         return true;
@@ -594,7 +602,7 @@ class Buckaroo3 extends PaymentModule
 
     public function isPaymentModeActive($method)
     {
-        $isLive = (int) \Configuration::get(Config::BUCKAROO_TEST);
+        $isLive = (int)\Configuration::get(Config::BUCKAROO_TEST);
         $configArray = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
 
         if (!empty($configArray) && isset($configArray['mode'])) {
@@ -695,7 +703,7 @@ class Buckaroo3 extends PaymentModule
     {
         /** @var ProductFormModifier $productFormModifier */
         $productFormModifier = $this->get(ProductFormModifier::class);
-        $productId = (int) $params['id'];
+        $productId = (int)$params['id'];
 
         $productFormModifier->modify($productId, $params['form_builder']);
     }

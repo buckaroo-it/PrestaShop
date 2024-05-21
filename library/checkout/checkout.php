@@ -167,7 +167,7 @@ abstract class Checkout
         $this->payment_request->amountDebit =
             (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
-        $buckarooFee = $this->getBuckarooFee();
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
 
         if ($buckarooFee > 0) {
             $this->updateOrderFee($buckarooFee);
@@ -184,26 +184,6 @@ abstract class Checkout
         $this->payment_request->moduleVersion = $this->moduleVersion;
         $this->payment_request->returnUrl = $this->returnUrl;
         $this->payment_request->pushUrl = $this->pushUrl;
-    }
-
-    public function getBuckarooFee()
-    {
-        $payment_method = Tools::getValue('method');
-        if ($buckarooFee = $this->buckarooFeeService->getBuckarooFeeValue($payment_method)) {
-            // Remove any whitespace from the fee.
-            $buckarooFee = trim($buckarooFee);
-
-            if (strpos($buckarooFee, '%') !== false) {
-                // The fee includes a percentage sign, so treat it as a percentage.
-                // Remove the percentage sign and convert the remaining value to a float.
-                $buckarooFee = str_replace('%', '', $buckarooFee);
-                $buckarooFee = (float) $this->payment_request->amountDebit * ((float) $buckarooFee / 100);
-            } else {
-                $buckarooFee = (float) $buckarooFee;
-            }
-
-            return $buckarooFee;
-        }
     }
 
     /**
@@ -387,7 +367,7 @@ abstract class Checkout
 
     protected function prepareBuckarooFeeArticle()
     {
-        $buckarooFee = $this->getBuckarooFee();
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
 
         return $buckarooFee > 0 ? [
             'identifier' => '0',
