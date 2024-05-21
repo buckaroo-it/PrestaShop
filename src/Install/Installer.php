@@ -133,6 +133,8 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, true);
         \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, false);
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, false);
+        \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
+        \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

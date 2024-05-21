@@ -14,7 +14,10 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
+
+    use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+
+    include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
@@ -199,12 +202,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-        $cartId = (int) $response->getCartId();
-        $sql = new DbQuery();
-        $sql->select('buckaroo_fee');
-        $sql->from('buckaroo_fee');
-        $sql->where('id_cart = ' . pSQL($cartId));
-        $buckarooFee = Db::getInstance()->getValue($sql);
+        $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
         if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
             $jj = 0;

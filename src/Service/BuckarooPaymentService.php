@@ -101,6 +101,8 @@ class BuckarooPaymentService
             }
         }
 
+        $payment_options = array_filter($payment_options);
+
         usort($payment_options, function ($a, $b) use ($positions) {
             $moduleNameA = $a->getModuleName() === 'in3Old' ? 'in3' : $a->getModuleName();
             $moduleNameB = $b->getModuleName() === 'in3Old' ? 'in3' : $b->getModuleName();
@@ -119,7 +121,7 @@ class BuckarooPaymentService
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
 
         $methods = [];
-        if (is_array($configArray['activeCreditcards']) && count($configArray['activeCreditcards']) > 0) {
+        if (isset($configArray['activeCreditcards']) && is_array($configArray['activeCreditcards']) && count($configArray['activeCreditcards']) > 0) {
             foreach ($configArray['activeCreditcards'] as $card) {
                 if (array_key_exists('service_code', $card))
                     $methods[] = $this->getIndividualCard($method, $details, $card['service_code'], $configArray);
@@ -128,14 +130,15 @@ class BuckarooPaymentService
         return $methods;
     }
 
+
     private function getIndividualGiftCards($method, $details): array
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod('giftcard');
 
         $methods = [];
-        if (is_array($configArray['activeGiftcards']) && count($configArray['activeGiftcards']) > 0) {
+        if (isset($configArray['activeGiftcards']) && is_array($configArray['activeGiftcards']) && count($configArray['activeGiftcards']) > 0) {
             foreach ($configArray['activeGiftcards'] as $cards) {
-                foreach ($cards as $card){
+                foreach ($cards as $card) {
                     if (array_key_exists('code', $card)) {
                         $methods[] = $this->getIndividualGiftCard($method, $details, $card['code'], $cards);
                     }
@@ -144,6 +147,7 @@ class BuckarooPaymentService
         }
         return $methods;
     }
+
     private function getIndividualCard($method, $details, $cardCode, $configArray)
     {
         $newOption = new PaymentOption();
@@ -235,6 +239,8 @@ class BuckarooPaymentService
                 return $cardData;
             }
         }
+
+        return null;
     }
 
     private function getGiftCardData(string $cardCode): ?array
@@ -245,6 +251,8 @@ class BuckarooPaymentService
                 return $cardData;
             }
         }
+
+        return null;
     }
 
 
@@ -384,7 +392,12 @@ class BuckarooPaymentService
 
         // If template is set, use setForm, otherwise set inputs
         if (!empty($details->getTemplate())) {
-            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+            try {
+                $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+            } catch (\Exception $e) {
+                $this->logError('Unable to load template: ' . $details->getTemplate() . ' - ' . $e->getMessage());
+                return null;
+            }
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }

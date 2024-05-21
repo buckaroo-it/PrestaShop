@@ -16,7 +16,8 @@
  */
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
-use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
+    use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+    use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\DecimalNumber;
 
@@ -214,21 +215,16 @@ abstract class Checkout
     {
         $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFee);
         $currency = new Currency((int) $this->cart->id_currency);
+        $order_id = Order::getIdByCartId($this->cart->id);
 
-        Db::getInstance()->insert('buckaroo_fee', [
-            'reference' => $this->reference,
-            'id_cart' => $this->cart->id,
-            'buckaroo_fee' => $buckarooFee,
-            'currency' => $currency->iso_code,
-        ]);
+        (new RawBuckarooFeeRepository())->insertFee($this->reference, $this->cart->id, $order_id, $buckarooFee, $buckarooFee, $currency->iso_code);
 
         $originalAmountExcl = (float) $this->cart->getOrderTotal(false, Cart::BOTH);
         $originalAmountIncl = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
         $totalPriceExcl = new DecimalNumber((string) ($originalAmountExcl + $buckarooFee));
         $totalPriceIncl = new DecimalNumber((string) ($originalAmountIncl + $buckarooFee));
 
-        $orderid = Order::getIdByCartId($this->cart->id);
-        $order = new Order($orderid);
+        $order = new Order($order_id);
 
         $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
         $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);

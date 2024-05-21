@@ -4,4 +4,5 @@ composer.lock
 var
 tools
 dev/node_modules
+dev/package-lock.json
 .idea
