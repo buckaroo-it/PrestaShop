@@ -594,7 +594,7 @@ class Buckaroo3 extends PaymentModule
             ]);
 
             return $this->context->smarty->fetch(
-                $this->getLocalPath() . 'views/templates/admin/invoice_fee.tpl'
+                $this->getLocalPath() . 'views/templates/pdf/invoice.tpl'
             );
         }
     }
