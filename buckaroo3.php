@@ -143,9 +143,12 @@ class Buckaroo3 extends PaymentModule
             return '';
         }
 
+        $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+
         // Assign data to Smarty
         $this->context->smarty->assign([
             'orderBuckarooFee' => $this->formatPrice($buckarooFee['buckaroo_fee_tax_incl']),
+            'paymentFeeLabel' => $paymentFeeLabel,
         ]);
 
         // Fetch and return the template content
@@ -447,6 +450,7 @@ class Buckaroo3 extends PaymentModule
         Media::addJsDef([
             'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
             'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
+            'paymentFeeLabel' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
             'buckarooMessages' => [
                 'validation' => [
                     'date' => $this->l('Please enter correct birthdate date'),
@@ -529,14 +533,33 @@ class Buckaroo3 extends PaymentModule
 
         $templatesToModify = ['order_conf'];
         if (in_array($params['template'], $templatesToModify)) {
-            $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($orderId);
+            $paymentMethodLabel = $order->payment;
+            $buckarooFeeService = $this->getBuckarooFeeService();
+            $paymentMethodName = $buckarooFeeService->getPaymentMethodByLabel($paymentMethodLabel);
+            $buckarooFeeValue = $buckarooFeeService->getBuckarooFeeValue($paymentMethodName);
+            // Remove any whitespace from the fee
+            $buckarooFeeValue = trim($buckarooFeeValue);
+
+            if (strpos($buckarooFeeValue, '%') !== false) {
+                // The fee includes a percentage sign, so treat it as a percentage
+                // Remove the percentage sign and convert the remaining value to a float
+                $buckarooFeeValue = str_replace('%', '', $buckarooFeeValue);
+                $buckarooFee = (float) $order->total_paid * ((float) $buckarooFeeValue / 100);
+            } else {
+                $buckarooFee = (float) $buckarooFeeValue;
+            }
+
+            $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
 
             if ($buckarooFee > 0) {
                 $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFee);
                 $params['templateVars']['{total_paid}'] = Tools::displayPrice($order->total_paid + $buckarooFee);
-            }else{
+            } else {
                 $params['templateVars']['{payment_fee}'] = Tools::displayPrice(0);
             }
+
+            $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
+
         }
 
         return true;

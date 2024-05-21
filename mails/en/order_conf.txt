@@ -15,7 +15,7 @@ Products        {total_products}
 Discounts       {total_discounts}
 Shipping        {total_shipping}
 Including total tax     {total_tax_paid}
-Payment fee      {payment_fee}
+{payment_fee_label}     {payment_fee}
 Total paid      {total_paid}
 
 Shipping
