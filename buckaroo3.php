@@ -588,14 +588,18 @@ class Buckaroo3 extends PaymentModule
                 return;
             }
 
-            $this->context->smarty->assign([
-                'order_buckaroo_fee' => $this->formatPrice($buckarooFee['buckaroo_fee_tax_incl']),
-                'payment_fee_label' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL')
-            ]);
-
-            return $this->context->smarty->fetch(
-                $this->getLocalPath() . 'views/templates/pdf/invoice.tpl'
+            $this->context->smarty->assign(
+                [
+                    'order_buckaroo_fee' => $this->formatPrice($buckarooFee['buckaroo_fee_tax_incl']),
+                ]
             );
+
+            $feeContent = $this->context->smarty->fetch(
+                $this->getLocalPath() . 'views/templates/admin/invoice-payment-fee.tpl'
+            );
+
+            // Inject the fee content into the invoice summary or total tab content
+            $params['object']->content .= $feeContent;
         }
     }
 
