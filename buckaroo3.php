@@ -599,7 +599,7 @@ class Buckaroo3 extends PaymentModule
             );
 
             // Inject the fee content into the invoice summary or total tab content
-            $params['object']->content .= $feeContent;
+            $params['object']->templateVars['paymentFeeContent'] = $feeContent;
         }
     }
 
