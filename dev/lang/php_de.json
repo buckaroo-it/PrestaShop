@@ -143,6 +143,7 @@
   "dashboard.pages.settings.refunds_label_explanation": "Diese Beschreibung wird für die Rückerstattungen verwendet und ist in Buckaroo und auf dem Kontoauszug des Verbrauchers sichtbar. ",
   "dashboard.pages.settings.refunds_label_label": "Wenn diese Option aktiviert ist, können Sie (teilweise) Rückerstattungen direkt in Ihrem PrestaShop-Administrationsbereich vornehmen <a href='#' target='_blank' class='text-secondary font-semibold'>Mehr lesen</a>",
   "dashboard.pages.settings.payment_fee": "Zahlungsgebühren",
+  "dashboard.pages.settings.payment_fee_description": "Hier können Sie verschiedene Optionen für Zahlungskosten konfigurieren, einschließlich der Einstellung des Prozentsatzes und der Anpassung des Namens der Kosten.",
   "dashboard.pages.settings.payment_fee_percentage_mode": "Gebührenprozentsatzmodus",
   "dashboard.pages.settings.payment_fee_percentage_mode_description": "Diese Einstellung gilt nur für prozentbasierte Buckaroo-Gebühren. <br/> Bitte wählen Sie, über welchen Betrag der Gebührenprozentsatz berechnet wird.",
   "dashboard.pages.settings.subtotal": "Zwischensumme",

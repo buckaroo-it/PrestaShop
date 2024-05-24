@@ -141,6 +141,7 @@
   "dashboard.pages.settings.refunds_label_explanation": "Deze omschrijving wordt gebruikt bij de terugbetaling en zal zichtbaar zijn in Buckaroo en op het bankafschrift van de consument. Wij adviseren om de webshopnaam te gebruiken, zodat klanten de betaling gemakkelijk kunnen herkennen.",
   "dashboard.pages.settings.refunds_label_label": "Indien ingeschakeld, kunt u (gedeeltelijke) terugbetalingen rechtstreeks vanuit uw PrestaShop-beheergebied uitvoeren <a href='#' target='_blank' class='text-secondary font-semibold'>Read more</a>",
   "dashboard.pages.settings.payment_fee": "Transactiekosten",
+  "dashboard.pages.settings.payment_fee_description": "Hier kun je verschillende opties voor betalingskosten configureren, zoals het instellen van het kostenpercentage en het aanpassen van de naam van de kosten.",
   "dashboard.pages.settings.payment_fee_percentage_mode": "Transactiekosten percentage modus",
   "dashboard.pages.settings.payment_fee_percentage_mode_description": "Deze instelling is alleen van toepassing op percentage-gebaseerde Buckaroo-kosten. <br/> Kies over welk bedrag het kostenpercentage wordt berekend.",
   "dashboard.pages.settings.subtotal": "Subtotaal",

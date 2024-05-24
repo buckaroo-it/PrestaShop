@@ -222,9 +222,9 @@
               <div class="py-3 space-y-5 flex justify-between items-center">
                 <div>
                   <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.payment_fee') }}</h2>
-<!--                  <div class="text-gray-400 text-xs">-->
-<!--                    {{ $t('dashboard.pages.settings.refunds_label_explanation') }}-->
-<!--                  </div>-->
+                  <div class="text-gray-400 text-xs">
+                    {{ $t('dashboard.pages.settings.payment_fee_description') }}
+                  </div>
                 </div>
               </div>
 
