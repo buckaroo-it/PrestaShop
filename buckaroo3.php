@@ -644,6 +644,7 @@ class Buckaroo3 extends PaymentModule
             $this->context->smarty->assign([
                 'payment_fee_label' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
                 'order_buckaroo_fee' => $this->formatPrice($taxData['feeInclTax']),
+                'order_buckaroo_fee_tax' => $this->formatPrice($taxData['taxAmount']),
             ]);
 
             return $this->context->smarty->fetch($this->getLocalPath() . 'views/templates/admin/invoice_fee.tpl');

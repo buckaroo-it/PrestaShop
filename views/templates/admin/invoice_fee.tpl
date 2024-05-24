@@ -25,6 +25,14 @@
                         {$order_buckaroo_fee|escape:'html':'UTF-8'}
                     </td>
                 </tr>
+                <tr class="bold">
+                    <td class="grey" width="50%">
+                        {$payment_fee_label|escape:'html':'UTF-8'} Tax
+                    </td>
+                    <td class="white" width="50%">
+                        {$order_buckaroo_fee_tax|escape:'html':'UTF-8'}
+                    </td>
+                </tr>
             </table>
         </td>
     </tr>
