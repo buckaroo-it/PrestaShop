@@ -15,15 +15,15 @@
             <tbody>
             <tr>
                 <td>{l s='Fee (excl. tax)' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax_excl|price_format:$currency->sign}</td>
+                <td>{$buckaroo_fee.buckaroo_fee_tax_excl|number_format:2:'.':','} {$currency->sign}</td>
             </tr>
             <tr>
                 <td>{l s='Fee tax' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax|price_format:$currency->sign}</td>
+                <td>{$buckaroo_fee.buckaroo_fee_tax|number_format:2:'.':','} {$currency->sign}</td>
             </tr>
             <tr>
                 <td>{l s='Fee (incl. tax)' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax_incl|price_format:$currency->sign}</td>
+                <td>{$buckaroo_fee.buckaroo_fee_tax_incl|number_format:2:'.':','} {$currency->sign}</td>
             </tr>
             </tbody>
         </table>
