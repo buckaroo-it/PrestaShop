@@ -13,20 +13,15 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
  */
 
-buckaroo()
+class BuckarooFeeManager {
+    init() {
+        this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
+        this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
+        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+    }
 
-function buckaroo() {
-
-    $(document).on('click', 'input[name="payment-option"]', function() {
-        methodValidator.setMethod($(this).attr('id'));
-    });
-
-    $('#payment-confirmation button').on('click', (e) => {
-        methodValidator.init(e);
-    });
-
-    $('input[name="payment-option"]').on('change', function() {
-        let $nextDiv = $(this).closest('.payment-option').parent().next();
+    handlePaymentOptionChange($paymentOption) {
+        let $nextDiv = $paymentOption.closest('.payment-option').parent().next();
         let paymentFee;
         let buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val();
 
@@ -37,50 +32,119 @@ function buckaroo() {
         }
 
         if (!paymentFee) {
-            $('#cart-subtotal-buckarooFee').remove();
+            this.removePaymentFee();
+            this.updateCartSummary(0);
         } else {
-            updateCartSummary(paymentFee);
+            this.updateCartSummary(paymentFee);
         }
-    });
+    }
 
-    const updateCartSummary = (paymentFee) => {
+    updateCartSummary(paymentFee) {
         $.ajax({
             url: buckarooAjaxUrl,
             method: 'GET',
             data: {'paymentFee': paymentFee, ajax: 1, action: 'getTotalCartPrice'},
-            success: handleCartUpdate,
+            success: (response) => this.handleCartUpdate(response),
             error: function(err) {
                 console.error('Error updating cart summary:', err);
             }
-        })
-    };
+        });
+    }
 
-    function handleCartUpdate(response) {
-        const { cart_summary_totals, paymentFee } = $.parseJSON(response);
+    handleCartUpdate(response) {
+        let parsedResponse;
+        try {
+            parsedResponse = $.parseJSON(response);
+        } catch (e) {
+            console.error('Error parsing JSON response:', e);
+            return;
+        }
+
+        const { cart_summary_totals, paymentFee, paymentFeeTax, includedTaxes } = parsedResponse;
         const $cartSummaryTotals = $('.card-block.cart-summary-totals');
 
         const $newCartSummaryTotals = $(cart_summary_totals);
         $cartSummaryTotals.replaceWith($newCartSummaryTotals);
 
-        updatePaymentFeeDisplay(paymentFee);
-    }
-
-    const $cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
-    const $cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
-
-    function updatePaymentFeeDisplay(paymentFee) {
-        const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-shipping">
-                                <span class="label">${paymentFeeLabel}</span>
-                                <span class="value">${paymentFee}</span>
-                            </div>`;
-
-        if ($cartSubtotalBuckarooFee.length === 0) {
-            $cartSummarySubtotalsContainer.append(`<div id="cart-subtotal-buckarooFee">${paymentFeeHtml}</div>`);
+        if (paymentFee) {
+            this.updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes);
         } else {
-            $cartSubtotalBuckarooFee.html(paymentFeeHtml);
+            this.removePaymentFee();
         }
     }
 
+    updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes) {
+        const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFee">
+                                    <span class="label">${paymentFeeLabel}</span>
+                                    <span class="value">${paymentFee}</span>
+                                </div>`;
+
+        const paymentFeeTaxHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFeeTax">
+                                    <span class="label">${paymentFeeLabel} Tax</span>
+                                    <span class="value">${paymentFeeTax}</span>
+                                </div>`;
+
+        if (includedTaxes) {
+            this.updateIncludedTaxes(includedTaxes);
+        }
+
+        if (this.$cartSubtotalBuckarooFee.length === 0) {
+            this.$cartSummarySubtotalsContainer.append(paymentFeeHtml);
+        } else {
+            this.$cartSubtotalBuckarooFee.html(paymentFeeHtml);
+        }
+
+        if (this.$cartSubtotalBuckarooFeeTax.length === 0) {
+            this.$cartSummarySubtotalsContainer.append(paymentFeeTaxHtml);
+        } else {
+            this.$cartSubtotalBuckarooFeeTax.html(paymentFeeTaxHtml);
+        }
+    }
+
+    updateIncludedTaxes(includedTaxes) {
+        const includedTaxesHtml = `<div class="cart-summary-line included-taxes">
+                                    <span class="label sub">${includedTaxes.label}</span>
+                                    <span class="value sub">${includedTaxes.value}</span>
+                                </div>`;
+
+        const $includedTaxesElement = $('.cart-summary-totals .included-taxes');
+        if ($includedTaxesElement.length) {
+            $includedTaxesElement.replaceWith(includedTaxesHtml);
+        } else {
+            // Locate the original "Included taxes" element and replace it
+            const $originalIncludedTaxesElement = $('.cart-summary-totals .cart-summary-line').filter(function() {
+                return $(this).find('.label.sub').text().includes(includedTaxes.label);
+            });
+
+            if ($originalIncludedTaxesElement.length) {
+                $originalIncludedTaxesElement.replaceWith(includedTaxesHtml);
+            }
+        }
+    }
+
+    removePaymentFee() {
+        $('#cart-subtotal-buckarooFee').remove();
+        $('#cart-subtotal-buckarooFeeTax').remove();
+    }
+}
+
+buckaroo()
+
+function buckaroo() {
+    const buckarooFeeManager = new BuckarooFeeManager();
+    buckarooFeeManager.init();
+
+    $(document).on('click', 'input[name="payment-option"]', function() {
+        methodValidator.setMethod($(this).attr('id'));
+    });
+
+    $('#payment-confirmation button').on('click', (e) => {
+        methodValidator.init(e);
+    });
+
+    $('input[name="payment-option"]').on('change', function() {
+        buckarooFeeManager.handlePaymentOptionChange($(this));
+    });
 
     const methodValidator = {
         formPointer: null, // selected method notation from 'action' attribute

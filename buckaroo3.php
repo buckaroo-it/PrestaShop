@@ -17,6 +17,7 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
@@ -41,9 +42,17 @@ use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 class Buckaroo3 extends PaymentModule
 {
     public $logger;
-    private $locale;
 
     public function __construct()
+    {
+        $this->initializeModuleInfo();
+        parent::__construct();
+        $this->initializeLogger();
+        $this->initializeDisplayName();
+        $this->checkConfiguration();
+    }
+
+    private function initializeModuleInfo()
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
@@ -53,16 +62,19 @@ class Buckaroo3 extends PaymentModule
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1', 'max' => _PS_VERSION_];
-
-        parent::__construct();
-
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.1.4');
-
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
-        $this->logger = new \Logger(CoreLogger::INFO, '');
+    }
 
+    private function initializeLogger()
+    {
+        $this->logger = new \Logger(CoreLogger::INFO, '');
+    }
+
+    private function initializeDisplayName()
+    {
         $response = ResponseFactory::getResponse();
         if ($response && $response->isValid()) {
             if ($response->brq_transaction_type == 'I150') {
@@ -70,39 +82,22 @@ class Buckaroo3 extends PaymentModule
             } elseif ($response->hasSucceeded()) {
                 $this->displayName = $response->payment_method;
             } elseif (isset($response->status) && $response->status > 0) {
-                $this->displayName =
-                    (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
+                $this->displayName = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
             } else {
                 $this->displayName = $this->l('Buckaroo Payments (v 4.2.1)');
             }
         }
+    }
 
+    private function checkConfiguration()
+    {
         if (!Configuration::get('BUCKAROO_MERCHANT_KEY')
             || !Configuration::get('BUCKAROO_SECRET_KEY')
             || !Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT')
             || !Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS')
-            || !Configuration::get('BUCKAROO_ORDER_STATE_FAILED')
-        ) {
+            || !Configuration::get('BUCKAROO_ORDER_STATE_FAILED')) {
             return '';
         }
-
-        $translations = [];
-        $translations[] = $this->l('Your payment was unsuccessful. Please try again or choose another payment method.');
-        $translations[] = $this->l('Order confirmation');
-        $translations[] = $this->l('current_step');
-        $translations[] = $this->l('Your order  is complete.');
-        $translations[] = $this->l('You have chosen the');
-        $translations[] = $this->l('payment method.');
-        $translations[] = $this->l('Your order will be sent very soon.');
-        $translations[] = $this->l(
-            'For any questions or for further information, please contact our customer support.'
-        );
-        $translations[] = $this->l('Total of the transaction (taxes incl.) :');
-        $translations[] = $this->l('Your order reference ID is :');
-        $translations[] = $this->l('Back to orders');
-        $translations[] = $this->l('Follow my order');
-        $translations[] = $this->l('Payment in progress');
-        $translations[] = $this->l('Buckaroo supports the following gift cards:');
     }
 
     /**
@@ -116,11 +111,7 @@ class Buckaroo3 extends PaymentModule
         if ($order->module === 'buckaroo3') {
             $refundProvider = $this->get('buckaroo.refund.admin.provider');
 
-            $this->smarty->assign(
-                $refundProvider->get(
-                    $order
-                )
-            );
+            $this->smarty->assign($refundProvider->get($order));
 
             return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
         }
@@ -137,22 +128,41 @@ class Buckaroo3 extends PaymentModule
         if (!$order || !($cart = new Cart($order->id_cart))) {
             return '';
         }
-        $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
-        if (!$buckarooFee) {
+        $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
+
+        if (!$buckarooFeeData) {
             return '';
         }
 
+        $buckarooFee = (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
+        $taxData = $this->calculateTax($cart, $buckarooFee);
         $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
 
         // Assign data to Smarty
         $this->context->smarty->assign([
-            'orderBuckarooFee' => $this->formatPrice($buckarooFee['buckaroo_fee_tax_incl']),
+            'orderBuckarooFee' => $this->formatPrice($taxData['feeInclTax']),
             'paymentFeeLabel' => $paymentFeeLabel,
         ]);
 
         // Fetch and return the template content
         return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
+    }
+
+    private function calculateTax($cart, $fee)
+    {
+        $address = new Address($cart->id_address_invoice);
+        $taxManager = TaxManagerFactory::getManager($address, (int) Configuration::get('PS_TAX'));
+        $taxCalculator = $taxManager->getTaxCalculator();
+        $taxRate = $taxCalculator->getTotalRate();
+        $taxAmount = $fee * ($taxRate / 100);
+        $feeInclTax = $fee + $taxAmount;
+
+        return [
+            'taxRate' => $taxRate,
+            'taxAmount' => $taxAmount,
+            'feeInclTax' => $feeInclTax,
+        ];
     }
 
     /**
@@ -167,76 +177,91 @@ class Buckaroo3 extends PaymentModule
 
         if (!parent::install()) {
             $this->_errors[] = $this->l('Unable to install module');
-
             return false;
         }
 
-        $databaseTableInstaller = new DatabaseTableInstaller();
-
-        $coreInstaller = new Installer($this, $databaseTableInstaller);
-
-        if (!$coreInstaller->install()) {
-            $this->_errors = array_merge($this->_errors, $coreInstaller->getErrors());
-
+        if (!$this->runInstallers()) {
             return false;
         }
 
         (new RefundSettings())->install();
-
-        $states = OrderState::getOrderStates((int)Configuration::get('PS_LANG_DEFAULT'));
-
-        $currentStates = [];
-        foreach ($states as $state) {
-            $state = (object)$state;
-            $currentStates[$state->id_order_state] = $state->name;
-        }
-
-        if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
-            // Add the custom order state
-            $defaultOrderState = new OrderState();
-            $defaultOrderState->name = [
-                Configuration::get('PS_LANG_DEFAULT') => $this->l(
-                    'Awaiting for Remote payment'
-                ),
-            ];
-            $defaultOrderState->module_name = $this->name;
-            $defaultOrderState->send_email = 0;
-            $defaultOrderState->template = '';
-            $defaultOrderState->invoice = 0;
-            $defaultOrderState->color = '#FFF000';
-            $defaultOrderState->unremovable = false;
-            $defaultOrderState->logable = 0;
-            if ($defaultOrderState->add()) {
-                $source = dirname(__FILE__) . '/logo.gif';
-                $destination = dirname(__FILE__) . '/../../img/os/' . (int)$defaultOrderState->id . '.gif';
-                if (!file_exists($destination)) {
-                    copy($source, $destination);
-                }
-            }
-        } else {
-            $defaultOrderState = new stdClass();
-            $defaultOrderState->id = $state_id;
-        }
-
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
-        Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
-
-        // Cookie SameSite fix
+        $this->configureOrderStates();
         Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
 
         return true;
     }
 
+    private function runInstallers()
+    {
+        $databaseTableInstaller = new DatabaseTableInstaller();
+        $coreInstaller = new Installer($this, $databaseTableInstaller);
+
+        if (!$coreInstaller->install()) {
+            $this->_errors = array_merge($this->_errors, $coreInstaller->getErrors());
+            return false;
+        }
+
+        return true;
+    }
+
+    private function configureOrderStates()
+    {
+        $states = OrderState::getOrderStates((int)Configuration::get('PS_LANG_DEFAULT'));
+        $currentStates = [];
+
+        foreach ($states as $state) {
+            $state = (object)$state;
+            $currentStates[$state->id_order_state] = $state->name;
+        }
+
+        $defaultOrderState = $this->getOrCreateDefaultOrderState($currentStates);
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_DEFAULT', $defaultOrderState->id);
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_SUCCESS', Configuration::get('PS_OS_PAYMENT'));
+        Configuration::updateValue('BUCKAROO_ORDER_STATE_FAILED', Configuration::get('PS_OS_CANCELED'));
+    }
+
+    private function getOrCreateDefaultOrderState($currentStates)
+    {
+        if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
+            return $this->createDefaultOrderState();
+        } else {
+            $defaultOrderState = new stdClass();
+            $defaultOrderState->id = $state_id;
+            return $defaultOrderState;
+        }
+    }
+
+    private function createDefaultOrderState()
+    {
+        $defaultOrderState = new OrderState();
+        $defaultOrderState->name = [Configuration::get('PS_LANG_DEFAULT') => $this->l('Awaiting for Remote payment')];
+        $defaultOrderState->module_name = $this->name;
+        $defaultOrderState->send_email = 0;
+        $defaultOrderState->template = '';
+        $defaultOrderState->invoice = 0;
+        $defaultOrderState->color = '#FFF000';
+        $defaultOrderState->unremovable = false;
+        $defaultOrderState->logable = 0;
+
+        if ($defaultOrderState->add()) {
+            $this->copyLogo($defaultOrderState->id);
+        }
+
+        return $defaultOrderState;
+    }
+
+    private function copyLogo($stateId)
+    {
+        $source = dirname(__FILE__) . '/logo.gif';
+        $destination = dirname(__FILE__) . '/../../img/os/' . (int)$stateId . '.gif';
+        if (!file_exists($destination)) {
+            copy($source, $destination);
+        }
+    }
+
     public function uninstall()
     {
-        $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $databaseIdinColumnsRemover = new IdinColumnsRemover();
-        $uninstall = new Uninstaller($this, $databaseTableUninstaller, $databaseIdinColumnsRemover);
-
-        if (!$uninstall->uninstall()) {
-            $this->_errors[] = $uninstall->getErrors();
-
+        if (!$this->runUninstallers()) {
             return false;
         }
 
@@ -252,6 +277,20 @@ class Buckaroo3 extends PaymentModule
         return parent::uninstall();
     }
 
+    private function runUninstallers()
+    {
+        $databaseTableUninstaller = new DatabaseTableUninstaller();
+        $databaseIdinColumnsRemover = new IdinColumnsRemover();
+        $uninstall = new Uninstaller($this, $databaseTableUninstaller, $databaseIdinColumnsRemover);
+
+        if (!$uninstall->uninstall()) {
+            $this->_errors[] = $uninstall->getErrors();
+            return false;
+        }
+
+        return true;
+    }
+
     public function hookDisplayBackOfficeHeader()
     {
         if (Tools::getValue('controller') == 'AdminModules' && Tools::getValue('configure') == 'buckaroo3') {
@@ -264,10 +303,8 @@ class Buckaroo3 extends PaymentModule
     {
         $tokenManager = $this->get('security.csrf.token_manager');
         $userProvider = $this->get('prestashop.user_provider');
+        $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
 
-        $token = $tokenManager->getToken(
-            $userProvider->getUsername()
-        )->getValue();
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
@@ -413,31 +450,26 @@ class Buckaroo3 extends PaymentModule
         if (!$this->active) {
             return;
         }
-        if (Tools::getValue('response_received')
-            || (Tools::getValue('id_order') && Tools::getValue('success'))) {
+        if (Tools::getValue('response_received') || (Tools::getValue('id_order') && Tools::getValue('success'))) {
             $order = new Order(Tools::getValue('id_order'));
             $price = $this->formatPrice($order->getOrdersTotalPaid());
             $isGuest = $this->context->customer->is_guest || !$this->context->customer->id;
 
             if (Tools::getValue('response_received') == 'transfer') {
-                $this->context->smarty->assign(
-                    [
-                        'is_guest' => $isGuest,
-                        'order' => $order,
-                        'price' => $price,
-                        'message' => $this->context->cookie->HtmlText,
-                    ]
-                );
-
-                return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
-            }
-            $this->context->smarty->assign(
-                [
+                $this->context->smarty->assign([
                     'is_guest' => $isGuest,
                     'order' => $order,
                     'price' => $price,
-                ]
-            );
+                    'message' => $this->context->cookie->HtmlText,
+                ]);
+
+                return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
+            }
+            $this->context->smarty->assign([
+                'is_guest' => $isGuest,
+                'order' => $order,
+                'price' => $price,
+            ]);
 
             return $this->display(__FILE__, 'payment_return_success.tpl');
         }
@@ -462,7 +494,6 @@ class Buckaroo3 extends PaymentModule
                 ],
             ],
         ]);
-//        $this->context->controller->addJqueryPlugin('growl');
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
@@ -512,26 +543,33 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFee($payment_method)
     {
-        if ($buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method)) {
-            // Remove any whitespace from the fee.
-            $buckarooFee = trim($buckarooFee);
+        $buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
 
-            if (strpos($buckarooFee, '%') !== false) {
-                // The fee includes a percentage sign, so treat it as a percentage.
-                // Remove the percentage sign and convert the remaining value to a float.
-                $buckarooFee = str_replace('%', '', $buckarooFee);
-                $buckarooFee = (float)$this->payment_request->amountDebit * ((float)$buckarooFee / 100);
-            } else {
-                $buckarooFee = (float)$buckarooFee;
-            }
-
-            return $buckarooFee;
+        if (!$buckarooFee) {
+            return null;
         }
+
+        // Remove any whitespace from the fee.
+        $buckarooFee = trim($buckarooFee);
+
+        if (strpos($buckarooFee, '%') !== false) {
+            $buckarooFee = str_replace('%', '', $buckarooFee);
+            $buckarooFee = (float)$this->payment_request->amountDebit * ((float)$buckarooFee / 100);
+        } else {
+            $buckarooFee = (float)$buckarooFee;
+        }
+
+        $taxRate = $this->context->cart->getAverageProductsTaxRate();
+        $buckarooFeeTax = $buckarooFee * $taxRate;
+        $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
+
+        return [
+            'buckaroo_fee_tax_excl' => $buckarooFee,
+            'buckaroo_fee_tax' => $buckarooFeeTax,
+            'buckaroo_fee_tax_incl' => $buckarooFeeTaxIncl,
+        ];
     }
 
-    /**
-     * @throws LocalizationException
-     */
     public function hookActionEmailSendBefore($params)
     {
         if (!isset($params['cart']->id)) {
@@ -558,13 +596,29 @@ class Buckaroo3 extends PaymentModule
 
             $buckarooFee = $this->getBuckarooFee($paymentMethodName);
 
+            // Ensure buckarooFee is an array
+            if (!is_array($buckarooFee)) {
+                $buckarooFee = [
+                    'buckaroo_fee_tax_excl' => 0,
+                    'buckaroo_fee_tax' => 0,
+                    'buckaroo_fee_tax_incl' => 0,
+                ];
+            }
+
+            $buckarooFeeTaxExcl = $buckarooFee['buckaroo_fee_tax_excl'];
+            $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
+
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
 
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
-            if ($buckarooFee > 0) {
-                $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFee);
-                $params['templateVars']['{total_paid}'] = Tools::displayPrice($order->total_paid + $buckarooFee);
+            if ($buckarooFeeTaxIncl > 0) {
+                $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFeeTaxExcl);
+                $params['templateVars']['{payment_fee_tax}'] = Tools::displayPrice($buckarooFee['buckaroo_fee_tax']);
+                $params['templateVars']['{total_paid}'] = Tools::displayPrice($order->total_paid + $buckarooFeeTaxIncl);
+                // Include the total tax paid, which includes the payment fee tax
+                $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
+                $params['templateVars']['{total_tax_paid}'] = Tools::displayPrice($totalTaxPaid);
             } else {
                 $params['templateVars']['{payment_fee}'] = Tools::displayPrice(0);
             }
@@ -573,29 +627,26 @@ class Buckaroo3 extends PaymentModule
         return true;
     }
 
-    /**
-     * @throws SmartyException
-     * @throws LocalizationException
-     */
+
     public function hookDisplayPDFInvoice($params)
     {
         if ($params['object'] instanceof OrderInvoice) {
             $order = $params['object']->getOrder();
+            $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
-            $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
-
-            if (!$buckarooFee) {
+            if (!$buckarooFeeData) {
                 return;
             }
 
+            $buckarooFee = (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
+            $taxData = $this->calculateTax($order, $buckarooFee);
+
             $this->context->smarty->assign([
                 'payment_fee_label' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
-                'order_buckaroo_fee' => $this->formatPrice($buckarooFee['buckaroo_fee_tax_incl'])
+                'order_buckaroo_fee' => $this->formatPrice($taxData['feeInclTax']),
             ]);
 
-            return $this->context->smarty->fetch(
-                $this->getLocalPath() . 'views/templates/admin/invoice_fee.tpl'
-            );
+            return $this->context->smarty->fetch($this->getLocalPath() . 'views/templates/admin/invoice_fee.tpl');
         }
     }
 
