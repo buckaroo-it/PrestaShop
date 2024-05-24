@@ -116,28 +116,20 @@ class Buckaroo3 extends PaymentModule
         $refunds = $refundProvider->get($order);
         $this->context->smarty->assign($refunds);
 
-        // Fetch payment fee details
-        $paymentMethodLabel = $order->payment;
-        $buckarooFeeService = $this->getBuckarooFeeService();
-        $paymentMethodName = $buckarooFeeService->getPaymentMethodByLabel($paymentMethodLabel);
-        $buckarooFee = $this->getBuckarooFee($paymentMethodName);
-
-        if (!is_array($buckarooFee)) {
-            $buckarooFee = [
-                'buckaroo_fee_tax_excl' => 0,
-                'buckaroo_fee_tax' => 0,
-                'buckaroo_fee_tax_incl' => 0,
-            ];
+        $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
+        $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
+        if (!is_array($buckarooFeeData)) {
+            return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
         }
 
         $this->context->smarty->assign([
-            'buckaroo_fee' => $buckarooFee,
+            'buckaroo_fee' => $buckarooFeeData,
             'currency' => new Currency($order->id_currency)
         ]);
 
         // Display both templates
-        return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl') .
-            $this->display(__FILE__, 'views/templates/hook/payment-fee-table.tpl');
+        return $this->display(__FILE__, 'views/templates/hook/payment-fee-table.tpl').
+            $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 
     /**
