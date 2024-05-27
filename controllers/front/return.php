@@ -15,9 +15,9 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-    use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 
-    include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 
