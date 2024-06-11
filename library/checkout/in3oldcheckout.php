@@ -154,7 +154,7 @@ class In3OldCheckout extends Checkout
      *
      * @return array
      */
-    protected function getArticles()
+    public function getArticles()
     {
         $total = 0;
         $products = [];

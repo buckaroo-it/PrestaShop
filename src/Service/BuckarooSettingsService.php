@@ -37,7 +37,8 @@ class BuckarooSettingsService
             'creditSlip' => (bool) \Configuration::get(Config::LABEL_REFUND_CREDIT_SLIP),
             'voucher' => (bool) \Configuration::get(Config::LABEL_REFUND_VOUCHER),
             'negativePayment' => (bool) \Configuration::get(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT),
-            'refund_label' => null,
+            'payment_fee_mode' => \Configuration::get(Config::PAYMENT_FEE_MODE),
+            'payment_fee_frontend_label' => \Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
         ];
     }
 
@@ -47,7 +48,9 @@ class BuckarooSettingsService
             'website_key', 'secret_key',
             'transaction_description', 'is_live',
             'restock', 'creditSlip',
-            'voucher', 'negativePayment'];
+            'voucher', 'negativePayment',
+            'payment_fee_mode', 'payment_fee_frontend_label'
+        ];
         foreach ($requiredKeys as $key) {
             if (!isset($data[$key])) {
                 return false;
@@ -67,5 +70,7 @@ class BuckarooSettingsService
         \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, $data['creditSlip']);
         \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, $data['voucher']);
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, $data['negativePayment']);
+        \Configuration::updateValue(Config::PAYMENT_FEE_MODE, $data['payment_fee_mode']);
+        \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, $data['payment_fee_frontend_label']);
     }
 }
