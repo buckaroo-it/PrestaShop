@@ -41,16 +41,20 @@ function upgrade_module_4_2_1($object)
 
     Db::getInstance()->execute($createTableQuery);
 
-    // Move data from old table to new table
-    $moveDataQuery = 'INSERT INTO `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (reference, id_cart, buckaroo_fee_tax_incl, buckaroo_fee_tax_excl, currency, created_at)
-    SELECT reference, id_cart, buckaroo_fee, buckaroo_fee, currency, created_at
-    FROM `' . _DB_PREFIX_ . 'buckaroo_fee`';
+    // Check if the old table exists
+    $tableExists = Db::getInstance()->executeS('SHOW TABLES LIKE "' . _DB_PREFIX_ . 'buckaroo_fee"');
+    if ($tableExists) {
+        // Move data from old table to new table
+        $moveDataQuery = 'INSERT INTO `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (reference, id_cart, buckaroo_fee_tax_incl, buckaroo_fee_tax_excl, currency, created_at)
+        SELECT reference, id_cart, buckaroo_fee, buckaroo_fee, currency, created_at
+        FROM `' . _DB_PREFIX_ . 'buckaroo_fee`';
 
-    Db::getInstance()->execute($moveDataQuery);
+        Db::getInstance()->execute($moveDataQuery);
 
-    // Delete the old table
-    $deleteOldTableQuery = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee`';
-    Db::getInstance()->execute($deleteOldTableQuery);
+        // Delete the old table
+        $deleteOldTableQuery = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee`';
+        Db::getInstance()->execute($deleteOldTableQuery);
+    }
 
     // Example of additional existing operations
     Db::getInstance()->execute('ALTER TABLE `' . _DB_PREFIX_ . 'bk_giftcards` 
