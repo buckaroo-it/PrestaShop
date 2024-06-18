@@ -210,10 +210,10 @@ abstract class Checkout
 
     protected function updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl)
     {
-        $originalAmountExcl = (float) $this->cart->getOrderTotal(false, Cart::BOTH);
-        $originalAmountIncl = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
-        $totalPriceExcl = new DecimalNumber((string) ($originalAmountExcl + $buckarooFeeTaxExcl));
-        $totalPriceIncl = new DecimalNumber((string) ($originalAmountIncl + $buckarooFeeTaxIncl));
+        $originalAmountExcl = new DecimalNumber((string) $this->cart->getOrderTotal(false, Cart::BOTH));
+        $originalAmountIncl = new DecimalNumber((string) $this->cart->getOrderTotal(true, Cart::BOTH));
+        $totalPriceExcl = $originalAmountExcl->plus(new DecimalNumber((string) $buckarooFeeTaxExcl));
+        $totalPriceIncl = $originalAmountIncl->plus(new DecimalNumber((string) $buckarooFeeTaxIncl));
 
         $order = new Order($order_id);
         $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
@@ -329,9 +329,9 @@ abstract class Checkout
 
     protected function prepareWrappingArticle()
     {
-        $wrappingCostInclTax = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+        $wrappingCostInclTax = new DecimalNumber((string) $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING));
 
-        if ($wrappingCostInclTax <= 0) {
+        if ($wrappingCostInclTax->toPrecision(2) <= 0) {
             return [];
         }
 
@@ -340,7 +340,7 @@ abstract class Checkout
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => $wrappingCostInclTax,
+            'price' => $wrappingCostInclTax->toPrecision(2),
             'vatPercentage' => $wrappingVatRate,
             'description' => 'Wrapping',
         ];
