@@ -91,9 +91,9 @@ class BuckarooPaymentService
             }
 
             if ($isMethodValid) {
-                if ($method === 'creditcard' && $this->areCardsSeparate()) {
+                if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
                     $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
-                } elseif ($method === 'giftcard') {
+                } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
                     $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
                 } else {
                     $payment_options[] = $this->createPaymentOption($method, $details);
@@ -255,10 +255,9 @@ class BuckarooPaymentService
         return null;
     }
 
-
-    private function areCardsSeparate(): bool
+    private function areCardsSeparate($method): bool
     {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
         return ($configArray['display_in_checkout'] ?? "grouped") === "separate";
     }
 

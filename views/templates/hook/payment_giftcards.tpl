@@ -47,10 +47,5 @@
         </div>
         {l s='Please make sure all fields are filled in correctly before proceeding.' mod='buckaroo3'}<br/><br/>
         <input type="submit" name="submit_giftcard" value="{l s='Apply Gift Card' mod='buckaroo3'}" class="btn btn-primary" />
-        {if ($country == 'NL' && $methodsWithFinancialWarning['giftcards']) }
-            <p class="small">
-                {l s=$methodsWithFinancialWarning['warningText'] sprintf=['giftcards'] mod='buckaroo3'}
-            </p>
-        {/if}
     </form>
 </section>

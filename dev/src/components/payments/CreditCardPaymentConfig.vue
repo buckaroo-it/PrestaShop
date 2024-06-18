@@ -76,11 +76,11 @@ export default {
         })
       
         
-        return {
-            config,
-            displayInCheckout,
-            displayOptions
-        }
+      return {
+          config,
+          displayInCheckout,
+          displayOptions
+      }
     }
 }
 </script>
