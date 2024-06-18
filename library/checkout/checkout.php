@@ -432,9 +432,9 @@ abstract class Checkout
 
     protected function prepareShippingCostArticle()
     {
-        $shippingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING)->toPrecision(2);
+        $shippingCost = new DecimalNumber((string) $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING));
 
-        if ($shippingCost <= 0) {
+        if ($shippingCost->toPrecision(2) <= 0) {
             return null;
         }
 
@@ -445,7 +445,7 @@ abstract class Checkout
             'description' => 'Shipping Costs',
             'vatPercentage' => $shippingCostsTax,
             'quantity' => 1,
-            'price' => $shippingCost,
+            'price' => $shippingCost->toPrecision(2),
         ];
     }
 
