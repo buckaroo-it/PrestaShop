@@ -13,7 +13,7 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 <section class="additional-information">
-    <input type="hidden" name="buckarooKey" value="giftcards">
+    <input type="hidden" name="buckarooKey" value="giftcard">
     <form id="booGiftcardsForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcards'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         <div class="row row-padding">
             <div class="col-sm-5">
