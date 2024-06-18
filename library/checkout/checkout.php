@@ -370,7 +370,7 @@ abstract class Checkout
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => round($item['price_wt'], 2),
+                'price' => $item['price_wt']->toPrecision(2),
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
@@ -432,7 +432,7 @@ abstract class Checkout
 
     protected function prepareShippingCostArticle()
     {
-        $shippingCost = round($this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING), 2);
+        $shippingCost = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING)->toPrecision(2);
 
         if ($shippingCost <= 0) {
             return null;
