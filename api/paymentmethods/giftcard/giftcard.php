@@ -29,8 +29,8 @@ class GiftCard extends PaymentMethod
     public function pay($customVars = [])
     {
         $this->payload = $this->getPayload($customVars);
+        return parent::pay();
 
-        return parent::executeCustomPayAction('payRedirect');
     }
 
     public function getPayload($data)
