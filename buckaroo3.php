@@ -117,9 +117,16 @@ class Buckaroo3 extends PaymentModule
         $this->context->smarty->assign($refunds);
 
         $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
-        $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
+
+        // Ensure that $buckarooFeeData is an array
         if (!is_array($buckarooFeeData)) {
-            return $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
+            $buckarooFeeData = [
+                'buckaroo_fee_tax_excl' => 0,
+                'buckaroo_fee_tax_incl' => 0,
+                'buckaroo_fee_tax' => 0
+            ];
+        } else {
+            $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
         }
 
         $this->context->smarty->assign([
