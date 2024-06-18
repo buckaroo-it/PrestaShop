@@ -587,7 +587,6 @@ class BuckarooPaymentService
             'afterpay',
             'billink',
             'in3',
-            'giftcards'
         ];
         $methods = [];
         foreach ($buyNowPayLaterMethods as $method) {
