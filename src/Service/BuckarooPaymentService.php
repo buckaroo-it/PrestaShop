@@ -185,15 +185,12 @@ class BuckarooPaymentService
         }
 
         if (!empty($details->getTemplate())) {
+            $this->context->smarty->assign('cardName', $title);
+            $this->context->smarty->assign('cardCode', $cardCode);
             $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
-
-        $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
-            ->setModuleName($method);
-
 
         $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
 

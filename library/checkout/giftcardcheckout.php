@@ -33,6 +33,9 @@ class GiftCardCheckout extends Checkout
         $this->customVars = [
             'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
             'continueOnIncomplete' => '1',
+            'name' => 'boekenbon',
+            'intersolveCardnumber' => Tools::getValue('giftcard_card_number'),
+            'intersolvePIN' => Tools::getValue('giftcard_security_code'),
         ];
     }
 

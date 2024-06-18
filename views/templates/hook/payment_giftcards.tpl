@@ -14,7 +14,7 @@
 *}
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="giftcard">
-    <form id="booGiftcardsForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
+    <form id="booGiftcardsForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => $cardName, 'cardCode' => $cardCode])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         {if $giftCardDisplayMode === 'separate'}
             <div class="row row-padding">
                 <div class="col-sm-5">
