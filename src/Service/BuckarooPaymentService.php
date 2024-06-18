@@ -185,7 +185,6 @@ class BuckarooPaymentService
         }
 
         if (!empty($details->getTemplate())) {
-            $this->context->smarty->assign('cardName', $title);
             $this->context->smarty->assign('cardCode', $cardCode);
             $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         } else {
