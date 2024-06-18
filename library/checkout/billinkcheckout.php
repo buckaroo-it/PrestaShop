@@ -126,8 +126,8 @@ class BillinkCheckout extends Checkout
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => $item['price_with_reduction']->toPrecision(2),
-                'priceExcl' => $item['price_with_reduction_without_tax']->toPrecision(2),
+                'price' => $item['price']->toPrecision(2),
+                'priceExcl' => $item['price_wt']->toPrecision(2),
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
