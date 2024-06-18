@@ -370,7 +370,7 @@ abstract class Checkout
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => (new DecimalNumber((string) $item['price_wt']))->toPrecision(2),
+                'price' => round($item['price_wt'], 2),
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
