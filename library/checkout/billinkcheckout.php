@@ -18,6 +18,7 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
 use Buckaroo\Resources\Constants\RecipientCategory;
+use PrestaShop\Decimal\DecimalNumber;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -100,14 +101,13 @@ class BillinkCheckout extends Checkout
         ];
 
         if (self::CUSTOMER_TYPE_B2C != $this->customerType
-            && $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
+        && $this->companyExists($this->invoice_address->company) ? $this->invoice_address->company : null) {
             $payload['recipient']['careOf'] = $this->invoice_address->company;
             $payload['recipient']['chamberOfCommerce'] = Tools::getValue('customerbillink-coc');
         }
 
         return $payload;
     }
-
 
     public function getRecipientCategory()
     {
@@ -126,8 +126,8 @@ class BillinkCheckout extends Checkout
             $tmp = [];
             $tmp['identifier'] = $item['id_product'];
             $tmp['quantity'] = $item['quantity'];
-            $tmp['price'] = round($item['price_with_reduction'], 2);
-            $tmp['priceExcl'] = round($item['price_with_reduction_without_tax'], 2);
+            $tmp['price'] = (new DecimalNumber($item['price_with_reduction']))->toPrecision(2);
+            $tmp['priceExcl'] = (new DecimalNumber($item['price_with_reduction_without_tax']))->toPrecision(2);
             $tmp['vatPercentage'] = $item['rate'];
             $tmp['description'] = $item['name'];
             $articles[] = $tmp;
