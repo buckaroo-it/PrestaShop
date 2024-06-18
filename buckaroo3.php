@@ -449,7 +449,7 @@ class Buckaroo3 extends PaymentModule
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_type'),
+                    'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
