@@ -255,7 +255,6 @@ class BuckarooPaymentService
         return null;
     }
 
-
     private function areCardsSeparate($method): bool
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
