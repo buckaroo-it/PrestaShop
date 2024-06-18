@@ -123,14 +123,16 @@ class BillinkCheckout extends Checkout
     {
         $articles = [];
         foreach ($this->products as $item) {
-            $tmp = [];
-            $tmp['identifier'] = $item['id_product'];
-            $tmp['quantity'] = $item['quantity'];
-            $tmp['price'] = (new DecimalNumber((string) $item['price_with_reduction']))->toPrecision(2);
-            $tmp['priceExcl'] = (new DecimalNumber((string) $item['price_with_reduction_without_tax']))->toPrecision(2);
-            $tmp['vatPercentage'] = $item['rate'];
-            $tmp['description'] = $item['name'];
-            $articles[] = $tmp;
+            $article = [
+                'identifier' => $item['id_product'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price_with_reduction']->toPrecision(2),
+                'priceExcl' => $item['price_with_reduction_without_tax']->toPrecision(2),
+                'vatPercentage' => $item['rate'],
+                'description' => $item['name'],
+            ];
+
+            $articles[] = $article;
         }
 
         return $articles;
