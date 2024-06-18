@@ -15,7 +15,7 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="giftcard">
     <form id="booGiftcardsForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
-        {if $creditCardDisplayMode === 'dropdown'}
+        {if $giftCardDisplayMode === 'dropdown'}
             <div class="row row-padding">
                 <div class="col-sm-5">
                     <label for="phone_afterpay_billing_digi"
