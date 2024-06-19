@@ -178,7 +178,7 @@ abstract class Response extends BuckarooAbstract
 
     public function getBrqRelatedtransactionPartialpayment()
     {
-        return $this->response->brq_relatedtransaction_partialpayment;
+        return $this->brq_relatedtransaction_partialpayment;
     }
 
     public function hasSomeError(): bool
