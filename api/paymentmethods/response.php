@@ -168,6 +168,10 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->getServiceParameters();
     }
+    public function getStatuscode()
+    {
+        return $this->response->statuscode;
+    }
 
     public function hasSomeError(): bool
     {

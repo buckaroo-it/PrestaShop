@@ -292,9 +292,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $this->logger->logInfo('Checking if payment is partial', [
-            'statuscode' => $response->statuscode,
-            'statusmessage' => $response->statusmessage,
-            'amount' => $response->amount,
+            'statuscode' => $responseData->getStatuscode(),
+            'statusmessage' => $responseData->statusmessage,
+            'amount' => $responseData->amount,
             'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
         ]);
 
