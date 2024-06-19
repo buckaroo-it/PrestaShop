@@ -304,6 +304,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
+                $this->restoreCart($cartId); // Restore the cart before redirection
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
             } else {
@@ -406,6 +407,19 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $message->id_order = $orderId;
         $message->message = $messageString;
         $message->add();
+    }
+
+    private function restoreCart($cartId)
+    {
+        $cart = new Cart($cartId);
+        if (Validate::isLoadedObject($cart)) {
+            $this->context->cookie->id_cart = $cart->id;
+            $this->context->cart = $cart;
+            $this->context->cookie->write();
+            $this->logger->logInfo('Cart restored successfully');
+        } else {
+            $this->logger->logError('Cart restoration failed');
+        }
     }
 
     private function setCartCookie($cartId)
