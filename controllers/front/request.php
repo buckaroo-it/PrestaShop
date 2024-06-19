@@ -264,7 +264,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         // Check if the order is partially paid
-        if ($responseData->getStatus() === 'partial') {
+        if ($response->isPartialPayment()) {
             $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
             if ($remainingAmount > 0) {
                 // Keep the user on the checkout page to complete the payment
@@ -377,3 +377,4 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
     }
 }
+

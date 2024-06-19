@@ -299,4 +299,9 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->getCartIdAndReferenceId('reference');
     }
+
+    public function isPartialPayment()
+    {
+        return !empty($this->brq_relatedtransaction_partialpayment);
+    }
 }
