@@ -25,6 +25,13 @@ if (!defined('_PS_VERSION_')) {
 class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
+    protected $logger;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->logger = new Logger(Logger::INFO, 'userreturn');
+    }
 
     /**
      * @see FrontController::initContent()
@@ -32,12 +39,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     public function initContent()
     {
         $cookie = new Cookie('ps');
-        $logger = new Logger(Logger::INFO, 'userreturn');
+        $this->logger->logInfo("\n\n\n\n***************** User return start ***********************");
 
         $response = ResponseFactory::getResponse();
-        $logger->logDebug('Checkout response', $response);
+
         if ($response->isValid()) {
-            $logger->logInfo('Payment request succeeded');
+            $this->logger->logInfo('Payment request succeeded');
 
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -49,12 +56,14 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             }
 
             $id_order = Order::getOrderByCartId($response->getCartId());
-            $logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+            $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+
             if ($response->hasSucceeded()) {
                 $cart = new Cart($response->getCartId());
                 $customer = new Customer($cart->id_customer);
+
                 if (!Validate::isLoadedObject($customer)) {
-                    $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
+                    $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
                     Tools::redirect('index.php?controller=order&step=1');
                     exit;
                 }
@@ -67,19 +76,22 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     'key' => $customer->secure_key,
                     'success' => 'true',
                 ]);
+                $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
                 Tools::redirect($redirectUrl);
             } else {
                 $cookie->statusMessage = '';
                 if (($response->payment_method == 'afterpayacceptgiro'
-                    || $response->payment_method == 'afterpaydigiaccept')
+                        || $response->payment_method == 'afterpaydigiaccept')
                     && $response->statusmessage) {
                     $cookie->statusMessage = $response->statusmessage;
                 }
+                $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
                 Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
                 exit;
             }
         } else {
             $cookie->statusMessage = 'Not valid response';
+            $this->logger->logError('Invalid payment response');
             Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
         }
         exit;

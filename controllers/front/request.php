@@ -292,6 +292,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
+        $this->logger->logInfo('Checking if payment is partial', [
+            'statuscode' => $response->statuscode,
+            'statusmessage' => $response->statusmessage,
+            'amount' => $response->amount,
+            'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
+        ]);
+
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
 
