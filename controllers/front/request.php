@@ -416,7 +416,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->id_cart = $cart->id;
             $this->context->cart = $cart;
             $this->context->cookie->write();
-            $this->logger->logInfo('Cart restored successfully');
+            $this->logger->logInfo('Cart restored successfully: ' . print_r($cart->getProducts(), true));
         } else {
             $this->logger->logError('Cart restoration failed');
         }
