@@ -95,7 +95,26 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function isValidCart($cart)
     {
-        return $cart->id_customer != 0 && $cart->id_address_delivery != 0 && $cart->id_address_invoice != 0 && $this->module->active;
+        if ($cart->id_customer == 0 || $cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active) {
+            return false;
+        }
+
+        // Check if an order has already been placed using this cart
+        if (Order::getOrderByCartId($cart->id)) {
+            // Duplicate the cart
+            $oldCart = new Cart($cart->id);
+            $duplication = $oldCart->duplicate();
+            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cart = $duplication['cart'];
+                $this->context->cookie->write();
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function handleInvalidCart($logger, $cart)
@@ -275,8 +294,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
             ]);
 
-
-            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
+            // Reload the cart to get the updated total
+            $cart = new Cart($cartId);
+            $remainingAmount = (float)$cart->getOrderTotal(true, Cart::BOTH);
             $logger->logInfo('Remaining Amount: ' . $remainingAmount);
 
             if ($remainingAmount > 0) {
@@ -299,7 +319,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             exit;
         }
     }
-
 
     private function processSepaDirectDebit($id_order, $responseData)
     {
