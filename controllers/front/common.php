@@ -23,6 +23,10 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooCommonController extends ModuleFrontController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
     private $id_order;
 
     protected function displayConfirmationTransfer($response)
