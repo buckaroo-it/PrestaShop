@@ -52,19 +52,12 @@ abstract class Response extends BuckarooAbstract
     public $brq_relatedtransaction_refund;
     public $transactions;
     public $parameterError;
-
     protected ?TransactionResponse $response = null;
-    protected \Logger $logger;
+    protected $logger;
 
-    /**
-     * Response constructor.
-     *
-     * @param TransactionResponse|null $response
-     */
     public function __construct(TransactionResponse $response = null)
     {
         $this->logger = new \Logger(CoreLogger::INFO, '');
-
         if ($response) {
             $this->response = $response;
             $this->logger->logInfo('Response object provided directly');
@@ -76,26 +69,11 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    /**
-     * Get the code required for payment
-     *
-     * @param string $configCode
-     * @return string
-     */
     protected function getPaymentCode(string $configCode): string
     {
-        if ($configCode === 'Capayable') {
-            return 'in3';
-        }
-
-        return $configCode;
+        return $configCode === 'Capayable' ? 'in3' : $configCode;
     }
 
-    /**
-     * Parse the push request
-     *
-     * @return bool
-     */
     private function parsePushRequest()
     {
         if (!$this->isPushRequest()) {
@@ -144,131 +122,66 @@ abstract class Response extends BuckarooAbstract
         }
     }
 
-    /**
-     * Check if the response is a success
-     *
-     * @return bool
-     */
     public function isSuccess(): bool
     {
         return $this->response->isSuccess();
     }
 
-    /**
-     * Check if the response is a failure
-     *
-     * @return bool
-     */
     public function isFailed(): bool
     {
         return $this->response->isFailed();
     }
 
-    /**
-     * Check if the response is canceled
-     *
-     * @return bool
-     */
     public function isCanceled(): bool
     {
         return $this->response->isCanceled();
     }
 
-    /**
-     * Check if the response is awaiting consumer action
-     *
-     * @return bool
-     */
     public function isAwaitingConsumer(): bool
     {
         return $this->response->isAwaitingConsumer();
     }
 
-    /**
-     * Check if the response is pending processing
-     *
-     * @return bool
-     */
     public function isPendingProcessing(): bool
     {
         return $this->response->isPendingProcessing();
     }
 
-    /**
-     * Check if the response is waiting on user input
-     *
-     * @return bool
-     */
     public function isWaitingOnUserInput(): bool
     {
         return $this->response->isWaitingOnUserInput();
     }
 
-    /**
-     * Check if the response is rejected
-     *
-     * @return bool
-     */
     public function isRejected(): bool
     {
         return $this->response->isRejected();
     }
 
-    /**
-     * Determine if it is a Buckaroo response or push request
-     *
-     * @return bool
-     */
     private function isPushRequest(): bool
     {
         return (bool)Tools::getValue('brq_statuscode');
     }
 
-    /**
-     * Get service parameters
-     *
-     * @return array
-     */
     public function getServiceParameters()
     {
         return $this->response->getServiceParameters();
     }
 
-    /**
-     * Check if there are any errors
-     *
-     * @return bool
-     */
     public function hasSomeError(): bool
     {
         return $this->response->hasSomeError();
     }
 
-    /**
-     * Get error messages
-     *
-     * @return array
-     */
     public function getSomeError()
     {
         return $this->response->getSomeError();
     }
 
-    /**
-     * Check if the request is a test
-     *
-     * @return bool
-     */
     public function isTest(): bool
     {
         return $this->response->get('IsTest') === true;
     }
 
-    /**
-     * Validate the response
-     *
-     * @return bool
-     */
     public function isValid(): bool
     {
         if (!$this->validated) {
@@ -283,7 +196,7 @@ abstract class Response extends BuckarooAbstract
                     $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
                 }
             } elseif ($this->response) {
-                $this->validated = (!$this->response->isValidationFailure());
+                $this->validated = !$this->response->isValidationFailure();
                 $this->logger->logInfo('Response validation status', ['validated' => $this->validated]);
             }
         }
@@ -291,11 +204,6 @@ abstract class Response extends BuckarooAbstract
         return $this->validated;
     }
 
-    /**
-     * Check if the response has succeeded
-     *
-     * @return bool
-     */
     public function hasSucceeded(): bool
     {
         if (isset($this->response)) {
@@ -318,53 +226,26 @@ abstract class Response extends BuckarooAbstract
         return false;
     }
 
-    /**
-     * Check if redirect is required
-     *
-     * @return bool
-     */
     public function isRedirectRequired(): bool
     {
         return $this->response->hasRedirect();
     }
 
-    /**
-     * Get the redirect URL
-     *
-     * @return string
-     */
     public function getRedirectUrl(): string
     {
         return $this->response->getRedirectUrl();
     }
 
-    /**
-     * Get the response object
-     *
-     * @return TransactionResponse|null
-     */
     public function getResponse(): ?TransactionResponse
     {
         return $this->response;
     }
 
-    /**
-     * Set a POST variable
-     *
-     * @param string $key
-     * @return mixed|null
-     */
     private function setPostVariable($key)
     {
         return Tools::getValue($key) ?? null;
     }
 
-    /**
-     * Get cart ID and reference ID
-     *
-     * @param bool $show
-     * @return mixed
-     */
     public function getCartIdAndReferenceId($show = false)
     {
         $e = explode('_', urldecode($this->invoicenumber));
@@ -377,31 +258,16 @@ abstract class Response extends BuckarooAbstract
         return $show == 'cartId' ? (int)$cartId : $reference;
     }
 
-    /**
-     * Get the cart ID
-     *
-     * @return int
-     */
     public function getCartId(): int
     {
         return $this->getCartIdAndReferenceId('cartId');
     }
 
-    /**
-     * Get the reference ID
-     *
-     * @return mixed
-     */
     public function getReferenceId()
     {
         return $this->getCartIdAndReferenceId('reference');
     }
 
-    /**
-     * Check if the payment is partial
-     *
-     * @return bool
-     */
     public function isPartialPayment(): bool
     {
         return !empty($this->brq_relatedtransaction_partialpayment);

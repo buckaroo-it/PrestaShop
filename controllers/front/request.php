@@ -28,29 +28,26 @@ if (!defined('_PS_VERSION_')) {
 
 class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 {
-    /* @var $checkout Checkout */
     public $checkout;
     public $display_column_left = false;
-    /** @var bool */
     public $display_column_right = false;
-    /** @var \Logger */
-    public $logger;
+    protected $logger;
 
     public function __construct()
     {
         parent::__construct();
-
         $this->logger = new \Logger(CoreLogger::INFO, '');
     }
 
-    /**
-     * @throws Exception
-     *
-     * @see FrontController::postProcess()
-     */
     public function postProcess()
     {
         $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
+
+        if (!$this->context || !$this->context->cart) {
+            $this->logger->logError('Context or cart is not properly initialized.');
+            Tools::redirect('index.php?controller=order&step=1');
+            return;
+        }
 
         $cart = $this->context->cart;
         $this->logger->logDebug('Get cart', $cart->id);
@@ -74,6 +71,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $currency = $this->context->currency;
+        if (!$currency) {
+            $this->logger->logError('Currency is not set in context.');
+            Tools::redirect('index.php?controller=order&step=1');
+            return;
+        }
+
         $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
         $payment_method = Tools::getValue('method');
 
@@ -107,9 +110,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return false;
         }
 
-        // Check if an order has already been placed using this cart
         if (Order::getOrderByCartId($cart->id)) {
-            // Duplicate the cart
             $oldCart = new Cart($cart->id);
             $duplication = $oldCart->duplicate();
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
@@ -158,7 +159,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function isValidCustomer($customer)
     {
         if (!Validate::isLoadedObject($customer)) {
-            $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
+            $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $customer->id);
             Tools::redirect('index.php?controller=order&step=1');
             return false;
         }
@@ -294,11 +295,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
-        // Check if the order is partially paid
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
 
-            // Log the partial payment details
             $this->logger->logInfo('Partial payment details', [
                 'statuscode' => $response->statuscode,
                 'statusmessage' => $response->statusmessage,
@@ -306,12 +305,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
             ]);
 
-            // Calculate the remaining amount
             $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
             $this->logger->logInfo('Remaining Amount: ' . $remainingAmount);
 
             if ($remainingAmount > 0) {
-                // Keep the user on the checkout page to complete the payment
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
