@@ -36,7 +36,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new \Logger(CoreLogger::INFO, '');
+        $this->logger = new Logger(Logger::INFO, 'request');
     }
 
     public function postProcess()
