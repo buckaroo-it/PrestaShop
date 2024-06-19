@@ -57,7 +57,9 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct(TransactionResponse $response = null)
     {
-        $this->logger = new \Logger(CoreLogger::INFO, '');
+        $this->logger  = new Logger(Logger::INFO, 'response');
+        $this->logger->logInfo("\n\n\n\n***************** Response start ***********************");
+
         if ($response) {
             $this->response = $response;
             $this->logger->logInfo('Response object provided directly');

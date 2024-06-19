@@ -32,7 +32,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     public function initContent()
     {
         $cookie = new Cookie('ps');
-        $logger = new Logger(Logger::INFO, 'return');
+        $logger = new Logger(Logger::INFO, 'userreturn');
 
         $response = ResponseFactory::getResponse();
         $logger->logDebug('Checkout response', $response);

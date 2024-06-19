@@ -418,6 +418,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
             $this->logger->logInfo('Cart duplicated successfully');
             $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cart = $duplication['cart'];
             $this->context->cookie->write();
         } else {
             $this->logger->logError('Cart duplication failed');

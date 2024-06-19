@@ -28,13 +28,14 @@ if (!defined('_PS_VERSION_')) {
 class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
-
     private $symContainer;
+    protected $logger;
 
     public function __construct()
     {
         parent::__construct();
         $this->setContainer();
+        $this->logger = new Logger(Logger::INFO, 'return');
     }
 
     /**
@@ -44,8 +45,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     {
         $this->display_column_left = false;
         $this->display_column_right = false;
-        $logger = new Logger(Logger::INFO, 'return');
-        $logger->logInfo("\n\n\n\n***************** Return start ***********************");
+        $this->logger->logInfo("\n\n\n\n***************** Return start ***********************");
 
         parent::initContent();
 
@@ -54,11 +54,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         foreach ($tmp as $stat) {
             $statuses[$stat['id_order_state']] = $stat['name'];
         }
+
         $response = ResponseFactory::getResponse();
-        $logger->logInfo('Parse response', $response);
+        $this->logger->logInfo('Parse response', $response);
 
         if ($response->isValid()) {
-            $logger->logInfo('Response valid');
+            $this->logger->logInfo('Response valid');
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
                 && !empty($response->statuscode)
@@ -75,9 +76,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $row = get_object_vars($order);
                 $references[] = $row['reference'];
             }
-            $logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
+
+            $this->logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
+
             if ($response->brq_relatedtransaction_partialpayment != null) {
-                $logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
+                $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
                 if ($id_order && $response->hasSucceeded()) {
                     $order = new Order($id_order);
                     $order->setInvoice(false);
@@ -100,13 +103,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $payment->save();
                     Db::getInstance()->execute(
                         '
-                                            INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
-                    VALUES(' . (int) $order->invoice_number . ', ' . (int) $payment->id . ', ' . (int) $order->id . ')'
+                        INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
+                        VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
                     );
 
                     $message = new Message();
                     $message->id_order = $id_order;
-                    $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage; // phpcs:ignore
+                    $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
                     $message->add();
                 }
                 exit;
@@ -122,42 +125,43 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
                     );
                 } catch (\Throwable $th) {
-                    $logger->logInfo('PUSH', (string) $th);
+                    $this->logger->logInfo('PUSH', (string)$th);
                 }
                 exit;
             }
+
             if (!$id_order) {
                 header('HTTP/1.1 503 Service Unavailable');
-                echo 'Order do not exists';
-                $logger->logInfo('PUSH', 'Order do not exists');
+                echo 'Order does not exist';
+                $this->logger->logError('PUSH', 'Order does not exist');
                 exit;
             } else {
-                $logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+                $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
                 $new_status_code = Buckaroo3::resolveStatusCode($response->status, $id_order);
-
                 $order = new Order($id_order);
 
                 if (!in_array($order->reference, $references)) {
                     header('HTTP/1.1 503 Service Unavailable');
-                    $logger->logInfo('Order not in reference ' . $order->reference);
+                    $this->logger->logError('Order not in reference ' . $order->reference);
                     echo 'Order not in reference: ' . $order->reference;
                     exit;
                 }
 
-                $logger->logInfo(
-                    'Old order status code: ' . $order->getCurrentState(
-                    ) . '; new order status code: ' . $new_status_code
+                $this->logger->logInfo(
+                    'Old order status code: ' . $order->getCurrentState() . '; new order status code: ' . $new_status_code
                 );
+
                 $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
                 $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
                 $error = Configuration::get('PS_OS_ERROR');
                 $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
+
                 if ($new_status_code != $order->getCurrentState()
-                    && ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState(
-                    ) || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
+                    && ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState()
+                        || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
                 ) {
-                    $logger->logInfo('Update order status');
+                    $this->logger->logInfo('Update order status');
                     $history = new OrderHistory();
                     $history->id_order = $id_order;
                     $history->date_add = date('Y-m-d H:i:s');
@@ -171,23 +175,25 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                             $payment->amount = 0;
                             $payment->update();
                         }
-                        /* @var $payment OrderPaymentCore */
                         if ($payment->amount == $response->amount && $payment->transaction_id == '') {
                             $payment->transaction_id = $response->transactions;
                             $payment->update();
                         }
                     }
                 } else {
-                    $logger->logInfo('Order status not updated');
+                    $this->logger->logInfo('Order status not updated');
                 }
+
                 $statusCodeName = $new_status_code;
                 if (!empty($statuses[$new_status_code])) {
                     $statusCodeName = $statuses[$new_status_code];
                 }
+
                 $message = new Message();
                 $message->id_order = $id_order;
-                $message->message = 'Push message recieved. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions; // phpcs:ignore
+                $message->message = 'Push message received. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
                 $message->add();
+
                 if ($response->statusmessage) {
                     $message = new Message();
                     $message->id_order = $id_order;
@@ -197,7 +203,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             }
         } else {
             header('HTTP/1.1 503 Service Unavailable');
-            $logger->logError('Payment response not valid', $response);
+            $this->logger->logError('Payment response not valid', $response);
             echo 'Payment response not valid';
             exit;
         }
