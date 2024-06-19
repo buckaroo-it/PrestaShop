@@ -223,10 +223,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     return;
                 }
             }
+        } else {
+            $this->module->currentOrder = $id_order_cart;
         }
 
-        $id_order_cart = Order::getIdByCartId($cart->id);
-        $order = new Order($id_order_cart);
+        $order = new Order($this->module->currentOrder);
         $this->checkout->setReference($order->reference);
 
         try {
@@ -304,16 +305,26 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 exit;
             } else {
                 $this->logger->logInfo('No remaining amount. Redirecting to order confirmation.');
-                Tools::redirect(
-                    'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
-                );
+                Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
+                    'id_cart' => $cartId,
+                    'id_module' => $this->module->id,
+                    'id_order' => $id_order,
+                    'key' => $customer->secure_key,
+                    'success' => 'true',
+                    'response_received' => $response->payment_method
+                ]));
                 exit;
             }
         } else {
             $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
-            Tools::redirect(
-                'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
-            );
+            Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
+                'id_cart' => $cartId,
+                'id_module' => $this->module->id,
+                'id_order' => $id_order,
+                'key' => $customer->secure_key,
+                'success' => 'true',
+                'response_received' => $response->payment_method
+            ]));
             exit;
         }
     }
