@@ -266,7 +266,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->setCartCookie($cartId);
             $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
-            exit;
         }
 
         if ($response->hasSucceeded()) {
