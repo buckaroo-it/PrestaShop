@@ -50,7 +50,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $cart = $this->context->cart;
-        $this->logger->logDebug('Get cart', $cart->id);
 
         if (!$this->isValidCart($cart)) {
             $this->handleInvalidCart($cart);
@@ -200,7 +199,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return;
         }
 
-        $this->logger->logDebug('Get checkout class: ');
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
@@ -230,7 +228,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         try {
             $this->checkout->setCheckout();
-            $this->logger->logDebug('Set checkout info: ');
             if ($this->checkout->isVerifyRequired()) {
                 $this->logger->logInfo('Start verify process');
                 $this->checkout->startVerify(['cid' => $cart->id_customer]);
