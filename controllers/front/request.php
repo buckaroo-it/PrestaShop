@@ -196,17 +196,23 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
         if (!$this->checkout->isVerifyRequired()) {
-            $this->module->validateOrder(
-                (int) $cart->id,
-                $pending,
-                (float) $total,
-                $payment_method_tr,
-                null,
-                null,
-                (int) $currency->id,
-                false,
-                $customer->secure_key
-            );
+            try {
+                $this->module->validateOrder(
+                    (int) $cart->id,
+                    $pending,
+                    (float) $total,
+                    $payment_method_tr,
+                    null,
+                    null,
+                    (int) $currency->id,
+                    false,
+                    $customer->secure_key
+                );
+            } catch (Exception $e) {
+                $logger->logError('Order validation failed: ', $e->getMessage());
+                $this->displayError(null, $e->getMessage());
+                return;
+            }
         }
 
         $id_order_cart = Order::getIdByCartId($cart->id);
