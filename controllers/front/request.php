@@ -263,8 +263,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-//        $logger->logDebug('Checkout response', $response);
-
         if ($response->hasSucceeded()) {
             $this->processSuccessfulPayment($logger, $cartId, $customer, $response);
         } else {
@@ -414,11 +412,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function setCartCookie($cartId)
     {
+        $logger = new \Logger(CoreLogger::INFO, '');
         $oldCart = new Cart($cartId);
         $duplication = $oldCart->duplicate();
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+            $logger->logInfo('Cart duplicated successfully');
             $this->context->cookie->id_cart = $duplication['cart']->id;
             $this->context->cookie->write();
+        } else {
+            $logger->logError('Cart duplication failed');
         }
     }
 }
