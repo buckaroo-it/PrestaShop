@@ -291,4 +291,14 @@ abstract class Response extends BuckarooAbstract
     {
         return $this->response->remaining_amount ?? 0;
     }
+
+    public function getRemainderAmount()
+    {
+        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+            !is_scalar($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
+        ) {
+            return 0;
+        }
+        return (float)$this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+    }
 }

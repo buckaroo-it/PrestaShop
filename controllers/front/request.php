@@ -306,14 +306,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logInfo('Partial payment details', [
                 'statuscode' => $responseData->getStatuscode(),
                 'statusmessage' => $responseData->getStatusmessage(),
-                'amount' => $responseData->getAmount(),
+                'getRemainderAmount' => $responseData->getRemainderAmount(),
                 'brq_relatedtransaction_partialpayment' => $responseData->getBrqRelatedtransactionPartialpayment(),
             ]);
 
-            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH) - $responseData->getAmount();
-            $this->logger->logInfo('Remaining Amount: ' . $remainingAmount);
-
-            if ($remainingAmount > 0) {
+            if ($responseData->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
