@@ -284,7 +284,7 @@ abstract class Response extends BuckarooAbstract
 
     public function isPartialPayment(): bool
     {
-        return !empty($this->brq_relatedtransaction_partialpayment);
+        return !empty($this->getGroupTransaction());
     }
 
     public function getRemainingAmount(): float
@@ -292,13 +292,24 @@ abstract class Response extends BuckarooAbstract
         return $this->response->remaining_amount ?? 0;
     }
 
+    public function getGroupTransaction()
+    {
+        $data = $this->response->data();
+        if (isset($data['RequiredAction']['PayRemainderDetails']['GroupTransaction'])) {
+            return $data['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
+        }
+        return null;
+    }
+
     public function getRemainderAmount()
     {
-        if (!isset($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
-            !is_scalar($this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
+        $data = $this->response->data();
+        if (!isset($data['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
+            !is_scalar($data['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
         }
-        return (float)$this->response->data()['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
+        return (float) $data['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
+
 }

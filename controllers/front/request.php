@@ -292,26 +292,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $this->logger->logInfo('Checking if payment is partial', [
-            'statuscode' => $responseData->getStatuscode(),
-            'statusmessage' => $responseData->getStatusmessage(),
-            'amount' => $responseData->getAmount(),
+            'statuscode' => $response->getStatuscode(),
+            'statusmessage' => $response->getStatusmessage(),
+            'amount' => $response->getAmount(),
             'getRemainderAmount' => $response->getRemainderAmount(),
-            'brq_relatedtransaction_partialpayment' => $responseData->getBrqRelatedtransactionPartialpayment(),
-            '$responsebrq_relatedtransaction_partialpayment' => $response->getBrqRelatedtransactionPartialpayment(),
-            'responsebrq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
+            'brq_relatedtransaction_partialpayment' => $response->getGroupTransaction(),
         ]);
 
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
 
-            $this->logger->logInfo('Partial payment details', [
-                'statuscode' => $responseData->getStatuscode(),
-                'statusmessage' => $responseData->getStatusmessage(),
-                'getRemainderAmount' => $responseData->getRemainderAmount(),
-                'brq_relatedtransaction_partialpayment' => $responseData->getBrqRelatedtransactionPartialpayment(),
-            ]);
-
-            if ($responseData->getRemainderAmount() > 0) {
+            if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
