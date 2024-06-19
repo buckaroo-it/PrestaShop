@@ -222,7 +222,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function setCheckoutUrls()
     {
-        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn'; // phpcs:ignore
+        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
         $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
     }
 
@@ -263,9 +263,22 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
-        Tools::redirect(
-            'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method // phpcs:ignore
-        );
+        // Check if the order is partially paid
+        if ($responseData->getStatus() === 'partial') {
+            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
+            if ($remainingAmount > 0) {
+                // Keep the user on the checkout page to complete the payment
+                Tools::redirect('index.php?controller=order&step=3');
+            } else {
+                Tools::redirect(
+                    'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
+                );
+            }
+        } else {
+            Tools::redirect(
+                'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
+            );
+        }
     }
 
     private function processSepaDirectDebit($id_order, $responseData)
