@@ -305,7 +305,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 $this->restoreCart($cartId); // Restore the cart before redirection
-                Tools::redirect('index.php?controller=order&step=3');
+                Tools::redirect('index.php?controller=order&step=1');
                 exit;
             } else {
                 $this->logger->logInfo('No remaining amount. Redirecting to order confirmation.');
