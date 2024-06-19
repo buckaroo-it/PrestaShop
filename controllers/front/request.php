@@ -265,26 +265,41 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         // Check if the order is partially paid
         if ($response->isPartialPayment()) {
-            $logger->logInfo('isPartialPayment');
+            $logger->logInfo('isPartialPayment detected.');
+
+            // Log the partial payment details
+            $logger->logInfo('Partial payment details', [
+                'statuscode' => $response->statuscode,
+                'statusmessage' => $response->statusmessage,
+                'amount' => $response->amount,
+                'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
+            ]);
+
 
             $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
+            $logger->logInfo('Remaining Amount: ' . $remainingAmount);
+
             if ($remainingAmount > 0) {
                 // Keep the user on the checkout page to complete the payment
+                $logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
             } else {
+                $logger->logInfo('No remaining amount. Redirecting to order confirmation.');
                 Tools::redirect(
                     'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
                 );
                 exit;
             }
         } else {
+            $logger->logInfo('Full payment completed. Redirecting to order confirmation.');
             Tools::redirect(
                 'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
             );
             exit;
         }
     }
+
 
     private function processSepaDirectDebit($id_order, $responseData)
     {
