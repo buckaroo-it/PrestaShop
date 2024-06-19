@@ -17,6 +17,7 @@
 require_once dirname(__FILE__) . '/../../library/logger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
+
 use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
 use Buckaroo\Transaction\Response\TransactionResponse;
@@ -27,15 +28,11 @@ if (!defined('_PS_VERSION_')) {
 
 abstract class Response extends BuckarooAbstract
 {
-    // false if not received response
     private $received = false;
-    // true if validated and securety checked
     private $validated = false;
-    // request is test?
     private $test = true;
     private $signature;
     private $isPush;
-    // payment key
     public $payment;
     public $payment_method;
     public $statuscode;
@@ -53,29 +50,36 @@ abstract class Response extends BuckarooAbstract
     public $brq_transaction_type;
     public $brq_relatedtransaction_partialpayment;
     public $brq_relatedtransaction_refund;
-    // transaction key
     public $transactions;
-    // if is errors, othervise = null
     public $parameterError;
 
     protected ?TransactionResponse $response = null;
+    protected \Logger $logger;
 
+    /**
+     * Response constructor.
+     *
+     * @param TransactionResponse|null $response
+     */
     public function __construct(TransactionResponse $response = null)
     {
+        $this->logger = new \Logger(CoreLogger::INFO, '');
+
         if ($response) {
             $this->response = $response;
+            $this->logger->logInfo('Response object provided directly');
         } else {
             $this->isPush = $this->isPushRequest();
             $this->received = true;
+            $this->logger->logInfo('Response determined to be a push request');
             $this->parsePushRequest();
         }
     }
 
     /**
-     * Get code required for payment
+     * Get the code required for payment
      *
      * @param string $configCode
-     *
      * @return string
      */
     protected function getPaymentCode(string $configCode): string
@@ -87,9 +91,15 @@ abstract class Response extends BuckarooAbstract
         return $configCode;
     }
 
+    /**
+     * Parse the push request
+     *
+     * @return bool
+     */
     private function parsePushRequest()
     {
         if (!$this->isPushRequest()) {
+            $this->logger->logInfo('Not a push request');
             return false;
         }
 
@@ -119,14 +129,24 @@ abstract class Response extends BuckarooAbstract
         $this->transactions = $this->setPostVariable('brq_transactions');
         $this->signature = $this->setPostVariable('brq_signature');
 
+        $this->logger->logInfo('Parsed push request', [
+            'statuscode' => $this->statuscode,
+            'statusmessage' => $this->statusmessage,
+            'amount' => $this->amount,
+            'currency' => $this->currency,
+            'timestamp' => $this->timestamp
+        ]);
+
         if (!empty($this->statuscode)) {
-            $responseArray = $this->responseCodes[(int) $this->statuscode];
+            $responseArray = $this->responseCodes[(int)$this->statuscode];
             $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
     }
 
     /**
+     * Check if the response is a success
+     *
      * @return bool
      */
     public function isSuccess(): bool
@@ -135,6 +155,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is a failure
+     *
      * @return bool
      */
     public function isFailed(): bool
@@ -143,6 +165,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is canceled
+     *
      * @return bool
      */
     public function isCanceled(): bool
@@ -151,6 +175,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is awaiting consumer action
+     *
      * @return bool
      */
     public function isAwaitingConsumer(): bool
@@ -159,6 +185,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is pending processing
+     *
      * @return bool
      */
     public function isPendingProcessing(): bool
@@ -167,6 +195,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is waiting on user input
+     *
      * @return bool
      */
     public function isWaitingOnUserInput(): bool
@@ -175,6 +205,8 @@ abstract class Response extends BuckarooAbstract
     }
 
     /**
+     * Check if the response is rejected
+     *
      * @return bool
      */
     public function isRejected(): bool
@@ -182,37 +214,62 @@ abstract class Response extends BuckarooAbstract
         return $this->response->isRejected();
     }
 
-    // Determine if is buckaroo response or push
-    private function isPushRequest()
+    /**
+     * Determine if it is a Buckaroo response or push request
+     *
+     * @return bool
+     */
+    private function isPushRequest(): bool
     {
-        if (Tools::getValue('brq_statuscode')) {
-            return true;
-        }
-
-        return false;
+        return (bool)Tools::getValue('brq_statuscode');
     }
 
+    /**
+     * Get service parameters
+     *
+     * @return array
+     */
     public function getServiceParameters()
     {
         return $this->response->getServiceParameters();
     }
 
-    public function hasSomeError()
+    /**
+     * Check if there are any errors
+     *
+     * @return bool
+     */
+    public function hasSomeError(): bool
     {
         return $this->response->hasSomeError();
     }
 
+    /**
+     * Get error messages
+     *
+     * @return array
+     */
     public function getSomeError()
     {
         return $this->response->getSomeError();
     }
 
-    public function isTest()
+    /**
+     * Check if the request is a test
+     *
+     * @return bool
+     */
+    public function isTest(): bool
     {
         return $this->response->get('IsTest') === true;
     }
 
-    public function isValid()
+    /**
+     * Validate the response
+     *
+     * @return bool
+     */
+    public function isValid(): bool
     {
         if (!$this->validated) {
             if ($this->isPush) {
@@ -220,60 +277,94 @@ abstract class Response extends BuckarooAbstract
                 try {
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $_POST);
                     $reply_handler->validate();
-
-                    return $this->validated = $reply_handler->isValid();
+                    $this->validated = $reply_handler->isValid();
+                    $this->logger->logInfo('Push request validated successfully');
                 } catch (Exception $e) {
+                    $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
                 }
             } elseif ($this->response) {
                 $this->validated = (!$this->response->isValidationFailure());
+                $this->logger->logInfo('Response validation status', ['validated' => $this->validated]);
             }
         }
 
         return $this->validated;
     }
 
-    public function hasSucceeded()
+    /**
+     * Check if the response has succeeded
+     *
+     * @return bool
+     */
+    public function hasSucceeded(): bool
     {
         if (isset($this->response)) {
             try {
                 if ($this->isValid()) {
                     if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
+                        $this->logger->logInfo('Response has succeeded');
                         return true;
                     }
                 }
             } catch (Exception $e) {
+                $this->logger->logError('Exception while checking success', ['exception' => $e->getMessage()]);
             }
         } elseif (in_array($this->status, [self::BUCKAROO_PENDING_PAYMENT, self::BUCKAROO_SUCCESS])) {
+            $this->logger->logInfo('Response status indicates success');
             return true;
         }
 
+        $this->logger->logInfo('Response has not succeeded');
         return false;
     }
 
-    public function isRedirectRequired()
+    /**
+     * Check if redirect is required
+     *
+     * @return bool
+     */
+    public function isRedirectRequired(): bool
     {
         return $this->response->hasRedirect();
     }
 
-    public function getRedirectUrl()
+    /**
+     * Get the redirect URL
+     *
+     * @return string
+     */
+    public function getRedirectUrl(): string
     {
         return $this->response->getRedirectUrl();
     }
 
-    public function getResponse()
+    /**
+     * Get the response object
+     *
+     * @return TransactionResponse|null
+     */
+    public function getResponse(): ?TransactionResponse
     {
         return $this->response;
     }
 
+    /**
+     * Set a POST variable
+     *
+     * @param string $key
+     * @return mixed|null
+     */
     private function setPostVariable($key)
     {
-        if (Tools::getValue($key)) {
-            return Tools::getValue($key);
-        } else {
-            return null;
-        }
+        return Tools::getValue($key) ?? null;
     }
 
+    /**
+     * Get cart ID and reference ID
+     *
+     * @param bool $show
+     * @return mixed
+     */
     public function getCartIdAndReferenceId($show = false)
     {
         $e = explode('_', urldecode($this->invoicenumber));
@@ -283,24 +374,35 @@ abstract class Response extends BuckarooAbstract
             $cartId = 0;
             $reference = $this->invoicenumber;
         }
-        if ($show == 'cartId') {
-            return (int) $cartId;
-        }
-
-        return $reference;
+        return $show == 'cartId' ? (int)$cartId : $reference;
     }
 
-    public function getCartId()
+    /**
+     * Get the cart ID
+     *
+     * @return int
+     */
+    public function getCartId(): int
     {
         return $this->getCartIdAndReferenceId('cartId');
     }
 
+    /**
+     * Get the reference ID
+     *
+     * @return mixed
+     */
     public function getReferenceId()
     {
         return $this->getCartIdAndReferenceId('reference');
     }
 
-    public function isPartialPayment()
+    /**
+     * Check if the payment is partial
+     *
+     * @return bool
+     */
+    public function isPartialPayment(): bool
     {
         return !empty($this->brq_relatedtransaction_partialpayment);
     }

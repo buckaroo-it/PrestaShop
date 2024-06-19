@@ -33,6 +33,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public $display_column_left = false;
     /** @var bool */
     public $display_column_right = false;
+    /** @var \Logger */
+    public $logger;
+
+    public function __construct()
+    {
+        $this->logger = new \Logger(CoreLogger::INFO, '');
+    }
 
     /**
      * @throws Exception
@@ -41,27 +48,26 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
      */
     public function postProcess()
     {
-        $logger = new \Logger(CoreLogger::INFO, '');
-        $logger->logInfo("\n\n\n\n***************** Request start ***********************");
+        $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
         $cart = $this->context->cart;
-        $logger->logDebug('Get cart', $cart->id);
+        $this->logger->logDebug('Get cart', $cart->id);
 
         if (!$this->isValidCart($cart)) {
-            $this->handleInvalidCart($logger, $cart);
+            $this->handleInvalidCart($cart);
             return;
         }
 
-        if (!$this->isValidConfiguration($logger)) {
+        if (!$this->isValidConfiguration()) {
             return;
         }
 
-        if (!$this->isAuthorized($logger)) {
+        if (!$this->isAuthorized()) {
             return;
         }
 
         $customer = new Customer($cart->id_customer);
-        if (!$this->isValidCustomer($logger, $customer)) {
+        if (!$this->isValidCustomer($customer)) {
             return;
         }
 
@@ -70,26 +76,26 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $payment_method = Tools::getValue('method');
 
         if (empty($payment_method)) {
-            $logger->logError('Load a method', 'Failed to load the method');
+            $this->logger->logError('Load a method', 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
             return;
         }
 
         $total = $this->applyBuckarooFee($payment_method, $total);
 
-        if (!$this->isValidService($logger)) {
+        if (!$this->isValidService()) {
             return;
         }
 
         $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
-        $logger->logInfo('Checkout info', $debug);
+        $this->logger->logInfo('Checkout info', $debug);
 
-        $this->initializeCheckout($logger, $cart, $payment_method, $currency, $total, $customer);
+        $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
 
         if ($this->checkout->isRequestSucceeded()) {
-            $this->handleSuccessfulRequest($logger, $cart->id, $customer);
+            $this->handleSuccessfulRequest($cart->id, $customer);
         } else {
-            $this->handleFailedRequest($logger, $cart->id);
+            $this->handleFailedRequest($cart->id);
         }
     }
 
@@ -117,14 +123,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
-    private function handleInvalidCart($logger, $cart)
+    private function handleInvalidCart($cart)
     {
         $debug = 'Customer Id: ' . $cart->id_customer . "\nDelivery Address ID: " . $cart->id_address_delivery . 'Invoice Address ID: ' . $cart->id_address_invoice . "\nModule Active: " . $this->module->active;
-        $logger->logError('Validation Error', $debug);
+        $this->logger->logError('Validation Error', $debug);
         Tools::redirect('index.php?controller=order&step=1');
     }
 
-    private function isValidConfiguration($logger)
+    private function isValidConfiguration()
     {
         $merchantKey = Configuration::get('BUCKAROO_MERCHANT_KEY');
         $secretKey = Configuration::get('BUCKAROO_SECRET_KEY');
@@ -136,21 +142,21 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
-    private function isAuthorized($logger)
+    private function isAuthorized()
     {
         foreach (PaymentModule::getInstalledPaymentModules() as $module) {
             if ($module['name'] == 'buckaroo3') {
                 return true;
             }
         }
-        $logger->logError('Authorization Error', 'This payment method is not available.');
+        $this->logger->logError('Authorization Error', 'This payment method is not available.');
         exit($this->module->l('This payment method is not available.', 'validation'));
     }
 
-    private function isValidCustomer($logger, $customer)
+    private function isValidCustomer($customer)
     {
         if (!Validate::isLoadedObject($customer)) {
-            $logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
+            $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
             Tools::redirect('index.php?controller=order&step=1');
             return false;
         }
@@ -169,29 +175,29 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return $total;
     }
 
-    private function isValidService($logger)
+    private function isValidService()
     {
         if (Tools::getValue('service') && Tools::getValue('service') != 'digi' && Tools::getValue('service') != 'sepa') {
-            $logger->logError('Load a method', 'Failed to load the method');
+            $this->logger->logError('Load a method', 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
             return false;
         }
         return true;
     }
 
-    private function initializeCheckout($logger, $cart, $payment_method, $currency, $total, $customer)
+    private function initializeCheckout($cart, $payment_method, $currency, $total, $customer)
     {
         try {
             $this->checkout = Checkout::getInstance($payment_method, $cart, $this->context);
             $this->setCheckoutProperties();
             $this->setCheckoutUrls();
         } catch (Exception $e) {
-            $logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', $e->getMessage());
             $this->displayError(null, $e->getMessage());
             return;
         }
 
-        $logger->logDebug('Get checkout class: ');
+        $this->logger->logDebug('Get checkout class: ');
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
@@ -209,7 +215,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     $customer->secure_key
                 );
             } catch (Exception $e) {
-                $logger->logError('Order validation failed: ', $e->getMessage());
+                $this->logger->logError('Order validation failed: ', $e->getMessage());
                 $this->displayError(null, $e->getMessage());
                 return;
             }
@@ -221,16 +227,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         try {
             $this->checkout->setCheckout();
-            $logger->logDebug('Set checkout info: ');
+            $this->logger->logDebug('Set checkout info: ');
             if ($this->checkout->isVerifyRequired()) {
-                $logger->logInfo('Start verify process');
+                $this->logger->logInfo('Start verify process');
                 $this->checkout->startVerify(['cid' => $cart->id_customer]);
             } else {
-                $logger->logInfo('Start the payment process');
+                $this->logger->logInfo('Start the payment process');
                 $this->checkout->startPayment();
             }
         } catch (Exception $e) {
-            $logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', $e->getMessage());
             $this->displayError(null, $e->getMessage());
             return;
         }
@@ -251,28 +257,28 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
     }
 
-    private function handleSuccessfulRequest($logger, $cartId, $customer)
+    private function handleSuccessfulRequest($cartId, $customer)
     {
         $response = $this->checkout->getResponse();
-        $logger->logInfo('Request succeeded');
+        $this->logger->logInfo('Request succeeded');
 
         if ($this->checkout->isRedirectRequired()) {
             $this->setCartCookie($cartId);
-            $logger->logInfo('Redirecting ... ');
+            $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
             exit;
         }
 
         if ($response->hasSucceeded()) {
-            $this->processSuccessfulPayment($logger, $cartId, $customer, $response);
+            $this->processSuccessfulPayment($cartId, $customer, $response);
         } else {
-            $this->processFailedPayment($logger, $cartId, $response);
+            $this->processFailedPayment($cartId, $response);
         }
     }
 
-    private function processSuccessfulPayment($logger, $cartId, $customer, $response)
+    private function processSuccessfulPayment($cartId, $customer, $response)
     {
-        $logger->logInfo('Payment request succeeded. Wait push message!');
+        $this->logger->logInfo('Payment request succeeded. Wait push message!');
         $id_order = $this->module->currentOrder;
 
         $responseData = $response->getResponse();
@@ -288,35 +294,34 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         // Check if the order is partially paid
         if ($response->isPartialPayment()) {
-            $logger->logInfo('isPartialPayment detected.');
+            $this->logger->logInfo('isPartialPayment detected.');
 
             // Log the partial payment details
-            $logger->logInfo('Partial payment details', [
+            $this->logger->logInfo('Partial payment details', [
                 'statuscode' => $response->statuscode,
                 'statusmessage' => $response->statusmessage,
                 'amount' => $response->amount,
                 'brq_relatedtransaction_partialpayment' => $response->brq_relatedtransaction_partialpayment,
             ]);
 
-            // Reload the cart to get the updated total
-            $cart = new Cart($cartId);
-            $remainingAmount = (float)$cart->getOrderTotal(true, Cart::BOTH);
-            $logger->logInfo('Remaining Amount: ' . $remainingAmount);
+            // Calculate the remaining amount
+            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
+            $this->logger->logInfo('Remaining Amount: ' . $remainingAmount);
 
             if ($remainingAmount > 0) {
                 // Keep the user on the checkout page to complete the payment
-                $logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
+                $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 Tools::redirect('index.php?controller=order&step=3');
                 exit;
             } else {
-                $logger->logInfo('No remaining amount. Redirecting to order confirmation.');
+                $this->logger->logInfo('No remaining amount. Redirecting to order confirmation.');
                 Tools::redirect(
                     'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
                 );
                 exit;
             }
         } else {
-            $logger->logInfo('Full payment completed. Redirecting to order confirmation.');
+            $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
             Tools::redirect(
                 'index.php?controller=order-confirmation&id_cart=' . $cartId . '&id_module=' . $this->module->id . '&id_order=' . $id_order . '&key=' . $customer->secure_key . '&success=true&response_received=' . $response->payment_method
             );
@@ -335,15 +340,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
     }
 
-    private function processFailedPayment($logger, $cartId, $response)
+    private function processFailedPayment($cartId, $response)
     {
-        $logger->logInfo('Payment request failed/canceled');
+        $this->logger->logInfo('Payment request failed/canceled');
         $this->setCartCookie($cartId);
 
         if ($response->isValid()) {
-            $this->updateOrderHistory($logger, $response);
+            $this->updateOrderHistory($response);
         } else {
-            $logger->logInfo('Payment request not valid');
+            $this->logger->logInfo('Payment request not valid');
         }
 
         $error = null;
@@ -353,21 +358,21 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->displayError(null, $error);
     }
 
-    private function updateOrderHistory($logger, $response)
+    private function updateOrderHistory($response)
     {
-        $logger->logInfo('Payment request valid');
+        $this->logger->logInfo('Payment request valid');
         $id_order = Order::getOrderByCartId($response->getCartId());
         if ($id_order) {
-            $this->updateOrderStatus($logger, $response, $id_order);
+            $this->updateOrderStatus($response, $id_order);
         } else {
-            $logger->logInfo('Find order by cart ID', 'Order not found.');
+            $this->logger->logInfo('Find order by cart ID', 'Order not found.');
         }
     }
 
-    private function updateOrderStatus($logger, $response, $id_order)
+    private function updateOrderStatus($response, $id_order)
     {
-        $logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
-        $logger->logInfo('Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status));
+        $this->logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
+        $this->logger->logInfo('Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status));
 
         $order = new Order($id_order);
         $new_status_code = Buckaroo3::resolveStatusCode($response->status);
@@ -383,10 +388,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
     }
 
-    private function handleFailedRequest($logger, $cartId)
+    private function handleFailedRequest($cartId)
     {
         $response = $this->checkout->getResponse();
-        $logger->logInfo('Request not succeeded');
+        $this->logger->logInfo('Request not succeeded');
 
         $this->setCartCookie($cartId);
 
@@ -412,15 +417,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function setCartCookie($cartId)
     {
-        $logger = new \Logger(CoreLogger::INFO, '');
         $oldCart = new Cart($cartId);
         $duplication = $oldCart->duplicate();
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-            $logger->logInfo('Cart duplicated successfully');
+            $this->logger->logInfo('Cart duplicated successfully');
             $this->context->cookie->id_cart = $duplication['cart']->id;
             $this->context->cookie->write();
         } else {
-            $logger->logError('Cart duplication failed');
+            $this->logger->logError('Cart duplication failed');
         }
     }
 }
