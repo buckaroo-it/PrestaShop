@@ -90,14 +90,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $payment->transaction_id = $response->transactions;
                     $payment->amount = urldecode($response->amount);
                     $payment->payment_method = $response->payment_method;
-                    if ($payment->id_currency == $order->id_currency) {
-                        $order->total_paid_real += $response->amount;
-                    } else {
-                        $order->total_paid_real += Tools::ps_round(
-                            Tools::convertPrice($response->amount, $payment->id_currency, false),
-                            2
-                        );
-                    }
+                    $order->total_paid_real += $response->amount;
                     $order->save();
                     $payment->conversion_rate = 1;
                     $payment->save();
