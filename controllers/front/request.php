@@ -202,23 +202,26 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
         $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
 
-        if (!$this->checkout->isVerifyRequired()) {
-            try {
-                $this->module->validateOrder(
-                    (int) $cart->id,
-                    $pending,
-                    (float) $total,
-                    $payment_method_tr,
-                    null,
-                    null,
-                    (int) $currency->id,
-                    false,
-                    $customer->secure_key
-                );
-            } catch (Exception $e) {
-                $this->logger->logError('Order validation failed: ', $e->getMessage());
-                $this->displayError(null, $e->getMessage());
-                return;
+        $id_order_cart = Order::getIdByCartId($cart->id);
+        if (!$id_order_cart) {
+            if (!$this->checkout->isVerifyRequired()) {
+                try {
+                    $this->module->validateOrder(
+                        (int) $cart->id,
+                        $pending,
+                        (float) $total,
+                        $payment_method_tr,
+                        null,
+                        null,
+                        (int) $currency->id,
+                        false,
+                        $customer->secure_key
+                    );
+                } catch (Exception $e) {
+                    $this->logger->logError('Order validation failed: ', $e->getMessage());
+                    $this->displayError(null, $e->getMessage());
+                    return;
+                }
             }
         }
 
@@ -296,7 +299,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
-                $this->setCartCookie($cartId);
+                $this->updateCartForPartialPayment($cartId, $response->getRemainderAmount());
                 Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
                 exit;
             } else {
@@ -314,6 +317,27 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             exit;
         }
     }
+
+    private function updateCartForPartialPayment($cartId, $remainingAmount)
+    {
+        $cart = new Cart($cartId);
+        if (Validate::isLoadedObject($cart)) {
+
+            if ($remainingAmount < 0) {
+                $remainingAmount = 0;
+            }
+
+            $cart->update();
+            $this->context->cart = $cart;
+            $this->context->cookie->id_cart = $cart->id;
+            $this->context->cookie->write();
+
+            $this->logger->logInfo('Updated cart for partial payment: Remaining Amount - ' . $remainingAmount);
+        } else {
+            $this->logger->logError('Cart restoration failed');
+        }
+    }
+
 
     private function processSepaDirectDebit($id_order, $responseData)
     {
