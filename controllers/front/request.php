@@ -299,7 +299,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
-                $this->updateCartForPartialPayment($cartId, $response->getRemainderAmount());
+                $this->setCartCookie($cartId);
                 Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
                 exit;
             } else {
