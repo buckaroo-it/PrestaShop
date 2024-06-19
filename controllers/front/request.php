@@ -238,7 +238,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-        $logger->logDebug('Checkout response', $response);
+//        $logger->logDebug('Checkout response', $response);
 
         if ($response->hasSucceeded()) {
             $this->processSuccessfulPayment($logger, $cartId, $customer, $response);
