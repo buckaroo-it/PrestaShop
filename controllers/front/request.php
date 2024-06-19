@@ -296,6 +296,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             'statusmessage' => $responseData->getStatusmessage(),
             'amount' => $responseData->getAmount(),
             'brq_relatedtransaction_partialpayment' => $responseData->getBrqRelatedtransactionPartialpayment(),
+            '$responsebrq_relatedtransaction_partialpayment' => $response->getBrqRelatedtransactionPartialpayment(),
         ]);
 
         if ($response->isPartialPayment()) {
