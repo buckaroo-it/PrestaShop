@@ -90,4 +90,12 @@ class BuckarooCommonController extends ModuleFrontController
 
         $this->setTemplate('module:buckaroo3/views/templates/front/error.tpl');
     }
+
+    /**
+     * Method to initialize content, should be overridden in child classes
+     */
+    public function initContent()
+    {
+        parent::initContent();
+    }
 }
