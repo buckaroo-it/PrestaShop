@@ -291,21 +291,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
-        $this->logger->logInfo('Checking if payment is partial', [
-            'statuscode' => $response->getStatuscode(),
-            'statusmessage' => $response->getStatusmessage(),
-            'amount' => $response->getAmount(),
-            'getRemainderAmount' => $response->getRemainderAmount(),
-            'brq_relatedtransaction_partialpayment' => $response->getGroupTransaction(),
-        ]);
-
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
 
             if ($response->getRemainderAmount() > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
-                $this->restoreCart($cartId); // Restore the cart before redirection
-                Tools::redirect('index.php?controller=order&step=1');
+                $this->setCartCookie($cartId);
+                Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
                 exit;
             } else {
                 $this->logger->logInfo('No remaining amount. Redirecting to order confirmation.');
@@ -407,19 +399,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $message->id_order = $orderId;
         $message->message = $messageString;
         $message->add();
-    }
-
-    private function restoreCart($cartId)
-    {
-        $cart = new Cart($cartId);
-        if (Validate::isLoadedObject($cart)) {
-            $this->context->cookie->id_cart = $cart->id;
-            $this->context->cart = $cart;
-            $this->context->cookie->write();
-            $this->logger->logInfo('Cart restored successfully: ' . print_r($cart->getProducts(), true));
-        } else {
-            $this->logger->logError('Cart restoration failed');
-        }
     }
 
     private function setCartCookie($cartId)
