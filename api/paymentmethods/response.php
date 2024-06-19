@@ -84,12 +84,7 @@ abstract class Response extends BuckarooAbstract
         }
 
         $this->payment = $this->setPostVariable('brq_payment');
-        if (Tools::getValue('brq_payment_method')) {
-            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_payment_method'));
-        } elseif (Tools::getValue('brq_transaction_method')) {
-            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_transaction_method'));
-        }
-
+        $this->payment_method = $this->getPaymentCode($this->setPostVariable('brq_payment_method') ?? $this->setPostVariable('brq_transaction_method'));
         $this->statuscode = $this->setPostVariable('brq_statuscode');
         $this->statusmessage = $this->setPostVariable('brq_statusmessage');
         $this->statuscode_detail = $this->setPostVariable('brq_statuscode_detail');
@@ -99,10 +94,7 @@ abstract class Response extends BuckarooAbstract
         $this->invoice = $this->setPostVariable('brq_invoicenumber');
         $this->invoicenumber = $this->setPostVariable('brq_invoicenumber');
         $this->amount = $this->setPostVariable('brq_amount');
-        if (Tools::getValue('brq_amount_credit')) {
-            $this->amount_credit = Tools::getValue('brq_amount_credit');
-        }
-
+        $this->amount_credit = $this->setPostVariable('brq_amount_credit');
         $this->currency = $this->setPostVariable('brq_currency');
         $this->test = $this->setPostVariable('brq_test');
         $this->timestamp = $this->setPostVariable('brq_timestamp');
@@ -293,5 +285,10 @@ abstract class Response extends BuckarooAbstract
     public function isPartialPayment(): bool
     {
         return !empty($this->brq_relatedtransaction_partialpayment);
+    }
+
+    public function getRemainingAmount(): float
+    {
+        return $this->response->remaining_amount ?? 0;
     }
 }

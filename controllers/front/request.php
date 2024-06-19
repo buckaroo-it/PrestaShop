@@ -309,7 +309,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 'brq_relatedtransaction_partialpayment' => $responseData->getBrqRelatedtransactionPartialpayment(),
             ]);
 
-            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH);
+            $remainingAmount = (float)$this->context->cart->getOrderTotal(true, Cart::BOTH) - $responseData->getAmount();
             $this->logger->logInfo('Remaining Amount: ' . $remainingAmount);
 
             if ($remainingAmount > 0) {
