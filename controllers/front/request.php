@@ -297,15 +297,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
-            // Update the cart and order totals
+
+            // Calculate remaining amount
             $remainingAmount = $response->getRemainderAmount();
 
-            $this->updateCartForPartialPayment($cartId, $remainingAmount);
+            // Update the order totals for partial payment
             $this->updateOrderForPartialPayment($id_order, $remainingAmount);
 
             if ($remainingAmount > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
-                $this->setCartCookie($cartId);
                 Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
                 exit;
             } else {
@@ -377,7 +377,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logError('Order update failed');
         }
     }
-
 
 
     private function processSepaDirectDebit($id_order, $responseData)
