@@ -64,7 +64,6 @@ class RawPaymentMethodRepository
 
         switch ($paymentName) {
             case 'klarna':
-            case 'tinka':
                 $configValue['financial_warning'] = true;
                 break;
 
@@ -129,7 +128,7 @@ class RawPaymentMethodRepository
             ['name' => 'giropay', 'label' => 'GiroPay', 'icon' => 'Giropay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'kbcpaymentbutton', 'label' => 'KBC', 'icon' => 'KBC.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bancontactmrcash', 'label' => 'Bancontact', 'icon' => 'Bancontact.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => 'payment_giftcards.tpl', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
             ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
@@ -142,7 +141,6 @@ class RawPaymentMethodRepository
             ['name' => 'przelewy24', 'label' => 'Przelewy24', 'icon' => 'Przelewy24.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'payperemail', 'label' => 'PayPerEmail', 'icon' => 'PayPerEmail.svg', 'template' => 'payment_payperemail.tpl', 'is_payment_method' => '1'],
             ['name' => 'payconiq', 'label' => 'Payconiq', 'icon' => 'Payconiq.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'tinka', 'label' => 'Tinka', 'icon' => 'Tinka.svg', 'template' => 'payment_tinka.tpl', 'is_payment_method' => '1'],
             ['name' => 'trustly', 'label' => 'Trustly', 'icon' => 'Trustly.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'transfer', 'label' => 'Bank Transfer', 'icon' => 'SEPA-credittransfer.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'wechatpay', 'label' => 'WeChatPay', 'icon' => 'WeChat Pay.svg', 'template' => '', 'is_payment_method' => '1'],

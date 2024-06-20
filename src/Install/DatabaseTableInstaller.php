@@ -68,13 +68,15 @@
                 INDEX(`name`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
-            $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee` (
-				`id`              INT(11) AUTO_INCREMENT PRIMARY KEY,
-				`reference`       TEXT NOT NULL,
-				`id_cart`         TEXT NOT NULL,
-				`buckaroo_fee`    FLOAT,
-				`currency`        TEXT NOT NULL,
-                `created_at`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (
+				`id`                        INT(11) AUTO_INCREMENT PRIMARY KEY,
+				`reference`                 TEXT NOT NULL,
+				`id_cart`                   INT(11) NOT NULL,
+				`id_order`                  INT(11) NOT NULL,
+				`buckaroo_fee_tax_incl`     FLOAT,
+				`buckaroo_fee_tax_excl`     FLOAT,
+				`currency`                  TEXT NOT NULL,
+                `created_at`                TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
             $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_configuration` (
@@ -104,6 +106,7 @@
 				`code`            VARCHAR(255) NOT NULL,
 				`name`            VARCHAR(255) NOT NULL,
 				`logo`            VARCHAR(255) NOT NULL,
+				`is_custom`       INT(11) DEFAULT 0 NOT NULL,
                 `created_at`      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 

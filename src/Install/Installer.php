@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 
@@ -82,6 +83,9 @@ class Installer implements InstallerInterface
         $creditCardsRepository = new RawCreditCardsRepository();
         $creditCardsRepository->insertCreditCards();
 
+        $giftCardsRepository = new RawGiftCardsRepository();
+        $giftCardsRepository->insertGiftCards();
+
         return true;
     }
 
@@ -129,6 +133,8 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, true);
         \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, false);
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, false);
+        \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
+        \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

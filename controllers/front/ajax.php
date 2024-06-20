@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Config\Config;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
@@ -42,9 +43,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      */
     private function renderCartSummary(Cart $cart, array $presentedCart = null)
     {
-        if (!$presentedCart) {
-            $presentedCart = $this->cart_presenter->present($cart);
-        }
+        $presentedCart = $presentedCart ?: $this->cart_presenter->present($cart);
 
         $this->context->smarty->assign([
             'configuration' => $this->getTemplateVarConfiguration(),
@@ -54,12 +53,10 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
         $responseArray = [
             'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
+            'paymentFee' => $presentedCart['totals']['paymentFee'] ?? null,
+            'paymentFeeTax' => $presentedCart['totals']['paymentFeeTax'] ?? null,
+            'includedTaxes' => $presentedCart['totals']['includedTaxes'] ?? null,
         ];
-
-        $paymentFee = $presentedCart['totals']['paymentFee'] ?? null;
-        if (isset($paymentFee)) {
-            $responseArray['paymentFee'] = $paymentFee;
-        }
 
         $this->ajaxRender(json_encode($responseArray));
     }
@@ -67,23 +64,22 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     /**
      * @throws PrestaShopException
      * @throws LocalizationException
+     * @throws Exception
      */
     private function calculateTotalWithPaymentFee()
     {
         $cart = $this->context->cart;
-        $paymentFeeValue = Tools::getValue('paymentFee');
-        $paymentFeeValue = trim($paymentFeeValue);
+        $paymentFeeValue = trim(Tools::getValue('paymentFee'));
 
         if (!$paymentFeeValue) {
             $this->renderCartSummary($cart);
-
             return;
         }
 
         $paymentFee = $this->calculatePaymentFee($paymentFeeValue, $cart);
         $orderTotals = $this->calculateOrderTotals($cart, $paymentFee);
 
-        $this->updatePresentedCart($cart, $orderTotals, $paymentFee);
+        $this->updatePresentedCart($cart, $orderTotals);
     }
 
     private function calculatePaymentFee($paymentFeeValue, $cart): DecimalNumber
@@ -92,26 +88,43 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
         if (strpos($paymentFeeValue, '%') !== false) {
             $paymentFeeValue = str_replace('%', '', $paymentFeeValue);
-            $paymentFeeValue = new DecimalNumber((string) $paymentFeeValue);
-            $percentage = $paymentFeeValue->dividedBy(new DecimalNumber('100'));
-
+            $percentage = (new DecimalNumber((string) $paymentFeeValue))->dividedBy(new DecimalNumber('100'));
             return $orderTotal->times($percentage);
-        } elseif ($paymentFeeValue > 0) {
-            return new DecimalNumber((string) $paymentFeeValue);
         }
 
-        return new DecimalNumber('0');
+        return new DecimalNumber($paymentFeeValue > 0 ? (string) $paymentFeeValue : '0');
     }
 
     private function calculateOrderTotals($cart, $paymentFee): array
     {
-        $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal()))->plus($paymentFee);
-        $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false)))->plus($paymentFee);
+        $paymentFeeValue = (float) $paymentFee->toPrecision(2);
+        $address = new Address($cart->id_address_invoice);
+        $taxManager = TaxManagerFactory::getManager($address, (int) Configuration::get('PS_TAX'));
+        $taxCalculator = $taxManager->getTaxCalculator();
+        $taxRate = $taxCalculator->getTotalRate();
+        $taxRateDecimal = $taxRate / 100;
 
-        return [
-            'total_including_tax' => $orderTotalWithFee->toPrecision(2),
-            'total_excluding_tax' => $orderTotalNoTaxWithFee->toPrecision(2),
-        ];
+        if (Configuration::get(Config::PAYMENT_FEE_MODE) === 'subtotal_incl_tax') {
+            $baseFee = $paymentFeeValue / (1 + $taxRateDecimal);
+            $taxFee = $paymentFeeValue - $baseFee;
+            $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH)))->plus(new DecimalNumber((string) $paymentFee));
+            $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH)))->plus(new DecimalNumber((string) $paymentFee));
+            $paymentFeeTax = new DecimalNumber((string) $taxFee);
+            $paymentFee = new DecimalNumber((string) $baseFee);
+        } else {
+            $paymentFeeTaxAmount = $paymentFeeValue * $taxRateDecimal;
+            $totalFeePriceTaxIncl = $paymentFeeValue + $paymentFeeTaxAmount;
+            $paymentFeeTax = new DecimalNumber((string) $paymentFeeTaxAmount);
+            $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH)))->plus(new DecimalNumber((string) $totalFeePriceTaxIncl));
+            $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH)))->plus($paymentFee);
+        }
+
+            return [
+                'total_including_tax' => $orderTotalWithFee->toPrecision(2),
+                'total_excluding_tax' => $orderTotalNoTaxWithFee->toPrecision(2),
+                'payment_fee' => $paymentFee->toPrecision(2),
+                'payment_fee_tax' => $paymentFeeTax->toPrecision(2),
+            ];
     }
 
     /**
@@ -119,18 +132,30 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      * @throws LocalizationException
      * @throws Exception
      */
-    private function updatePresentedCart($cart, $orderTotals, $paymentFee)
+    private function updatePresentedCart($cart, $orderTotals)
     {
         $taxConfiguration = new TaxConfiguration();
         $presentedCart = $this->cart_presenter->present($cart);
 
-        $buckarooFee = $this->formatPrice($paymentFee->toPrecision(2));
-        $presentedCart['totals'] = [
+        $buckarooFee = $this->formatPrice($orderTotals['payment_fee']);
+        $paymentFeeTax = $this->formatPrice($orderTotals['payment_fee_tax']);
+        $totalWithoutTax = new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH));
+        $totalWithTax = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
+        $includedTaxes = $totalWithTax->minus($totalWithoutTax)->plus(new DecimalNumber($orderTotals['payment_fee_tax']))->toPrecision(2);
+
+        $presentedCart['totals'] = $this->getTotalsArray($orderTotals, $buckarooFee, $paymentFeeTax, $includedTaxes);
+
+        $this->renderCartSummary($cart, $presentedCart);
+    }
+
+    private function getTotalsArray($orderTotals, $buckarooFee, $paymentFeeTax, $includedTaxes): array
+    {
+        $totalsArray = [
             'total' => [
                 'type' => 'total',
                 'label' => $this->translator->trans('Total', [], 'Shop.Theme.Checkout'),
-                'amount' => $taxConfiguration->includeTaxes() ? $orderTotals['total_including_tax'] : $orderTotals['total_excluding_tax'],
-                'value' => $this->formatPrice($taxConfiguration->includeTaxes() ? $orderTotals['total_including_tax'] : $orderTotals['total_excluding_tax']),
+                'amount' => $orderTotals['total_including_tax'],
+                'value' => $this->formatPrice($orderTotals['total_including_tax']),
             ],
             'total_including_tax' => [
                 'type' => 'total',
@@ -145,9 +170,19 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 'value' => $this->formatPrice($orderTotals['total_excluding_tax']),
             ],
             'paymentFee' => $buckarooFee,
+            'paymentFeeTax' => $paymentFeeTax,
         ];
 
-        $this->renderCartSummary($cart, $presentedCart);
+        if (Configuration::get(Config::PAYMENT_FEE_MODE) === 'subtotal') {
+            $totalsArray['includedTaxes'] = [
+                'type' => 'tax',
+                'label' => $this->translator->trans('Included taxes', [], 'Shop.Theme.Checkout'),
+                'amount' => $includedTaxes,
+                'value' => $this->formatPrice($includedTaxes),
+            ];
+        }
+
+        return $totalsArray;
     }
 
     /**

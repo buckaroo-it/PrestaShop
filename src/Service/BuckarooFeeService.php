@@ -39,6 +39,12 @@ class BuckarooFeeService
         $this->locale = \Tools::getContextLocale(\Context::getContext());
     }
 
+    public function getPaymentMethodByLabel($label)
+    {
+        $paymentMethod = $this->paymentMethodRepository->findOneBy(['label' => $label]);
+        return $paymentMethod ? $paymentMethod->getName() : null;
+    }
+
     /**
      * @throws LocalizationException
      */

@@ -1,5 +1,4 @@
 {*
-*
  *
  *
  * NOTICE OF LICENSE
@@ -16,15 +15,22 @@
     <tr>
         <td colspan="6" class="left">
         </td>
-
         <td colspan="6" rowspan="6" class="right">
             <table id="payment-tab" width="100%" class="right">
                 <tr class="bold">
                     <td class="grey" width="50%">
-                        {l s='Buckaroo Fee' mod='buckaroo3'}
+                        {$payment_fee_label|escape:'html':'UTF-8'}
                     </td>
                     <td class="white" width="50%">
                         {$order_buckaroo_fee|escape:'html':'UTF-8'}
+                    </td>
+                </tr>
+                <tr class="bold">
+                    <td class="grey" width="50%">
+                        {$payment_fee_label|escape:'html':'UTF-8'} Tax
+                    </td>
+                    <td class="white" width="50%">
+                        {$order_buckaroo_fee_tax|escape:'html':'UTF-8'}
                     </td>
                 </tr>
             </table>

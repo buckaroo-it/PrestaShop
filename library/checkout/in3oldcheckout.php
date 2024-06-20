@@ -154,7 +154,7 @@ class In3OldCheckout extends Checkout
      *
      * @return array
      */
-    protected function getArticles()
+    public function getArticles()
     {
         $total = 0;
         $products = [];
@@ -166,7 +166,7 @@ class In3OldCheckout extends Checkout
                 'price' => round($item['price_wt'], 2),
             ];
 
-            $total += round($item['price_wt'], 2);
+            $total += round($item['price_wt'] * $item['quantity'], 2);
         }
 
         $wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
@@ -202,12 +202,13 @@ class In3OldCheckout extends Checkout
             $total += round($shipping, 2);
         }
 
-        if (abs($this->payment_request->amountDebit - $total) >= 0.01) {
+        $difference = round($this->payment_request->amountDebit - $total, 2);
+        if (abs($difference) >= 0.01) {
             $products[] = [
                 'description' => 'Other fee/discount',
                 'identifier' => 'OFees',
                 'quantity' => 1,
-                'price' => round($this->payment_request->amountDebit - $total, 2),
+                'price' => $difference,
             ];
         }
 
