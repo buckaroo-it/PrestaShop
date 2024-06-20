@@ -354,10 +354,12 @@ abstract class Checkout
             return [];
         }
 
+        $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFee['buckaroo_fee_tax_incl'] - $buckarooFee['buckaroo_fee_tax_excl'];
+
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => round($buckarooFee['buckaroo_fee_tax_excl'], 2),
+            'price' => round($buckarooFeeData['buckaroo_fee_tax'], 2),
             'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ];
