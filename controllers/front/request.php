@@ -356,17 +356,28 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (Validate::isLoadedObject($order)) {
             // Calculate new totals
             $originalTotal = (float)$order->total_paid_real;
-            $newTotal = $originalTotal - $remainingAmount;
+            $newTotal = Tools::ps_round($originalTotal - $remainingAmount, _PS_PRICE_COMPUTE_PRECISION_);
+
+            // Ensure the total is not negative
+            if ($newTotal < 0) {
+                $newTotal = 0;
+            }
 
             $order->total_paid_real = $newTotal;
             $order->total_paid = $newTotal;
-            $order->update();
 
-            $this->logger->logInfo('Updated order for partial payment: New Total - ' . $newTotal);
+            // Validate before saving
+            if ($order->validateFields(false)) {
+                $order->update();
+                $this->logger->logInfo('Updated order for partial payment: New Total - ' . $newTotal);
+            } else {
+                $this->logger->logError('Order validation failed');
+            }
         } else {
             $this->logger->logError('Order update failed');
         }
     }
+
 
 
     private function processSepaDirectDebit($id_order, $responseData)
