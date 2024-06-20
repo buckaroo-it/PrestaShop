@@ -25,7 +25,7 @@ if (!defined('_PS_VERSION_')) {
  * @return mixed
  * @throws Exception
  */
-function upgrade_module_4_2_1($object)
+function upgrade_module_4_3_0($object)
 {
     // Create new table if it doesn't exist
     $createTableQuery = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (
