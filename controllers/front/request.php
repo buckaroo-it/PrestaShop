@@ -270,6 +270,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->setCartCookie($cartId);
             $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
+            exit;
         }
 
         if ($response->hasSucceeded()) {
@@ -295,135 +296,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
-        if ($response->isPartialPayment()) {
-            $this->logger->logInfo('isPartialPayment detected.');
-            $remainingAmount = $response->getRemainderAmount();
-
-            // Update the order totals for partial payment
-            $this->updateOrderForPartialPayment($id_order, $remainingAmount);
-            $this->setPartialPaymentOrderStatus($id_order);
-
-            // Apply the gift card (discount) to the cart
-            $giftCardCode = 'GIFT2024';
-            $discountAmount = 20.00; // Example amount, this can be dynamic
-            $this->processGiftCard($this->context->cart, $giftCardCode, $discountAmount);
-
-            $this->logger->logInfo('Partial payment received. Remaining amount: ' . $remainingAmount);
-
-            // Stay on the same page and display the updated order summary
-            $this->context->smarty->assign([
-                'cart' => $this->context->cart,
-                'order' => $id_order,
-                'remainingAmount' => $remainingAmount,
-                'success' => true
-            ]);
-            return $this->setTemplate('order-confirmation.tpl');
-        }
-
-        $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
             'id_cart' => $cartId,
             'id_module' => $this->module->id,
             'id_order' => $id_order,
             'key' => $customer->secure_key,
-            'success' => 'true'
+            'success' => 'true',
+            'response_received' => $response->payment_method
         ]));
-        exit;
-    }
-
-    private function createGiftCardCartRule($cart, $giftCardCode, $discountAmount)
-    {
-        $cartRule = new CartRule();
-        $cartRule->code = $giftCardCode;
-        $cartRule->id_customer = $cart->id_customer;
-        $cartRule->reduction_amount = $discountAmount;
-        $cartRule->reduction_tax = true; // Whether the reduction includes tax or not
-        $cartRule->name = [Configuration::get('PS_LANG_DEFAULT') => 'Gift Card ' . $giftCardCode];
-        $cartRule->date_from = date('Y-m-d H:i:s', strtotime('-1 day'));
-        $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+1 year'));
-        $cartRule->quantity = 1;
-        $cartRule->quantity_per_user = 1;
-        $cartRule->active = 1;
-
-        if ($cartRule->add()) {
-            return $cartRule;
-        } else {
-            $this->logger->logError('Failed to create gift card cart rule.');
-            return null;
-        }
-    }
-
-    private function applyGiftCardToCart($cart, $cartRule)
-    {
-        if ($cartRule) {
-            $cart->addCartRule($cartRule->id);
-            $cart->update();
-            $this->context->cart = $cart;
-            $this->context->cookie->write();
-            $this->logger->logInfo('Gift card applied to cart. CartRule ID: ' . $cartRule->id);
-        } else {
-            $this->logger->logError('Failed to apply gift card to cart.');
-        }
-    }
-
-    private function processGiftCard($cart, $giftCardCode, $discountAmount)
-    {
-        $cartRule = $this->createGiftCardCartRule($cart, $giftCardCode, $discountAmount);
-        if ($cartRule) {
-            $this->applyGiftCardToCart($cart, $cartRule);
-        }
-    }
-
-    private function updateOrderForPartialPayment($orderId, $remainingAmount)
-    {
-        $order = new Order($orderId);
-        if (Validate::isLoadedObject($order)) {
-            $originalTotal = (float)$order->total_paid_real;
-            $newTotal = Tools::ps_round($originalTotal - $remainingAmount, _PS_PRICE_COMPUTE_PRECISION_);
-
-            if ($newTotal < 0) {
-                $newTotal = 0;
-            }
-
-            $order->total_paid_real = $newTotal;
-            $order->total_paid = $newTotal;
-
-            if ($order->validateFields(false)) {
-                $order->update();
-                $this->logger->logInfo('Updated order for partial payment: New Total - ' . $newTotal);
-            } else {
-                $this->logger->logError('Order validation failed');
-            }
-        } else {
-            $this->logger->logError('Order update failed');
-        }
-    }
-
-    private function setPartialPaymentOrderStatus($orderId)
-    {
-        $partialPaymentStateId = Configuration::get('PS_OS_PARTIAL_PAYMENT'); // Ensure this configuration is set correctly
-
-        if (!$partialPaymentStateId) {
-            $this->logger->logError('Partial payment state ID is not configured.');
-            return;
-        }
-
-        $this->logger->logInfo('Partial payment state ID: ' . $partialPaymentStateId);
-
-        $order = new Order($orderId);
-        if (Validate::isLoadedObject($order)) {
-            $history = new OrderHistory();
-            $history->id_order = $orderId;
-            $history->id_order_state = $partialPaymentStateId; // Set the partial payment state ID
-            $history->date_add = date('Y-m-d H:i:s');
-            $history->addWithemail(true, [
-                'order' => $order,
-                'order_history' => $history
-            ]);
-            $this->logger->logInfo('Order status updated to partial payment.');
-        } else {
-            $this->logger->logError('Failed to update order status to partial payment.');
-        }
     }
 
     private function processSepaDirectDebit($id_order, $responseData)
@@ -517,9 +397,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $oldCart = new Cart($cartId);
         $duplication = $oldCart->duplicate();
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-            $this->logger->logInfo('Cart duplicated successfully');
             $this->context->cookie->id_cart = $duplication['cart']->id;
-            $this->context->cart = $duplication['cart'];
             $this->context->cookie->write();
         } else {
             $this->logger->logError('Cart duplication failed');
