@@ -84,7 +84,11 @@ abstract class Response extends BuckarooAbstract
         }
 
         $this->payment = $this->setPostVariable('brq_payment');
-        $this->payment_method = $this->getPaymentCode($this->setPostVariable('brq_payment_method') ?? $this->setPostVariable('brq_transaction_method'));
+        if (Tools::getValue('brq_payment_method')) {
+            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_payment_method'));
+        } elseif (Tools::getValue('brq_transaction_method')) {
+            $this->payment_method = $this->getPaymentCode(Tools::getValue('brq_transaction_method'));
+        }
         $this->statuscode = $this->setPostVariable('brq_statuscode');
         $this->statusmessage = $this->setPostVariable('brq_statusmessage');
         $this->statuscode_detail = $this->setPostVariable('brq_statuscode_detail');
