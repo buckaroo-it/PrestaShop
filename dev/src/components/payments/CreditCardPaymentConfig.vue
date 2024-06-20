@@ -60,7 +60,8 @@ export default {
       const { t } = useI18n();
 
       const displayOptions = [
-        { text: t('Grouped'), value: 'grouped' }
+        { text: t('Grouped'), value: 'grouped' },
+        { text: t('Separate'), value: 'separate' }
       ];
 
       const config = inject('config')
