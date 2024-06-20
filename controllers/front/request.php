@@ -297,57 +297,34 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
-
-            // Calculate remaining amount
             $remainingAmount = $response->getRemainderAmount();
 
             // Update the order totals for partial payment
             $this->updateOrderForPartialPayment($id_order, $remainingAmount);
+            $this->setPartialPaymentOrderStatus($id_order);
 
             if ($remainingAmount > 0) {
-                $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
-                Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
-                exit;
-            } else {
-                $this->logger->logInfo('No remaining amount. Redirecting to order confirmation.');
+                $this->logger->logInfo('Partial payment received. Remaining amount: ' . $remainingAmount);
                 Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
                     'id_cart' => $cartId,
                     'id_module' => $this->module->id,
                     'id_order' => $id_order,
                     'key' => $customer->secure_key,
-                    'success' => 'true',
-                    'response_received' => $response->payment_method
+                    'partial' => 'true'
                 ]));
                 exit;
             }
-        } else {
-            $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
-            Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
-                'id_cart' => $cartId,
-                'id_module' => $this->module->id,
-                'id_order' => $id_order,
-                'key' => $customer->secure_key,
-                'success' => 'true',
-                'response_received' => $response->payment_method
-            ]));
-            exit;
         }
-    }
 
-    private function updateCartForPartialPayment($cartId, $remainingAmount)
-    {
-        $cart = new Cart($cartId);
-        if (Validate::isLoadedObject($cart)) {
-            // Update the cart total
-            $cart->update();
-            $this->context->cart = $cart;
-            $this->context->cookie->id_cart = $cart->id;
-            $this->context->cookie->write();
-
-            $this->logger->logInfo('Updated cart for partial payment: Remaining Amount - ' . $remainingAmount);
-        } else {
-            $this->logger->logError('Cart restoration failed');
-        }
+        $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
+        Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
+            'id_cart' => $cartId,
+            'id_module' => $this->module->id,
+            'id_order' => $id_order,
+            'key' => $customer->secure_key,
+            'success' => 'true'
+        ]));
+        exit;
     }
 
     private function updateOrderForPartialPayment($orderId, $remainingAmount)
@@ -377,6 +354,24 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logError('Order update failed');
         }
     }
+
+
+    private function setPartialPaymentOrderStatus($orderId)
+    {
+        $partialPaymentStateId = Configuration::get('PS_OS_PARTIAL_PAYMENT'); // Make sure this is set to your custom partial payment status ID
+
+        $order = new Order($orderId);
+        if (Validate::isLoadedObject($order)) {
+            $history = new OrderHistory();
+            $history->id_order = $orderId;
+            $history->changeIdOrderState($partialPaymentStateId, $orderId);
+            $history->addWithemail(true);
+            $this->logger->logInfo('Order status updated to partial payment.');
+        } else {
+            $this->logger->logError('Failed to update order status to partial payment.');
+        }
+    }
+
 
 
     private function processSepaDirectDebit($id_order, $responseData)
