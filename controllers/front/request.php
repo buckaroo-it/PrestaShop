@@ -301,15 +301,23 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             // Update the order totals for partial payment
             $this->updateOrderForPartialPayment($id_order, $remainingAmount);
+            $this->setPartialPaymentOrderStatus($id_order);
+
             // Apply the gift card (discount) to the cart
             $giftCardCode = 'GIFT2024';
             $discountAmount = 20.00; // Example amount, this can be dynamic
             $this->processGiftCard($this->context->cart, $giftCardCode, $discountAmount);
+
             $this->logger->logInfo('Partial payment received. Remaining amount: ' . $remainingAmount);
 
-            // Stay on the same page, no redirection
-            return;
-
+            // Stay on the same page and display the updated order summary
+            $this->context->smarty->assign([
+                'cart' => $this->context->cart,
+                'order' => $id_order,
+                'remainingAmount' => $remainingAmount,
+                'success' => true
+            ]);
+            return $this->setTemplate('order-confirmation.tpl');
         }
 
         $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
@@ -388,6 +396,33 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             }
         } else {
             $this->logger->logError('Order update failed');
+        }
+    }
+
+    private function setPartialPaymentOrderStatus($orderId)
+    {
+        $partialPaymentStateId = Configuration::get('PS_OS_PARTIAL_PAYMENT'); // Ensure this configuration is set correctly
+
+        if (!$partialPaymentStateId) {
+            $this->logger->logError('Partial payment state ID is not configured.');
+            return;
+        }
+
+        $this->logger->logInfo('Partial payment state ID: ' . $partialPaymentStateId);
+
+        $order = new Order($orderId);
+        if (Validate::isLoadedObject($order)) {
+            $history = new OrderHistory();
+            $history->id_order = $orderId;
+            $history->id_order_state = $partialPaymentStateId; // Set the partial payment state ID
+            $history->date_add = date('Y-m-d H:i:s');
+            $history->addWithemail(true, [
+                'order' => $order,
+                'order_history' => $history
+            ]);
+            $this->logger->logInfo('Order status updated to partial payment.');
+        } else {
+            $this->logger->logError('Failed to update order status to partial payment.');
         }
     }
 
