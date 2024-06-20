@@ -301,19 +301,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             // Update the order totals for partial payment
             $this->updateOrderForPartialPayment($id_order, $remainingAmount);
-            $this->setPartialPaymentOrderStatus($id_order);
+            // Apply the gift card (discount) to the cart
+            $giftCardCode = 'GIFT2024';
+            $discountAmount = 20.00; // Example amount, this can be dynamic
+            $this->processGiftCard($this->context->cart, $giftCardCode, $discountAmount);
+            $this->logger->logInfo('Partial payment received. Remaining amount: ' . $remainingAmount);
 
-            if ($remainingAmount > 0) {
-                $this->logger->logInfo('Partial payment received. Remaining amount: ' . $remainingAmount);
-                Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
-                    'id_cart' => $cartId,
-                    'id_module' => $this->module->id,
-                    'id_order' => $id_order,
-                    'key' => $customer->secure_key,
-                    'partial' => 'true'
-                ]));
-                exit;
-            }
+            // Stay on the same page, no redirection
+            return;
+
         }
 
         $this->logger->logInfo('Full payment completed. Redirecting to order confirmation.');
@@ -327,15 +323,56 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         exit;
     }
 
+    private function createGiftCardCartRule($cart, $giftCardCode, $discountAmount)
+    {
+        $cartRule = new CartRule();
+        $cartRule->code = $giftCardCode;
+        $cartRule->id_customer = $cart->id_customer;
+        $cartRule->reduction_amount = $discountAmount;
+        $cartRule->reduction_tax = true; // Whether the reduction includes tax or not
+        $cartRule->name = [Configuration::get('PS_LANG_DEFAULT') => 'Gift Card ' . $giftCardCode];
+        $cartRule->date_from = date('Y-m-d H:i:s', strtotime('-1 day'));
+        $cartRule->date_to = date('Y-m-d H:i:s', strtotime('+1 year'));
+        $cartRule->quantity = 1;
+        $cartRule->quantity_per_user = 1;
+        $cartRule->active = 1;
+
+        if ($cartRule->add()) {
+            return $cartRule;
+        } else {
+            $this->logger->logError('Failed to create gift card cart rule.');
+            return null;
+        }
+    }
+
+    private function applyGiftCardToCart($cart, $cartRule)
+    {
+        if ($cartRule) {
+            $cart->addCartRule($cartRule->id);
+            $cart->update();
+            $this->context->cart = $cart;
+            $this->context->cookie->write();
+            $this->logger->logInfo('Gift card applied to cart. CartRule ID: ' . $cartRule->id);
+        } else {
+            $this->logger->logError('Failed to apply gift card to cart.');
+        }
+    }
+
+    private function processGiftCard($cart, $giftCardCode, $discountAmount)
+    {
+        $cartRule = $this->createGiftCardCartRule($cart, $giftCardCode, $discountAmount);
+        if ($cartRule) {
+            $this->applyGiftCardToCart($cart, $cartRule);
+        }
+    }
+
     private function updateOrderForPartialPayment($orderId, $remainingAmount)
     {
         $order = new Order($orderId);
         if (Validate::isLoadedObject($order)) {
-            // Calculate new totals
             $originalTotal = (float)$order->total_paid_real;
             $newTotal = Tools::ps_round($originalTotal - $remainingAmount, _PS_PRICE_COMPUTE_PRECISION_);
 
-            // Ensure the total is not negative
             if ($newTotal < 0) {
                 $newTotal = 0;
             }
@@ -343,7 +380,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $order->total_paid_real = $newTotal;
             $order->total_paid = $newTotal;
 
-            // Validate before saving
             if ($order->validateFields(false)) {
                 $order->update();
                 $this->logger->logInfo('Updated order for partial payment: New Total - ' . $newTotal);
@@ -354,25 +390,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logError('Order update failed');
         }
     }
-
-
-    private function setPartialPaymentOrderStatus($orderId)
-    {
-        $partialPaymentStateId = Configuration::get('PS_OS_PARTIAL_PAYMENT'); // Make sure this is set to your custom partial payment status ID
-
-        $order = new Order($orderId);
-        if (Validate::isLoadedObject($order)) {
-            $history = new OrderHistory();
-            $history->id_order = $orderId;
-            $history->changeIdOrderState($partialPaymentStateId, $orderId);
-            $history->addWithemail(true);
-            $this->logger->logInfo('Order status updated to partial payment.');
-        } else {
-            $this->logger->logError('Failed to update order status to partial payment.');
-        }
-    }
-
-
 
     private function processSepaDirectDebit($id_order, $responseData)
     {
