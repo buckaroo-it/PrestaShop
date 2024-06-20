@@ -23,6 +23,10 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooCommonController extends ModuleFrontController
 {
+    public function __construct()
+    {
+        parent::__construct();
+    }
     private $id_order;
 
     protected function displayConfirmationTransfer($response)
@@ -85,5 +89,13 @@ class BuckarooCommonController extends ModuleFrontController
         );
 
         $this->setTemplate('module:buckaroo3/views/templates/front/error.tpl');
+    }
+
+    /**
+     * Method to initialize content, should be overridden in child classes
+     */
+    public function initContent()
+    {
+        parent::initContent();
     }
 }

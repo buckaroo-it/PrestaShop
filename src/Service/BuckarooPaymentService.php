@@ -91,9 +91,9 @@ class BuckarooPaymentService
             }
 
             if ($isMethodValid) {
-                if ($method === 'creditcard' && $this->areCardsSeparate()) {
+                if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
                     $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
-                } elseif ($method === 'giftcard') {
+                } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
                     $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
                 } else {
                     $payment_options[] = $this->createPaymentOption($method, $details);
@@ -185,6 +185,7 @@ class BuckarooPaymentService
         }
 
         if (!empty($details->getTemplate())) {
+            $this->context->smarty->assign('cardCode', $cardCode);
             $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
@@ -193,7 +194,6 @@ class BuckarooPaymentService
         $newOption->setCallToActionText($title)
             ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
             ->setModuleName($method);
-
 
         $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
 
@@ -255,10 +255,9 @@ class BuckarooPaymentService
         return null;
     }
 
-
-    private function areCardsSeparate(): bool
+    private function areCardsSeparate($method): bool
     {
-        $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
+        $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
         return ($configArray['display_in_checkout'] ?? "grouped") === "separate";
     }
 
