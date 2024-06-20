@@ -357,7 +357,7 @@ abstract class Checkout
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => round($buckarooFee['buckaroo_fee_tax_excl'], 2),
+            'price' => round($buckarooFee['buckaroo_fee_tax_incl'], 2),
             'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ];
@@ -370,7 +370,7 @@ abstract class Checkout
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => $item['price_wt']->toPrecision(2),
+                'price' => round($item['price_wt'], 2),
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
