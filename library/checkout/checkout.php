@@ -357,7 +357,7 @@ abstract class Checkout
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => (new DecimalNumber((string) $buckarooFee['buckaroo_fee_tax_excl']))->toPrecision(2),
+            'price' => round($buckarooFee['buckaroo_fee_tax_excl'], 2),
             'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ];
