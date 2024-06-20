@@ -107,7 +107,7 @@ class In3Checkout extends Checkout
                 'vatPercentage' => $item['rate'],
             ];
 
-            $total += round($item['price_wt'], 2);
+            $total += round($item['price_wt'] * $item['quantity'], 2);
         }
 
         $wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
