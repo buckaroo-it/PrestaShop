@@ -297,8 +297,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($response->isPartialPayment()) {
             $this->logger->logInfo('isPartialPayment detected.');
+            // Update the cart and order totals
+            $remainingAmount = $response->getRemainderAmount();
 
-            if ($response->getRemainderAmount() > 0) {
+            $this->updateCartForPartialPayment($cartId, $remainingAmount);
+            $this->updateOrderForPartialPayment($id_order, $remainingAmount);
+
+            if ($remainingAmount > 0) {
                 $this->logger->logInfo('Redirecting to checkout step 3 to complete the payment.');
                 $this->setCartCookie($cartId);
                 Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
@@ -333,11 +338,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         $cart = new Cart($cartId);
         if (Validate::isLoadedObject($cart)) {
-
-            if ($remainingAmount < 0) {
-                $remainingAmount = 0;
-            }
-
+            // Update the cart total
             $cart->update();
             $this->context->cart = $cart;
             $this->context->cookie->id_cart = $cart->id;
@@ -346,6 +347,24 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logInfo('Updated cart for partial payment: Remaining Amount - ' . $remainingAmount);
         } else {
             $this->logger->logError('Cart restoration failed');
+        }
+    }
+
+    private function updateOrderForPartialPayment($orderId, $remainingAmount)
+    {
+        $order = new Order($orderId);
+        if (Validate::isLoadedObject($order)) {
+            // Calculate new totals
+            $originalTotal = (float)$order->total_paid_real;
+            $newTotal = $originalTotal - $remainingAmount;
+
+            $order->total_paid_real = $newTotal;
+            $order->total_paid = $newTotal;
+            $order->update();
+
+            $this->logger->logInfo('Updated order for partial payment: New Total - ' . $newTotal);
+        } else {
+            $this->logger->logError('Order update failed');
         }
     }
 
