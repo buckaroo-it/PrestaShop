@@ -182,6 +182,7 @@
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.belfius": "Belfius",
   "payment_methods.billink": "Lien de facturation",
+  "payment_methods.blik": "Blik",
   "payment_methods.creditcard": "Cartes",
   "payment_methods.eps": "PSE",
   "payment_methods.giftcard": "Carte cadeau",
