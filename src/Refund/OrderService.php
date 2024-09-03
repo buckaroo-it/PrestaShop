@@ -52,7 +52,6 @@ class OrderService
 
     public function refund(\Order $order, float $amount)
     {
-        if(boolval(\Configuration::get(Settings::LABEL_REFUND_CONF))){
 
             $refundData = $this->determineRefundData($order, $amount);
 
@@ -74,8 +73,6 @@ class OrderService
             $this->session->set('buckaroo_skip_refund', true);
             $this->commandBus->handle($command);
             $this->session->remove('buckaroo_skip_refund');
-
-        }
     }
 
     /**
