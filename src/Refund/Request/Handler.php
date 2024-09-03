@@ -20,6 +20,7 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\Transaction\Response\TransactionResponse;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -33,13 +34,12 @@ class Handler
      * @param array $body
      * @param string $method
      *
+     * @return TransactionResponse
      */
-    public function refund(array $body, string $method)
+    public function refund(array $body, string $method): TransactionResponse
     {
-        if (\Configuration::get(Settings::LABEL_REFUND_CONF)){
-            $buckaroo = $this->getClient($method);
-            return $buckaroo->method($method)->refund($body);
-        }
+        $buckaroo = $this->getClient($method);
+        return $buckaroo->method($method)->refund($body);
     }
 
     /**
