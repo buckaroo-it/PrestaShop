@@ -52,26 +52,30 @@ class OrderService
 
     public function refund(\Order $order, float $amount)
     {
-        $refundData = $this->determineRefundData($order, $amount);
+        if(boolval(\Configuration::get(Settings::LABEL_REFUND_CONF))){
 
-        $createCreditSlipValue = \Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
-        if (!is_scalar($createCreditSlipValue)) {
-            $createCreditSlipValue = true;
+            $refundData = $this->determineRefundData($order, $amount);
+
+            $createCreditSlipValue = \Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
+            if (!is_scalar($createCreditSlipValue)) {
+                $createCreditSlipValue = true;
+            }
+
+            $command = new IssuePartialRefundCommand(
+                $order->id,
+                $refundData['products'],
+                $refundData['shipping_amount'],
+                boolval(\Configuration::get(Settings::LABEL_REFUND_RESTOCK)),
+                (bool) $createCreditSlipValue,
+                boolval(\Configuration::get(Settings::LABEL_REFUND_VOUCHER)),
+                VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
+            );
+
+            $this->session->set('buckaroo_skip_refund', true);
+            $this->commandBus->handle($command);
+            $this->session->remove('buckaroo_skip_refund');
+
         }
-
-        $command = new IssuePartialRefundCommand(
-            $order->id,
-            $refundData['products'],
-            $refundData['shipping_amount'],
-            boolval(\Configuration::get(Settings::LABEL_REFUND_RESTOCK)),
-            (bool) $createCreditSlipValue,
-            boolval(\Configuration::get(Settings::LABEL_REFUND_VOUCHER)),
-            VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
-        );
-
-        $this->session->set('buckaroo_skip_refund', true);
-        $this->commandBus->handle($command);
-        $this->session->remove('buckaroo_skip_refund');
     }
 
     /**

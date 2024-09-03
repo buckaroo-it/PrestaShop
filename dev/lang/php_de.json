@@ -136,6 +136,8 @@
   "dashboard.pages.settings.no_im_testing": "Nein, ich teste",
   "dashboard.pages.settings.order_number": "Bestellnummer",
   "dashboard.pages.settings.order_number2": "Bestellnummer",
+  "dashboard.pages.settings.refund_conf": "Automatische Rückerstattungen über Buckaroo",
+  "dashboard.pages.settings.refund_conf_label": "Aktivieren/deaktivieren Sie automatische Rückerstattungen über Buckaroo, wenn eine Rückerstattung in PrestaShop initiiert wird.",
   "dashboard.pages.settings.re_stock_products": "Produkte wieder auffüllen",
   "dashboard.pages.settings.re_stock_products_label": "Ob erstattete Produkte wieder in den Lagerbestand aufgenommen werden sollen (Erhöhung der Lagermenge).",
   "dashboard.pages.settings.refunds": "Rückerstattungen",

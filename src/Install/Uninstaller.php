@@ -84,6 +84,7 @@ class Uninstaller
             Config::BUCKAROO_SECRET_KEY,
             Config::BUCKAROO_TRANSACTION_LABEL,
             Config::BUCKAROO_TRANSACTION_FEE,
+            Config::LABEL_REFUND_CONF,
             Config::LABEL_REFUND_RESTOCK,
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,

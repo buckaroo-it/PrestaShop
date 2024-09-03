@@ -136,6 +136,8 @@
   "dashboard.pages.settings.no_im_testing": "No, I'm Testing",
   "dashboard.pages.settings.order_number": "Order number",
   "dashboard.pages.settings.order_number2": "order_number",
+  "dashboard.pages.settings.refund_conf": "Automatic refunds via Buckaroo",
+  "dashboard.pages.settings.refund_conf_label": "Enable/disable automatic refunds via Buckaroo when a refund from PrestaShop is inititated.",
   "dashboard.pages.settings.re_stock_products": "Re-stock Products",
   "dashboard.pages.settings.re_stock_products_label": "Whether refunded products should be returned to inventory (increasing the quantity in stock).",
   "dashboard.pages.settings.refunds": "Refunds",

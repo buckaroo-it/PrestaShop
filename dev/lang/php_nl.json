@@ -134,6 +134,8 @@
   "dashboard.pages.settings.no_im_testing": "Nee, ik wil testen",
   "dashboard.pages.settings.order_number": "Bestellingsnummer",
   "dashboard.pages.settings.order_number2": "bestellingsnummer",
+  "dashboard.pages.settings.refund_conf": "Automatische terugbetalingen via Buckaroo",
+  "dashboard.pages.settings.refund_conf_label": "Automatische terugbetalingen via Buckaroo in- of uitschakelen wanneer een terugbetaling vanuit PrestaShop wordt gestart.",
   "dashboard.pages.settings.re_stock_products": "De voorraad aanvullen bij retourproducten",
   "dashboard.pages.settings.re_stock_products_label": "Of terugbetaalde producten moeten worden teruggeplaatst in de voorraad (waardoor de voorraadhoeveelheid wordt verhoogd).",
   "dashboard.pages.settings.refunds": "Terugbetalingen",
