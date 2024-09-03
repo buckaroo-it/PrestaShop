@@ -23,6 +23,7 @@ if (!defined('_PS_VERSION_')) {
 
 class Settings
 {
+    public const LABEL_REFUND_CONF = 'BUCKAROO_REFUND_CONF';
     public const LABEL_REFUND_RESTOCK = 'BUCKAROO_REFUND_RESTOCK';
     public const LABEL_REFUND_CREDIT_SLIP = 'BUCKAROO_REFUND_CREDIT_SLIP';
     public const LABEL_REFUND_VOUCHER = 'BUCKAROO_REFUND_VOUCHER';
@@ -40,6 +41,11 @@ class Settings
             'position' => 0.5,
             'enabled' => true,
             'input' => [
+                [
+                    'type' => 'bool',
+                    'name' => self::LABEL_REFUND_CONF,
+                    'label' => $module->l('Re-fund products'),
+                ],
                 [
                     'type' => 'bool',
                     'name' => self::LABEL_REFUND_RESTOCK,
@@ -73,6 +79,7 @@ class Settings
     public function getValues(): array
     {
         return [
+            self::LABEL_REFUND_CONF => \Configuration::get(self::LABEL_REFUND_CONF),
             self::LABEL_REFUND_RESTOCK => \Configuration::get(self::LABEL_REFUND_RESTOCK),
             self::LABEL_REFUND_CREDIT_SLIP => \Configuration::get(self::LABEL_REFUND_CREDIT_SLIP),
             self::LABEL_REFUND_VOUCHER => \Configuration::get(self::LABEL_REFUND_VOUCHER),
@@ -82,6 +89,7 @@ class Settings
 
     public function install()
     {
+        \Configuration::updateValue(self::LABEL_REFUND_CONF, false);
         \Configuration::updateValue(self::LABEL_REFUND_RESTOCK, false);
         \Configuration::updateValue(self::LABEL_REFUND_CREDIT_SLIP, true);
         \Configuration::updateValue(self::LABEL_REFUND_VOUCHER, false);
@@ -90,6 +98,7 @@ class Settings
 
     public function uninstall()
     {
+        \Configuration::deleteByName(self::LABEL_REFUND_CONF);
         \Configuration::deleteByName(self::LABEL_REFUND_RESTOCK);
         \Configuration::deleteByName(self::LABEL_REFUND_CREDIT_SLIP);
         \Configuration::deleteByName(self::LABEL_REFUND_VOUCHER);
@@ -98,6 +107,7 @@ class Settings
 
     public function updateAll()
     {
+        \Configuration::updateValue(self::LABEL_REFUND_CONF, \Tools::getValue(self::LABEL_REFUND_CONF));
         \Configuration::updateValue(self::LABEL_REFUND_RESTOCK, \Tools::getValue(self::LABEL_REFUND_RESTOCK));
         \Configuration::updateValue(self::LABEL_REFUND_CREDIT_SLIP, \Tools::getValue(self::LABEL_REFUND_CREDIT_SLIP));
         \Configuration::updateValue(self::LABEL_REFUND_VOUCHER, \Tools::getValue(self::LABEL_REFUND_VOUCHER));

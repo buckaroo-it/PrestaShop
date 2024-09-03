@@ -33,6 +33,7 @@ class BuckarooSettingsService
             'website_key' => \Configuration::get(Config::BUCKAROO_MERCHANT_KEY),
             'secret_key' => \Configuration::get(Config::BUCKAROO_SECRET_KEY),
             'transaction_description' => \Configuration::get(Config::BUCKAROO_TRANSACTION_LABEL),
+            'refundconf' => (bool) \Configuration::get(Config::LABEL_REFUND_CONF),
             'restock' => (bool) \Configuration::get(Config::LABEL_REFUND_RESTOCK),
             'creditSlip' => (bool) \Configuration::get(Config::LABEL_REFUND_CREDIT_SLIP),
             'voucher' => (bool) \Configuration::get(Config::LABEL_REFUND_VOUCHER),
@@ -47,7 +48,7 @@ class BuckarooSettingsService
         $requiredKeys = [
             'website_key', 'secret_key',
             'transaction_description', 'is_live',
-            'restock', 'creditSlip',
+            'refundconf', 'restock', 'creditSlip',
             'voucher', 'negativePayment',
             'payment_fee_mode', 'payment_fee_frontend_label'
         ];
@@ -66,6 +67,7 @@ class BuckarooSettingsService
         \Configuration::updateValue(Config::BUCKAROO_SECRET_KEY, $data['secret_key']);
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_LABEL, $data['transaction_description']);
         \Configuration::updateValue(Config::BUCKAROO_TEST, $data['is_live']);
+        \Configuration::updateValue(Config::LABEL_REFUND_CONF, $data['refundconf']);
         \Configuration::updateValue(Config::LABEL_REFUND_RESTOCK, $data['restock']);
         \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, $data['creditSlip']);
         \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, $data['voucher']);

@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
+use Buckaroo\PrestaShop\Src\Refund\Settings;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 if (!defined('_PS_VERSION_')) {
@@ -38,7 +39,6 @@ class Handler
     public function refund(array $body, string $method): TransactionResponse
     {
         $buckaroo = $this->getClient($method);
-
         return $buckaroo->method($method)->refund($body);
     }
 

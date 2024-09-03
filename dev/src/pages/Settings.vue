@@ -178,6 +178,14 @@
                   </div>
                 </div>
               </div>
+              <ToggleField class="p-5 space-y-5" v-model="settings.refundconf">
+                <div>
+                  <label for="client-side-mode" class="font-semibold text-sm">
+                    {{ $t('dashboard.pages.settings.refund_conf') }}
+                  </label>
+                  <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.refund_conf_label') }}</div>
+                </div>
+              </ToggleField>
               <ToggleField class="p-5 space-y-5" v-model="settings.restock">
                 <div>
                   <label for="client-side-mode" class="font-semibold text-sm">

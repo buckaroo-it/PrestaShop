@@ -136,6 +136,8 @@
   "dashboard.pages.settings.no_im_testing": "Non, je teste",
   "dashboard.pages.settings.order_number": "Numéro de commande",
   "dashboard.pages.settings.order_number2": "numéro de commande",
+  "dashboard.pages.settings.refund_conf": "Remboursements automatiques via Buckaroo",
+  "dashboard.pages.settings.refund_conf_label": "Activer/désactiver les remboursements automatiques via Buckaroo lorsqu'un remboursement est initié depuis PrestaShop.",
   "dashboard.pages.settings.re_stock_products": "Réapprovisionner les produits",
   "dashboard.pages.settings.re_stock_products_label": "Si les produits remboursés doivent être retournés en stock (augmentant la quantité en stock).",
   "dashboard.pages.settings.refunds": "Remboursements",
