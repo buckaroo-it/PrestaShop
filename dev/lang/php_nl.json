@@ -76,6 +76,7 @@
   "dashboard.pages.payments.max_order_amount_b2c": "Maximale B2B bestelbedrag",
   "dashboard.pages.payments.maximum_order_amount": "Maximaal toegestane bestelbedrag",
   "dashboard.pages.payments.min_order_amount_b2b": "Minimale B2B bestelbedrag",
+  "dashboard.pages.payments.max_order_amount_b2b": "Maximaal B2B toegestane bestelbedrag",
   "dashboard.pages.payments.minimum_order_amount": "Minimaal toegestane bestelbedrag",
   "dashboard.pages.payments.mode": "Modus",
   "dashboard.pages.payments.mode_label": "Indien ingesteld op \"Live\", dan kunt u daadwerkelijke betalingen doen. Indien ingesteld op \"Test\", dan kun je testtransacties doen. De betaalmethode verschijnt niet als deze op \"Uit\" staat.",

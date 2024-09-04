@@ -76,6 +76,7 @@
   "dashboard.pages.payments.max_order_amount_b2c": "Maximum B2B order amount",
   "dashboard.pages.payments.maximum_order_amount": "Maximum order amount",
   "dashboard.pages.payments.min_order_amount_b2b": "Minimum B2B order amount",
+  "dashboard.pages.payments.max_order_amount_b2b": "Maximum B2B order amount",
   "dashboard.pages.payments.minimum_order_amount": "Minimum order amount",
   "dashboard.pages.payments.mode": "Mode",
   "dashboard.pages.payments.mode_label": "When set to \"Live\" you can do actual payments. When set to \"Testing\" you can do test transactions. This payment method will not appear when it is set to \"Off\".",
