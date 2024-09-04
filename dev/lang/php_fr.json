@@ -76,6 +76,7 @@
   "dashboard.pages.payments.max_order_amount_b2c": "Montant maximum de la commande B2B",
   "dashboard.pages.payments.maximum_order_amount": "Montant maximum de la commande",
   "dashboard.pages.payments.min_order_amount_b2b": "Montant minimum de la commande B2B",
+  "dashboard.pages.payments.max_order_amount_b2b": "Montant maximum de la commande B2B",
   "dashboard.pages.payments.minimum_order_amount": "Montant minimum de commande",
   "dashboard.pages.payments.mode": "Mode",
   "dashboard.pages.payments.mode_label": "Lorsqu'il est réglé sur « Live », vous pouvez effectuer des paiements réels. ",
