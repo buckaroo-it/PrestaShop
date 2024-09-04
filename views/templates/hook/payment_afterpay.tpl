@@ -28,7 +28,7 @@
                 {l s='Invalid shipping address, cannot find house number' mod='buckaroo3'}
             </div>
         {/if}
-        {l s='Please provide additional data for Riverty | AfterPay.' mod='buckaroo3'}<br/><br/>
+        {l s='Please provide additional data for Riverty.' mod='buckaroo3'}<br/><br/>
                 <div class="row row-padding">
             <div class="col-sm-5">
                 <label for="phone_afterpay_billing_digi"
@@ -147,7 +147,7 @@
                     <a href="https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/"
                             target="_blank"
                             style="text-decoration: underline">
-                        {l s='Ik accepteer de algemene voorwaarden van Riverty | AfterPay.' mod='buckaroo3'}
+                        {l s='Ik accepteer de algemene voorwaarden van Riverty.' mod='buckaroo3'}
                     </a>
                 </label>
             </div>

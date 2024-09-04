@@ -42,5 +42,8 @@ function upgrade_module_4_4_0($object)
 
     $insertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $keys) . ') VALUES ("' . implode('", "', $values) . '")';
     Db::getInstance()->execute($insertQuery);
+
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "Riverty" WHERE name = "afterpay"');
+
     return true;
 }
