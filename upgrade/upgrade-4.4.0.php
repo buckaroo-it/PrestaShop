@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -42,6 +42,19 @@ function upgrade_module_4_4_0($object)
 
     $insertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $keys) . ') VALUES ("' . implode('", "', $values) . '")';
     Db::getInstance()->execute($insertQuery);
+
+    $paymentMethodId = Db::getInstance()->Insert_ID();
+
+    // Insert default configuration for Knaken Settle
+    $blikConfig = [
+        'mode' => 'off'
+    ];
+
+    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int)$paymentMethodId . ', \'' . pSQL(json_encode($blikConfig)) . '\')';
+    Db::getInstance()->execute($configInsertQuery);
+
+    $orderingRepository = new RawOrderingRepository();
+    $orderingRepository->insertCountryOrdering();
 
     Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "Riverty" WHERE name = "afterpay"');
 
