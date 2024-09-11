@@ -129,6 +129,7 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_LABEL, '');
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_FEE, '');
 
+        \Configuration::updateValue(Config::LABEL_REFUND_CONF, true);
         \Configuration::updateValue(Config::LABEL_REFUND_RESTOCK, false);
         \Configuration::updateValue(Config::LABEL_REFUND_CREDIT_SLIP, true);
         \Configuration::updateValue(Config::LABEL_REFUND_VOUCHER, false);

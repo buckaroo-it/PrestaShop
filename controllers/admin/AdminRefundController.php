@@ -21,6 +21,7 @@ use Buckaroo\PrestaShop\Src\Refund\OrderService;
 use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
 use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
 use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
+use Buckaroo\PrestaShop\Src\Refund\Settings;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -140,14 +141,18 @@ class AdminRefundController extends FrameworkBundleAdminController
         }
 
         $body = $this->refundBuilder->create($order, $payment, $refundAmount);
-        $this->responseHandler->parse(
-            $this->refundHandler->refund(
+
+
+        if (\Configuration::get(Settings::LABEL_REFUND_CONF)){
+            $this->responseHandler->parse(
+                $this->refundHandler->refund(
+                    $body,
+                    $payment->payment_method
+                ),
                 $body,
-                $payment->payment_method
-            ),
-            $body,
-            $order->id
-        );
+                $order->id
+            );
+        }
 
         return $maxRefundAmount;
     }

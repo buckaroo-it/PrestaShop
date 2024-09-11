@@ -59,6 +59,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_MBWAY = 'mbway';
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
     public const CHECKOUT_TYPE_KNAKEN = 'knaken';
+    public const CHECKOUT_TYPE_BLIK = 'blik';
 
     public static $payment_method_type = [
         self::CHECKOUT_TYPE_PAYPAL => 'PayPal',
@@ -90,6 +91,7 @@ abstract class Checkout
         self::CHECKOUT_TYPE_MBWAY => 'Mbway',
         self::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
         self::CHECKOUT_TYPE_KNAKEN => 'Knaken',
+        self::CHECKOUT_TYPE_BLIK => 'Blik'
     ];
 
     protected $payment_request;

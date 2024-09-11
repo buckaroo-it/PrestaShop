@@ -51,6 +51,7 @@ use Buckaroo\PaymentMethods\Emandates\Emandates;
 use Buckaroo\PaymentMethods\KlarnaPay\KlarnaPay;
 use Buckaroo\PaymentMethods\WeChatPay\WeChatPay;
 use Buckaroo\PaymentMethods\Bancontact\Bancontact;
+use Buckaroo\PaymentMethods\Blik\Blik;
 use Buckaroo\PaymentMethods\CreditCard\CreditCard;
 use Buckaroo\PaymentMethods\Multibanco\Multibanco;
 use Buckaroo\PaymentMethods\Przelewy24\Przelewy24;
@@ -82,6 +83,7 @@ class PaymentMethodFactory
         Billink::class => ['billink'],
         Belfius::class => ['belfius'],
         BuckarooWallet::class => ['buckaroo_wallet'],
+        Blik::class => ['blik'],
         CreditCard::class =>
             [
                 'creditcard', 'mastercard', 'visa',
