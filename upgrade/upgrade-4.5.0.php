@@ -14,12 +14,19 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
+use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
 
-header('Location: ../');
-exit;
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+/**
+ * @return mixed
+ * @throws Exception
+ */
+function upgrade_module_4_5_0($object)
+{
+        Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "giropay"');
+        return true;
+}
