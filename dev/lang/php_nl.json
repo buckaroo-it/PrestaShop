@@ -198,7 +198,6 @@
   "payment_methods.payperemail": "PayPerEmail",
   "payment_methods.przelewy24": "Przelewy24",
   "payment_methods.sepadirectdebit": "SEPA Direct Debit",
-  "payment_methods.sofortueberweisung": "Sofort",
   "payment_methods.transfer": "Transfer",
   "payment_methods.trustly": "Trustly",
   "payment_methods.wechatpay": "WeChatPay",

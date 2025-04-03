@@ -28,7 +28,6 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const REQUEST_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const REQUEST_TYPE_BLIK = 'blik';
-    public const REQUEST_TYPE_SOFORTBANKING = 'sofortueberweisung';
     public const REQUEST_TYPE_GIFTCARD = 'giftcard';
     public const REQUEST_TYPE_CREDITCARD = 'creditcard';
     public const REQUEST_TYPE_TRANSFER = 'transfer';
@@ -60,7 +59,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         PaymentRequestFactory::REQUEST_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         PaymentRequestFactory::REQUEST_TYPE_BLIK => 'Blik',
-        PaymentRequestFactory::REQUEST_TYPE_SOFORTBANKING => 'Sofortbanking',
         PaymentRequestFactory::REQUEST_TYPE_GIFTCARD => 'GiftCard',
         PaymentRequestFactory::REQUEST_TYPE_CREDITCARD => 'CreditCard',
         PaymentRequestFactory::REQUEST_TYPE_TRANSFER => 'Transfer',
