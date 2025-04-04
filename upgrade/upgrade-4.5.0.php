@@ -31,4 +31,6 @@ function upgrade_module_4_5_0($object)
         $orderingRepository = new RawOrderingRepository();
         $orderingRepository->insertCountryOrdering();
         return true;
+
+        Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "goSettle" WHERE name = "knaken"');
 }
