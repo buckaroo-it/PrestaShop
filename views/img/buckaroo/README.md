@@ -40,7 +40,6 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [Credit- debitcards](https://www.buckaroo.eu/solutions/payment-methods/creditcards)  |  ![Creditcards](Payment%20methods/PNG/CreditCards.png) | ![Creditcards](Payment%20methods/SVG/CreditCards.svg) |
 | [EPS](https://www.buckaroo.eu/solutions/payment-methods/eps)  |  ![EPS](Payment%20methods/PNG/EPS.png) | ![EPS](Payment%20methods/SVG/EPS.svg) |
 | [Giftcards](https://www.buckaroo.eu/solutions/payment-methods/giftcards)  |  ![Giftcards](Payment%20methods/PNG/Giftcards.png) | ![Giftcards](Payment%20methods/SVG/Giftcards.svg) |
-| [Giropay](https://www.buckaroo.eu/solutions/payment-methods/giropay)  |  ![Giropay](Payment%20methods/PNG/Giropay.png) | ![Giropay](Payment%20methods/SVG/Giropay.svg) |
 | [iDEAL](https://www.buckaroo.eu/solutions/payment-methods/ideal)  |  ![iDEAL](Payment%20methods/PNG/iDEAL.png) | ![iDEAL](Payment%20methods/SVG/iDEAL.svg) |
 | [iDEAL In3](https://www.buckaroo.eu/solutions/payment-methods/in3)  |  ![iDEAL In3](Payment%20methods/PNG/iDEAL-In3.png) | ![iDEAL In3](Payment%20methods/SVG/iDEAL-In3.svg) |
 | [In3](https://www.buckaroo.eu/solutions/payment-methods/in3)  |  ![In3](Payment%20methods/PNG/In3.png) | ![In3](Payment%20methods/SVG/In3.svg) |

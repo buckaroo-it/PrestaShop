@@ -24,7 +24,6 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_PAYPAL = 'paypal';
     public const REQUEST_TYPE_IDEAL = 'ideal';
     public const REQUEST_TYPE_PAYBYBANK = 'paybybank';
-    public const REQUEST_TYPE_GIROPAY = 'giropay';
     public const REQUEST_TYPE_KBCPAYMENTBUTTON = 'kbcpaymentbutton';
     public const REQUEST_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
     public const REQUEST_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
@@ -58,7 +57,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_IDEAL => 'IDeal',
         PaymentRequestFactory::REQUEST_TYPE_PAYBYBANK => 'PayByBank',
         PaymentRequestFactory::REQUEST_TYPE_SEPADIRECTDEBIT => 'SepaDirectDebit',
-        PaymentRequestFactory::REQUEST_TYPE_GIROPAY => 'Giropay',
         PaymentRequestFactory::REQUEST_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         PaymentRequestFactory::REQUEST_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         PaymentRequestFactory::REQUEST_TYPE_BLIK => 'Blik',

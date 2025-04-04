@@ -34,7 +34,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_IDEAL = 'ideal';
     public const CHECKOUT_TYPE_PAYBYBANK = 'paybybank';
     public const CHECKOUT_TYPE_SEPADIRECTDEBIT = 'sepadirectdebit';
-    public const CHECKOUT_TYPE_GIROPAY = 'giropay';
     public const CHECKOUT_TYPE_KBCPAYMENTBUTTON = 'kbcpaymentbutton';
     public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
@@ -66,7 +65,6 @@ abstract class Checkout
         self::CHECKOUT_TYPE_IDEAL => 'IDeal',
         self::CHECKOUT_TYPE_PAYBYBANK => 'PayByBank',
         self::CHECKOUT_TYPE_SEPADIRECTDEBIT => 'SepaDirectdebit',
-        self::CHECKOUT_TYPE_GIROPAY => 'Giropay',
         self::CHECKOUT_TYPE_KBCPAYMENTBUTTON => 'Kbcpaymentbutton',
         self::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         self::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
