@@ -38,7 +38,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_BANCONTACTMRCASH = 'bancontactmrcash';
     public const CHECKOUT_TYPE_GIFTCARD = 'giftcard';
     public const CHECKOUT_TYPE_CREDITCARD = 'creditcard';
-    public const CHECKOUT_TYPE_SOFORTBANKING = 'sofortueberweisung';
     public const CHECKOUT_TYPE_TRANSFER = 'transfer';
     public const CHECKOUT_TYPE_AFTERPAY = 'afterpay';
     public const CHECKOUT_TYPE_KLARNA = 'klarna';
@@ -69,7 +68,6 @@ abstract class Checkout
         self::CHECKOUT_TYPE_BANCONTACTMRCASH => 'Bancontactmrcash',
         self::CHECKOUT_TYPE_GIFTCARD => 'GiftCard',
         self::CHECKOUT_TYPE_CREDITCARD => 'CreditCard',
-        self::CHECKOUT_TYPE_SOFORTBANKING => 'Sofortbanking',
         self::CHECKOUT_TYPE_TRANSFER => 'Transfer',
         self::CHECKOUT_TYPE_AFTERPAY => 'AfterPay',
         self::CHECKOUT_TYPE_KLARNA => 'Klarna',

@@ -202,7 +202,6 @@
   "payment_methods.payperemail": "PayPerEmail",
   "payment_methods.przelewy24": "Przelewy24",
   "payment_methods.sepadirectdebit": "SEPA-Lastschrift",
-  "payment_methods.sofortueberweisung": "Sofort",
   "payment_methods.transfer": "Überweisen",
   "payment_methods.trustly": "Vertrauenswürdig",
   "payment_methods.wechatpay": "WeChatPay",
