@@ -27,7 +27,7 @@ The Buckaroo PrestaShop Payments Plugin ([Dutch](https://support.buckaroo.nl/cat
 
 To use the Buckaroo plugin, please be aware of the following minimum requirements:
 - A Buckaroo account ([Dutch](https://www.buckaroo.nl/start) or [English](https://www.buckaroo.eu/solutions/request-form))
-- PrestaShop 1.7.x or 8.1.4
+- PrestaShop 1.7.x or 8.2.1
 - PHP 7.4 or higher
 
 ### Installation
