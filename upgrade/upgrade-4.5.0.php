@@ -28,7 +28,7 @@ if (!defined('_PS_VERSION_')) {
 function upgrade_module_4_5_0($object)
 {
     Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "giropay"');
-    Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "sofort"');
+    Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "sofortueberweisung"');
     Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "goSettle" WHERE name = "knaken"');
 
     $orderingRepository = new RawOrderingRepository();
