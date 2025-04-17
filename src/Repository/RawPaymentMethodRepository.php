@@ -130,7 +130,6 @@ class RawPaymentMethodRepository
             ['name' => 'blik', 'label' => 'Blik', 'icon' => 'Blik.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'giftcard', 'label' => 'Giftcards', 'icon' => 'Giftcards.svg', 'template' => 'payment_giftcards.tpl', 'is_payment_method' => '1'],
             ['name' => 'creditcard', 'label' => 'Cards', 'icon' => 'Creditcards.svg', 'template' => 'payment_creditcard.tpl', 'is_payment_method' => '1'],
-            ['name' => 'sofortueberweisung', 'label' => 'Sofortbanking', 'icon' => 'Sofort.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'belfius', 'label' => 'Belfius', 'icon' => 'Belfius.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'afterpay', 'label' => 'Riverty', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
             ['name' => 'klarna', 'label' => 'Klarna', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
@@ -148,7 +147,7 @@ class RawPaymentMethodRepository
             ['name' => 'idin', 'label' => 'iDIN', 'icon' => 'iDIN.svg', 'template' => 'idin.tpl', 'is_payment_method' => '0'],
             ['name' => 'multibanco', 'label' => 'Multibanco', 'icon' => 'Multibanco.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'mbway', 'label' => 'MB WAY', 'icon' => 'MBWay.svg', 'template' => '', 'is_payment_method' => '1'],
-            ['name' => 'knaken', 'label' => 'Knaken Settle', 'icon' => 'Knaken.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'knaken', 'label' => 'goSettle', 'icon' => 'GoSettle.svg', 'template' => '', 'is_payment_method' => '1'],
         ];
     }
 

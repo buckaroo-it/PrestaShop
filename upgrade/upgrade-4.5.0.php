@@ -27,10 +27,13 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_4_5_0($object)
 {
-        Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "giropay"');
-        Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET icon = "PayByBank.svg" WHERE name = "paybybank"');
+    Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "giropay"');
+    Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "sofortueberweisung"');
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET label = "goSettle" WHERE name = "knaken"');
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET icon = "GoSettle.svg" WHERE name = "knaken"');
+    Db::getInstance()->execute('UPDATE ' . _DB_PREFIX_ . 'bk_payment_methods SET icon = "PayByBank.svg" WHERE name = "paybybank"');
 
-        $orderingRepository = new RawOrderingRepository();
-        $orderingRepository->insertCountryOrdering();
-        return true;
+    $orderingRepository = new RawOrderingRepository();
+    $orderingRepository->insertCountryOrdering();
+    return true;
 }
