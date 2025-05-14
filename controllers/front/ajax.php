@@ -134,7 +134,6 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      */
     private function updatePresentedCart($cart, $orderTotals)
     {
-        $taxConfiguration = new TaxConfiguration();
         $presentedCart = $this->cart_presenter->present($cart);
 
         $buckarooFee = $this->formatPrice($orderTotals['payment_fee']);
