@@ -61,18 +61,52 @@
 
                 <slot></slot>
 
+                <!--  PAYMENT FEE  -->
                 <div class="px-5 space-y-5">
-                    <div class="space-y-2">
-                        <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}</h2>
-                        <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat_label`) }}</div>
+                  <div class="space-y-2">
+                    <h2 class="font-semibold text-sm">
+                      {{ $t('dashboard.pages.payments.payment_fee_incl_vat') }}
+                    </h2>
+                    <div class="text-gray-400 text-xs">
+                      {{ $t('dashboard.pages.payments.payment_fee_incl_vat_label') }}
+                    </div>
+                  </div>
+
+                  <div class="md:flex md:space-x-5 md:space-y-0 space-y-3">
+                    <!-- Fixed amount -->
+                    <div class="relative w-full">
+                      <input type="number" step="0.01" min="0"
+                             id="fee_fixed"
+                             v-model.number="config.fee_fixed"
+                             class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent
+                      rounded-lg border border-gray-300 focus:border-primary peer" />
+                      <label for="fee_fixed"
+                             class="absolute text-sm text-gray-500 duration-300 transform
+                      -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2
+                      peer-focus:text-primary peer-placeholder-shown:scale-100
+                      peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2
+                      peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                        {{ $t('dashboard.pages.payments.fee_fixed') }}
+                      </label>
                     </div>
 
-                    <div class="relative">
-                        <input type="number" id="fee" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
-                        <label for="fee" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                            {{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}
-                        </label>
+                    <!-- Percentage -->
+                    <div class="relative w-full">
+                      <input type="number" step="0.01" min="0" max="100"
+                             id="fee_percent"
+                             v-model.number="config.fee_percent"
+                             class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent
+                      rounded-lg border border-gray-300 focus:border-primary peer" />
+                      <label for="fee_percent"
+                             class="absolute text-sm text-gray-500 duration-300 transform
+                      -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2
+                      peer-focus:text-primary peer-placeholder-shown:scale-100
+                      peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2
+                      peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                        {{ $t('dashboard.pages.payments.fee_percent') }}
+                      </label>
                     </div>
+                  </div>
                 </div>
 
                 <div class="px-5 space-y-5">
@@ -146,6 +180,7 @@ import CountrySelect from '../CountrySelect.vue'
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
 import { useCountries } from "../../lib/countries";
+import { useI18n } from 'vue-i18n';
 
 export default {
     name: "DefaultPaymentConfig.vue",
@@ -154,39 +189,43 @@ export default {
         CountrySelect,
     },
     watch: {
-        selectCountry(value) {
-            if(!this.config.countries) {
-                this.config.countries = []
-            }
-
-            this.config.countries.push(value)
+      /* ─────────────────────────────  COUNTRY PICKER  ────────────────────────── */
+      selectCountry (value) {
+        if (!this.config.countries) this.config.countries = []
+        this.config.countries.push(value)
+      },
+      countries: {
+        handler (value) {
+          this.config.countries = value
         },
-        countries: {
-            handler(value, oldValue){
-                this.config.countries = value
-            },
-            deep: true
-        },
-        'config.payment_fee'(value) {
-            if(value) {
-                if(value < 0) {
-                    this.config.payment_fee = 0
+        deep: true
+      },
 
-                    return
-                }
+      /* ────────────────────────────  FIXED AMOUNT  (€)  ──────────────────────── */
+      'config.fee_fixed' (val) {
+        if (val === '' || val === null) {
+          this.config.fee_fixed = null
+          return
+        }
 
-                if(value > 999) {
-                    this.config.payment_fee = 999
+        let num = parseFloat(val)
+        if (isNaN(num) || num < 0) num = 0
+        if (num > 999)        num = 999
+        this.config.fee_fixed = +num.toFixed(2)
+      },
 
-                    return
-                }
+      /* ───────────────────────────  PERCENTAGE  (%)  ─────────────────────────── */
+      'config.fee_percent' (val) {
+        if (val === '' || val === null) {
+          this.config.fee_percent = null
+          return
+        }
 
-                this.config.payment_fee = parseFloat(value);
-                return;
-            }
-
-            this.config.payment_fee = ''
-        },
+        let num = parseFloat(val)
+        if (isNaN(num) || num < 0) num = 0
+        if (num > 100)        num = 100
+        this.config.fee_percent = +num.toFixed(2)
+      }
     },
     setup(props) {
 
@@ -196,11 +235,13 @@ export default {
         const selectCountry = ref(null)
         const showAllCountries = ref(false)
         const baseUrl = inject('baseUrl');
+        const { t } = useI18n();
 
         const config = ref({
             mode: 'off',
             frontend_label: '',
-            payment_fee: null,
+            fee_fixed: null,
+            fee_percent: null,
             min_order_amount: null,
             max_order_amount: null,
             countries: [],
@@ -231,6 +272,11 @@ export default {
         }
 
         const updateConfig = () => {
+            if (config.value.fee_fixed && config.value.fee_percent) {
+              toastr.error(t('dashboard.pages.payments.fee_validation_both_filled'));
+              return;
+            }
+
             post(config.value, {paymentName:props.payment.name}).then(() => {
                 if(data.value.status) {
                     toastr.success(`Settings successfully updated.`)

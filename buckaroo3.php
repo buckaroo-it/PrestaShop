@@ -573,32 +573,34 @@ class Buckaroo3 extends PaymentModule
         return false;
     }
 
-    public function getBuckarooFee($payment_method)
+    public function getBuckarooFee($method)
     {
-        $buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
+        $config = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
 
-        if (!$buckarooFee) {
+        $fixed    = isset($config['fee_fixed'])    ? (float) $config['fee_fixed']    : 0.0;
+        $percent  = isset($config['fee_percent'])  ? (float) $config['fee_percent']  : 0.0;
+
+        if (!$fixed && !$percent) {
             return null;
         }
 
-        // Remove any whitespace from the fee.
-        $buckarooFee = trim($buckarooFee);
-
-        if (strpos($buckarooFee, '%') !== false) {
-            $buckarooFee = str_replace('%', '', $buckarooFee);
-            $buckarooFee = (float)$this->payment_request->amountDebit * ((float)$buckarooFee / 100);
-        } else {
-            $buckarooFee = (float)$buckarooFee;
+        if ($fixed && $percent) {
+            $percent = 0;
         }
 
-        $taxRate = $this->context->cart->getAverageProductsTaxRate();
-        $buckarooFeeTax = $buckarooFee * $taxRate;
-        $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
+        // Base amount = cart subtotal incl. tax BEFORE any old fee
+        $baseAmount = (float) $this->payment_request->amountDebit ?:
+            (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+
+        $feeValue      = $fixed + ($percent > 0 ? $baseAmount * $percent / 100 : 0);
+        $taxRate       = $this->context->cart->getAverageProductsTaxRate();
+        $feeTax        = $feeValue * $taxRate;
+        $feeValueIncl  = $feeValue + $feeTax;
 
         return [
-            'buckaroo_fee_tax_excl' => $buckarooFee,
-            'buckaroo_fee_tax' => $buckarooFeeTax,
-            'buckaroo_fee_tax_incl' => $buckarooFeeTaxIncl,
+            'buckaroo_fee_tax_excl' => $feeValue,
+            'buckaroo_fee_tax'      => $feeTax,
+            'buckaroo_fee_tax_incl' => $feeValueIncl,
         ];
     }
 
