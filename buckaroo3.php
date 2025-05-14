@@ -443,7 +443,6 @@ class Buckaroo3 extends PaymentModule
                     'afterpay_show_coc' => $buckarooPaymentService->showAfterpayCoc($cart),
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'idealIssuers' => (new IssuersIdeal())->get(),
-                    'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
                     'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
@@ -451,7 +450,6 @@ class Buckaroo3 extends PaymentModule
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
-                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
                 ]
