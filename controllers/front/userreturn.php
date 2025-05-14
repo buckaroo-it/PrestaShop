@@ -90,10 +90,22 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 exit;
             }
         } else {
-            $cookie->statusMessage = 'Not valid response';
-            $this->logger->logError('Invalid payment response');
-            Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
+            $this->setCartCookie($response->getCartId());
+            $this->logger->logError('Payment failed or invalid response');
+            Tools::redirect('index.php?controller=order&step=1');
+            exit;
         }
-        exit;
+    }
+
+    private function setCartCookie($cartId)
+    {
+        $oldCart    = new Cart($cartId);
+        $duplication = $oldCart->duplicate();
+        if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+            $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cookie->write();
+        } else {
+            $this->logger->logError('Cart duplication failed');
+        }
     }
 }

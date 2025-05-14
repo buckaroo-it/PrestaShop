@@ -320,19 +320,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function processFailedPayment($cartId, $response)
     {
         $this->logger->logInfo('Payment request failed/canceled');
+
+        // preserve cart
         $this->setCartCookie($cartId);
 
+        // update order history (unchanged)
         if ($response->isValid()) {
             $this->updateOrderHistory($response);
-        } else {
-            $this->logger->logInfo('Payment request not valid');
         }
 
-        $error = null;
-        if (($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept') && $response->statusmessage) {
-            $error = $response->statusmessage;
-        }
-        $this->displayError(null, $error);
+        // finished → back to checkout
+        Tools::redirect('index.php?controller=order&step=1');
     }
 
     private function updateOrderHistory($response)
@@ -370,18 +368,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $response = $this->checkout->getResponse();
         $this->logger->logInfo('Request not succeeded');
 
+        // Duplicate cart and attach it to the session so the customer can retry
         $this->setCartCookie($cartId);
 
-        $error = null;
+        // Optional: log original Buckaroo error for merchants
         if ($response->getResponse() instanceof TransactionResponse) {
-            $error = $response->getSomeError();
+            $this->logger->logInfo('Buckaroo error', $response->getSomeError());
         }
 
-        if (isset($error['errorresponsemessage']) && is_array($error)) {
-            $this->displayError(null, $error['errorresponsemessage']);
-        } else {
-            $this->displayError(null, $error);
-        }
+        // Back to PrestaShop checkout (payment step)
+        Tools::redirect('index.php?controller=order&step=1');
     }
 
     private function createTransactionMessage($orderId, $messageString)
