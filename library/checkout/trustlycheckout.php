@@ -48,6 +48,7 @@ class TrustlyCheckout extends Checkout
         return [
             'firstName' => $this->invoice_address->firstname,
             'lastName' => $this->invoice_address->lastname,
+            'email' => !empty($this->customer->email) ? $this->customer->email : '',
         ];
     }
 
