@@ -41,7 +41,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      * @throws PrestaShopException
      * @throws Exception
      */
-    private function renderCartSummary(Cart $cart, $presentedCart = null)
+    private function renderCartSummary(Cart $cart, array $presentedCart = null)
     {
         $presentedCart = $presentedCart ?: $this->cart_presenter->present($cart);
 
