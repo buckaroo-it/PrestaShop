@@ -58,7 +58,6 @@ class BuckarooFeeService
                 continue;
             }
 
-            // fixed → nice price format,  percent → keep “2%”
             $display = str_contains($val, '%') ? $val : $this->formatPrice($val);
 
             $result[$m->getName()] = [
@@ -69,19 +68,32 @@ class BuckarooFeeService
         return $result;
     }
 
-    public function getBuckarooFeeInputs(string $method): array
+    public function getBuckarooFeeInputs($method)
     {
-        $raw = $this->getBuckarooFeeValue($method);
+        $config = $this->getConfigArrayForMethod($method);
+        if (!$config) {
+            return [];
+        }
 
-        if (!$raw) {
+        $fixed   = isset($config['fee_fixed'])   ? (float)$config['fee_fixed']   : 0.0;
+        $percent = isset($config['fee_percent']) ? (float)$config['fee_percent'] : 0.0;
+
+        // frontend picker expects ONE number: the fee *value* _incl. VAT_
+        if ($fixed && $percent) {            // protect against both filled
+            $percent = 0;
+        }
+
+        $value = $fixed ?: $percent;         // will be recalculated later if it’s a %
+        if ($value <= 0) {
             return [];
         }
 
         return [
-            ['type' => 'hidden', 'name' => 'payment-fee-price',         'value' => $raw],
-            ['type' => 'hidden', 'name' => 'payment-fee-price-display', 'value' => $raw],
+            ['type'=>'hidden', 'name'=>'payment-fee-price',         'value'=>$value],
+            ['type'=>'hidden', 'name'=>'payment-fee-price-display', 'value'=>$this->formatPrice($value)],
         ];
     }
+
 
     public function getConfigArrayForMethod($method)
     {
