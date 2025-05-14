@@ -327,18 +327,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->updateOrderHistory($response);
         }
 
-        $this->context->cookie->__set('buckaroo_error_msg',
-            $response->statusmessage ?: $this->module->l(
-                'Your payment was unsuccessful. Please try again or choose another payment method.'
-            )
+        $msg = $response->statusmessage ?: $this->module->l(
+            'Your payment was unsuccessful. Please try again or choose another payment method.'
         );
 
-        Tools::redirect(
-            $this->context->link->getPageLink('order', null, null, [
-                'step' => 4,
-                'buckaroo_error' => 1
-            ])
-        );
+        $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+            'step'               => 3,
+            'buckaroo_error_msg' => urlencode($msg),
+            'buckaroo_error'     => 1
+        ]);
+
+        Tools::redirect($redirectUrl);
     }
 
     private function updateOrderHistory($response)
