@@ -120,13 +120,21 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 
     private function setCartCookie($cartId)
     {
-        $oldCart    = new Cart($cartId);
-        $duplication = $oldCart->duplicate();
-        if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-            $this->context->cookie->id_cart = $duplication['cart']->id;
-            $this->context->cookie->write();
+        $orderId = Order::getIdByCartId($cartId);
+
+        if ($orderId) {
+            $oldCart    = new Cart($cartId);
+            $duplication = $oldCart->duplicate();
+
+            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->write();
+            } else {
+                $this->logger->logError('Cart duplication failed');
+            }
         } else {
-            $this->logger->logError('Cart duplication failed');
+            $this->context->cookie->id_cart = (int) $cartId;
+            $this->context->cookie->write();
         }
     }
 }
