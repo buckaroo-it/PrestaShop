@@ -18,15 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\CreditClick\Service\ParameterKeys;
+namespace Buckaroo\PaymentMethods\iDealProcessing\Models;
 
-use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
+use Buckaroo\Models\ServiceParameter;
 
-class CustomerAdapter extends ServiceParametersKeysAdapter
+class Pay extends ServiceParameter
 {
-    protected array $keys = [
-        'firstName' => 'firstname',
-        'lastName' => 'lastname',
-        'email' => 'email',
-    ];
+    protected string $issuer;
 }

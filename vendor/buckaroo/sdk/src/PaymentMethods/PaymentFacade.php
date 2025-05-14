@@ -35,6 +35,8 @@ use Buckaroo\Transaction\Response\TransactionResponse;
  * @method TransactionResponse cancelAuthorize(array $data)
  * @method TransactionResponse authorize(array $data)
  * @method TransactionResponse payEncrypted(array $data)
+ * @method TransactionResponse payWithToken(array $data)
+ * @method TransactionResponse authorizeWithToken(array $data)
  * @method TransactionResponse authenticate(array $data)
  * @method TransactionResponse createWallet(array $data)
  * @method TransactionResponse updateWallet(array $data)
@@ -87,6 +89,7 @@ use Buckaroo\Transaction\Response\TransactionResponse;
  * @method TransactionResponse pause(array $data)
  * @method TransactionResponse resume(array $data)
  * @method TransactionResponse payOneClick(array $data)
+ * @method TransactionResponse setServiceVersion(int $versionId)
  */
 class PaymentFacade
 {
@@ -166,8 +169,13 @@ class PaymentFacade
      */
     public function __call(?string $name, array $arguments)
     {
-        if (method_exists($this->paymentMethod, $name))
-        {
+        if (method_exists($this->paymentMethod, $name)) {
+            if($name === 'setServiceVersion') {
+                $this->paymentMethod->setServiceVersion($arguments[0]);
+
+                return $this;
+            }
+
             $this->paymentMethod->setPayload((new PayloadService($arguments[0] ?? []))->toArray());
 
             return $this->paymentMethod->$name();

@@ -18,9 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\Tinka\Models;
+namespace Buckaroo\PaymentMethods\Billink\Models;
 
-class Article extends \Buckaroo\Models\Article
+use Buckaroo\Models\ServiceParameter;
+
+class Refund extends ServiceParameter
 {
-    protected string $color;
+    protected string $refundreason;
 }

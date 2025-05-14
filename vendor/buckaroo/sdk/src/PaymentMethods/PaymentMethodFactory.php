@@ -27,17 +27,15 @@ use Buckaroo\PaymentMethods\KBC\KBC;
 use Buckaroo\PaymentMethods\iDin\iDin;
 use Buckaroo\PaymentMethods\SEPA\SEPA;
 use Buckaroo\PaymentMethods\iDeal\iDeal;
+use Buckaroo\PaymentMethods\iDealProcessing\iDealProcessing;
 use Buckaroo\PaymentMethods\MBWay\MBWay;
-use Buckaroo\PaymentMethods\Tinka\Tinka;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\PaymentMethods\Alipay\Alipay;
 use Buckaroo\PaymentMethods\In3Old\In3Old;
 use Buckaroo\PaymentMethods\Paypal\Paypal;
-use Buckaroo\PaymentMethods\Sofort\Sofort;
 use Buckaroo\PaymentMethods\Thunes\Thunes;
 use Buckaroo\PaymentMethods\Belfius\Belfius;
 use Buckaroo\PaymentMethods\Billink\Billink;
-use Buckaroo\PaymentMethods\Giropay\Giropay;
 use Buckaroo\PaymentMethods\iDealQR\iDealQR;
 use Buckaroo\PaymentMethods\Surepay\Surepay;
 use Buckaroo\PaymentMethods\Trustly\Trustly;
@@ -51,11 +49,9 @@ use Buckaroo\PaymentMethods\Emandates\Emandates;
 use Buckaroo\PaymentMethods\KlarnaPay\KlarnaPay;
 use Buckaroo\PaymentMethods\WeChatPay\WeChatPay;
 use Buckaroo\PaymentMethods\Bancontact\Bancontact;
-use Buckaroo\PaymentMethods\Blik\Blik;
 use Buckaroo\PaymentMethods\CreditCard\CreditCard;
 use Buckaroo\PaymentMethods\Multibanco\Multibanco;
 use Buckaroo\PaymentMethods\Przelewy24\Przelewy24;
-use Buckaroo\PaymentMethods\CreditClick\CreditClick;
 use Buckaroo\PaymentMethods\PayPerEmail\PayPerEmail;
 use Buckaroo\PaymentMethods\PointOfSale\PointOfSale;
 use Buckaroo\PaymentMethods\BankTransfer\BankTransfer;
@@ -67,6 +63,8 @@ use Buckaroo\PaymentMethods\ExternalPayment\ExternalPayment;
 use Buckaroo\PaymentMethods\CreditManagement\CreditManagement;
 use Buckaroo\PaymentMethods\PaymentInitiation\PaymentInitiation;
 use Buckaroo\PaymentMethods\AfterpayDigiAccept\AfterpayDigiAccept;
+use Buckaroo\PaymentMethods\Blik\Blik;
+use Buckaroo\PaymentMethods\ClickToPay\ClickToPay;
 use Buckaroo\PaymentMethods\NoServiceSpecifiedPayment\NoServiceSpecifiedPayment;
 
 class PaymentMethodFactory
@@ -81,9 +79,10 @@ class PaymentMethodFactory
         AfterpayDigiAccept::class => ['afterpaydigiaccept'],
         Bancontact::class => ['bancontact', 'bancontactmrcash'],
         Billink::class => ['billink'],
+        Blik::class => ['blik'],
         Belfius::class => ['belfius'],
         BuckarooWallet::class => ['buckaroo_wallet'],
-        Blik::class => ['blik'],
+        ClickToPay::class => ['clicktopay'],
         CreditCard::class =>
             [
                 'creditcard', 'mastercard', 'visa',
@@ -92,9 +91,9 @@ class PaymentMethodFactory
                 'cartebancaire', 'dankort', 'nexi',
                 'postepay',
             ],
-        CreditClick::class => ['creditclick'],
         CreditManagement::class => ['credit_management'],
-        iDeal::class => ['ideal', 'idealprocessing'],
+        iDeal::class => ['ideal'],
+        iDealProcessing::class => ['idealprocessing'],
         iDealQR::class => ['ideal_qr'],
         iDin::class => ['idin'],
         In3::class => ['in3'],
@@ -114,15 +113,11 @@ class PaymentMethodFactory
         EPS::class => ['eps'],
         ExternalPayment::class => ['externalpayment'],
         Emandates::class => ['emandates'],
-        Sofort::class => ['sofort', 'sofortueberweisung'],
-        Tinka::class => ['tinka'],
         Marketplaces::class => ['marketplaces'],
         NoServiceSpecifiedPayment::class => ['noservice'],
         Payconiq::class => ['payconiq'],
         Przelewy24::class => ['przelewy24'],
         PointOfSale::class => ['pospayment'],
-        Giropay::class => ['giropay'],
-        NoServiceSpecifiedPayment::class => ['noservice'],
         GiftCard::class => [
             'giftcard', 'westlandbon', 'babygiftcard', 'babyparkgiftcard',
             'beautywellness', 'boekenbon', 'boekenvoordeel',

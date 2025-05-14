@@ -86,6 +86,14 @@ class TransactionResponse extends Response
     /**
      * @return bool
      */
+    public function isPendingApproval(): bool
+    {
+        return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_PENDING_APPROVAL;
+    }
+
+    /**
+     * @return bool
+     */
     public function isValidationFailure(): bool
     {
         return $this->getStatusCode() == ResponseStatus::BUCKAROO_STATUSCODE_VALIDATION_FAILURE;
@@ -97,9 +105,14 @@ class TransactionResponse extends Response
      */
     public function data(?string $key = null)
     {
-        if ($key && isset($this->data[$key]))
+        if ($key)
         {
-            return $this->data[$key];
+            if (isset($this->data[$key]))
+            {
+                return $this->data[$key];
+            }
+
+            return null;
         }
 
         return $this->data;
