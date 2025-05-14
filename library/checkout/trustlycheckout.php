@@ -34,6 +34,7 @@ class TrustlyCheckout extends Checkout
 
         $this->customVars = [
             'customer' => $this->getCustomer(),
+            'email'   => $this->customer->email,
             'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
         ];
     }
@@ -43,25 +44,11 @@ class TrustlyCheckout extends Checkout
      *
      * @return array
      */
-    protected function getCustomer(): array
+    protected function getCustomer()
     {
-        // 1. Make sure we really have a Customer object if the cart is linked
-        if ((!isset($this->customer) || !$this->customer->id) && $this->context->cart->id_customer) {
-            $this->customer = new \Customer((int) $this->context->cart->id_customer);
-        }
-
-        // 2. Derive the e‑mail (customer first, cookie second)
-        $email = '';
-        if (isset($this->customer->email) && \Validate::isEmail($this->customer->email)) {
-            $email = $this->customer->email;
-        } elseif (!empty($this->context->cookie->email) && \Validate::isEmail($this->context->cookie->email)) {
-            $email = $this->context->cookie->email;
-        }
-
         return [
             'firstName' => $this->invoice_address->firstname,
-            'lastName'  => $this->invoice_address->lastname,
-            'email'     => $email,
+            'lastName' => $this->invoice_address->lastname,
         ];
     }
 
