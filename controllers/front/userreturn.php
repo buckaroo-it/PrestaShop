@@ -79,14 +79,15 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
                 Tools::redirect($redirectUrl);
             } else {
-                $cookie->statusMessage = '';
-                if (($response->payment_method == 'afterpayacceptgiro'
-                        || $response->payment_method == 'afterpaydigiaccept')
-                    && $response->statusmessage) {
-                    $cookie->statusMessage = $response->statusmessage;
-                }
+                $this->setCartCookie($response->getCartId());
+
+                $cookie->statusMessage = $response->statusmessage ?: $this->module->l(
+                    'Your payment was unsuccessful. Please try again or choose another payment method.'
+                );
+
                 $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
-                Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
+
+                Tools::redirect('index.php?controller=order&step=1');
                 exit;
             }
         } else {
