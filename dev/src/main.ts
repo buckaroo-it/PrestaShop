@@ -1,18 +1,17 @@
-import './bootstrap';
+import '@/bootstrap';
+import { createApp } from 'vue';
+import i18n            from './i18n';
+import Loading         from '@/components/Loading.vue';
+import Dashboard       from '@/Dashboard.vue';
+import '@/assets/css/tailwind.scss';
 
-import {createApp} from 'vue'
-import i18n from './i18n';
+// If you later want to code‑split Dashboard or other pages,
+// switch to dynamic imports:
+//
+// const Dashboard = () => import('@/Dashboard.vue');
 
-import Loading from "./components/Loading.vue";
-import './assets/css/tailwind.scss'
-import Dashboard from "./Dashboard.vue";
-
-
-// Use the i18n instance in your app
 createApp({})
     .use(i18n)
     .component('Loading', Loading)
     .component('Dashboard', Dashboard)
-    .mount('#app')
-
-
+    .mount('#app');
