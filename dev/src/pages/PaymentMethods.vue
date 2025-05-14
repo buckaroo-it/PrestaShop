@@ -29,7 +29,6 @@
           <BillinkPaymentConfig v-if="selectedPayment.name === 'billink'" />
           <CreditCardPaymentConfig v-if="selectedPayment.name === 'creditcard'" />
           <In3PaymentConfig v-if="selectedPayment.name === 'in3'" />
-          <IdealPaymentConfig v-if="selectedPayment.name === 'ideal'" />
           <PayPalPaymentConfig v-if="selectedPayment.name === 'paypal'" />
           <PayByBankPaymentConfig v-if="selectedPayment.name === 'paybybank'" />
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
@@ -56,7 +55,6 @@ import BillinkPaymentConfig from "../components/payments/BillinkPaymentConfig.vu
 import In3PaymentConfig from '../components/payments/In3PaymentConfig.vue';
 import PayPerEmailPaymentConfig from '../components/payments/PayPerEmailPaymentConfig.vue';
 import PayByBankPaymentConfig from "../components/payments/PayByBankPaymentConfig.vue";
-import IdealPaymentConfig from "../components/payments/IdealPaymentConfig.vue";
 import PaymentMethodBlock from "../components/PaymentMethodBlock.vue";
 import Loading from "../components/Loading.vue";
 import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue";
@@ -67,7 +65,6 @@ export default {
   name: "PaymentMethods",
   components: {
     PayPalPaymentConfig,
-    IdealPaymentConfig,
     PayByBankPaymentConfig,
     Loading,
     AfterpayPaymentConfig,

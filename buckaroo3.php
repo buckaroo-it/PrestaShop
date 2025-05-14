@@ -24,7 +24,6 @@ require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\BuckarooClient;
-use Buckaroo\PrestaShop\Classes\Issuers\Ideal as IssuersIdeal;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
@@ -442,8 +441,6 @@ class Buckaroo3 extends PaymentModule
                     'country' => Country::getIsoById(Tools::getCountry()),
                     'afterpay_show_coc' => $buckarooPaymentService->showAfterpayCoc($cart),
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
-                    'idealIssuers' => (new IssuersIdeal())->get(),
-                    'idealDisplayMode' => $buckarooConfigService->getConfigValue('ideal', 'display_type'),
                     'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
@@ -451,7 +448,6 @@ class Buckaroo3 extends PaymentModule
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
-                    'showIdealIssuers' => $buckarooConfigService->getConfigValue('ideal', 'show_issuers') ?? true,
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
                 ]
