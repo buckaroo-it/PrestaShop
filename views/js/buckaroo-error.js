@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 
     const target =
-        document.querySelector('#checkout, .checkout, #content') ||
-        document.body;
+        document.querySelector('.cart-grid-body');
 
     target.prepend(wrapper);
 });
