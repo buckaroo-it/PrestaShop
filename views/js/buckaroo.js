@@ -273,15 +273,6 @@ function buckaroo() {
                         methodValidator.requiredDropDownSelection('paybybank_issuer', '#booPayByBankErr');
                     }
                     break;
-                case 'ideal':
-                    if ($('.noIdealIssuers').length === 0) {
-                        if ($('.ideal_radio').length > 0) {
-                            methodValidator.requiredRadioSelection('ideal_issuer', '#booIdealErr');
-                        } else {
-                            methodValidator.requiredDropDownSelection('ideal_issuer', '#booIdealErr');
-                        }
-                    }
-                    break;
                 case 'creditcard':
                     if ($('.creditcard_radio').length > 0) {
                         methodValidator.requiredRadioSelection('creditcard_banks', '#booCreditCardErr');
