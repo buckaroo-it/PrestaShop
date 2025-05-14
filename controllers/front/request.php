@@ -375,10 +375,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $response = $this->checkout->getResponse();
         $this->logger->logInfo('Request not succeeded');
 
-        // Duplicate cart and attach it to the session so the customer can retry
         $this->setCartCookie($cartId);
 
-        // Optional: log original Buckaroo error for merchants
         if ($response->getResponse() instanceof TransactionResponse) {
             $this->logger->logInfo('Buckaroo error', $response->getSomeError());
         }
