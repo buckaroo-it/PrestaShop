@@ -514,6 +514,19 @@ class Buckaroo3 extends PaymentModule
             ],
         ]);
 
+        if (Tools::getValue('controller') === 'order' && Tools::getValue('buckaroo_error')) {
+
+            $msg = urldecode((string) Tools::getValue('buckaroo_error_msg'));
+
+            Media::addJsDef(['buckaroo_error_msg' => $msg]);
+
+            $this->context->controller->registerJavascript(
+                'module-buckaroo-error',
+                'modules/'.$this->name.'/views/js/buckaroo-error.js',
+                ['position' => 'bottom', 'priority' => 150]
+            );
+        }
+
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
     }

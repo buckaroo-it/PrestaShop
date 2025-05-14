@@ -320,19 +320,24 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function processFailedPayment($cartId, $response)
     {
         $this->logger->logInfo('Payment request failed/canceled');
+
         $this->setCartCookie($cartId);
 
         if ($response->isValid()) {
             $this->updateOrderHistory($response);
-        } else {
-            $this->logger->logInfo('Payment request not valid');
         }
 
-        $error = null;
-        if (($response->payment_method == 'afterpayacceptgiro' || $response->payment_method == 'afterpaydigiaccept') && $response->statusmessage) {
-            $error = $response->statusmessage;
-        }
-        $this->displayError(null, $error);
+        $msg = $response->statusmessage ?: $this->module->l(
+            'Your payment was unsuccessful. Please try again or choose another payment method.'
+        );
+
+        $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+            'step'               => 3,
+            'buckaroo_error_msg' => urlencode($msg),
+            'buckaroo_error'     => 1
+        ]);
+
+        Tools::redirect($redirectUrl);
     }
 
     private function updateOrderHistory($response)
@@ -372,16 +377,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $this->setCartCookie($cartId);
 
-        $error = null;
         if ($response->getResponse() instanceof TransactionResponse) {
-            $error = $response->getSomeError();
+            $this->logger->logInfo('Buckaroo error', $response->getSomeError());
         }
 
-        if (isset($error['errorresponsemessage']) && is_array($error)) {
-            $this->displayError(null, $error['errorresponsemessage']);
-        } else {
-            $this->displayError(null, $error);
-        }
+        // Back to PrestaShop checkout (payment step)
+        Tools::redirect('index.php?controller=order&step=1');
     }
 
     private function createTransactionMessage($orderId, $messageString)
@@ -394,13 +395,21 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function setCartCookie($cartId)
     {
-        $oldCart = new Cart($cartId);
-        $duplication = $oldCart->duplicate();
-        if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-            $this->context->cookie->id_cart = $duplication['cart']->id;
-            $this->context->cookie->write();
+        $orderId = Order::getIdByCartId($cartId);
+
+        if ($orderId) {
+            $oldCart    = new Cart($cartId);
+            $duplication = $oldCart->duplicate();
+
+            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->write();
+            } else {
+                $this->logger->logError('Cart duplication failed');
+            }
         } else {
-            $this->logger->logError('Cart duplication failed');
+            $this->context->cookie->id_cart = (int) $cartId;
+            $this->context->cookie->write();
         }
     }
 }

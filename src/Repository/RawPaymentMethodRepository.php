@@ -68,8 +68,9 @@ class RawPaymentMethodRepository
                 break;
 
             case 'creditcard':
-            case 'ideal':
                 $configValue['show_issuers'] = true;
+                $configValue['display_type'] = 'radio';
+                break;
 
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
