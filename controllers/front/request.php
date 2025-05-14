@@ -321,15 +321,18 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         $this->logger->logInfo('Payment request failed/canceled');
 
-        // preserve cart
         $this->setCartCookie($cartId);
 
-        // update order history (unchanged)
         if ($response->isValid()) {
             $this->updateOrderHistory($response);
         }
 
-        // finished → back to checkout
+        $this->context->cookie->__set('buckaroo_error_msg',
+            $response->statusmessage ?: $this->module->l(
+                'Your payment was unsuccessful. Please try again or choose another payment method.'
+            )
+        );
+
         Tools::redirect(
             $this->context->link->getPageLink('order', null, null, [
                 'step' => 4,

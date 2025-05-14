@@ -86,6 +86,11 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 );
 
                 $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
+                $this->context->cookie->__set('buckaroo_error_msg',
+                    $response->statusmessage ?: $this->module->l(
+                        'Your payment was unsuccessful. Please try again or choose another payment method.'
+                    )
+                );
 
                 Tools::redirect(
                     $this->context->link->getPageLink('order', null, null, [
@@ -98,6 +103,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         } else {
             $this->setCartCookie($response->getCartId());
             $this->logger->logError('Payment failed or invalid response');
+            $this->context->cookie->__set('buckaroo_error_msg',
+                $response->statusmessage ?: $this->module->l(
+                    'Your payment was unsuccessful. Please try again or choose another payment method.'
+                )
+            );
+
             Tools::redirect(
                 $this->context->link->getPageLink('order', null, null, [
                     'step' => 4,
