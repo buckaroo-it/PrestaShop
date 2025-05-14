@@ -51,27 +51,36 @@ class BuckarooFeeService
     public function getBuckarooFees(): array
     {
         $result = [];
-        $paymentMethods = $this->paymentMethodRepository->findAll();
+        foreach ($this->paymentMethodRepository->findAll() as $m) {
+            $val = $this->getBuckarooFeeValue($m->getName());
 
-        foreach ($paymentMethods as $method) {
-            $buckarooFee = $this->getBuckarooFeeValue($method->getName());
-
-            if ($buckarooFee > 0) {
-                $formattedPrice = $this->formatPrice($buckarooFee);
-
-                $result[$method->getName()] = [
-                    'buckarooFee' => $buckarooFee,
-                    'buckarooFeeDisplay' => $formattedPrice,
-                ];
+            if (!$val) {
+                continue;
             }
-        }
 
+            // fixed → nice price format,  percent → keep “2%”
+            $display = str_contains($val, '%') ? $val : $this->formatPrice($val);
+
+            $result[$m->getName()] = [
+                'buckarooFee'        => $val,
+                'buckarooFeeDisplay' => $display,
+            ];
+        }
         return $result;
     }
 
-    public function getBuckarooFeeInputs($method)
+    public function getBuckarooFeeInputs(string $method): array
     {
-        return $this->getFeeData($this->getSpecificValueFromConfig($method, 'payment_fee'));
+        $raw = $this->getBuckarooFeeValue($method);
+
+        if (!$raw) {
+            return [];
+        }
+
+        return [
+            ['type' => 'hidden', 'name' => 'payment-fee-price',         'value' => $raw],
+            ['type' => 'hidden', 'name' => 'payment-fee-price-display', 'value' => $raw],
+        ];
     }
 
     public function getConfigArrayForMethod($method)
@@ -92,9 +101,28 @@ class BuckarooFeeService
         return $configArray[$key] ?? null;
     }
 
-    public function getBuckarooFeeValue($method)
+    private function feePair(string $method): array
     {
-        return $this->getSpecificValueFromConfig($method, 'payment_fee');
+        $cfg  = $this->getConfigArrayForMethod($method) ?: [];
+
+        return [
+            'fixed'   => isset($cfg['fee_fixed'])   ? (float) $cfg['fee_fixed']   : 0.0,
+            'percent' => isset($cfg['fee_percent']) ? (float) $cfg['fee_percent'] : 0.0,
+        ];
+    }
+
+    public function getBuckarooFeeValue(string $method)
+    {
+        [$fixed, $percent] = array_values($this->feePair($method));
+
+        if ($fixed && $percent) {
+            // fixed wins (same rule as UI + getBuckarooFee() in main module)
+            $percent = 0;
+        }
+
+        return $fixed > 0
+            ? number_format($fixed, 2, '.', '')                // e.g. 1.50
+            : ($percent > 0 ? rtrim(rtrim($percent, '0'), '.') . '%' : null);  // e.g. 2%
     }
 
     /**

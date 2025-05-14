@@ -455,17 +455,31 @@ class BuckarooPaymentService
      * @throws LocalizationException
      * @throws \Exception
      */
-    private function getFeeLabel($configArray)
+    /**
+     * @throws LocalizationException
+     * @throws \Exception
+     */
+    private function getFeeLabel(array $config)
     {
-        $locale = \Tools::getContextLocale(\Context::getContext());
-        $currency = \Context::getContext()->currency;
+        $fixed    = isset($config['fee_fixed'])   ? (float) $config['fee_fixed']   : 0.0;
+        $percent  = isset($config['fee_percent']) ? (float) $config['fee_percent'] : 0.0;
 
-        if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . $locale->formatPrice($configArray['payment_fee'], $currency->iso_code);
+        //If both filled, fixed wins (UI already prevents this, but stay safe)
+        if ($fixed > 0) {
+            $locale   = \Tools::getContextLocale(\Context::getContext());
+            $currency = \Context::getContext()->currency;
+
+            return ' + ' . $locale->formatPrice($fixed, $currency->iso_code);
+        }
+
+        if ($percent > 0) {
+            // show “+%”
+            return ' + ' . rtrim(rtrim(number_format($percent, 2, '.', ''), '0'), '.') . '%';
         }
 
         return '';
     }
+
 
     private function logError($message)
     {

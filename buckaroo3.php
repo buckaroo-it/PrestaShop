@@ -575,32 +575,30 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFee($method)
     {
-        $config = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
+        $cfg = $this->getBuckarooConfigService()->getConfigArrayForMethod($method) ?: [];
 
-        $fixed    = isset($config['fee_fixed'])    ? (float) $config['fee_fixed']    : 0.0;
-        $percent  = isset($config['fee_percent'])  ? (float) $config['fee_percent']  : 0.0;
+        $fixed   = isset($cfg['fee_fixed'])   ? (float) $cfg['fee_fixed']   : 0.0;
+        $percent = isset($cfg['fee_percent']) ? (float) $cfg['fee_percent'] : 0.0;
 
         if (!$fixed && !$percent) {
             return null;
         }
-
         if ($fixed && $percent) {
-            $percent = 0;
+            $percent = 0;         // safeguard – UI already prevents
         }
 
-        // Base amount = cart subtotal incl. tax BEFORE any old fee
-        $baseAmount = (float) $this->payment_request->amountDebit ?:
-            (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+        // base amount = cart subtotal incl. tax **before** this fee
+        $base  = (float) ($this->payment_request->amountDebit ?: $this->context->cart->getOrderTotal(true, Cart::BOTH));
+        $value = $fixed ?: ($base * $percent / 100);
 
-        $feeValue      = $fixed + ($percent > 0 ? $baseAmount * $percent / 100 : 0);
-        $taxRate       = $this->context->cart->getAverageProductsTaxRate();
-        $feeTax        = $feeValue * $taxRate;
-        $feeValueIncl  = $feeValue + $feeTax;
+        $taxRate  = $this->context->cart->getAverageProductsTaxRate();
+        $tax      = $value * $taxRate;
+        $valueInc = $value + $tax;
 
         return [
-            'buckaroo_fee_tax_excl' => $feeValue,
-            'buckaroo_fee_tax'      => $feeTax,
-            'buckaroo_fee_tax_incl' => $feeValueIncl,
+            'buckaroo_fee_tax_excl' => $value,
+            'buckaroo_fee_tax'      => $tax,
+            'buckaroo_fee_tax_incl' => $valueInc,
         ];
     }
 
