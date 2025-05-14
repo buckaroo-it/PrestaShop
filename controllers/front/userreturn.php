@@ -87,13 +87,23 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 
                 $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
 
-                Tools::redirect('index.php?controller=order&step=1');
+                Tools::redirect(
+                    $this->context->link->getPageLink('order', null, null, [
+                        'step' => 4,
+                        'buckaroo_error' => 1
+                    ])
+                );
                 exit;
             }
         } else {
             $this->setCartCookie($response->getCartId());
             $this->logger->logError('Payment failed or invalid response');
-            Tools::redirect('index.php?controller=order&step=1');
+            Tools::redirect(
+                $this->context->link->getPageLink('order', null, null, [
+                    'step' => 4,
+                    'buckaroo_error' => 1
+                ])
+            );
             exit;
         }
     }

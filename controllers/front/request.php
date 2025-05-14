@@ -330,7 +330,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         // finished → back to checkout
-        Tools::redirect('index.php?controller=order&step=1');
+        Tools::redirect(
+            $this->context->link->getPageLink('order', null, null, [
+                'step' => 4,
+                'buckaroo_error' => 1
+            ])
+        );
     }
 
     private function updateOrderHistory($response)
