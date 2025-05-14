@@ -1,4 +1,5 @@
 <?php
+
 /*
  * NOTICE OF LICENSE
  *
@@ -18,15 +19,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\CreditClick\Service\ParameterKeys;
+namespace Buckaroo\PaymentMethods\Subscriptions\Service\ParameterKeys;
 
 use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
 
-class CustomerAdapter extends ServiceParametersKeysAdapter
+class AddressAdapter extends ServiceParametersKeysAdapter
 {
     protected array $keys = [
-        'firstName' => 'firstname',
-        'lastName' => 'lastname',
-        'email' => 'email',
+        'houseNumberAdditional' => 'HouseNumberSuffix',
     ];
 }

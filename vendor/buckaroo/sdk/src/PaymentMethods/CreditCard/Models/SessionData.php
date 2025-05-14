@@ -18,15 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\Tinka\Service\ParameterKeys;
+namespace Buckaroo\PaymentMethods\CreditCard\Models;
 
-use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
+use Buckaroo\Models\ServiceParameter;
 
-class AddressAdapter extends ServiceParametersKeysAdapter
+class SessionData extends ServiceParameter
 {
-    protected array $keys = [
-        'houseNumber' => 'StreetNumber',
-        'houseNumberAdditional' => 'StreetNumberAdditional',
-        'zipcode' => 'PostalCode',
-    ];
+    protected string $sessionId;
 }

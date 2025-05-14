@@ -18,13 +18,13 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\Tinka\Service\ParameterKeys;
+namespace Buckaroo\PaymentMethods\Trustly\Service\ParameterKeys;
 
 use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
 
-class ArticleAdapter extends ServiceParametersKeysAdapter
+class EmailAdapter extends ServiceParametersKeysAdapter
 {
     protected array $keys = [
-        'price' => 'UnitGrossPrice',
+        'email' => 'ConsumerEmail',
     ];
 }

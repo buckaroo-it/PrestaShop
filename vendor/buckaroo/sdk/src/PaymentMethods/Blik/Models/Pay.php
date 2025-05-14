@@ -24,5 +24,5 @@ use Buckaroo\Models\ServiceParameter;
 
 class Pay extends ServiceParameter
 {
-    protected bool $saveToken;
+    protected string $email;
 }

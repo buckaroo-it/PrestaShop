@@ -58,7 +58,7 @@ abstract class PaymentMethod implements PaymentInterface
     /**
      * @var array|string[]
      */
-    protected array $requiredConfigFields = ['currency', 'pushURL'];
+    protected array $requiredConfigFields = ['currency'];
     /**
      * @var string
      */
@@ -169,6 +169,16 @@ abstract class PaymentMethod implements PaymentInterface
     public function serviceVersion(): int
     {
         return $this->serviceVersion;
+    }
+
+    /**
+     * @return PaymentInterface
+     */
+    public function setServiceVersion(int $serviceVersion): PaymentInterface
+    {
+        $this->serviceVersion = $serviceVersion;
+
+        return $this;
     }
 
     /**
