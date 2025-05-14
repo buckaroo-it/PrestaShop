@@ -517,6 +517,7 @@ class Buckaroo3 extends PaymentModule
         if (Tools::getValue('controller') === 'order' && Tools::getValue('buckaroo_error')) {
 
             $msg = urldecode((string) Tools::getValue('buckaroo_error_msg'));
+
             Media::addJsDef(['buckaroo_error_msg' => $msg]);
 
             $this->context->controller->registerJavascript(

@@ -1,9 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
-    if (typeof buckaroo_error_msg !== 'undefined' && buckaroo_error_msg) {
-        if (typeof toastr !== 'undefined') {
-            toastr.error(buckaroo_error_msg);
-        } else {
-            alert(buckaroo_error_msg);
-        }
-    }
+    if (!window.buckaroo_error_msg) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'container js-buckaroo-payment-error my-3';
+
+    wrapper.innerHTML = `
+    <article class="alert alert-danger" role="alert" data-alert="danger">
+      <ul id="buckaroo-notifications">
+        <li>${buckaroo_error_msg}</li>
+      </ul>
+    </article>
+  `;
+
+    const target =
+        document.querySelector('#checkout, .checkout, #content') ||
+        document.body;
+
+    target.prepend(wrapper);
 });
