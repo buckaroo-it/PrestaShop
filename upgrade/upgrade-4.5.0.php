@@ -35,12 +35,5 @@ function upgrade_module_4_5_0($object)
 
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
-
-    $sql = 'ALTER TABLE ' . _DB_PREFIX_ . 'bk_configuration
-            MODIFY COLUMN value MEDIUMTEXT NOT NULL';
-    if (!Db::getInstance()->execute($sql)) {
-        throw new Exception('Could not enlarge bk_configuration.value');
-    }
-
     return true;
 }
