@@ -25,8 +25,6 @@ class CapayableIn3
 {
     protected $apiVersion;
     public const VERSION_V2 = 'V2';
-    public const LOGO_IN3_IDEAL = 'in3_ideal';
-    public const LOGO_IN3_IDEAL_FILENAME = 'In3_ideal.svg?v1';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
     public function __construct($buckarooConfigService)
@@ -41,10 +39,7 @@ class CapayableIn3
 
     public function getLogo(): string
     {
-        if (!$this->isV3()) {
-            return self::LOGO_DEFAULT;
-        }
-        return self::LOGO_IN3_IDEAL_FILENAME;
+        return self::LOGO_DEFAULT;
     }
 
     public function getMethod(): string
