@@ -68,7 +68,7 @@
   "dashboard.pages.payments.idin.display_mode_label": "Met deze instelling kunt u selecteren of iDIN is ingeschakeld voor alle producten in de winkel (globaal) of alleen voor specifieke producten. Voor specifieke producten dient u het ook in te schakelen voor de producten in de PrestaShop-catalogus.",
   "dashboard.pages.payments.in3.version.label": "In3 versie",
   "dashboard.pages.payments.in3.version.v2": "V2 (Capayable/In3)",
-  "dashboard.pages.payments.in3.version.v3": "V3 (iDEAL In3)",
+  "dashboard.pages.payments.in3.version.v3": "V3 (In3)",
   "dashboard.pages.payments.max_order_amount_b2c": "Maximale B2B bestelbedrag",
   "dashboard.pages.payments.maximum_order_amount": "Maximaal toegestane bestelbedrag",
   "dashboard.pages.payments.min_order_amount_b2b": "Minimale B2B bestelbedrag",

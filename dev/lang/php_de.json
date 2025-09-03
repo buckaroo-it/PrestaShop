@@ -68,7 +68,7 @@
   "dashboard.pages.payments.idin.display_mode_label": "Mit dieser Einstellung können Sie auswählen, ob iDIN für alle Produkte im Shop (global) oder nur für bestimmte Produkte aktiviert ist.",
   "dashboard.pages.payments.in3.version.label": "In3-Version",
   "dashboard.pages.payments.in3.version.v2": "V2 (Capayable/In3)",
-  "dashboard.pages.payments.in3.version.v3": "V3 (iDEAL In3)",
+  "dashboard.pages.payments.in3.version.v3": "V3 (In3)",
   "dashboard.pages.payments.max_order_amount_b2c": "Maximaler B2B-Bestellbetrag",
   "dashboard.pages.payments.maximum_order_amount": "Maximaler Bestellwert",
   "dashboard.pages.payments.min_order_amount_b2b": "Mindestbestellwert für B2B",
