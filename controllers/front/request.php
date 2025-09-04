@@ -377,7 +377,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $this->setCartCookie($cartId);
 
-        if ($response->getResponse() instanceof TransactionResponse) {
+        if ($response && $response->getResponse() instanceof TransactionResponse) {
             $this->logger->logInfo('Buckaroo error', $response->getSomeError());
         }
 

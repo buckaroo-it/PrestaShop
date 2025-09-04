@@ -43,6 +43,11 @@ class BuckarooConfigService
 
     public function getConfigArrayForMethod($method)
     {
+        // Map in3Old to in3 for backward compatibility
+        if ($method === 'in3Old') {
+            $method = 'in3';
+        }
+
         $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $method]);
 
         if (!$paymentMethod) {
@@ -65,6 +70,11 @@ class BuckarooConfigService
      */
     public function updatePaymentMethodConfig($name, array $data): bool
     {
+        // Map in3Old to in3 for backward compatibility
+        if ($name === 'in3Old') {
+            $name = 'in3';
+        }
+
         $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $name]);
 
         if (!$paymentMethod) {
@@ -82,6 +92,10 @@ class BuckarooConfigService
 
     public function updatePaymentMethodMode(string $name, string $mode): bool
     {
+        if ($name === 'in3Old') {
+            $name = 'in3';
+        }
+
         $paymentMethod = $this->paymentMethodRepository->findOneBy(['name' => $name]);
 
         if (!$paymentMethod) {

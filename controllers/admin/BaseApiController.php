@@ -47,7 +47,8 @@ class BaseApiController extends FrameworkBundleAdminController
         $data = json_decode($rawData, true);
         
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception('Invalid JSON input: ' . json_last_error_msg());
+            error_log('Buckaroo JSON validation warning: ' . json_last_error_msg() . ' for data: ' . substr($rawData, 0, 200));
+            return [];
         }
         
         return $data ?? [];

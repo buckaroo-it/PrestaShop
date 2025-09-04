@@ -164,6 +164,10 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodId($name)
     {
+        if ($name === 'in3Old') {
+            $name = 'in3';
+        }
+
         $sql = new \DbQuery();
 
         $sql->select('id');
@@ -206,6 +210,11 @@ class RawPaymentMethodRepository
 
     public function getPaymentMethodsLabel($name)
     {
+        // Map in3Old to in3 for backward compatibility
+        if ($name === 'in3Old') {
+            $name = 'in3';
+        }
+
         $sql = new \DbQuery();
 
         $sql->select('label');
