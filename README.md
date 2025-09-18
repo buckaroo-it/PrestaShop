@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://www.buckaroo.nl/media/whcdx04d/prestashop_icon.png" width="200px" position="center">
+  <img src="https://files.readme.io/2d56c2d3800f35f3c4d864c8a76b04639dcaf27f4e4f99089a7bc05cd60e66d0-prestashop_icon.png" width="200px" position="center">
 </p>
 
 # Buckaroo PrestaShop Payments Plugin
