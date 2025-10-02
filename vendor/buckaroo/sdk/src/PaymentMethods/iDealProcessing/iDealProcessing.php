@@ -20,31 +20,56 @@
 
 declare(strict_types=1);
 
-namespace Buckaroo\PaymentMethods\Giropay;
+namespace Buckaroo\PaymentMethods\iDealProcessing;
 
+use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Models\Model;
-use Buckaroo\PaymentMethods\Giropay\Models\Pay;
-use Buckaroo\PaymentMethods\Interfaces\Combinable;
+use Buckaroo\PaymentMethods\iDealProcessing\Models\Pay;
 use Buckaroo\PaymentMethods\PayablePaymentMethod;
+use Buckaroo\Services\TraitHelpers\HasIssuers;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
-class Giropay extends PayablePaymentMethod implements Combinable
+class iDealProcessing extends PayablePaymentMethod
 {
-    /**
-     * @var int
-     */
-    protected int $serviceVersion = 2;
+    use HasIssuers {
+        issuers as traitIssuers;
+    }
+
     /**
      * @var string
      */
-    protected string $paymentName = 'giropay';
+    protected string $paymentName = 'idealprocessing';
+    /**
+     * @var array|string[]
+     */
+    protected array $requiredConfigFields = ['currency', 'returnURL', 'returnURLCancel', 'pushURL'];
 
     /**
      * @param Model|null $model
      * @return TransactionResponse
      */
-    public function pay(?Model $model = null): TransactionResponse
+    public function pay(?Model $model = null)
     {
         return parent::pay($model ?? new Pay($this->payload));
+    }
+
+    /**
+     * @param Model|null $model
+     * @return TransactionResponse
+     */
+    public function payRemainder(?Model $model = null): TransactionResponse
+    {
+        return parent::payRemainder($model ?? new Pay($this->payload));
+    }
+
+    /**
+     * @return array
+     * @throws BuckarooException
+     */
+    public function issuers(): array
+    {
+        $this->serviceVersion = 2;
+
+        return $this->traitIssuers();
     }
 }

@@ -21,19 +21,6 @@
 namespace Tests\Buckaroo\Payments;
 
 use Tests\Buckaroo\BuckarooTestCase;
-use Buckaroo\Config\Config;
-
-
-class CustomConfig extends Config
-{
-    public function __construct()
-    {
-        $websiteKey = 'Set Key';
-        $secretKey = 'From other resources like DB/ENV/Platform Config';
-
-        parent::__construct($websiteKey, $secretKey);
-    }
-}
 
 class IdealTest extends BuckarooTestCase
 {
@@ -100,9 +87,24 @@ class IdealTest extends BuckarooTestCase
      */
     public function it_creates_a_ideal_payment()
     {
-        $response = $this->buckaroo->method('idealprocessing')->pay($this->paymentPayload);
+        $response = $this->buckaroo->method('ideal')->pay($this->paymentPayload);
 
         $this->assertTrue($response->isPendingProcessing());
+    }
+
+    /**
+     * @return void
+     * @test
+     */
+    public function it_creates_a_ideal_fast_checkout_payment()
+    {
+        $response = $this->buckaroo->method('ideal')->payFastCheckout([
+            'amountDebit'    => 10.10,
+            'shippingCost'   => 0.10,
+            'invoice'   => uniqid(),
+        ]);
+
+        $this->assertTrue($response->isWaitingOnUserInput());
     }
 
     /**

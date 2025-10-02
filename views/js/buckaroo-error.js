@@ -1,0 +1,19 @@
+document.addEventListener('DOMContentLoaded', () => {
+    if (!window.buckaroo_error_msg) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'js-buckaroo-payment-error';
+
+    wrapper.innerHTML = `
+    <article class="alert alert-danger" role="alert" data-alert="danger">
+      <ul id="buckaroo-notifications">
+        <li>${buckaroo_error_msg}</li>
+      </ul>
+    </article>
+  `;
+
+    const target =
+        document.querySelector('.cart-grid-body');
+
+    target.prepend(wrapper);
+});

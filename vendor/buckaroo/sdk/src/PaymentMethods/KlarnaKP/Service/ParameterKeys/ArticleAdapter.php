@@ -31,5 +31,7 @@ class ArticleAdapter extends ServiceParametersKeysAdapter
         'price' => 'ArticlePrice',
         'quantity' => 'ArticleQuantity',
         'vatPercentage' => 'ArticleVat',
+        'imageUrl' => 'ArticleImageUrl',
+        'productUrl' => 'ArticleProductUrl',
     ];
 }

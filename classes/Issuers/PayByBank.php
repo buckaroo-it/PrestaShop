@@ -100,7 +100,7 @@ class PayByBank extends Issuers
 
             return '../../PayByBank issuers/' . $selectedIssuer['logo'];
         } else {
-            return 'PayByBank.gif?v';
+            return 'PayByBank.svg?v';
         }
     }
 }

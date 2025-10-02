@@ -18,30 +18,18 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-declare(strict_types=1);
+namespace Buckaroo\PaymentMethods\Subscriptions\Service\ParameterKeys;
 
-namespace Buckaroo\PaymentMethods\Sofort;
+use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
 
-use Buckaroo\Models\Model;
-use Buckaroo\PaymentMethods\Interfaces\Combinable;
-use Buckaroo\PaymentMethods\PayablePaymentMethod;
-use Buckaroo\Transaction\Response\TransactionResponse;
-
-class Sofort extends PayablePaymentMethod implements Combinable
+class BankAccountAdapter extends ServiceParametersKeysAdapter
 {
-    protected string $paymentName = 'sofortueberweisung';
-    protected int $serviceVersion = 2;
-
     /**
-     * @param Model|null $model
-     * @return TransactionResponse
+     * @var array|string[]
      */
-    public function instantRefund(?Model $model = null):TransactionResponse
-    {
-        $this->setRefundPayload();
-
-        $this->setServiceList('instantRefund', $model);
-
-        return $this->postRequest();
-    }
+    protected array $keys = [
+        'iban'          => 'CustomerIBAN',
+        'accountName'   => 'CustomerAccountName',
+        'bic'           => 'CustomerBIC'
+    ];
 }

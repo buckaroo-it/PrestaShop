@@ -34,6 +34,7 @@ class TrustlyCheckout extends Checkout
 
         $this->customVars = [
             'customer' => $this->getCustomer(),
+            'email'   => $this->customer->email,
             'country' => Tools::strtoupper((new Country($this->invoice_address->id_country))->iso_code),
         ];
     }

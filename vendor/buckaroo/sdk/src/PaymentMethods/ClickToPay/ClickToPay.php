@@ -18,20 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\Tinka;
+declare(strict_types=1);
 
-use Buckaroo\Models\Model;
+namespace Buckaroo\PaymentMethods\ClickToPay;
 
+use Buckaroo\PaymentMethods\Interfaces\Combinable;
 use Buckaroo\PaymentMethods\PayablePaymentMethod;
-use Buckaroo\PaymentMethods\Tinka\Models\Pay;
-use Buckaroo\Transaction\Response\TransactionResponse;
 
-class Tinka extends PayablePaymentMethod
+class ClickToPay extends PayablePaymentMethod implements Combinable
 {
-    protected string $paymentName = 'Tinka';
-
-    public function pay(?Model $model = null): TransactionResponse
-    {
-        return parent::pay($model ?? new Pay($this->payload));
-    }
+    protected string $paymentName = 'ClickToPay';
 }

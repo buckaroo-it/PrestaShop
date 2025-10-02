@@ -79,21 +79,62 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
                 Tools::redirect($redirectUrl);
             } else {
-                $cookie->statusMessage = '';
-                if (($response->payment_method == 'afterpayacceptgiro'
-                        || $response->payment_method == 'afterpaydigiaccept')
-                    && $response->statusmessage) {
-                    $cookie->statusMessage = $response->statusmessage;
-                }
+                $this->setCartCookie($response->getCartId());
+
+                $cookie->statusMessage = $response->statusmessage ?: $this->module->l(
+                    'Your payment was unsuccessful. Please try again or choose another payment method.'
+                );
+
                 $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
-                Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
+                $msg = $response->statusmessage ?: $this->module->l(
+                    'Your payment was unsuccessful. Please try again or choose another payment method.'
+                );
+
+                $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+                    'step'               => 3,
+                    'buckaroo_error_msg' => urlencode($msg),
+                    'buckaroo_error'     => 1
+                ]);
+
+                Tools::redirect($redirectUrl);
                 exit;
             }
         } else {
-            $cookie->statusMessage = 'Not valid response';
-            $this->logger->logError('Invalid payment response');
-            Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error');
+            $this->setCartCookie($response->getCartId());
+            $this->logger->logError('Payment failed or invalid response');
+            $this->context->cookie->__set('buckaroo_error_msg',
+                $response->statusmessage ?: $this->module->l(
+                    'Your payment was unsuccessful. Please try again or choose another payment method.'
+                )
+            );
+
+            Tools::redirect(
+                $this->context->link->getPageLink('order', null, null, [
+                    'step' => 4,
+                    'buckaroo_error' => 1
+                ])
+            );
+            exit;
         }
-        exit;
+    }
+
+    private function setCartCookie($cartId)
+    {
+        $orderId = Order::getIdByCartId($cartId);
+
+        if ($orderId) {
+            $oldCart    = new Cart($cartId);
+            $duplication = $oldCart->duplicate();
+
+            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->write();
+            } else {
+                $this->logger->logError('Cart duplication failed');
+            }
+        } else {
+            $this->context->cookie->id_cart = (int) $cartId;
+            $this->context->cookie->write();
+        }
     }
 }

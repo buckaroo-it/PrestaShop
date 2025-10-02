@@ -18,11 +18,11 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\CreditClick\Models;
+namespace Buckaroo\PaymentMethods\iDealProcessing\Models;
 
 use Buckaroo\Models\ServiceParameter;
 
-class Refund extends ServiceParameter
+class Pay extends ServiceParameter
 {
-    protected string $refundreason;
+    protected string $issuer;
 }

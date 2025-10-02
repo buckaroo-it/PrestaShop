@@ -39,7 +39,17 @@ class BaseApiController extends FrameworkBundleAdminController
     protected function getJsonInput(): array
     {
         $rawData = \Tools::file_get_contents('php://input');
-
-        return json_decode($rawData, true);
+        
+        if (empty($rawData)) {
+            return [];
+        }
+        
+        $data = json_decode($rawData, true);
+        
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception('Invalid JSON input: ' . json_last_error_msg());
+        }
+        
+        return $data ?? [];
     }
 }

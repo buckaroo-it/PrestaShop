@@ -22,41 +22,22 @@ namespace Tests\Buckaroo\Payments;
 
 use Tests\Buckaroo\BuckarooTestCase;
 
-class SofortTest extends BuckarooTestCase
+class ClickToPayTest extends BuckarooTestCase
 {
-    protected array $paymentPayload;
-    
-    protected function setUp(): void
-    {
-        $this->paymentPayload = ([
-            'invoice' => uniqid(),
-            'amountDebit' => 10.10,
-        ]);
-    }
-
     /**
      * @return void
      * @test
      */
-    public function it_creates_a_sofort_payment()
+    public function it_creates_a_click_to_pay_payment()
     {
-        $response = $this->buckaroo->method('sofortueberweisung')->pay($this->paymentPayload);
+        $response = $this->buckaroo->method('clicktopay')->pay(
+            [
+                'amountDebit' => 0.01,
+                'invoice' => uniqid(),
+                'continueOnIncomplete' => "1",
+            ]
+        );
 
-        $this->assertTrue($response->isPendingProcessing());
-    }
-
-
-    /**
-     * @return void
-     * @test
-     */
-    public function it_creates_a_sofort_instant_refund()
-    {
-        $response = $this->buckaroo->method('sofortueberweisung')->instantRefund([
-            'invoice' => uniqid(),
-            'amountCredit' => 10.10,
-        ]);
-
-        $this->assertTrue($response->isValidationFailure());
+        $this->assertTrue($response->isWaitingOnUserInput());
     }
 }

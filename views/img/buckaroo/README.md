@@ -41,7 +41,7 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [EPS](https://www.buckaroo.eu/solutions/payment-methods/eps)  |  ![EPS](Payment%20methods/PNG/EPS.png) | ![EPS](Payment%20methods/SVG/EPS.svg) |
 | [Giftcards](https://www.buckaroo.eu/solutions/payment-methods/giftcards)  |  ![Giftcards](Payment%20methods/PNG/Giftcards.png) | ![Giftcards](Payment%20methods/SVG/Giftcards.svg) |
 | [iDEAL](https://www.buckaroo.eu/solutions/payment-methods/ideal)  |  ![iDEAL](Payment%20methods/PNG/iDEAL.png) | ![iDEAL](Payment%20methods/SVG/iDEAL.svg) |
-| [iDEAL In3](https://www.buckaroo.eu/solutions/payment-methods/in3)  |  ![iDEAL In3](Payment%20methods/PNG/iDEAL-In3.png) | ![iDEAL In3](Payment%20methods/SVG/iDEAL-In3.svg) |
+
 | [In3](https://www.buckaroo.eu/solutions/payment-methods/in3)  |  ![In3](Payment%20methods/PNG/In3.png) | ![In3](Payment%20methods/SVG/In3.svg) |
 | [KBC](https://www.buckaroo.eu/solutions/payment-methods/kbc)  |  ![KBC](Payment%20methods/PNG/KBC.png) | ![KBC](Payment%20methods/SVG/KBC.svg) |
 | [Klarna](https://www.buckaroo.eu/solutions/payment-methods/klarna)  |  ![Klarna](Payment%20methods/PNG/Klarna.png) | ![Klarna](Payment%20methods/SVG/Klarna.svg) |
@@ -55,7 +55,6 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [Przelewy24](https://www.buckaroo.eu/solutions/payment-methods/przelewy24)  |  ![Przelewy24](Payment%20methods/PNG/Przelewy24.png) | ![Przelewy24](Payment%20methods/SVG/Przelewy24.svg) |
 | [SEPA Credit Transfer](https://www.buckaroo.eu/solutions/payment-methods/sepa-credit-transfer)  |  ![SEPA Credit Transfer](Payment%20methods/PNG/SEPA-credittransfer.png) | ![SEPA Credit Transfer](Payment%20methods/SVG/SEPA-credittransfer.svg) |
 | [SEPA Direct Debit](https://www.buckaroo.eu/solutions/payment-methods/sepa-direct-debit)  |  ![SEPA Direct Debit](Payment%20methods/PNG/SEPA-directdebit.png) | ![SEPA Direct Debit](Payment%20methods/SVG/SEPA-directdebit.svg) |
-| [Sofort](https://www.buckaroo.eu/solutions/payment-methods/sofort)  |  ![Sofort](Payment%20methods/PNG/Sofort.png) | ![Sofort](Payment%20methods/SVG/Sofort.svg) |
 | [Tinka](https://www.buckaroo.eu/solutions/payment-methods/tinka)  |  ![Tinka](Payment%20methods/PNG/tinka.png) | ![Tinka](Payment%20methods/SVG/Tinka.svg) |
 | [Trustly](https://www.buckaroo.eu/solutions/payment-methods/trustly)  |  ![Tinka](Payment%20methods/PNG/Trustly.png) | ![Tinka](Payment%20methods/SVG/Trustly.svg) |
 | [WeChat Pay](https://www.buckaroo.eu/solutions/payment-methods/wechat-pay)  |  ![WeChat Pay](Payment%20methods/PNG/WeChatPay.png) | ![WeChat Pay](Payment%20methods/SVG/WeChat%20Pay.svg) |

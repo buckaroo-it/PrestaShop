@@ -48,6 +48,9 @@ class BillinkCheckout extends Checkout
 
     public function isRedirectRequired()
     {
+        if (!empty($this->payment_response) && $this->payment_response->isRedirectRequired()) {
+            return true;
+        }
         return false;
     }
 

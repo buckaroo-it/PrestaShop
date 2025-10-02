@@ -18,12 +18,10 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\Giropay\Models;
+namespace Buckaroo\PaymentMethods\KlarnaKP\Models;
 
-use Buckaroo\Models\ServiceParameter;
-
-class Pay extends ServiceParameter
+class Article extends \Buckaroo\Models\Article
 {
-    protected string $bic;
-    protected string $customerIBAN;
+    protected ?string $imageUrl;
+    protected ?string $productUrl;
 }

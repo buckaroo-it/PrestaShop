@@ -27,5 +27,6 @@ class CustomerAdapter extends ServiceParametersKeysAdapter
     protected array $keys = [
         'firstName' => 'CustomerFirstName',
         'lastName' => 'CustomerLastName',
+        'email' => 'ConsumerEmail',
     ];
 }
