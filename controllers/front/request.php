@@ -18,9 +18,9 @@
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+include_once __DIR__ . '/../../library/checkout/checkout.php';
+include_once __DIR__ . '/common.php';
+include_once __DIR__ . '/../../library/logger.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;

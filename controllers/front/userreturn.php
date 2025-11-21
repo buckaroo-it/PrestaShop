@@ -14,9 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
+include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
