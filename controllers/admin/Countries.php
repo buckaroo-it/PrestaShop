@@ -27,7 +27,6 @@ class Countries extends BaseApiController
 {
     private function getCountryRepository(): CountryRepository
     {
-        // This repository doesn't seem to need DI, direct instantiation is fine
         return new CountryRepository();
     }
 

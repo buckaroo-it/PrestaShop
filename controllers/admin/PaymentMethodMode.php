@@ -29,14 +29,13 @@ class PaymentMethodMode extends BaseApiController
     private function getBuckarooConfigService(): BuckarooConfigService
     {
         try {
-            if (method_exists($this, 'get') && $this->has('buckaroo.config.api.config.service')) {
+            if ($this->has('buckaroo.config.api.config.service')) {
                 return $this->get('buckaroo.config.api.config.service');
             }
         } catch (\Exception $e) {
-            // Container or service not available
+            // Container not available
         }
         
-        // Fallback to direct instantiation
         return new BuckarooConfigService();
     }
 

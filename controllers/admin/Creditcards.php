@@ -27,7 +27,6 @@ class Creditcards extends BaseApiController
 {
     private function getCreditCardsRepository(): RawCreditCardsRepository
     {
-        // This repository doesn't seem to need DI, direct instantiation is fine
         return new RawCreditCardsRepository();
     }
 

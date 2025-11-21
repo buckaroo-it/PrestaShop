@@ -22,7 +22,7 @@ class AdminBuckaroologController extends AdminControllerCore
 {
     public function __construct()
     {
-        $this->lang = Configuration::get('PS_LANG_DEFAULT');
+        $this->lang = \Configuration::get('PS_LANG_DEFAULT');
         $this->bootstrap = true;
         parent::__construct();
     }

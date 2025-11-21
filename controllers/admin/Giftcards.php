@@ -29,15 +29,14 @@ class Giftcards extends BaseApiController
     private function getBkGiftCardsRepository()
     {
         try {
-            if (method_exists($this, 'get') && $this->has('doctrine.orm.entity_manager')) {
+            if ($this->has('doctrine.orm.entity_manager')) {
                 $entityManager = $this->get('doctrine.orm.entity_manager');
                 return $entityManager->getRepository(BkGiftcards::class);
             }
         } catch (\Exception $e) {
-            // Container or service not available
+            // Container not available
         }
         
-        // Fallback - this would need proper setup
         throw new \RuntimeException('Entity manager not available');
     }
 

@@ -27,26 +27,17 @@ if (!defined('_PS_VERSION_')) {
 
 class PaymentMethodConfig extends BaseApiController
 {
-    private ?BuckarooConfigService $buckarooConfigService = null;
-
-    /**
-     * Get the Buckaroo config service using proper DI pattern
-     * Lazy-loads the service only when needed and caches it
-     */
     private function getBuckarooConfigService(): BuckarooConfigService
     {
-        if ($this->buckarooConfigService === null) {
-            try {
-                // Use DI to get the service, or fallback to instantiation if not available
-                $this->buckarooConfigService = $this->has('buckaroo.config.api.config.service') ? 
-                    $this->get('buckaroo.config.api.config.service') : new BuckarooConfigService();
-            } catch (\Exception $e) {
-                // Container or service not available, fallback to direct instantiation
-                $this->buckarooConfigService = new BuckarooConfigService();
+        try {
+            if ($this->has('buckaroo.config.api.config.service')) {
+                return $this->get('buckaroo.config.api.config.service');
             }
+        } catch (\Exception $e) {
+            // Container not available
         }
         
-        return $this->buckarooConfigService;
+        return new BuckarooConfigService();
     }
 
     public function initContent()

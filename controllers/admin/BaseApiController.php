@@ -27,25 +27,15 @@ if (!defined('_PS_VERSION_')) {
 
 class BaseApiController extends FrameworkBundleAdminController
 {
-    /**
-     * Get CSRF token manager from container
-     *
-     * @return CsrfTokenManagerInterface|null
-     */
     protected function getCsrfTokenManager(): ?CsrfTokenManagerInterface
     {
         try {
-            // Try to get from container using the get() method
-            if (method_exists($this, 'get')) {
-                // Try standard service name
-                if ($this->has('security.csrf.token_manager')) {
-                    return $this->get('security.csrf.token_manager');
-                }
-                
-                // Try alternative service name
-                if ($this->has('buckaroo.csrf.token_manager')) {
-                    return $this->get('buckaroo.csrf.token_manager');
-                }
+            if ($this->has('security.csrf.token_manager')) {
+                return $this->get('security.csrf.token_manager');
+            }
+            
+            if ($this->has('buckaroo.csrf.token_manager')) {
+                return $this->get('buckaroo.csrf.token_manager');
             }
         } catch (\Exception $e) {
             // Service not available

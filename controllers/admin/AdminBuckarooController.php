@@ -24,8 +24,8 @@ class AdminBuckarooController extends ModuleAdminController
     {
         $configure = $this->context->link->getAdminLink('AdminModules', false)
             . '&configure=' . $this->module->name . '&tab_module=' . $this->module->tab
-            . '&module_name=' . $this->module->name . '&token=' . Tools::getAdminTokenLite('AdminModules');
-        Tools::redirectAdmin($configure);
+            . '&module_name=' . $this->module->name . '&token=' . \Tools::getAdminTokenLite('AdminModules');
+        \Tools::redirectAdmin($configure);
         exit;
     }
 }

@@ -25,26 +25,17 @@ if (!defined('_PS_VERSION_')) {
 
 class Settings extends BaseApiController
 {
-    private ?BuckarooSettingsService $settingsService = null;
-
-    /**
-     * Get the settings service using proper DI pattern
-     * Lazy-loads the service only when needed and caches it
-     */
     private function getSettingsService(): BuckarooSettingsService
     {
-        if ($this->settingsService === null) {
-            try {
-                // Use DI to get the service, or fallback to instantiation if not available
-                $this->settingsService = $this->has('buckaroo.settings.service') ? 
-                    $this->get('buckaroo.settings.service') : new BuckarooSettingsService();
-            } catch (\Exception $e) {
-                // Container or service not available, fallback to direct instantiation
-                $this->settingsService = new BuckarooSettingsService();
+        try {
+            if ($this->has('buckaroo.settings.service')) {
+                return $this->get('buckaroo.settings.service');
             }
+        } catch (\Exception $e) {
+            // Container not available
         }
         
-        return $this->settingsService;
+        return new BuckarooSettingsService();
     }
 
     public function initContent()
