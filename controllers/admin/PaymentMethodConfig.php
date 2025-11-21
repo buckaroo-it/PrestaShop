@@ -27,12 +27,26 @@ if (!defined('_PS_VERSION_')) {
 
 class PaymentMethodConfig extends BaseApiController
 {
-    private BuckarooConfigService $buckarooConfigService;
+    private ?BuckarooConfigService $buckarooConfigService = null;
 
-    public function __construct(BuckarooConfigService $buckarooConfigService)
+    /**
+     * Get the Buckaroo config service using proper DI pattern
+     * Lazy-loads the service only when needed and caches it
+     */
+    private function getBuckarooConfigService(): BuckarooConfigService
     {
-        parent::__construct();
-        $this->buckarooConfigService = $buckarooConfigService;
+        if ($this->buckarooConfigService === null) {
+            try {
+                // Use DI to get the service, or fallback to instantiation if not available
+                $this->buckarooConfigService = $this->has('buckaroo.config.api.config.service') ? 
+                    $this->get('buckaroo.config.api.config.service') : new BuckarooConfigService();
+            } catch (\Exception $e) {
+                // Container or service not available, fallback to direct instantiation
+                $this->buckarooConfigService = new BuckarooConfigService();
+            }
+        }
+        
+        return $this->buckarooConfigService;
     }
 
     public function initContent()
@@ -56,7 +70,7 @@ class PaymentMethodConfig extends BaseApiController
         $data = [
             'status' => true,
             'config' => [
-                'value' => $this->buckarooConfigService->getConfigArrayForMethod($paymentName),
+                'value' => $this->getBuckarooConfigService()->getConfigArrayForMethod($paymentName),
             ],
         ];
 
@@ -75,7 +89,7 @@ class PaymentMethodConfig extends BaseApiController
         if (!$paymentName || !$data) {
             return $this->sendErrorResponse('Invalid data provided.', 400);
         }
-        $result = $this->buckarooConfigService->updatePaymentMethodConfig($paymentName, $data);
+        $result = $this->getBuckarooConfigService()->updatePaymentMethodConfig($paymentName, $data);
 
         return $this->sendResponse(['status' => $result]);
     }

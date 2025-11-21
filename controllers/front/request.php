@@ -109,7 +109,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return false;
         }
 
-        if (Order::getOrderByCartId($cart->id)) {
+        if (Order::getIdByCartId($cart->id)) {
             $oldCart = new Cart($cart->id);
             $duplication = $oldCart->duplicate();
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
@@ -343,7 +343,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function updateOrderHistory($response)
     {
         $this->logger->logInfo('Payment request valid');
-        $id_order = Order::getOrderByCartId($response->getCartId());
+        $id_order = Order::getIdByCartId($response->getCartId());
         if ($id_order) {
             $this->updateOrderStatus($response, $id_order);
         } else {

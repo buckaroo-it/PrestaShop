@@ -17,9 +17,9 @@
 
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 
-include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
+include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -69,7 +69,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
-            $id_order = Order::getOrderByCartId($response->getCartId());
+            $id_order = Order::getIdByCartId($response->getCartId());
             $orders = Order::getByReference($response->getReferenceId());
             $references = [];
             foreach ($orders as $order) {

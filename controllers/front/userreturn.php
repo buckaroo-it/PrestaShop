@@ -55,7 +55,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
-            $id_order = Order::getOrderByCartId($response->getCartId());
+            $id_order = Order::getIdByCartId($response->getCartId());
             $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
             if ($response->hasSucceeded()) {

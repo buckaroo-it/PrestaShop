@@ -26,12 +26,18 @@ if (!defined('_PS_VERSION_')) {
 
 class PaymentMethodMode extends BaseApiController
 {
-    private BuckarooConfigService $buckarooConfigService;
-
-    public function __construct(BuckarooConfigService $buckarooConfigService)
+    private function getBuckarooConfigService(): BuckarooConfigService
     {
-        parent::__construct();
-        $this->buckarooConfigService = $buckarooConfigService;
+        try {
+            if (method_exists($this, 'get') && $this->has('buckaroo.config.api.config.service')) {
+                return $this->get('buckaroo.config.api.config.service');
+            }
+        } catch (\Exception $e) {
+            // Container or service not available
+        }
+        
+        // Fallback to direct instantiation
+        return new BuckarooConfigService();
     }
 
     public function initContent(Request $request)
@@ -45,7 +51,7 @@ class PaymentMethodMode extends BaseApiController
             return $this->sendErrorResponse('Required data not provided', 400); // 400: Bad Request
         }
 
-        $this->buckarooConfigService->updatePaymentMethodMode($data['name'], $data['mode']);
+        $this->getBuckarooConfigService()->updatePaymentMethodMode($data['name'], $data['mode']);
 
         return $this->sendResponse(['status' => true]);
     }

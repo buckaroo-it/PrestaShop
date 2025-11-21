@@ -25,12 +25,26 @@ if (!defined('_PS_VERSION_')) {
 
 class Settings extends BaseApiController
 {
-    private BuckarooSettingsService $settingsService;
+    private ?BuckarooSettingsService $settingsService = null;
 
-    public function __construct()
+    /**
+     * Get the settings service using proper DI pattern
+     * Lazy-loads the service only when needed and caches it
+     */
+    private function getSettingsService(): BuckarooSettingsService
     {
-        parent::__construct();
-        $this->settingsService = new BuckarooSettingsService();
+        if ($this->settingsService === null) {
+            try {
+                // Use DI to get the service, or fallback to instantiation if not available
+                $this->settingsService = $this->has('buckaroo.settings.service') ? 
+                    $this->get('buckaroo.settings.service') : new BuckarooSettingsService();
+            } catch (\Exception $e) {
+                // Container or service not available, fallback to direct instantiation
+                $this->settingsService = new BuckarooSettingsService();
+            }
+        }
+        
+        return $this->settingsService;
     }
 
     public function initContent()
@@ -45,9 +59,10 @@ class Settings extends BaseApiController
 
     private function handleGet()
     {
+        $settingsService = $this->getSettingsService();
         $data = [
             'status' => true,
-            'settings' => $this->settingsService->getSettings(),
+            'settings' => $settingsService->getSettings(),
         ];
 
         return $this->sendResponse($data);
@@ -55,14 +70,15 @@ class Settings extends BaseApiController
 
     private function handlePost()
     {
+        $settingsService = $this->getSettingsService();
         $data = $this->getJsonInput();
 
-        if ($this->settingsService->isValidData($data)) {
-            $this->settingsService->updateSettings($data);
+        if ($settingsService->isValidData($data)) {
+            $settingsService->updateSettings($data);
 
             $data = [
                 'status' => true,
-                'settings' => $this->settingsService->getSettings(),
+                'settings' => $settingsService->getSettings(),
             ];
 
             return $this->sendResponse($data);

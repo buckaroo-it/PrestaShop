@@ -25,17 +25,15 @@ if (!defined('_PS_VERSION_')) {
 
 class Countries extends BaseApiController
 {
-    public CountryRepository $countryRepository;
-
-    public function __construct()
+    private function getCountryRepository(): CountryRepository
     {
-        parent::__construct();
-        $this->countryRepository = new CountryRepository();
+        // This repository doesn't seem to need DI, direct instantiation is fine
+        return new CountryRepository();
     }
 
     public function initContent()
     {
-        $countries = $this->countryRepository->getCountries();
+        $countries = $this->getCountryRepository()->getCountries();
 
         $data = [
             'status' => true,

@@ -331,16 +331,114 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
     }
 
+    /**
+     * Get the core PrestaShop service container
+     *
+     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
+     */
+    public function getCoreServiceContainer()
+    {
+        if (method_exists($this, 'getContainer')) {
+            return $this->getContainer();
+        }
+
+        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+            return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+        }
+
+        return null;
+    }
+
+    /**
+     * Get CSRF token from token manager
+     *
+     * @return string
+     */
+    protected function getCsrfToken(): string
+    {
+        try {
+            // Try accessing the service directly from the core container
+            $tokenManager = $this->get('security.csrf.token_manager');
+            if ($tokenManager) {
+                $userProvider = $this->get('prestashop.user_provider');
+                if ($userProvider) {
+                    $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+                    if (!empty($token)) {
+                        return $token;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Continue to next method
+        }
+
+        // If direct access fails, try through the core container
+        try {
+            $coreContainer = $this->getCoreServiceContainer();
+            if ($coreContainer && $coreContainer->has('security.csrf.token_manager')) {
+                $tokenManager = $coreContainer->get('security.csrf.token_manager');
+                if ($tokenManager) {
+                    $userProvider = $this->get('prestashop.user_provider');
+                    if ($userProvider) {
+                        $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+                        if (!empty($token)) {
+                            return $token;
+                        }
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // Continue to next method
+        }
+
+        // Try via kernel container as last resort
+        global $kernel;
+        if ($kernel) {
+            try {
+                $container = $kernel->getContainer();
+                if ($container && $container->has('security.csrf.token_manager')) {
+                    $tokenManager = $container->get('security.csrf.token_manager');
+                    if ($tokenManager) {
+                        $userProvider = $container->has('prestashop.user_provider') 
+                            ? $container->get('prestashop.user_provider') 
+                            : null;
+                        if ($userProvider) {
+                            $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+                            if (!empty($token)) {
+                                return $token;
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // All methods failed
+            }
+        }
+
+        return '';
+    }
+
     public function getContent()
     {
-        $tokenManager = $this->get('security.csrf.token_manager');
-        $userProvider = $this->get('prestashop.user_provider');
-        $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+        // Try to get CSRF token manager and generate token
+        $token = $this->getCsrfToken();
+        
+        // If token is still empty, try to get from current request
+        if (empty($token)) {
+            $token = \Tools::getValue('_token');
+            if (false === $token || empty($token)) {
+                $token = \Tools::getValue('token', '');
+            }
+        }
 
+        // Get admin URL and remove trailing slash to prevent double slashes in routing
+        $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
+        $adminUrl = rtrim($adminUrl, '/');
+        
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
-            'adminUrl' => explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0],
+            'adminUrl' => $adminUrl,
             'token' => $token,
         ]);
 
@@ -620,7 +718,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        $orderId = Order::getOrderByCartId($cart->id);
+        $orderId = Order::getIdByCartId($cart->id);
         $order = new Order($orderId);
 
         if (!Validate::isLoadedObject($order) || $order->module !== $this->name) {
@@ -652,18 +750,20 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
 
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+            $currency = new Currency($order->id_currency);
+            $context = Context::getContext();
 
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFeeTaxIncl > 0) {
-                $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFeeTaxExcl);
-                $params['templateVars']['{payment_fee_tax}'] = Tools::displayPrice($buckarooFee['buckaroo_fee_tax']);
-                $params['templateVars']['{total_paid}'] = Tools::displayPrice($order->total_paid + $buckarooFeeTaxIncl);
+                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice($buckarooFeeTaxExcl, $currency->iso_code);
+                $params['templateVars']['{payment_fee_tax}'] = $context->getCurrentLocale()->formatPrice($buckarooFee['buckaroo_fee_tax'], $currency->iso_code);
+                $params['templateVars']['{total_paid}'] = $context->getCurrentLocale()->formatPrice($order->total_paid + $buckarooFeeTaxIncl, $currency->iso_code);
                 // Include the total tax paid, which includes the payment fee tax
                 $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
-                $params['templateVars']['{total_tax_paid}'] = Tools::displayPrice($totalTaxPaid);
+                $params['templateVars']['{total_tax_paid}'] = $context->getCurrentLocale()->formatPrice($totalTaxPaid, $currency->iso_code);
             } else {
-                $params['templateVars']['{payment_fee}'] = Tools::displayPrice(0);
+                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice(0, $currency->iso_code);
             }
         }
 

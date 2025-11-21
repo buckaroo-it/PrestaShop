@@ -26,12 +26,19 @@ if (!defined('_PS_VERSION_')) {
 
 class Orderings extends BaseApiController
 {
-    private $bkOrderingRepository;
-
-    public function __construct(EntityManager $entityManager)
+    private function getBkOrderingRepository()
     {
-        parent::__construct();
-        $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
+        try {
+            if (method_exists($this, 'get') && $this->has('doctrine.orm.entity_manager')) {
+                $entityManager = $this->get('doctrine.orm.entity_manager');
+                return $entityManager->getRepository(BkOrdering::class);
+            }
+        } catch (\Exception $e) {
+            // Container or service not available
+        }
+        
+        // Fallback - this would need proper setup
+        throw new \RuntimeException('Entity manager not available');
     }
 
     public function initContent()
@@ -49,7 +56,7 @@ class Orderings extends BaseApiController
         $countryCode = \Tools::getValue('country');
         $countryCode = !empty($countryCode) ? $countryCode : null;
 
-        $ordering = $this->bkOrderingRepository->getOrdering($countryCode);
+        $ordering = $this->getBkOrderingRepository()->getOrdering($countryCode);
 
         return $this->sendResponse([
             'status' => true,
@@ -71,7 +78,7 @@ class Orderings extends BaseApiController
             ]);
         }
 
-        $result = $this->bkOrderingRepository->updateOrdering(json_encode($value), $countryId);
+        $result = $this->getBkOrderingRepository()->updateOrdering(json_encode($value), $countryId);
 
         return $this->sendResponse(['status' => $result]);
     }

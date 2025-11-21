@@ -25,12 +25,10 @@ if (!defined('_PS_VERSION_')) {
 
 class Creditcards extends BaseApiController
 {
-    private RawCreditCardsRepository $creditCardsRepository;
-
-    public function __construct()
+    private function getCreditCardsRepository(): RawCreditCardsRepository
     {
-        parent::__construct();
-        $this->creditCardsRepository = new RawCreditCardsRepository();
+        // This repository doesn't seem to need DI, direct instantiation is fine
+        return new RawCreditCardsRepository();
     }
 
     /**
@@ -38,7 +36,7 @@ class Creditcards extends BaseApiController
      */
     public function initContent()
     {
-        $creditcards = $this->creditCardsRepository->getCreditCardsFromDB();
+        $creditcards = $this->getCreditCardsRepository()->getCreditCardsFromDB();
 
         $data = [
             'status' => true,
