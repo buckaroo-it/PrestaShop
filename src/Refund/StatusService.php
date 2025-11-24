@@ -82,6 +82,7 @@ class StatusService
 
     /**
      * Update order status
+     * Enhanced for PrestaShop 9.0.1 compatibility with proper order object usage
      *
      * @param int $orderId
      * @param int $status
@@ -90,11 +91,56 @@ class StatusService
      */
     public function update(int $orderId, $status)
     {
-        $history = new \OrderHistory();
-        $history->id_order = $orderId;
-        $history->date_add = date('Y-m-d H:i:s');
-        $history->date_upd = date('Y-m-d H:i:s');
-        $history->changeIdOrderState($status, $orderId);
-        $history->addWithemail(false);
+        try {
+            $order = new \Order($orderId);
+
+            // Validate order exists
+            if (!\Validate::isLoadedObject($order)) {
+                return;
+            }
+
+            $currentState = (int) $order->getCurrentState();
+            $newStatus = (int) $status;
+
+            // Skip if same state
+            if ($currentState === $newStatus) {
+                return;
+            }
+
+            // Validate order state exists
+            $orderState = new \OrderState($newStatus);
+            if (!\Validate::isLoadedObject($orderState)) {
+                return;
+            }
+
+            $history = new \OrderHistory();
+            $history->id_order = $orderId;
+            $history->date_add = date('Y-m-d H:i:s');
+            $history->date_upd = date('Y-m-d H:i:s');
+
+            // Use order object instead of ID for PrestaShop 9.0.1 compatibility
+            // Determine if we should use existing payments
+            $useExistingPayments = !$order->hasInvoice();
+
+            // Change order state with proper order object and payment handling
+            $history->changeIdOrderState($newStatus, $order, $useExistingPayments);
+
+            // Use addWithemail (correct method name for PrestaShop 9.0.1)
+            $historyAdded = $history->addWithemail(false);
+
+            if (!$historyAdded) {
+                // Log error if logging is available
+                if (class_exists('\Logger')) {
+                    $logger = new \Logger(\Logger::ERROR, 'refund_status');
+                    $logger->logError('Failed to add order history entry for order #' . $orderId);
+                }
+            }
+        } catch (\Exception $e) {
+            // Log error if logging is available
+            if (class_exists('\Logger')) {
+                $logger = new \Logger(\Logger::ERROR, 'refund_status');
+                $logger->logError('Error updating order status for order #' . $orderId . ': ' . $e->getMessage());
+            }
+        }
     }
 }
