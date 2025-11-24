@@ -18,7 +18,8 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -26,12 +27,16 @@ if (!defined('_PS_VERSION_')) {
 
 class Orderings extends BaseApiController
 {
-    private $bkOrderingRepository;
+    /**
+     * @var OrderingRepository
+     */
+    private $orderingRepository;
 
-    public function __construct(EntityManager $entityManager)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        parent::__construct();
-        $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
+        /** @var OrderingRepository $repository */
+        $repository = $entityManager->getRepository(BkOrdering::class);
+        $this->orderingRepository = $repository;
     }
 
     public function initContent()
@@ -49,7 +54,7 @@ class Orderings extends BaseApiController
         $countryCode = \Tools::getValue('country');
         $countryCode = !empty($countryCode) ? $countryCode : null;
 
-        $ordering = $this->bkOrderingRepository->getOrdering($countryCode);
+        $ordering = $this->orderingRepository->getOrdering($countryCode);
 
         return $this->sendResponse([
             'status' => true,
@@ -71,7 +76,7 @@ class Orderings extends BaseApiController
             ]);
         }
 
-        $result = $this->bkOrderingRepository->updateOrdering(json_encode($value), $countryId);
+        $result = $this->orderingRepository->updateOrdering(json_encode($value), $countryId);
 
         return $this->sendResponse(['status' => $result]);
     }

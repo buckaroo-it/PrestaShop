@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Container\ContainerAwareTrait;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -23,6 +24,7 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooCommonController extends ModuleFrontController
 {
+    use ContainerAwareTrait;
     public function __construct()
     {
         parent::__construct();

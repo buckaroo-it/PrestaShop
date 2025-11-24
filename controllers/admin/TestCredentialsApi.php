@@ -17,7 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
-use Buckaroo\BuckarooClient;
+use Buckaroo\PrestaShop\Src\Service\BuckarooClientFactory;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -25,6 +25,13 @@ if (!defined('_PS_VERSION_')) {
 
 class TestCredentialsApi extends BaseApiController
 {
+    private BuckarooClientFactory $clientFactory;
+
+    public function __construct(BuckarooClientFactory $clientFactory)
+    {
+        $this->clientFactory = $clientFactory;
+    }
+
     public function initContent()
     {
         $data = $this->getJsonInput();
@@ -36,7 +43,7 @@ class TestCredentialsApi extends BaseApiController
             ]);
         }
 
-        $buckarooClient = new BuckarooClient($data['website_key'], $data['secret_key']);
+        $buckarooClient = $this->clientFactory->create($data['website_key'], $data['secret_key']);
         $status = $buckarooClient->confirmCredential();
 
         return $this->sendResponse(['status' => $status]);

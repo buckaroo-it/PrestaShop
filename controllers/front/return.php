@@ -17,9 +17,9 @@
 
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 
-include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
+include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -28,14 +28,23 @@ if (!defined('_PS_VERSION_')) {
 class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 {
     public $ssl = true;
-    private $symContainer;
     protected $logger;
+    private RawBuckarooFeeRepository $buckarooFeeRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->setContainer();
         $this->logger = new Logger(Logger::INFO, 'return');
+        $this->buckarooFeeRepository = $this->resolveBuckarooFeeRepository();
+    }
+
+    private function resolveBuckarooFeeRepository(): RawBuckarooFeeRepository
+    {
+        if ($this->hasService('buckaroo.repository.raw_buckaroo_fee')) {
+            return $this->getService('buckaroo.repository.raw_buckaroo_fee');
+        }
+
+        return new RawBuckarooFeeRepository();
     }
 
     /**
@@ -69,7 +78,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
-            $id_order = Order::getOrderByCartId($response->getCartId());
+            $id_order = Order::getIdByCartId($response->getCartId());
             $orders = Order::getByReference($response->getReferenceId());
             $references = [];
             foreach ($orders as $order) {
@@ -109,17 +118,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             }
 
             if ($response->brq_relatedtransaction_refund != null) {
-                try {
-                    $refundPushHandler = $this->symContainer->get('buckaroo.refund.push.handler');
-                    $refundPushHandler->handle();
-                    $messageRepo = $this->symContainer->get('buckaroo.refund.order.message');
-                    $messageRepo->add(
-                        $order,
-                        'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
-                    );
-                } catch (\Throwable $th) {
-                    $this->logger->logInfo('PUSH', (string)$th);
-                }
+                $order = $id_order ? new Order($id_order) : null;
+                $this->handleRefundPush($order, $response);
                 exit;
             }
 
@@ -201,7 +201,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             exit;
         }
 
-        $buckarooFee = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
+        $buckarooFee = $this->buckarooFeeRepository->getFeeByOrderId($order->id);
 
         if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
             $jj = 0;
@@ -221,15 +221,26 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         exit;
     }
 
-    private function setContainer()
+    private function handleRefundPush(?\Order $order, $response): void
     {
-        global $kernel;
-
-        if (!$kernel) {
-            require_once _PS_ROOT_DIR_ . '/app/AppKernel.php';
-            $kernel = new \AppKernel('prod', false);
-            $kernel->boot();
+        if (!$this->hasService('buckaroo.refund.push.handler')) {
+            $this->logger->logWarn('Refund push received but service is not available');
+            return;
         }
-        $this->symContainer = $kernel->getContainer();
+
+        try {
+            $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
+            $refundPushHandler->handle();
+
+            if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
+                $messageRepo = $this->getService('buckaroo.refund.order.message');
+                $messageRepo->add(
+                    $order,
+                    'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+                );
+            }
+        } catch (\Throwable $th) {
+            $this->logger->logInfo('PUSH', (string) $th);
+        }
     }
 }

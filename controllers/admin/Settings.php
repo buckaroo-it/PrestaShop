@@ -27,10 +27,9 @@ class Settings extends BaseApiController
 {
     private BuckarooSettingsService $settingsService;
 
-    public function __construct()
+    public function __construct(BuckarooSettingsService $settingsService)
     {
-        parent::__construct();
-        $this->settingsService = new BuckarooSettingsService();
+        $this->settingsService = $settingsService;
     }
 
     public function initContent()

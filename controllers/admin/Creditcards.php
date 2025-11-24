@@ -27,10 +27,9 @@ class Creditcards extends BaseApiController
 {
     private RawCreditCardsRepository $creditCardsRepository;
 
-    public function __construct()
+    public function __construct(RawCreditCardsRepository $creditCardsRepository)
     {
-        parent::__construct();
-        $this->creditCardsRepository = new RawCreditCardsRepository();
+        $this->creditCardsRepository = $creditCardsRepository;
     }
 
     /**
