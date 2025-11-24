@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Service;
 
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -31,45 +32,17 @@ class CsrfTokenManagerFactory
      */
     public static function create(): CsrfTokenManagerInterface
     {
-        $container = self::getCoreContainer();
-        
-        if ($container && $container->has('security.csrf.token_manager')) {
+        $containers = self::getContainerCandidates();
+
+        foreach ($containers as $container) {
+            if (!$container->has('security.csrf.token_manager')) {
+                continue;
+            }
+
             try {
                 return $container->get('security.csrf.token_manager');
-            } catch (\Exception $e) {
-                // Service might not be public, try alternative approaches
-            }
-        }
-
-        // Alternative: Try to get it via the request stack and session
-        global $kernel;
-        if ($kernel) {
-            try {
-                $container = $kernel->getContainer();
-                if ($container instanceof ContainerInterface) {
-                    // Try getting the service, even if not public
-                    if ($container->has('security.csrf.token_manager')) {
-                        try {
-                            return $container->get('security.csrf.token_manager');
-                        } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-                            // Service is not accessible, continue to next method
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                // Continue to next method
-            }
-        }
-
-        // Last resort: Try to create it manually if we can get the session
-        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-            try {
-                $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-                if ($container && $container->has('security.csrf.token_manager')) {
-                    return $container->get('security.csrf.token_manager');
-                }
-            } catch (\Exception $e) {
-                // Continue
+            } catch (\Throwable $exception) {
+                self::logContainerIssue('Unable to resolve security.csrf.token_manager', $exception);
             }
         }
 
@@ -87,29 +60,129 @@ class CsrfTokenManagerFactory
      */
     private static function getCoreContainer(): ?ContainerInterface
     {
-        // Try via kernel
+        return self::getKernelContainer()
+            ?? self::getContextControllerContainer()
+            ?? self::getLegacySymfonyContainer();
+    }
+
+    /**
+     * @return ContainerInterface[]
+     */
+    private static function getContainerCandidates(): array
+    {
+        $candidates = [];
+        $hashMap = [];
+
+        $adder = function ($container) use (&$candidates, &$hashMap) {
+            if (!$container instanceof ContainerInterface) {
+                return;
+            }
+
+            $hash = spl_object_hash($container);
+            if (isset($hashMap[$hash])) {
+                return;
+            }
+
+            $hashMap[$hash] = true;
+            $candidates[] = $container;
+        };
+
+        $adder(self::getCoreContainer());
+        $adder(self::getKernelContainer());
+        $adder(self::getContextControllerContainer());
+        $adder(self::getLegacySymfonyContainer());
+
+        return $candidates;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private static function getKernelContainer(): ?ContainerInterface
+    {
         global $kernel;
-        if ($kernel && method_exists($kernel, 'getContainer')) {
+
+        if ($kernel instanceof KernelInterface) {
             try {
                 $container = $kernel->getContainer();
                 if ($container instanceof ContainerInterface) {
                     return $container;
                 }
-            } catch (\Exception $e) {
-                // Continue to next method
-            }
-        }
-
-        // Try via PrestaShop's SymfonyContainer
-        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-            try {
-                return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-            } catch (\Exception $e) {
-                // Continue
+            } catch (\Throwable $exception) {
+                self::logContainerIssue('Kernel::getContainer failed', $exception);
             }
         }
 
         return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private static function getContextControllerContainer(): ?ContainerInterface
+    {
+        if (!class_exists('\Context')) {
+            return null;
+        }
+
+        $context = \Context::getContext();
+        if (!$context || !isset($context->controller) || !is_object($context->controller)) {
+            return null;
+        }
+
+        if (!method_exists($context->controller, 'getContainer')) {
+            return null;
+        }
+
+        try {
+            $container = $context->controller->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            self::logContainerIssue('Context controller container unavailable', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private static function getLegacySymfonyContainer(): ?ContainerInterface
+    {
+        if (!class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+            return null;
+        }
+
+        try {
+            $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            self::logContainerIssue('SymfonyContainer::getInstance failed', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $message
+     * @param \Throwable $exception
+     */
+    private static function logContainerIssue($message, \Throwable $exception): void
+    {
+        if (!defined('_PS_MODE_DEV_') || !_PS_MODE_DEV_) {
+            return;
+        }
+
+        $logMessage = sprintf('[Buckaroo3] %s: %s', $message, $exception->getMessage());
+        if (class_exists('\PrestaShopLogger')) {
+            \PrestaShopLogger::addLog($logMessage, 2);
+        } else {
+            error_log($logMessage);
+        }
     }
 }
 
