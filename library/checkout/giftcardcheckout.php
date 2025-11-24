@@ -34,6 +34,10 @@ class GiftCardCheckout extends Checkout
             'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
             'continueOnIncomplete' => '1',
         ];
+
+        if (!empty($this->customer->email) && Validate::isEmail($this->customer->email)) {
+            $this->customVars['email'] = $this->customer->email;
+        }
     }
 
     public function startPayment()
