@@ -425,19 +425,65 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function updateOrderStatus($response, $id_order)
     {
         $this->logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
-        $this->logger->logInfo('Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status));
 
-        $order = new Order($id_order);
-        $new_status_code = Buckaroo3::resolveStatusCode($response->status);
-        $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
-        $error = Configuration::get('PS_OS_ERROR');
+        try {
+            $order = new Order($id_order);
 
-        if ($new_status_code != $order->getCurrentState() && ($pending == $order->getCurrentState() || $error == $order->getCurrentState() || $canceled == $order->getCurrentState())) {
-            $order_history = new OrderHistory();
-            $order_history->id_order = $id_order;
-            $order_history->changeIdOrderState(Buckaroo3::resolveStatusCode($response->status), $id_order);
-            $order_history->add(true);
+            if (!Validate::isLoadedObject($order)) {
+                $this->logger->logError('Order #' . $id_order . ' is not a valid order object');
+                return;
+            }
+
+            // Resolve status code with order ID for proper backorder detection
+            $new_status_code = Buckaroo3::resolveStatusCode($response->status, $id_order);
+            $this->logger->logInfo('Update order history with status: ' . $new_status_code);
+
+            $currentState = (int) $order->getCurrentState();
+            $newStatusCode = (int) $new_status_code;
+
+            $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+            $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
+            $error = Configuration::get('PS_OS_ERROR');
+            $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
+
+            // Validate order state transition is allowed (PrestaShop 9.0.1 compatibility)
+            $isTransitionAllowed = Buckaroo3::isValidOrderStateTransition($id_order, $newStatusCode);
+
+            if ($currentState !== $newStatusCode && $isTransitionAllowed
+                && ($pending == $currentState || $error == $currentState
+                    || $canceled == $currentState || $outofstock_unpaid == $currentState)
+            ) {
+                $order_history = new OrderHistory();
+                $order_history->id_order = $id_order;
+                $order_history->date_add = date('Y-m-d H:i:s');
+                $order_history->date_upd = date('Y-m-d H:i:s');
+
+                // Use order object instead of ID for better PrestaShop 9.0.1 compatibility
+                // Determine if we should use existing payments
+                $useExistingPayments = !$order->hasInvoice();
+
+                // Change order state with proper order object and payment handling
+                $order_history->changeIdOrderState($newStatusCode, $order, $useExistingPayments);
+
+                // Use addWithemail instead of deprecated add() method (PrestaShop 9.0.1)
+                $historyAdded = $order_history->addWithemail(true);
+
+                if (!$historyAdded) {
+                    $this->logger->logError('Failed to add order history entry for order #' . $id_order);
+                } else {
+                    $this->logger->logInfo('Order status updated successfully to state #' . $newStatusCode);
+                }
+            } else {
+                if ($currentState === $newStatusCode) {
+                    $this->logger->logInfo('Order status not changed - already in state #' . $currentState);
+                } elseif (!$isTransitionAllowed) {
+                    $this->logger->logWarn('Order state transition not allowed from #' . $currentState . ' to #' . $newStatusCode);
+                } else {
+                    $this->logger->logInfo('Order status not updated - current state not in allowed list');
+                }
+            }
+        } catch (\Exception $e) {
+            $this->logger->logError('Error updating order status for order #' . $id_order . ': ' . $e->getMessage());
         }
     }
 

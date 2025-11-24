@@ -150,17 +150,41 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $error = Configuration::get('PS_OS_ERROR');
                 $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
 
-                if ($new_status_code != $order->getCurrentState()
-                    && ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState()
-                        || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
+                $currentState = (int) $order->getCurrentState();
+                $newStatusCode = (int) $new_status_code;
+
+                // Validate order state transition is allowed (PrestaShop 9.0.1 compatibility)
+                $isTransitionAllowed = Buckaroo3::isValidOrderStateTransition($id_order, $newStatusCode);
+
+                if ($currentState !== $newStatusCode && $isTransitionAllowed
+                    && ($pending == $currentState || $canceled == $currentState
+                        || $error == $currentState || $outofstock_unpaid == $currentState)
                 ) {
                     $this->logger->logInfo('Update order status');
-                    $history = new OrderHistory();
-                    $history->id_order = $id_order;
-                    $history->date_add = date('Y-m-d H:i:s');
-                    $history->date_upd = date('Y-m-d H:i:s');
-                    $history->changeIdOrderState($new_status_code, $id_order);
-                    $history->addWithemail(false);
+                    try {
+                        $history = new OrderHistory();
+                        $history->id_order = $id_order;
+                        $history->date_add = date('Y-m-d H:i:s');
+                        $history->date_upd = date('Y-m-d H:i:s');
+
+                        // Use order object instead of ID for better PrestaShop 9.0.1 compatibility
+                        // Determine if we should use existing payments
+                        $useExistingPayments = !$order->hasInvoice();
+
+                        // Change order state with proper order object and payment handling
+                        $history->changeIdOrderState($newStatusCode, $order, $useExistingPayments);
+
+                        // Use addWithemail (correct method name for PrestaShop 9.0.1)
+                        $historyAdded = $history->addWithemail(false);
+
+                        if (!$historyAdded) {
+                            $this->logger->logError('Failed to add order history entry for order #' . $id_order);
+                        } else {
+                            $this->logger->logInfo('Order status updated successfully to state #' . $newStatusCode);
+                        }
+                    } catch (\Exception $e) {
+                        $this->logger->logError('Error updating order status for order #' . $id_order . ': ' . $e->getMessage());
+                    }
 
                     $payments = OrderPayment::getByOrderReference($order->reference);
                     foreach ($payments as $payment) {
