@@ -18,7 +18,8 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
-use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Repository\OrderingRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -26,18 +27,16 @@ if (!defined('_PS_VERSION_')) {
 
 class Orderings extends BaseApiController
 {
-    private function getBkOrderingRepository()
+    /**
+     * @var OrderingRepository
+     */
+    private $orderingRepository;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        try {
-            if ($this->has('doctrine.orm.entity_manager')) {
-                $entityManager = $this->get('doctrine.orm.entity_manager');
-                return $entityManager->getRepository(BkOrdering::class);
-            }
-        } catch (\Exception $e) {
-            // Container not available
-        }
-        
-        throw new \RuntimeException('Entity manager not available');
+        /** @var OrderingRepository $repository */
+        $repository = $entityManager->getRepository(BkOrdering::class);
+        $this->orderingRepository = $repository;
     }
 
     public function initContent()
@@ -55,7 +54,7 @@ class Orderings extends BaseApiController
         $countryCode = \Tools::getValue('country');
         $countryCode = !empty($countryCode) ? $countryCode : null;
 
-        $ordering = $this->getBkOrderingRepository()->getOrdering($countryCode);
+        $ordering = $this->orderingRepository->getOrdering($countryCode);
 
         return $this->sendResponse([
             'status' => true,
@@ -77,7 +76,7 @@ class Orderings extends BaseApiController
             ]);
         }
 
-        $result = $this->getBkOrderingRepository()->updateOrdering(json_encode($value), $countryId);
+        $result = $this->orderingRepository->updateOrdering(json_encode($value), $countryId);
 
         return $this->sendResponse(['status' => $result]);
     }

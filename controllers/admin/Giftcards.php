@@ -18,7 +18,8 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Entity\BkGiftcards;
-use Doctrine\ORM\EntityManager;
+use Buckaroo\PrestaShop\Src\Repository\GiftCardsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -26,18 +27,16 @@ if (!defined('_PS_VERSION_')) {
 
 class Giftcards extends BaseApiController
 {
-    private function getBkGiftCardsRepository()
+    /**
+     * @var GiftCardsRepository
+     */
+    private $giftCardsRepository;
+
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        try {
-            if ($this->has('doctrine.orm.entity_manager')) {
-                $entityManager = $this->get('doctrine.orm.entity_manager');
-                return $entityManager->getRepository(BkGiftcards::class);
-            }
-        } catch (\Exception $e) {
-            // Container not available
-        }
-        
-        throw new \RuntimeException('Entity manager not available');
+        /** @var GiftCardsRepository $repository */
+        $repository = $entityManager->getRepository(BkGiftcards::class);
+        $this->giftCardsRepository = $repository;
     }
 
     /**
@@ -56,7 +55,7 @@ class Giftcards extends BaseApiController
 
     private function handleGet()
     {
-        $repository = $this->getBkGiftCardsRepository();
+        $repository = $this->giftCardsRepository;
         $giftcards = $repository->getGiftCards(false);
         $customGiftcards = $repository->getGiftCards(true);
 
@@ -84,7 +83,7 @@ class Giftcards extends BaseApiController
             ]);
         }
 
-        $result = $this->getBkGiftCardsRepository()->createGiftCard($name, $code, $logo);
+        $result = $this->giftCardsRepository->createGiftCard($name, $code, $logo);
         $data = [
             'status' => true,
             'custom_giftcard' => $result,
@@ -109,7 +108,7 @@ class Giftcards extends BaseApiController
             ]);
         }
 
-        $result = $this->getBkGiftCardsRepository()->editGiftCard($id, $name, $code, $logo);
+        $result = $this->giftCardsRepository->editGiftCard($id, $name, $code, $logo);
         $data = [
             'status' => true,
             'custom_giftcard' => $result,
@@ -131,7 +130,7 @@ class Giftcards extends BaseApiController
             ]);
         }
 
-        $result = $this->getBkGiftCardsRepository()->removeGiftCard($id);
+        $result = $this->giftCardsRepository->removeGiftCard($id);
 
         if ($result === false) {
             return $this->sendResponse([

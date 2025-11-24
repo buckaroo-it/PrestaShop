@@ -128,6 +128,10 @@ services:
       - "@doctrine.orm.entity_manager"
     public: true
 
+  Buckaroo\PrestaShop\Src\Service\BuckarooConfigService:
+    alias: buckaroo.config.api.config.service
+    public: true
+
   buckaroo.config.countries.service:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooCountriesService
     arguments:
@@ -144,6 +148,10 @@ services:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService
     arguments:
       - "@doctrine.orm.entity_manager"
+    public: true
+
+  Buckaroo\PrestaShop\Src\Service\BuckarooSettingsService:
+    alias: buckaroo.settings.service
     public: true
 
   Buckaroo\PrestaShop\Controllers\admin\TestCredentialsApi:
@@ -210,4 +218,48 @@ services:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
     arguments:
       - "@buckaroo.config.api.config.service"
+    public: true
+
+  buckaroo.repository.raw_payment_method:
+    class: Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository
+    public: true
+
+  Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository:
+    alias: buckaroo.repository.raw_payment_method
+    public: true
+
+  buckaroo.repository.raw_buckaroo_fee:
+    class: Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository
+    public: true
+
+  Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository:
+    alias: buckaroo.repository.raw_buckaroo_fee
+    public: true
+
+  buckaroo.repository.raw_credit_cards:
+    class: Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository
+    public: true
+
+  Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository:
+    alias: buckaroo.repository.raw_credit_cards
+    public: true
+
+  buckaroo.repository.country.repository:
+    class: Buckaroo\PrestaShop\Src\Repository\CountryRepository
+    public: true
+
+  Buckaroo\PrestaShop\Src\Repository\CountryRepository:
+    alias: buckaroo.repository.country.repository
+    public: true
+
+  buckaroo.repository.country:
+    alias: buckaroo.repository.country.repository
+    public: true
+
+  buckaroo.sdk.client_factory:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooClientFactory
+    public: true
+
+  Buckaroo\PrestaShop\Src\Service\BuckarooClientFactory:
+    alias: buckaroo.sdk.client_factory
     public: true

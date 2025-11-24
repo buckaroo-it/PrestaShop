@@ -25,14 +25,16 @@ if (!defined('_PS_VERSION_')) {
 
 class Countries extends BaseApiController
 {
-    private function getCountryRepository(): CountryRepository
+    private CountryRepository $countryRepository;
+
+    public function __construct(CountryRepository $countryRepository)
     {
-        return new CountryRepository();
+        $this->countryRepository = $countryRepository;
     }
 
     public function initContent()
     {
-        $countries = $this->getCountryRepository()->getCountries();
+        $countries = $this->countryRepository->getCountries();
 
         $data = [
             'status' => true,

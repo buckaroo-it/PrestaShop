@@ -25,9 +25,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Creditcards extends BaseApiController
 {
-    private function getCreditCardsRepository(): RawCreditCardsRepository
+    private RawCreditCardsRepository $creditCardsRepository;
+
+    public function __construct(RawCreditCardsRepository $creditCardsRepository)
     {
-        return new RawCreditCardsRepository();
+        $this->creditCardsRepository = $creditCardsRepository;
     }
 
     /**
@@ -35,7 +37,7 @@ class Creditcards extends BaseApiController
      */
     public function initContent()
     {
-        $creditcards = $this->getCreditCardsRepository()->getCreditCardsFromDB();
+        $creditcards = $this->creditCardsRepository->getCreditCardsFromDB();
 
         $data = [
             'status' => true,
