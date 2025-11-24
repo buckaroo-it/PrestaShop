@@ -32,104 +32,116 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public $display_column_left = false;
     public $display_column_right = false;
     protected $logger;
+    /**
+     * @var RawPaymentMethodRepository
+     */
+    private $paymentMethodRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->logger = new Logger(Logger::INFO, 'request');
+        $this->paymentMethodRepository = new RawPaymentMethodRepository();
     }
 
     public function postProcess()
     {
         $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
-        if (!$this->context || !$this->context->cart) {
-            $this->logger->logError('Context or cart is not properly initialized.');
-            Tools::redirect('index.php?controller=order&step=1');
-            return;
-        }
+        try {
+            if (!$this->context || !$this->context->cart) {
+                $this->logger->logError('Context or cart is not properly initialized.');
+                $this->redirectToCheckoutStep(1, $this->module->l('Your shopping session expired. Please start the checkout again.'));
+                return;
+            }
 
-        $cart = $this->context->cart;
+            $cart = $this->context->cart;
 
-        if (!$this->isValidCart($cart)) {
-            $this->handleInvalidCart($cart);
-            return;
-        }
+            if (!$this->isValidCart($cart)) {
+                return;
+            }
 
-        if (!$this->isValidConfiguration()) {
-            return;
-        }
+            if (!$this->isValidConfiguration()) {
+                return;
+            }
 
-        if (!$this->isAuthorized()) {
-            return;
-        }
+            if (!$this->isAuthorized()) {
+                return;
+            }
 
-        $customer = new Customer($cart->id_customer);
-        if (!$this->isValidCustomer($customer)) {
-            return;
-        }
+            $customer = new Customer($cart->id_customer);
+            if (!$this->isValidCustomer($customer, $cart)) {
+                return;
+            }
 
-        $currency = $this->context->currency;
-        if (!$currency) {
-            $this->logger->logError('Currency is not set in context.');
-            Tools::redirect('index.php?controller=order&step=1');
-            return;
-        }
+            $currency = $this->context->currency;
+            if (!$this->isValidCurrency($currency)) {
+                $this->redirectToCheckoutStep(1, $this->module->l('The selected currency is no longer available. Please refresh the checkout.'));
+                return;
+            }
 
-        $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
-        $payment_method = Tools::getValue('method');
+            $payment_method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
+            if (!$this->isValidPaymentMethod($payment_method)) {
+                return;
+            }
 
-        if (empty($payment_method)) {
-            $this->logger->logError('Load a method', 'Failed to load the method');
-            Tools::redirect('index.php?controller=order&step=1');
-            return;
-        }
+            $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
+            $total = $this->applyBuckarooFee($payment_method, $total);
 
-        $total = $this->applyBuckarooFee($payment_method, $total);
+            if (!$this->isValidService()) {
+                return;
+            }
 
-        if (!$this->isValidService()) {
-            return;
-        }
+            $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
+            $this->logger->logInfo('Checkout info', $debug);
 
-        $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
-        $this->logger->logInfo('Checkout info', $debug);
+            $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
 
-        $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
-
-        if ($this->checkout->isRequestSucceeded()) {
-            $this->handleSuccessfulRequest($cart->id, $customer);
-        } else {
-            $this->handleFailedRequest($cart->id);
+            if ($this->checkout->isRequestSucceeded()) {
+                $this->handleSuccessfulRequest($cart->id, $customer);
+            } else {
+                $this->handleFailedRequest($cart->id);
+            }
+        } catch (Exception $exception) {
+            $this->logger->logError('Unexpected checkout exception: ' . $exception->getMessage());
+            $this->displayError(null, $this->module->l('We were unable to start your payment. Please try again or contact the merchant.'));
         }
     }
 
     private function isValidCart($cart)
     {
+        if (!Validate::isLoadedObject($cart)) {
+            $this->handleInvalidCart($cart, 'Cart object could not be loaded.');
+            return false;
+        }
+
         if ($cart->id_customer == 0 || $cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active) {
+            $this->handleInvalidCart($cart, 'Cart identifiers missing or module inactive.');
+            return false;
+        }
+
+        if (!$this->cartHasProducts($cart)) {
+            $this->handleInvalidCart($cart, 'Cart is empty.');
+            return false;
+        }
+
+        if (!$this->cartAddressesAreValid($cart)) {
+            $this->handleInvalidCart($cart, 'Cart addresses are invalid.');
             return false;
         }
 
         if (Order::getIdByCartId($cart->id)) {
-            $oldCart = new Cart($cart->id);
-            $duplication = $oldCart->duplicate();
-            if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                $this->context->cookie->id_cart = $duplication['cart']->id;
-                $this->context->cart = $duplication['cart'];
-                $this->context->cookie->write();
-                return true;
-            } else {
-                return false;
-            }
+            return $this->duplicateCartForRetry($cart);
         }
 
         return true;
     }
 
-    private function handleInvalidCart($cart)
+    private function handleInvalidCart($cart, $reason)
     {
-        $debug = 'Customer Id: ' . $cart->id_customer . "\nDelivery Address ID: " . $cart->id_address_delivery . 'Invoice Address ID: ' . $cart->id_address_invoice . "\nModule Active: " . $this->module->active;
+        $debug = 'Reason: ' . $reason . "\nCustomer Id: " . $cart->id_customer . "\nDelivery Address ID: " . $cart->id_address_delivery . "\nInvoice Address ID: " . $cart->id_address_invoice . "\nModule Active: " . $this->module->active;
         $this->logger->logError('Validation Error', $debug);
-        Tools::redirect('index.php?controller=order&step=1');
+        $this->redirectToCheckoutStep(1, $this->module->l('Your shopping cart is no longer available. Please restart the checkout.'));
     }
 
     private function isValidConfiguration()
@@ -155,13 +167,32 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         exit($this->module->l('This payment method is not available.', 'validation'));
     }
 
-    private function isValidCustomer($customer)
+    private function isValidCustomer($customer, Cart $cart)
     {
         if (!Validate::isLoadedObject($customer)) {
-            $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $customer->id);
-            Tools::redirect('index.php?controller=order&step=1');
+            $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
+            $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
             return false;
         }
+
+        if ((int) $customer->id !== (int) $cart->id_customer) {
+            $this->logger->logError('Customer mismatch detected for cart: ' . $cart->id);
+            $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
+            return false;
+        }
+
+        if (property_exists($customer, 'active') && !$customer->active) {
+            $this->logger->logError('Inactive customer tried to checkout: ' . $customer->id);
+            $this->redirectToCheckoutStep(1, $this->module->l('Your account is inactive. Please contact the merchant.'));
+            return false;
+        }
+
+        if (property_exists($customer, 'deleted') && $customer->deleted) {
+            $this->logger->logError('Deleted customer tried to checkout: ' . $customer->id);
+            $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
+            return false;
+        }
+
         return true;
     }
 
@@ -175,6 +206,40 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         return $total;
+    }
+
+    private function isValidCurrency($currency): bool
+    {
+        if (!Validate::isLoadedObject($currency)) {
+            $this->logger->logError('Currency is not set in context or invalid.');
+            return false;
+        }
+
+        return true;
+    }
+
+    private function isValidPaymentMethod($payment_method): bool
+    {
+        if (empty($payment_method)) {
+            $this->logger->logError('Load a method', 'Failed to load the method');
+            $this->redirectToCheckoutStep(3, $this->module->l('Please select a payment method and try again.'));
+            return false;
+        }
+
+        $label = $this->paymentMethodRepository->getPaymentMethodsLabel($payment_method);
+        if (!$label) {
+            $this->logger->logError('Invalid payment method requested: ' . $payment_method);
+            $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is not available.'));
+            return false;
+        }
+
+        if (!$this->module->isPaymentModeActive($payment_method)) {
+            $this->logger->logError('Inactive payment method requested: ' . $payment_method);
+            $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is currently disabled.'));
+            return false;
+        }
+
+        return true;
     }
 
     private function isValidService()
@@ -411,5 +476,63 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->id_cart = (int) $cartId;
             $this->context->cookie->write();
         }
+    }
+
+    private function cartHasProducts(Cart $cart): bool
+    {
+        return (int)$cart->nbProducts() > 0;
+    }
+
+    private function cartAddressesAreValid(Cart $cart): bool
+    {
+        return $this->isValidAddressId($cart->id_address_delivery, 'delivery')
+            && $this->isValidAddressId($cart->id_address_invoice, 'invoice');
+    }
+
+    private function isValidAddressId($addressId, $type): bool
+    {
+        if (!Validate::isUnsignedId($addressId)) {
+            $this->logger->logError(sprintf('Invalid %s address ID supplied: %s', $type, $addressId));
+            return false;
+        }
+
+        $address = new Address($addressId);
+        if (!Validate::isLoadedObject($address) || (property_exists($address, 'deleted') && $address->deleted)) {
+            $this->logger->logError(sprintf('Unable to load %s address with ID %s', $type, $addressId));
+            return false;
+        }
+
+        return true;
+    }
+
+    private function duplicateCartForRetry(Cart $cart): bool
+    {
+        $oldCart = new Cart($cart->id);
+        $duplication = $oldCart->duplicate();
+
+        if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
+            $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cart = $duplication['cart'];
+            $this->context->cookie->write();
+            return true;
+        }
+
+        $this->handleInvalidCart($cart, 'Failed to duplicate cart for retry.');
+        return false;
+    }
+
+    private function redirectToCheckoutStep(int $step, ?string $message = null): void
+    {
+        if ($message !== null) {
+            $params = [
+                'step' => $step,
+                'buckaroo_error_msg' => urlencode($message),
+                'buckaroo_error' => 1,
+            ];
+            $url = $this->context->link->getPageLink('order', null, null, $params);
+            Tools::redirect($url);
+        }
+
+        Tools::redirect('index.php?controller=order&step=' . (int) $step);
     }
 }
