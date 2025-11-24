@@ -25,17 +25,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Settings extends BaseApiController
 {
-    private function getSettingsService(): BuckarooSettingsService
+    private BuckarooSettingsService $settingsService;
+
+    public function __construct(BuckarooSettingsService $settingsService)
     {
-        try {
-            if ($this->has('buckaroo.settings.service')) {
-                return $this->get('buckaroo.settings.service');
-            }
-        } catch (\Exception $e) {
-            // Container not available
-        }
-        
-        return new BuckarooSettingsService();
+        $this->settingsService = $settingsService;
     }
 
     public function initContent()
@@ -50,10 +44,9 @@ class Settings extends BaseApiController
 
     private function handleGet()
     {
-        $settingsService = $this->getSettingsService();
         $data = [
             'status' => true,
-            'settings' => $settingsService->getSettings(),
+            'settings' => $this->settingsService->getSettings(),
         ];
 
         return $this->sendResponse($data);
@@ -61,15 +54,14 @@ class Settings extends BaseApiController
 
     private function handlePost()
     {
-        $settingsService = $this->getSettingsService();
         $data = $this->getJsonInput();
 
-        if ($settingsService->isValidData($data)) {
-            $settingsService->updateSettings($data);
+        if ($this->settingsService->isValidData($data)) {
+            $this->settingsService->updateSettings($data);
 
             $data = [
                 'status' => true,
-                'settings' => $settingsService->getSettings(),
+                'settings' => $this->settingsService->getSettings(),
             ];
 
             return $this->sendResponse($data);

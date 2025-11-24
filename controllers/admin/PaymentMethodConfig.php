@@ -27,17 +27,11 @@ if (!defined('_PS_VERSION_')) {
 
 class PaymentMethodConfig extends BaseApiController
 {
-    private function getBuckarooConfigService(): BuckarooConfigService
+    private BuckarooConfigService $configService;
+
+    public function __construct(BuckarooConfigService $configService)
     {
-        try {
-            if ($this->has('buckaroo.config.api.config.service')) {
-                return $this->get('buckaroo.config.api.config.service');
-            }
-        } catch (\Exception $e) {
-            // Container not available
-        }
-        
-        return new BuckarooConfigService();
+        $this->configService = $configService;
     }
 
     public function initContent()
@@ -61,7 +55,7 @@ class PaymentMethodConfig extends BaseApiController
         $data = [
             'status' => true,
             'config' => [
-                'value' => $this->getBuckarooConfigService()->getConfigArrayForMethod($paymentName),
+                'value' => $this->configService->getConfigArrayForMethod($paymentName),
             ],
         ];
 
@@ -80,7 +74,7 @@ class PaymentMethodConfig extends BaseApiController
         if (!$paymentName || !$data) {
             return $this->sendErrorResponse('Invalid data provided.', 400);
         }
-        $result = $this->getBuckarooConfigService()->updatePaymentMethodConfig($paymentName, $data);
+        $result = $this->configService->updatePaymentMethodConfig($paymentName, $data);
 
         return $this->sendResponse(['status' => $result]);
     }

@@ -32,16 +32,22 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public $display_column_left = false;
     public $display_column_right = false;
     protected $logger;
-    /**
-     * @var RawPaymentMethodRepository
-     */
-    private $paymentMethodRepository;
+    private RawPaymentMethodRepository $paymentMethodRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->logger = new Logger(Logger::INFO, 'request');
-        $this->paymentMethodRepository = new RawPaymentMethodRepository();
+        $this->paymentMethodRepository = $this->resolvePaymentMethodRepository();
+    }
+
+    private function resolvePaymentMethodRepository(): RawPaymentMethodRepository
+    {
+        if ($this->hasService('buckaroo.repository.raw_payment_method')) {
+            return $this->getService('buckaroo.repository.raw_payment_method');
+        }
+
+        return new RawPaymentMethodRepository();
     }
 
     public function postProcess()
@@ -265,7 +271,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $payment_method_tr = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($payment_method);
+        $payment_method_tr = $this->paymentMethodRepository->getPaymentMethodsLabel($payment_method);
 
         $id_order_cart = Order::getIdByCartId($cart->id);
         if (!$id_order_cart) {

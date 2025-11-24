@@ -30,3 +30,11 @@ services:
       - "@buckaroo.classes.issuers.capayableIn3"
       - "@buckaroo.repository.country.repository"
     public: true
+
+  buckaroo.repository.raw_payment_method:
+    class: Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository
+    public: true
+
+  buckaroo.repository.raw_buckaroo_fee:
+    class: Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository
+    public: true

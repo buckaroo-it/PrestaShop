@@ -25,17 +25,11 @@ if (!defined('_PS_VERSION_')) {
 
 class VerificationMethods extends BaseApiController
 {
-    private function getBuckarooConfigService(): BuckarooConfigService
+    private BuckarooConfigService $configService;
+
+    public function __construct(BuckarooConfigService $configService)
     {
-        try {
-            if ($this->has('buckaroo.config.api.config.service')) {
-                return $this->get('buckaroo.config.api.config.service');
-            }
-        } catch (\Exception $e) {
-            // Container not available
-        }
-        
-        return new BuckarooConfigService();
+        $this->configService = $configService;
     }
 
     /**
@@ -66,6 +60,6 @@ class VerificationMethods extends BaseApiController
      */
     private function getPaymentConfigurations()
     {
-        return $this->getBuckarooConfigService()->getVerificationMethodsFromDBWithConfig();
+        return $this->configService->getVerificationMethodsFromDBWithConfig();
     }
 }
