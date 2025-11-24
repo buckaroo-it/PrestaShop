@@ -37,12 +37,19 @@ use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
     const MODULE_VERSION = '4.5.0';
     
     public $logger;
+
+    /**
+     * @var ContainerInterface|null
+     */
+    private $coreServiceContainer = null;
 
     public function __construct()
     {
@@ -338,15 +345,185 @@ class Buckaroo3 extends PaymentModule
      */
     public function getCoreServiceContainer()
     {
-        if (method_exists($this, 'getContainer')) {
-            return $this->getContainer();
+        if ($this->coreServiceContainer instanceof ContainerInterface) {
+            return $this->coreServiceContainer;
         }
 
-        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-            return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+        $container = $this->getModuleContainerIfAvailable();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getContextControllerContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getKernelServiceContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getLegacySymfonyContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
         }
 
         return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getModuleContainerIfAvailable()
+    {
+        if (!method_exists($this, 'getContainer')) {
+            return null;
+        }
+
+        try {
+            $container = $this->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Module::getContainer unavailable', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getContextControllerContainer()
+    {
+        if (!class_exists('\Context')) {
+            return null;
+        }
+
+        $context = \Context::getContext();
+        if (!$context || !isset($context->controller) || !is_object($context->controller)) {
+            return null;
+        }
+
+        if (!method_exists($context->controller, 'getContainer')) {
+            return null;
+        }
+
+        try {
+            $container = $context->controller->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Context controller container unavailable', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getKernelServiceContainer()
+    {
+        global $kernel;
+
+        if ($kernel instanceof KernelInterface) {
+            try {
+                $container = $kernel->getContainer();
+                if ($container instanceof ContainerInterface) {
+                    return $container;
+                }
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue('Kernel::getContainer failed', $exception);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getLegacySymfonyContainer()
+    {
+        if (!class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+            return null;
+        }
+
+        try {
+            $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('SymfonyContainer::getInstance failed', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $serviceId
+     *
+     * @return mixed|null
+     */
+    private function getServiceFromAvailableContainers($serviceId)
+    {
+        if (method_exists($this, 'has')) {
+            try {
+                if ($this->has($serviceId)) {
+                    return $this->get($serviceId);
+                }
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue(
+                    sprintf('Unable to resolve "%s" via module container', $serviceId),
+                    $exception
+                );
+            }
+        }
+
+        $coreContainer = $this->getCoreServiceContainer();
+        if ($coreContainer instanceof ContainerInterface && $coreContainer->has($serviceId)) {
+            try {
+                return $coreContainer->get($serviceId);
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue(
+                    sprintf('Unable to resolve "%s" via core container', $serviceId),
+                    $exception
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $message
+     * @param \Throwable $exception
+     */
+    private function logContainerAccessIssue($message, \Throwable $exception)
+    {
+        if (!defined('_PS_MODE_DEV_') || !_PS_MODE_DEV_) {
+            return;
+        }
+
+        $logMessage = sprintf('[Buckaroo3] %s: %s', $message, $exception->getMessage());
+        if (class_exists('\PrestaShopLogger')) {
+            \PrestaShopLogger::addLog($logMessage, 2);
+        } else {
+            error_log($logMessage);
+        }
     }
 
     /**
@@ -356,63 +533,27 @@ class Buckaroo3 extends PaymentModule
      */
     protected function getCsrfToken(): string
     {
-        try {
-            // Try accessing the service directly from the core container
-            $tokenManager = $this->get('security.csrf.token_manager');
-            if ($tokenManager) {
-                $userProvider = $this->get('prestashop.user_provider');
-                if ($userProvider) {
-                    $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
-                    if (!empty($token)) {
-                        return $token;
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Continue to next method
+        $tokenManager = $this->getServiceFromAvailableContainers('buckaroo.csrf.token_manager');
+        if (!$tokenManager) {
+            $tokenManager = $this->getServiceFromAvailableContainers('security.csrf.token_manager');
         }
 
-        // If direct access fails, try through the core container
-        try {
-            $coreContainer = $this->getCoreServiceContainer();
-            if ($coreContainer && $coreContainer->has('security.csrf.token_manager')) {
-                $tokenManager = $coreContainer->get('security.csrf.token_manager');
-                if ($tokenManager) {
-                    $userProvider = $this->get('prestashop.user_provider');
-                    if ($userProvider) {
-                        $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
-                        if (!empty($token)) {
-                            return $token;
-                        }
-                    }
-                }
-            }
-        } catch (\Exception $e) {
-            // Continue to next method
+        if (!$tokenManager) {
+            return '';
         }
 
-        // Try via kernel container as last resort
-        global $kernel;
-        if ($kernel) {
-            try {
-                $container = $kernel->getContainer();
-                if ($container && $container->has('security.csrf.token_manager')) {
-                    $tokenManager = $container->get('security.csrf.token_manager');
-                    if ($tokenManager) {
-                        $userProvider = $container->has('prestashop.user_provider') 
-                            ? $container->get('prestashop.user_provider') 
-                            : null;
-                        if ($userProvider) {
-                            $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
-                            if (!empty($token)) {
-                                return $token;
-                            }
-                        }
-                    }
-                }
-            } catch (\Exception $e) {
-                // All methods failed
+        $userProvider = $this->getServiceFromAvailableContainers('prestashop.user_provider');
+        if (!$userProvider) {
+            return '';
+        }
+
+        try {
+            $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+            if (!empty($token)) {
+                return $token;
             }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Unable to generate CSRF token', $exception);
         }
 
         return '';
@@ -420,10 +561,8 @@ class Buckaroo3 extends PaymentModule
 
     public function getContent()
     {
-        // Try to get CSRF token manager and generate token
         $token = $this->getCsrfToken();
-        
-        // If token is still empty, try to get from current request
+
         if (empty($token)) {
             $token = \Tools::getValue('_token');
             if (false === $token || empty($token)) {
@@ -431,7 +570,6 @@ class Buckaroo3 extends PaymentModule
             }
         }
 
-        // Get admin URL and remove trailing slash to prevent double slashes in routing
         $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
         $adminUrl = rtrim($adminUrl, '/');
         
