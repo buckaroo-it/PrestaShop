@@ -778,257 +778,46 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
     }
 
-    /**
-     * Resolves Buckaroo status code to PrestaShop order state ID
-     * Enhanced for PrestaShop 9.0.1 compatibility with improved validation
-     *
-     * @param string $status_code Buckaroo status code
-     * @param int|null $id_order Order ID (optional, required for backorder detection)
-     * @return int PrestaShop order state ID
-     */
     public static function resolveStatusCode($status_code, $id_order = null)
     {
-        $orderStateId = null;
-
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                // Check if order is a backorder before determining success state
-                if ($id_order && self::isOrderBackOrder($id_order)) {
-                    $orderStateId = (int) Configuration::get('PS_OS_OUTOFSTOCK_PAID');
-                } else {
-                    $orderStateId = (int) (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
-                }
-                break;
-
+                return self::isOrderBackOrder($id_order) ?
+                    Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
+                    (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-                $orderStateId = (int) Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                break;
-
+                return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
             case BuckarooAbstract::BUCKAROO_CANCELED:
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-                $orderStateId = (int) (Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?: Configuration::get('PS_OS_CANCELED'));
-                break;
-
+                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
+                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
             default:
-                $orderStateId = (int) Configuration::get('PS_OS_ERROR');
-                break;
+                return Configuration::get('PS_OS_ERROR');
         }
-
-        // Validate that the order state exists and is valid
-        if ($orderStateId && !self::isValidOrderState($orderStateId)) {
-            // Fallback to error state if resolved state is invalid
-            $orderStateId = (int) Configuration::get('PS_OS_ERROR');
-        }
-
-        return $orderStateId;
     }
 
-    /**
-     * Determines if an order is a backorder (order placed when products are out of stock)
-     * Enhanced logic for PrestaShop 9.0.1 with proper stock management detection
-     *
-     * @param int|null $orderId Order ID
-     * @return bool True if order is a backorder, false otherwise
-     */
     private static function isOrderBackOrder($orderId)
     {
-        // If no order ID provided or stock management is disabled, not a backorder
-        if (!$orderId || !Configuration::get('PS_STOCK_MANAGEMENT')) {
-            return false;
+        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
+            return false; // If stock management is disabled, no order is a backorder
         }
 
-        try {
-            $order = new Order($orderId);
+        $order = new Order($orderId);
+        $orderDetails = $order->getOrderDetailList();
 
-            // Validate order exists
-            if (!Validate::isLoadedObject($order)) {
-                return false;
-            }
+        foreach ($orderDetails as $detail) {
+            $orderDetail = new OrderDetail($detail['id_order_detail']);
 
-            $orderDetails = $order->getOrderDetailList();
-
-            // If no order details, not a backorder
-            if (empty($orderDetails)) {
-                return false;
-            }
-
-            $hasOutOfStockProduct = false;
-            $allProductsAvailable = true;
-
-            foreach ($orderDetails as $detail) {
-                if (empty($detail['id_order_detail'])) {
-                    continue;
-                }
-
-                $orderDetail = new OrderDetail($detail['id_order_detail']);
-
-                // Validate order detail exists
-                if (!Validate::isLoadedObject($orderDetail)) {
-                    continue;
-                }
-
-                // Get product ID and product attribute ID
-                $productId = (int) $orderDetail->product_id;
-                $productAttributeId = (int) $orderDetail->product_attribute_id;
-
-                if (!$productId) {
-                    continue;
-                }
-
-                // Get current stock quantity using PrestaShop's StockAvailable API
-                $currentQuantity = (int) StockAvailable::getQuantityAvailableByProduct(
-                    $productId,
-                    $productAttributeId,
-                    $order->id_shop ?: null
-                );
-
-                // Get the product to check out_of_stock behavior
-                $product = new Product($productId);
-
-                // Check if product is actually out of stock at the time of order
-                // Negative quantity means it was a backorder
-                if (isset($orderDetail->product_quantity_in_stock)) {
-                    $stockAtOrderTime = (int) $orderDetail->product_quantity_in_stock;
-
-                    // If stock was negative at order time, it's a backorder
-                    if ($stockAtOrderTime < 0) {
-                        $hasOutOfStockProduct = true;
-                    }
-
-                    // Also check current stock for validation
-                    if ($currentQuantity < 0) {
-                        $hasOutOfStockProduct = true;
-                    }
-                }
-
-                // Check if product allows ordering when out of stock
-                // If product doesn't allow ordering when OOS, and it's OOS, it's a backorder
-                if ($currentQuantity <= 0) {
-                    $outOfStockBehavior = (int) $product->out_of_stock;
-
-                    // 0 = deny orders when out of stock, 1 = allow orders, 2 = use default
-                    if ($outOfStockBehavior === 0) {
-                        // Product doesn't allow ordering when OOS, but order was placed
-                        // This indicates it became OOS after order was placed (backorder scenario)
-                        $hasOutOfStockProduct = true;
-                    }
-
-                    $allProductsAvailable = false;
-                }
-            }
-
-            // An order is a backorder if:
-            // 1. Any product was out of stock at order time, OR
-            // 2. Any product is currently out of stock and doesn't allow OOS orders
-            return $hasOutOfStockProduct || !$allProductsAvailable;
-
-        } catch (\Exception $e) {
-            // Log error but don't fail - return false to use normal success state
-            if (class_exists('Logger')) {
-                $logger = new Logger(Logger::ERROR, 'backorder');
-                $logger->logError('Error checking backorder status for order #' . $orderId . ': ' . $e->getMessage());
-            }
-            return false;
-        }
-    }
-
-    /**
-     * Validates if an order state ID exists and is valid
-     * Enhanced for PrestaShop 9.0.1 compatibility
-     *
-     * @param int $orderStateId Order state ID to validate
-     * @return bool True if order state is valid, false otherwise
-     */
-    private static function isValidOrderState($orderStateId)
-    {
-        if (empty($orderStateId) || !is_numeric($orderStateId)) {
-            return false;
-        }
-
-        try {
-            $orderState = new OrderState((int) $orderStateId);
-            return Validate::isLoadedObject($orderState);
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
-
-    /**
-     * Validates if an order state transition is allowed
-     * Prevents invalid state transitions in PrestaShop 9.0.1
-     *
-     * @param int $orderId Order ID
-     * @param int $newOrderStateId New order state ID
-     * @return bool True if transition is allowed, false otherwise
-     */
-    public static function isValidOrderStateTransition($orderId, $newOrderStateId)
-    {
-        if (empty($orderId) || empty($newOrderStateId)) {
-            return false;
-        }
-
-        try {
-            $order = new Order($orderId);
-
-            if (!Validate::isLoadedObject($order)) {
-                return false;
-            }
-
-            $currentStateId = (int) $order->getCurrentState();
-
-            // If same state, transition is not needed (but technically valid)
-            if ($currentStateId === (int) $newOrderStateId) {
-                return false; // Return false to prevent unnecessary updates
-            }
-
-            // Validate both states exist
-            if (!self::isValidOrderState($currentStateId) || !self::isValidOrderState($newOrderStateId)) {
-                return false;
-            }
-
-            // Get order state objects
-            $currentOrderState = new OrderState($currentStateId);
-            $newOrderState = new OrderState($newOrderStateId);
-
-            // In PrestaShop 9.0.1, some transitions may be restricted
-            // Allow transitions from pending/error/canceled/outofstock_unpaid to other states
-            $allowedFromStates = [
-                (int) Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT'),
-                (int) Configuration::get('PS_OS_ERROR'),
-                (int) Configuration::get('PS_OS_CANCELED'),
-                (int) Configuration::get('PS_OS_OUTOFSTOCK_UNPAID'),
-                (int) Configuration::get('BUCKAROO_ORDER_STATE_FAILED'),
-            ];
-
-            // Allow transition if current state is in allowed list
-            if (in_array($currentStateId, $allowedFromStates, true)) {
+            // If any product is in stock, the order is not a backorder
+            if ($orderDetail->product_quantity_in_stock < 0) {
                 return true;
             }
-
-            // Allow transition from any state to canceled/error states
-            $allowedToStates = [
-                (int) Configuration::get('PS_OS_CANCELED'),
-                (int) Configuration::get('PS_OS_ERROR'),
-                (int) Configuration::get('BUCKAROO_ORDER_STATE_FAILED'),
-            ];
-
-            if (in_array($newOrderStateId, $allowedToStates, true)) {
-                return true;
-            }
-
-            // For other transitions, be more permissive but log them
-            // In production, you might want to add more specific rules
-            return true;
-
-        } catch (\Exception $e) {
-            if (class_exists('Logger')) {
-                $logger = new Logger(Logger::ERROR, 'order_transition');
-                $logger->logError('Error validating order state transition for order #' . $orderId . ': ' . $e->getMessage());
-            }
-            return false;
         }
+
+        // If all products are out of stock, the order is a backorder
+        return false;
     }
 
     public function getBuckarooFee($payment_method)
