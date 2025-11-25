@@ -204,7 +204,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function applyBuckarooFee($payment_method, $total)
     {
-        $buckarooFee = $this->module->getBuckarooFee($payment_method);
+        $buckarooFee = $this->module->getBuckarooFee($payment_method, $total);
 
         if (is_array($buckarooFee)) {
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];

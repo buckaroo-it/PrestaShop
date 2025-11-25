@@ -154,8 +154,9 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDebit = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
+        $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
+        $this->payment_request->amountDebit = (string) $cartTotalInclTax;
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'), $cartTotalInclTax);
 
         if (is_array($buckarooFee) && $buckarooFee['buckaroo_fee_tax_incl'] > 0) {
             $this->updateOrderFee($buckarooFee);
@@ -346,7 +347,7 @@ abstract class Checkout
 
     protected function prepareBuckarooFeeArticle()
     {
-        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'), (float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
         if (!is_array($buckarooFee) || $buckarooFee['buckaroo_fee_tax_excl'] <= 0) {
             return [];
