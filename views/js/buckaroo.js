@@ -21,50 +21,154 @@ class BuckarooFeeManager {
     }
 
     handlePaymentOptionChange($paymentOption) {
-        let $nextDiv = $paymentOption.closest('.payment-option').parent().next();
-        let paymentFee;
-        let buckarooKey = $nextDiv.find('input[name="buckarooKey"]').val();
 
-        if ($nextDiv.hasClass('js-payment-option-form') && buckarooKey && buckarooFees[buckarooKey] !== undefined) {
+        let paymentOptionId = $paymentOption.attr('id');
+        let $paymentOptionContainer = $paymentOption.closest('.payment-option');
+
+        let buckarooKey = null;
+
+        buckarooKey = $paymentOptionContainer.find('input[name="buckarooKey"]').val();
+
+        if (!buckarooKey) {
+            let $nextSibling = $paymentOptionContainer.next();
+            if ($nextSibling.length) {
+                buckarooKey = $nextSibling.find('input[name="buckarooKey"]').val();
+            }
+        }
+
+        if (!buckarooKey) {
+            let $formContainer = $paymentOptionContainer.find('.js-payment-option-form, .payment-option-form, .additional-information');
+            if ($formContainer.length) {
+                buckarooKey = $formContainer.find('input[name="buckarooKey"]').val();
+            }
+        }
+
+        if (!buckarooKey) {
+            let $form = $paymentOptionContainer.find('form');
+            if (!$form.length) {
+                $form = $paymentOptionContainer.next().find('form');
+            }
+            if ($form.length) {
+                let formAction = $form.attr('action') || '';
+                let methodMatch = formAction.match(/[?&]method=([^&]+)/i);
+                if (methodMatch && methodMatch[1]) {
+                    buckarooKey = decodeURIComponent(methodMatch[1]).toLowerCase();
+                    // Remove any query parameters after the method name
+                    if (buckarooKey.includes('&')) {
+                        buckarooKey = buckarooKey.split('&')[0];
+                    }
+                }
+            }
+        }
+
+        if (!buckarooKey && paymentOptionId) {
+            let moduleName = $paymentOptionContainer.find('[data-module-name]').attr('data-module-name');
+            if (moduleName) {
+                buckarooKey = moduleName.toLowerCase();
+            } else {
+                let idParts = paymentOptionId.split('-');
+                let knownMethods = ['ideal', 'creditcard', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'payconiq'];
+                for (let method of knownMethods) {
+                    if (paymentOptionId.toLowerCase().indexOf(method) !== -1) {
+                        buckarooKey = method;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!buckarooKey) {
+            let $allBuckarooInputs = $paymentOptionContainer.closest('form, .payment-options, .payment-methods').find('input[name="buckarooKey"]');
+            if ($allBuckarooInputs.length === 1) {
+                buckarooKey = $allBuckarooInputs.val();
+            }
+        }
+        
+        let paymentFee = null;
+
+        if (buckarooKey && typeof buckarooFees !== 'undefined' && buckarooFees && buckarooFees[buckarooKey] !== undefined) {
             paymentFee = buckarooFees[buckarooKey]['buckarooFee'];
-        } else {
-            paymentFee = $nextDiv.next().find('input[name="payment-fee-price"]').val();
         }
 
         if (!paymentFee) {
+            let $feeInput = $paymentOptionContainer.find('input[name="payment-fee-price"]');
+            if (!$feeInput.length) {
+                $feeInput = $paymentOptionContainer.next().find('input[name="payment-fee-price"]');
+            }
+            if (!$feeInput.length) {
+                $feeInput = $paymentOptionContainer.find('.additional-information input[name="payment-fee-price"]');
+            }
+            if ($feeInput.length) {
+                paymentFee = $feeInput.val();
+            }
+        }
+
+        // Handle empty or null values
+        if (!paymentFee || paymentFee === '' || paymentFee === 0 || paymentFee === '0' || paymentFee === null || paymentFee === undefined) {
             this.removePaymentFee();
-            this.updateCartSummary(0);
+            this.updateCartSummary('');
         } else {
-            this.updateCartSummary(paymentFee);
+            this.updateCartSummary(String(paymentFee).trim());
         }
     }
 
     updateCartSummary(paymentFee) {
+        
+        if (!buckarooAjaxUrl) {
+            console.error('buckarooAjaxUrl is not defined!');
+            return;
+        }
+        
         $.ajax({
             url: buckarooAjaxUrl,
             method: 'GET',
             data: {'paymentFee': paymentFee, ajax: 1, action: 'getTotalCartPrice'},
-            success: (response) => this.handleCartUpdate(response),
-            error: function(err) {
-                console.error('Error updating cart summary:', err);
+            dataType: 'json',
+            success: (response) => {
+                this.handleCartUpdate(response);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error updating cart summary:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+                if (xhr.responseText) {
+                    try {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        console.error('Error response:', errorResponse);
+                    } catch (e) {
+                        console.error('Response is not valid JSON:', xhr.responseText);
+                    }
+                }
             }
         });
     }
 
     handleCartUpdate(response) {
-        let parsedResponse;
-        try {
-            parsedResponse = $.parseJSON(response);
-        } catch (e) {
-            console.error('Error parsing JSON response:', e);
+        if (!response || typeof response !== 'object') {
+            console.error('Invalid response format - expected object, got:', typeof response, response);
             return;
         }
 
-        const { cart_summary_totals, paymentFee, paymentFeeTax, includedTaxes } = parsedResponse;
+        if (response.error) {
+            console.error('Error in response:', response.message || 'Unknown error');
+            return;
+        }
+
+        const { cart_summary_totals, paymentFee, paymentFeeTax, includedTaxes } = response;
         const $cartSummaryTotals = $('.card-block.cart-summary-totals');
 
-        const $newCartSummaryTotals = $(cart_summary_totals);
-        $cartSummaryTotals.replaceWith($newCartSummaryTotals);
+        if (!$cartSummaryTotals.length) {
+            console.warn('Cart summary totals container not found');
+            return;
+        }
+
+        if (cart_summary_totals) {
+            const $newCartSummaryTotals = $(cart_summary_totals);
+            $cartSummaryTotals.replaceWith($newCartSummaryTotals);
+        }
 
         if (paymentFee) {
             this.updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes);
@@ -128,7 +232,10 @@ class BuckarooFeeManager {
     }
 }
 
-buckaroo()
+// Run when DOM is ready
+$(document).ready(function() {
+    buckaroo();
+});
 
 function buckaroo() {
     const buckarooFeeManager = new BuckarooFeeManager();
@@ -136,19 +243,29 @@ function buckaroo() {
 
     $(document).on('click', 'input[name="payment-option"]', function() {
         methodValidator.setMethod($(this).attr('id'));
+        setTimeout(() => {
+            buckarooFeeManager.handlePaymentOptionChange($(this));
+        }, 100);
+    });
+
+    $(document).on('change', 'input[name="payment-option"]', function() {
+        buckarooFeeManager.handlePaymentOptionChange($(this));
     });
 
     $('#payment-confirmation button').on('click', (e) => {
         methodValidator.init(e);
     });
 
-    $('input[name="payment-option"]').on('change', function() {
-        buckarooFeeManager.handlePaymentOptionChange($(this));
-    });
+    const $selectedOption = $('input[name="payment-option"]:checked');
+    if ($selectedOption.length) {
+        setTimeout(() => {
+            buckarooFeeManager.handlePaymentOptionChange($selectedOption);
+        }, 500);
+    }
 
     const methodValidator = {
-        formPointer: null, // selected method notation from 'action' attribute
-        methodSelector: null,// JS form object pointer
+        formPointer: null,
+        methodSelector: null,
         valid: true,
         setMethod: (id) => {
             methodValidator.formPointer = $('#pay-with-' + id + '-form form');

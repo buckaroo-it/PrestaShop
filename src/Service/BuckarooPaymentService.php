@@ -453,11 +453,23 @@ class BuckarooPaymentService
      */
     private function getFeeLabel($configArray)
     {
-        $locale = \Tools::getContextLocale(\Context::getContext());
-        $currency = \Context::getContext()->currency;
+        if (!isset($configArray['payment_fee']) || empty($configArray['payment_fee'])) {
+            return '';
+        }
 
-        if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . $locale->formatPrice($configArray['payment_fee'], $currency->iso_code);
+        $paymentFee = $configArray['payment_fee'];
+
+        $isPercentage = is_string($paymentFee) && strpos(trim($paymentFee), '%') !== false;
+
+        if ($isPercentage) {
+            return ' + ' . trim($paymentFee);
+        }
+
+        $feeAmount = (float) $paymentFee;
+        if ($feeAmount > 0) {
+            $locale = \Tools::getContextLocale(\Context::getContext());
+            $currency = \Context::getContext()->currency;
+            return ' + ' . $locale->formatPrice($feeAmount, $currency->iso_code);
         }
 
         return '';

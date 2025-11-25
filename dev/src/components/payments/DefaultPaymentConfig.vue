@@ -68,7 +68,7 @@
                     </div>
 
                     <div class="relative">
-                        <input type="number" id="fee" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
+                        <input type="text" id="fee" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer" placeholder=" " v-model="config.payment_fee" />
                         <label for="fee" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
                             {{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}
                         </label>
@@ -168,24 +168,17 @@ export default {
             deep: true
         },
         'config.payment_fee'(value) {
-            if(value) {
-                if(value < 0) {
-                    this.config.payment_fee = 0
+            if(value && typeof value === 'string') {
+                const trimmedValue = value.trim();
 
-                    return
+                const percentageMatch = trimmedValue.match(/^(\d+(?:\.\d+)?)\s*%$/);
+                const numberMatch = trimmedValue.match(/^(\d+(?:\.\d+)?)$/);
+                
+                if (!percentageMatch && !numberMatch && trimmedValue !== '') {
+                    this.config.payment_fee = '';
+                    return;
                 }
-
-                if(value > 999) {
-                    this.config.payment_fee = 999
-
-                    return
-                }
-
-                this.config.payment_fee = parseFloat(value);
-                return;
             }
-
-            this.config.payment_fee = ''
         },
     },
     setup(props) {
