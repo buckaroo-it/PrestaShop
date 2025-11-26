@@ -46,5 +46,3 @@ class Wero extends PaymentMethod
         return parent::pay($customVars);
     }
 }
-
-
