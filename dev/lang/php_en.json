@@ -203,6 +203,7 @@
   "payment_methods.trustly": "Trustly",
   "payment_methods.twint": "Twint",
   "payment_methods.swish": "Swish",
+  "payment_methods.bizum": "Bizum",
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "iDIN",
