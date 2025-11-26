@@ -28,10 +28,15 @@ class Wero extends PaymentMethod
         $this->version = 1;
     }
 
+
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
+        if (empty($this->description)) {
+            $this->description = 'Default Store View';
+        }
+
         // Attach CustomParameters for Wero with the billing email
         if (isset($customVars['CustomerBillingEmail']) && !empty($customVars['CustomerBillingEmail'])) {
             $this->payload['customParameters'] = [
