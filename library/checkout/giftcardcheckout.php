@@ -36,7 +36,9 @@ class GiftCardCheckout extends Checkout
         ];
 
         if (!empty($this->customer->email) && Validate::isEmail($this->customer->email)) {
-            $this->customVars['email'] = $this->customer->email;
+            $this->customVars['additionalParameters'] = [
+                'email' => $this->customer->email,
+            ];
         }
     }
 
