@@ -57,6 +57,7 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [SEPA Direct Debit](https://www.buckaroo.eu/solutions/payment-methods/sepa-direct-debit)  |  ![SEPA Direct Debit](Payment%20methods/PNG/SEPA-directdebit.png) | ![SEPA Direct Debit](Payment%20methods/SVG/SEPA-directdebit.svg) |
 | [Tinka](https://www.buckaroo.eu/solutions/payment-methods/tinka)  |  ![Tinka](Payment%20methods/PNG/tinka.png) | ![Tinka](Payment%20methods/SVG/Tinka.svg) |
 | [Trustly](https://www.buckaroo.eu/solutions/payment-methods/trustly)  |  ![Tinka](Payment%20methods/PNG/Trustly.png) | ![Tinka](Payment%20methods/SVG/Trustly.svg) |
+| [Twint](https://www.buckaroo.eu/solutions/payment-methods/twint)  |  ![Twint](Payment%20methods/PNG/Twint.png) | ![Twint](Payment%20methods/SVG/Twint.svg) |
 | [WeChat Pay](https://www.buckaroo.eu/solutions/payment-methods/wechat-pay)  |  ![WeChat Pay](Payment%20methods/PNG/WeChatPay.png) | ![WeChat Pay](Payment%20methods/SVG/WeChat%20Pay.svg) |
 
 # Logos credit and debit card issuers

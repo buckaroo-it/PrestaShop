@@ -280,6 +280,8 @@ class BuckarooPaymentService
                 return !$this->isIn3Available($cart);
             case 'afterpay':
                 return !$this->isAfterpayAvailable($cart);
+            case 'twint':
+                return !$this->isCartCurrencyAllowed($cart, ['CHF']);
             default:
                 return false;
         }
@@ -572,6 +574,26 @@ class BuckarooPaymentService
         $shippingCountry = $shippingAddress ? \Country::getIsoById($shippingAddress->id_country) : null;
 
         return [$billingAddress, $billingCountry, $shippingAddress, $shippingCountry];
+    }
+
+    private function isCartCurrencyAllowed($cart, array $allowedCurrencies): bool
+    {
+        if (!is_array($allowedCurrencies) || empty($allowedCurrencies)) {
+            return true;
+        }
+
+        $currency = new \Currency((int) $cart->id_currency);
+        if (!\Validate::isLoadedObject($currency)) {
+            return false;
+        }
+
+        $isoCode = \Tools::strtoupper((string) $currency->iso_code);
+
+        $normalizedCurrencies = array_map(static function ($currencyCode) {
+            return \Tools::strtoupper((string) $currencyCode);
+        }, $allowedCurrencies);
+
+        return in_array($isoCode, $normalizedCurrencies, true);
     }
 
     /**

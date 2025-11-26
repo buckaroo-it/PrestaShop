@@ -201,6 +201,7 @@
   "payment_methods.sepadirectdebit": "SEPA Direct Debit",
   "payment_methods.transfer": "Transfer",
   "payment_methods.trustly": "Trustly",
+  "payment_methods.twint": "Twint",
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "iDIN",
