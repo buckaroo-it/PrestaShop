@@ -138,6 +138,36 @@ function upgrade_module_4_6_0($object)
         }
     }
 
+    // Insert Wero if it does not yet exist
+    if (!$paymentMethodExists('wero')) {
+        $weroData = [
+            'name' => 'wero',
+            'label' => 'Wero',
+            'icon' => 'Wero.svg',
+            'template' => '',
+            'is_payment_method' => '1',
+        ];
+
+        $weroKeys = array_keys($weroData);
+        $weroValues = array_map(function ($value) {
+            return pSQL($value);
+        }, array_values($weroData));
+
+        $weroInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $weroKeys) . ') VALUES ("' . implode('", "', $weroValues) . '")';
+        $db->execute($weroInsertQuery);
+
+        $weroPaymentMethodId = (int) $db->Insert_ID();
+
+        if ($weroPaymentMethodId && !$configExistsForMethod($weroPaymentMethodId)) {
+            $weroConfig = [
+                'mode' => 'off',
+            ];
+
+            $weroConfigInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . $weroPaymentMethodId . ', \'' . pSQL(json_encode($weroConfig)) . '\')';
+            $db->execute($weroConfigInsertQuery);
+        }
+    }
+
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
 

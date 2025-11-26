@@ -67,7 +67,7 @@ class BuckarooFeeManager {
                 buckarooKey = moduleName.toLowerCase();
             } else {
                 let idParts = paymentOptionId.split('-');
-                let knownMethods = ['ideal', 'creditcard', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'payconiq', 'twint', 'swish', 'bizum'];
+                let knownMethods = ['ideal', 'creditcard', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'payconiq', 'twint', 'swish', 'bizum', 'wero'];
                 for (let method of knownMethods) {
                     if (paymentOptionId.toLowerCase().indexOf(method) !== -1) {
                         buckarooKey = method;

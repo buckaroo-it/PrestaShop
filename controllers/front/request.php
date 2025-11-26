@@ -353,6 +353,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return $iso === 'SEK';
         }
 
+        if ($paymentMethod === 'wero') {
+            return $iso === 'EUR';
+        }
+
         return true;
     }
 
