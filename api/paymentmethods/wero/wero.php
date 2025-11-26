@@ -28,7 +28,6 @@ class Wero extends PaymentMethod
         $this->version = 1;
     }
 
-
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
