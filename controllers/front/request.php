@@ -91,6 +91,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
+            if (!$this->isCurrencyAllowedForMethod($payment_method, $currency)) {
+                $this->redirectToCheckoutStep(1, $this->module->l('Twint is only available for Swiss francs (CHF).'));
+                return;
+            }
+
             $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
             $total = $this->applyBuckarooFee($payment_method, $total);
 
@@ -330,6 +335,19 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
         $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
+    }
+
+    private function isCurrencyAllowedForMethod($paymentMethod, $currency): bool
+    {
+        if (!isset($currency->iso_code)) {
+            return true;
+        }
+
+        if ($paymentMethod === 'twint') {
+            return \Tools::strtoupper($currency->iso_code) === 'CHF';
+        }
+
+        return true;
     }
 
     private function handleSuccessfulRequest($cartId, $customer)
