@@ -55,6 +55,7 @@ use Buckaroo\PaymentMethods\Przelewy24\Przelewy24;
 use Buckaroo\PaymentMethods\PayPerEmail\PayPerEmail;
 use Buckaroo\PaymentMethods\PointOfSale\PointOfSale;
 use Buckaroo\PaymentMethods\Twint\Twint;
+use Buckaroo\PaymentMethods\Swish\Swish;
 use Buckaroo\PaymentMethods\BankTransfer\BankTransfer;
 use Buckaroo\PaymentMethods\Marketplaces\Marketplaces;
 use Buckaroo\PaymentMethods\Subscriptions\Subscriptions;
@@ -135,6 +136,7 @@ class PaymentMethodFactory
         ],
         Trustly::class => ['trustly'],
         Twint::class => ['twint'],
+        Swish::class => ['swish'],
         BankTransfer::class => ['transfer'],
         WeChatPay::class => ['wechatpay'],
         BuckarooVoucher::class => ['buckaroovoucher'],

@@ -27,30 +27,86 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_4_6_0($object)
 {
-    $twintData = [
-        'name' => 'twint',
-        'label' => 'Twint',
-        'icon' => 'Twint.svg',
-        'template' => '',
-        'is_payment_method' => '1',
-    ];
+    // Helper: check if a payment method with given name exists
+    $db = Db::getInstance();
 
-    $keys = array_keys($twintData);
-    $values = array_map(function ($value) {
-        return pSQL($value);
-    }, array_values($twintData));
+    $paymentMethodExists = function ($name) use ($db) {
+        $sql = new DbQuery();
+        $sql->select('id');
+        $sql->from('bk_payment_methods');
+        $sql->where('name = "' . pSQL($name) . '"');
 
-    $insertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $keys) . ') VALUES ("' . implode('", "', $values) . '")';
-    Db::getInstance()->execute($insertQuery);
+        return (bool) $db->getValue($sql);
+    };
 
-    $paymentMethodId = Db::getInstance()->Insert_ID();
-    
-    $twintConfig = [
-        'mode' => 'off'
-    ];
+    $configExistsForMethod = function ($paymentMethodId) use ($db) {
+        $sql = new DbQuery();
+        $sql->select('COUNT(1)');
+        $sql->from('bk_configuration');
+        $sql->where('configurable_id = ' . (int) $paymentMethodId);
 
-    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int)$paymentMethodId . ', \'' . pSQL(json_encode($twintConfig)) . '\')';
-    Db::getInstance()->execute($configInsertQuery);
+        return (bool) $db->getValue($sql);
+    };
+
+    // Insert Twint if it does not yet exist
+    if (!$paymentMethodExists('twint')) {
+        $twintData = [
+            'name' => 'twint',
+            'label' => 'Twint',
+            'icon' => 'Twint.svg',
+            'template' => '',
+            'is_payment_method' => '1',
+        ];
+
+        $keys = array_keys($twintData);
+        $values = array_map(function ($value) {
+            return pSQL($value);
+        }, array_values($twintData));
+
+        $insertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $keys) . ') VALUES ("' . implode('", "', $values) . '")';
+        $db->execute($insertQuery);
+
+        $paymentMethodId = (int) $db->Insert_ID();
+
+        if ($paymentMethodId && !$configExistsForMethod($paymentMethodId)) {
+            $twintConfig = [
+                'mode' => 'off',
+            ];
+
+            $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . $paymentMethodId . ', \'' . pSQL(json_encode($twintConfig)) . '\')';
+            $db->execute($configInsertQuery);
+        }
+    }
+
+    // Insert Swish if it does not yet exist
+    if (!$paymentMethodExists('swish')) {
+        $swishData = [
+            'name' => 'swish',
+            'label' => 'Swish',
+            'icon' => 'Swish.svg',
+            'template' => '',
+            'is_payment_method' => '1',
+        ];
+
+        $swishKeys = array_keys($swishData);
+        $swishValues = array_map(function ($value) {
+            return pSQL($value);
+        }, array_values($swishData));
+
+        $swishInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $swishKeys) . ') VALUES ("' . implode('", "', $swishValues) . '")';
+        $db->execute($swishInsertQuery);
+
+        $swishPaymentMethodId = (int) $db->Insert_ID();
+
+        if ($swishPaymentMethodId && !$configExistsForMethod($swishPaymentMethodId)) {
+            $swishConfig = [
+                'mode' => 'off',
+            ];
+
+            $swishConfigInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . $swishPaymentMethodId . ', \'' . pSQL(json_encode($swishConfig)) . '\')';
+            $db->execute($swishConfigInsertQuery);
+        }
+    }
 
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
