@@ -108,6 +108,36 @@ function upgrade_module_4_6_0($object)
         }
     }
 
+    // Insert Bizum if it does not yet exist
+    if (!$paymentMethodExists('bizum')) {
+        $bizumData = [
+            'name' => 'bizum',
+            'label' => 'Bizum',
+            'icon' => 'Bizum.svg',
+            'template' => '',
+            'is_payment_method' => '1',
+        ];
+
+        $bizumKeys = array_keys($bizumData);
+        $bizumValues = array_map(function ($value) {
+            return pSQL($value);
+        }, array_values($bizumData));
+
+        $bizumInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $bizumKeys) . ') VALUES ("' . implode('", "', $bizumValues) . '")';
+        $db->execute($bizumInsertQuery);
+
+        $bizumPaymentMethodId = (int) $db->Insert_ID();
+
+        if ($bizumPaymentMethodId && !$configExistsForMethod($bizumPaymentMethodId)) {
+            $bizumConfig = [
+                'mode' => 'off',
+            ];
+
+            $bizumConfigInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . $bizumPaymentMethodId . ', \'' . pSQL(json_encode($bizumConfig)) . '\')';
+            $db->execute($bizumConfigInsertQuery);
+        }
+    }
+
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
 

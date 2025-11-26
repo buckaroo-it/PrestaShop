@@ -60,6 +60,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_BLIK = 'blik';
     public const CHECKOUT_TYPE_TWINT = 'twint';
     public const CHECKOUT_TYPE_SWISH = 'swish';
+    public const CHECKOUT_TYPE_BIZUM = 'bizum';
 
     public static $payment_method_type = [
         self::CHECKOUT_TYPE_PAYPAL => 'PayPal',
@@ -91,7 +92,8 @@ abstract class Checkout
         self::CHECKOUT_TYPE_KNAKEN => 'Knaken',
         self::CHECKOUT_TYPE_BLIK => 'Blik',
         self::CHECKOUT_TYPE_TWINT => 'Twint',
-        self::CHECKOUT_TYPE_SWISH => 'Swish'
+        self::CHECKOUT_TYPE_SWISH => 'Swish',
+        self::CHECKOUT_TYPE_BIZUM => 'Bizum'
     ];
 
     protected $payment_request;
