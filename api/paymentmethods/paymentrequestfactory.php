@@ -52,6 +52,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_TWINT = 'twint';
     public const REQUEST_TYPE_SWISH = 'swish';
     public const REQUEST_TYPE_BIZUM = 'bizum';
+    public const REQUEST_TYPE_WERO = 'wero';
 
     // Request types (Payment Methods).
     public static $valid_request_types = [
@@ -86,6 +87,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_TWINT => 'Twint',
         PaymentRequestFactory::REQUEST_TYPE_SWISH => 'Swish',
         PaymentRequestFactory::REQUEST_TYPE_BIZUM => 'Bizum',
+        PaymentRequestFactory::REQUEST_TYPE_WERO => 'Wero',
     ];
 
     final public static function create($request_type_id, $data = [])
