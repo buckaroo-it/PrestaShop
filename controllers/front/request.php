@@ -343,8 +343,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return true;
         }
 
+        $iso = \Tools::strtoupper($currency->iso_code);
+
         if ($paymentMethod === 'twint') {
-            return \Tools::strtoupper($currency->iso_code) === 'CHF';
+            return $iso === 'CHF';
+        }
+
+        if ($paymentMethod === 'swish') {
+            return $iso === 'SEK';
         }
 
         return true;

@@ -282,6 +282,8 @@ class BuckarooPaymentService
                 return !$this->isAfterpayAvailable($cart);
             case 'twint':
                 return !$this->isCartCurrencyAllowed($cart, ['CHF']);
+            case 'swish':
+                return !$this->isCartCurrencyAllowed($cart, ['SEK']);
             default:
                 return false;
         }

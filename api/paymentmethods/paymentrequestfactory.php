@@ -50,6 +50,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_MBWAY = 'mbway';
     public const REQUEST_TYPE_KNAKEN = 'knaken';
     public const REQUEST_TYPE_TWINT = 'twint';
+    public const REQUEST_TYPE_SWISH = 'swish';
 
     // Request types (Payment Methods).
     public static $valid_request_types = [
@@ -82,6 +83,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'Mbway',
         PaymentRequestFactory::REQUEST_TYPE_KNAKEN => 'Knaken',
         PaymentRequestFactory::REQUEST_TYPE_TWINT => 'Twint',
+        PaymentRequestFactory::REQUEST_TYPE_SWISH => 'Swish',
     ];
 
     final public static function create($request_type_id, $data = [])
