@@ -32,6 +32,10 @@ class Wero extends PaymentMethod
     public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
+        if (empty($this->description)) {
+            $this->description = 'Default Store View';
+        }
+
         // Attach CustomParameters for Wero with the billing email
         if (isset($customVars['CustomerBillingEmail']) && !empty($customVars['CustomerBillingEmail'])) {
             $this->payload['customParameters'] = [
@@ -42,5 +46,3 @@ class Wero extends PaymentMethod
         return parent::pay($customVars);
     }
 }
-
-
