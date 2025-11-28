@@ -171,8 +171,8 @@ export default {
             if(value && typeof value === 'string') {
                 const trimmedValue = value.trim();
 
-                const percentageMatch = trimmedValue.match(/^(\d+(?:\.\d+)?)\s*%$/);
-                const numberMatch = trimmedValue.match(/^(\d+(?:\.\d+)?)$/);
+                const percentageMatch = trimmedValue.match(/^(\d+(?:\.\d*)?)\s*%$/);
+                const numberMatch = trimmedValue.match(/^(\d+(?:\.\d*)?)$/);
                 
                 if (!percentageMatch && !numberMatch && trimmedValue !== '') {
                     this.config.payment_fee = '';
