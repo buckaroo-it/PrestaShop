@@ -165,10 +165,20 @@ class BuckarooFeeManager {
             return;
         }
 
+        // Always remove old fee elements before updating cart summary
+        this.removePaymentFee();
+
         if (cart_summary_totals) {
             const $newCartSummaryTotals = $(cart_summary_totals);
             $cartSummaryTotals.replaceWith($newCartSummaryTotals);
         }
+
+        // Re-initialize container reference after cart summary replacement
+        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+        
+        // Re-initialize fee element references (they should not exist after removePaymentFee)
+        this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
+        this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
 
         if (paymentFee) {
             this.updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes);
@@ -178,6 +188,18 @@ class BuckarooFeeManager {
     }
 
     updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes) {
+        // Ensure old fee elements are removed first
+        this.removePaymentFee();
+        
+        // Re-initialize references after removal
+        this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
+        this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
+        
+        // Ensure container reference is up to date
+        if (!this.$cartSummarySubtotalsContainer || this.$cartSummarySubtotalsContainer.length === 0) {
+            this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+        }
+
         const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFee">
                                     <span class="label">${paymentFeeLabel}</span>
                                     <span class="value">${paymentFee}</span>
@@ -192,16 +214,14 @@ class BuckarooFeeManager {
             this.updateIncludedTaxes(includedTaxes);
         }
 
-        if (this.$cartSubtotalBuckarooFee.length === 0) {
+        // Always append new fee elements (old ones were removed above)
+        if (this.$cartSummarySubtotalsContainer.length > 0) {
             this.$cartSummarySubtotalsContainer.append(paymentFeeHtml);
-        } else {
-            this.$cartSubtotalBuckarooFee.html(paymentFeeHtml);
-        }
-
-        if (this.$cartSubtotalBuckarooFeeTax.length === 0) {
             this.$cartSummarySubtotalsContainer.append(paymentFeeTaxHtml);
-        } else {
-            this.$cartSubtotalBuckarooFeeTax.html(paymentFeeTaxHtml);
+            
+            // Update references after appending
+            this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
+            this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
         }
     }
 
@@ -241,15 +261,12 @@ function buckaroo() {
     const buckarooFeeManager = new BuckarooFeeManager();
     buckarooFeeManager.init();
 
-    $(document).on('click', 'input[name="payment-option"]', function() {
+    // Use only the 'change' event to avoid triggering the fee update twice
+    $(document).on('change', 'input[name="payment-option"]', function() {
         methodValidator.setMethod($(this).attr('id'));
         setTimeout(() => {
             buckarooFeeManager.handlePaymentOptionChange($(this));
         }, 100);
-    });
-
-    $(document).on('change', 'input[name="payment-option"]', function() {
-        buckarooFeeManager.handlePaymentOptionChange($(this));
     });
 
     $('#payment-confirmation button').on('click', (e) => {
