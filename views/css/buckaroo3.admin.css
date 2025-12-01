@@ -1,4 +1,13 @@
-#subtab-AdminBuckaroo_B > a > i.mi-buckaroo, #subtab-AdminBuckaroo > a > i.mi-buckaroo {
+#subtab-AdminBuckaroo_B > a > i.mi-buckaroo,
+#subtab-AdminBuckaroo > a > i.mi-buckaroo,
+li.link-levelone i.mi-buckaroo,
+li.link-submenu i.mi-buckaroo {
     background: url(../img/buckaroo-menu-logo.png) no-repeat scroll center center / contain transparent;
-    width: 16px;
+    display: inline-block;
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    font-size: 0; /* hide any underlying icon text (PS9 uses ligature text inside <i>) */
+    overflow: hidden;
 }
