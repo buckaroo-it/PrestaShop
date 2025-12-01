@@ -887,7 +887,10 @@ class Buckaroo3 extends PaymentModule
                 return null;
             }
 
-            $buckarooFee = $percentageBase * ($percentageValue / 100);
+            $computePrecision = Context::getContext()->getComputingPrecision();
+            $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
+            
+            $buckarooFee = $roundedBase * ($percentageValue / 100);
         } else {
             $buckarooFee = (float) $buckarooFee;
         }
@@ -896,9 +899,15 @@ class Buckaroo3 extends PaymentModule
             return null;
         }
 
+        $computePrecision = Context::getContext()->getComputingPrecision();
+        $buckarooFee = Tools::ps_round($buckarooFee, $computePrecision);
+
         $taxRate = $this->getAverageCartTaxRate();
         $buckarooFeeTax = $buckarooFee * $taxRate;
+        $buckarooFeeTax = Tools::ps_round($buckarooFeeTax, $computePrecision);
+        
         $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
+        $buckarooFeeTaxIncl = Tools::ps_round($buckarooFeeTaxIncl, $computePrecision);
 
         return [
             'buckaroo_fee_tax_excl' => $buckarooFee,

@@ -211,9 +211,9 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
         }
     }
 
-    private function calculatePaymentFee($paymentFeeValue, $cart): DecimalNumber
+    private function calculatePaymentFee($paymentFeeValue, $cart): ?DecimalNumber
     {
-        $orderTotal = new DecimalNumber((string) $cart->getOrderTotal());
+        $orderTotal = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
 
        
         if (is_string($paymentFeeValue) && strpos(trim($paymentFeeValue), '%') !== false) {
@@ -228,7 +228,9 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             }
             
             $percentage = (new DecimalNumber((string) $paymentFeeValue))->dividedBy(new DecimalNumber('100'));
-            return $orderTotal->times($percentage);
+            $feeAmount = $orderTotal->times($percentage);
+            
+            return $feeAmount->toPrecision(2);
         }
 
         if (!is_numeric($paymentFeeValue)) {
@@ -244,7 +246,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function calculateOrderTotals($cart, $paymentFee): array
     {
         try {
-            $paymentFeeValue = (float) $paymentFee->toPrecision(2);
+            $paymentFeeValue = (float) (string) $paymentFee->toPrecision(2);
 
             $addressId = $cart->id_address_invoice ?: $cart->id_address_delivery;
             $taxRate = 0;
@@ -286,10 +288,10 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
         }
 
             return [
-                'total_including_tax' => $orderTotalWithFee->toPrecision(2),
-                'total_excluding_tax' => $orderTotalNoTaxWithFee->toPrecision(2),
-                'payment_fee' => $paymentFee->toPrecision(2),
-                'payment_fee_tax' => $paymentFeeTax->toPrecision(2),
+                'total_including_tax' => (string) $orderTotalWithFee->toPrecision(2),
+                'total_excluding_tax' => (string) $orderTotalNoTaxWithFee->toPrecision(2),
+                'payment_fee' => (string) $paymentFee->toPrecision(2),
+                'payment_fee_tax' => (string) $paymentFeeTax->toPrecision(2),
             ];
         } catch (\Exception $e) {
             if (class_exists('\PrestaShopLogger')) {
@@ -353,7 +355,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             
             $totalWithoutTax = new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH));
             $totalWithTax = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
-            $includedTaxes = $totalWithTax->minus($totalWithoutTax)->plus(new DecimalNumber($orderTotals['payment_fee_tax']))->toPrecision(2);
+            $includedTaxes = (string) $totalWithTax->minus($totalWithoutTax)->plus(new DecimalNumber($orderTotals['payment_fee_tax']))->toPrecision(2);
 
             $existingTotals = isset($presentedCartArray['totals']) && is_array($presentedCartArray['totals']) 
                 ? $presentedCartArray['totals'] 
