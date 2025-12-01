@@ -80,16 +80,16 @@ class BkRefundRequest
     private $paymentKey;
 
     /**
-     * @var string
+     * @var array
      *
-     * @ORM\Column(name="payload", type="json_array")
+     * @ORM\Column(name="payload", type="json")
      */
     private $payload;
 
     /**
-     * @var string
+     * @var array
      *
-     * @ORM\Column(name="data", type="json_array")
+     * @ORM\Column(name="data", type="json")
      */
     private $data;
 
