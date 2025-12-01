@@ -22,7 +22,6 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Translation\TranslatorInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -36,12 +35,12 @@ class IdinTabType extends TranslatorAwareType
     private $defaultCurrency;
 
     /**
-     * @param TranslatorInterface $translator
+     * @param mixed $translator
      * @param array $locales
      * @param \Currency $defaultCurrency
      */
     public function __construct(
-        TranslatorInterface $translator,
+        $translator,
         array $locales,
         \Currency $defaultCurrency
     ) {
