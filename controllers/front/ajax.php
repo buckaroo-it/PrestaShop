@@ -215,28 +215,27 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     {
         $orderTotal = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
 
-       
         if (is_string($paymentFeeValue) && strpos(trim($paymentFeeValue), '%') !== false) {
-    
-            $paymentFeeValue = trim(str_replace('%', '', $paymentFeeValue));
-            
-            if (!is_numeric($paymentFeeValue)) {
+            $normalizedValue = trim(str_replace('%', '', $paymentFeeValue));
+
+            if (!is_numeric($normalizedValue)) {
                 if (class_exists('\PrestaShopLogger')) {
                     \PrestaShopLogger::addLog('Buckaroo3: Invalid percentage fee value: ' . $paymentFeeValue, 3);
                 }
+
                 return new DecimalNumber('0');
             }
-            
-            $percentage = (new DecimalNumber((string) $paymentFeeValue))->dividedBy(new DecimalNumber('100'));
-            $feeAmount = $orderTotal->times($percentage);
-            
-            return $feeAmount->toPrecision(2);
+
+            $percentage = (new DecimalNumber((string) $normalizedValue))->dividedBy(new DecimalNumber('100'));
+
+            return $orderTotal->times($percentage);
         }
 
         if (!is_numeric($paymentFeeValue)) {
             if (class_exists('\PrestaShopLogger')) {
                 \PrestaShopLogger::addLog('Buckaroo3: Invalid fixed fee value: ' . $paymentFeeValue, 3);
             }
+
             return new DecimalNumber('0');
         }
 
