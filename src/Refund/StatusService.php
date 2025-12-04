@@ -48,20 +48,25 @@ class StatusService
         $statusRefunded = \Configuration::get('PS_OS_REFUND');
         $statusPartialRefunded = \Configuration::get('PS_OS_PARTIAL_REFUND');
 
+        // If required order states are not configured, do not attempt to update history
+        if ((int) $statusRefunded <= 0 && (int) $statusPartialRefunded <= 0) {
+            return;
+        }
+
         $orderState = $order->getCurrentOrderState();
         $currentStatusId = $orderState !== null ? (int) $orderState->id : 0;
         $isCurrentlyRefunded = $currentStatusId === (int) $statusRefunded;
         $isCurrentlyPartiallyRefunded = $currentStatusId === (int) $statusPartialRefunded;
 
         // If order is fully refunded, set the "Refunded" status
-        if ($this->isReadyToBeRefunded($order) && !$isCurrentlyRefunded) {
+        if ((int) $statusRefunded > 0 && $this->isReadyToBeRefunded($order) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
 
             return;
         }
 
         // set the "Partial refund" status (unless it's already set)
-        if ($this->isPartiallyRefunded($order) && !$isCurrentlyPartiallyRefunded) {
+        if ((int) $statusPartialRefunded > 0 && $this->isPartiallyRefunded($order) && !$isCurrentlyPartiallyRefunded) {
             $this->update($order->id, $statusPartialRefunded);
         }
     }
@@ -139,6 +144,12 @@ class StatusService
      */
     public function update(int $orderId, $status)
     {
+        $status = (int) $status;
+        if ($status <= 0) {
+            // Invalid status, do not create history entry
+            return;
+        }
+
         $history = new \OrderHistory();
         $history->id_order = $orderId;
         $history->date_add = date('Y-m-d H:i:s');
