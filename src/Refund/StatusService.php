@@ -46,12 +46,23 @@ class StatusService
     public function setRefunded(\Order $order)
     {
         $statusRefunded = \Configuration::get('PS_OS_REFUND');
+        $statusPartialRefunded = \Configuration::get('PS_OS_PARTIAL_REFUND');
 
         $orderState = $order->getCurrentOrderState();
-        $isCurrentlyRefunded = $orderState !== null && $orderState->id == $statusRefunded;
+        $currentStatusId = $orderState !== null ? (int) $orderState->id : 0;
+        $isCurrentlyRefunded = $currentStatusId === (int) $statusRefunded;
+        $isCurrentlyPartiallyRefunded = $currentStatusId === (int) $statusPartialRefunded;
 
+        // If order is fully refunded, set the "Refunded" status
         if ($this->isReadyToBeRefunded($order) && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
+
+            return;
+        }
+
+        // set the "Partial refund" status (unless it's already set)
+        if ($this->isPartiallyRefunded($order) && !$isCurrentlyPartiallyRefunded) {
+            $this->update($order->id, $statusPartialRefunded);
         }
     }
 
@@ -63,6 +74,44 @@ class StatusService
      * @return bool
      */
     private function isReadyToBeRefunded(\Order $order)
+    {
+        $refunded = $this->getRefundedAmount($order);
+
+        return abs($order->total_paid - $refunded) < 0.005;
+    }
+
+    /**
+     * Check whether order is partially refunded
+     *
+     * @param \Order $order
+     *
+     * @return bool
+     */
+    private function isPartiallyRefunded(\Order $order)
+    {
+        $refunded = $this->getRefundedAmount($order);
+
+        // Nothing refunded
+        if ($refunded <= 0) {
+            return false;
+        }
+
+        // Fully refunded is handled by isReadyToBeRefunded()
+        if ($this->isReadyToBeRefunded($order)) {
+            return false;
+        }
+
+        return $refunded < ($order->total_paid - 0.005);
+    }
+
+    /**
+     * Get total successful refunded amount for an order
+     *
+     * @param \Order $order
+     *
+     * @return float
+     */
+    private function getRefundedAmount(\Order $order): float
     {
         $refundRequestRepository = $this->entityManager->getRepository(BkRefundRequest::class);
         $refunds = $refundRequestRepository->findBy([
@@ -77,7 +126,7 @@ class StatusService
             $refunds
         ));
 
-        return abs($order->total_paid - $refunded) < 0.005;
+        return (float) $refunded;
     }
 
     /**
