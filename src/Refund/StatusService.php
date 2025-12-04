@@ -82,7 +82,8 @@ class StatusService
     {
         $refunded = $this->getRefundedAmount($order);
 
-        return abs($order->total_paid - $refunded) < 0.005;
+        // Fully refunded if (almost) the entire total has been refunded
+        return $refunded >= ($order->total_paid - 0.005);
     }
 
     /**
@@ -101,11 +102,7 @@ class StatusService
             return false;
         }
 
-        // Fully refunded is handled by isReadyToBeRefunded()
-        if ($this->isReadyToBeRefunded($order)) {
-            return false;
-        }
-
+        // Partially refunded if some amount is refunded, but not (almost) the full total
         return $refunded < ($order->total_paid - 0.005);
     }
 
