@@ -46,7 +46,7 @@ class StatusService
     public function setRefunded(\Order $order)
     {
         $statusRefunded = \Configuration::get('PS_OS_REFUND');
-        $statusPartialRefunded = \Configuration::get('PS_OS_PARTIAL_REFUND');
+        $statusPartialRefunded = \Configuration::get('PS_CHECKOUT_STATE_PARTIALLY_REFUNDED');
 
         // If required order states are not configured, do not attempt to update history
         if ((int) $statusRefunded <= 0 && (int) $statusPartialRefunded <= 0) {
