@@ -14,6 +14,9 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+
+use PrestaShop\Decimal\DecimalNumber;
+
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -156,59 +159,69 @@ class In3OldCheckout extends Checkout
      */
     public function getArticles()
     {
-        $total = 0;
+        $total = new DecimalNumber('0');
         $products = [];
         foreach ($this->products as $item) {
+            $itemPrice = new DecimalNumber((string) $item['price_wt']);
+            $itemPricePrecise = $itemPrice->toPrecision(2);
+            
             $products[] = [
                 'description' => $item['name'],
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => round($item['price_wt'], 2),
+                'price' => $itemPricePrecise,
             ];
 
-            $total += round($item['price_wt'] * $item['quantity'], 2);
+            $itemTotal = $itemPrice->times(new DecimalNumber((string) $item['quantity']));
+            $total = $total->plus($itemTotal);
         }
 
         $wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($wrapping > 0) {
+            $wrappingPrice = new DecimalNumber((string) $wrapping);
             $products[] = [
                 'description' => 'Wrapping',
                 'identifier' => 'WRAP',
                 'quantity' => 1,
-                'price' => round($wrapping, 2),
+                'price' => $wrappingPrice->toPrecision(2),
             ];
-            $total += round($wrapping, 2);
+            $total = $total->plus($wrappingPrice);
         }
 
         $discounts = $this->cart->getOrderTotal(true, CartCore::ONLY_DISCOUNTS);
         if ($discounts > 0) {
+            $discountsPrice = new DecimalNumber((string) $discounts);
             $products[] = [
                 'description' => 'Discounts',
                 'identifier' => 'DISC',
                 'quantity' => 1,
-                'price' => -round($discounts, 2),
+                'price' => $discountsPrice->times(new DecimalNumber('-1'))->toPrecision(2),
             ];
-            $total -= round($discounts, 2);
+            $total = $total->minus($discountsPrice);
         }
 
         $shipping = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
         if ($shipping > 0) {
+            $shippingPrice = new DecimalNumber((string) $shipping);
             $products[] = [
                 'description' => 'Shipping',
                 'identifier' => 'SHIP',
                 'quantity' => 1,
-                'price' => round($shipping, 2),
+                'price' => $shippingPrice->toPrecision(2),
             ];
-            $total += round($shipping, 2);
+            $total = $total->plus($shippingPrice);
         }
 
-        $difference = round($this->payment_request->amountDebit - $total, 2);
-        if (abs($difference) >= 0.01) {
+        $amountDebit = new DecimalNumber((string) $this->payment_request->amountDebit);
+        $difference = $amountDebit->minus($total);
+        $differencePrecise = $difference->toPrecision(2);
+        
+        if (abs((float) $differencePrecise) >= 0.01) {
             $products[] = [
                 'description' => 'Other fee/discount',
                 'identifier' => 'OFees',
                 'quantity' => 1,
-                'price' => $difference,
+                'price' => $differencePrecise,
             ];
         }
 
