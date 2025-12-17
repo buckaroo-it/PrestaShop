@@ -361,10 +361,12 @@ abstract class Checkout
             return [];
         }
 
+        $buckarooFeeTaxIncl = new DecimalNumber((string) $buckarooFee['buckaroo_fee_tax_incl']);
+
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => round($buckarooFee['buckaroo_fee_tax_incl'], 2),
+            'price' => $buckarooFeeTaxIncl->toPrecision(2),
             'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ];
@@ -374,10 +376,12 @@ abstract class Checkout
     {
         $articles = [];
         foreach ($this->products as $item) {
+            $productPrice = new DecimalNumber((string) $item['price_wt']);
+
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => round($item['price_wt'], 2),
+                'price' => $productPrice->toPrecision(2),
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
