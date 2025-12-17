@@ -39,7 +39,10 @@ class AfterPayCheckout extends Checkout
         $this->customerType = $this->buckarooConfigService->getConfigValue('afterpay', 'customer_type');
 
         $this->customVars = [
-            'clientIP' => $_SERVER['REMOTE_ADDR'],
+            'clientIP' => [
+                'address' => Tools::getRemoteAddr(),
+                'type' => 0,
+            ],
             'billing' => $this->getBillingAddress(),
             'articles' => $this->getArticles(),
             'shipping' => $this->getShippingAddress(),
@@ -65,6 +68,10 @@ class AfterPayCheckout extends Checkout
 
     public function isRedirectRequired()
     {
+        if (!empty($this->payment_response) && $this->payment_response->isRedirectRequired()) {
+            return true;
+        }
+
         return false;
     }
 
@@ -103,14 +110,7 @@ class AfterPayCheckout extends Checkout
                 'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'firstName' => $this->invoice_address->firstname,
                 'lastName' => $this->invoice_address->lastname,
-                'birthDate' => date(
-                    'Y-m-d',
-                    strtotime(
-                        Tools::getValue('customerbirthdate_y_billing') . '-' . Tools::getValue(
-                            'customerbirthdate_m_billing'
-                        ) . '-' . Tools::getValue('customerbirthdate_d_billing')
-                    )
-                ),
+                'birthDate' => $this->getBirthDate(),
             ],
             'phone' => [
                 'mobile' => $this->getPhone($this->invoice_address),
