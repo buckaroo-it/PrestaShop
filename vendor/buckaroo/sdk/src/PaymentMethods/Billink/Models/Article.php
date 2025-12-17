@@ -23,4 +23,22 @@ namespace Buckaroo\PaymentMethods\Billink\Models;
 class Article extends \Buckaroo\Models\Article
 {
     protected float $priceExcl;
+
+    /**
+     * Ensure article prices are formatted to two decimals for the Billink service payload.
+     */
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+
+        if (isset($array['price'])) {
+            $array['price'] = number_format((float) $array['price'], 2, '.', '');
+        }
+
+        if (isset($array['priceExcl'])) {
+            $array['priceExcl'] = number_format((float) $array['priceExcl'], 2, '.', '');
+        }
+
+        return $array;
+    }
 }
