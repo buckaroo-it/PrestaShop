@@ -69,7 +69,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 }
 
                 $this->context->cart->delete();
-                $redirectUrl = $this->context->link->getPageLink('order-confirmation', null, null, [
+                $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
                     'id_cart' => $cart->id,
                     'id_module' => $this->module->id,
                     'id_order' => $id_order,
@@ -90,7 +90,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     'Your payment was unsuccessful. Please try again or choose another payment method.'
                 );
 
-                $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+                $redirectUrl = $this->context->link->getPageLink('order', true, null, [
                     'step'               => 3,
                     'buckaroo_error_msg' => urlencode($msg),
                     'buckaroo_error'     => 1
@@ -109,7 +109,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             );
 
             Tools::redirect(
-                $this->context->link->getPageLink('order', null, null, [
+                $this->context->link->getPageLink('order', true, null, [
                     'step' => 4,
                     'buckaroo_error' => 1
                 ])

@@ -336,8 +336,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function setCheckoutUrls()
     {
-        $this->checkout->returnUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
-        $this->checkout->pushUrl = 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=return';
+        $this->checkout->returnUrl = $this->context->link->getModuleLink('buckaroo3', 'userreturn', [], true);
+        $this->checkout->pushUrl = $this->context->link->getModuleLink('buckaroo3', 'return', [], true);
     }
 
     private function isCurrencyAllowedForMethod($paymentMethod, $currency): bool
