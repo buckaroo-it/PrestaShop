@@ -65,7 +65,8 @@ abstract class AbstractBuilder
      */
     private function getPushUrl(): string
     {
-        return 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
+        $link = new \Link();
+        return $link->getModuleLink('buckaroo3', 'userreturn', [], true);
     }
 
     /**
