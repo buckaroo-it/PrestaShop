@@ -42,7 +42,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '4.6.0';
+    const MODULE_VERSION = '5.0.0';
     
     public $logger;
 
@@ -71,7 +71,7 @@ class Buckaroo3 extends PaymentModule
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => _PS_VERSION_];
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.2.1');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 9.0.1');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
