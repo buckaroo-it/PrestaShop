@@ -27,7 +27,7 @@ class QuantityBasedBuilder extends AbstractBuilder
     {
         return array_merge(
             $this->buildCommon($order, $payment, $this->round($amount)),
-            $this->buildIssuers($payment),
+            $this->buildIssuers($order, $payment),
             $this->buildArticles($this->round($amount), $payment->payment_method)
         );
     }
