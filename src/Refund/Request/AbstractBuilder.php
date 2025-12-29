@@ -70,18 +70,28 @@ abstract class AbstractBuilder
     }
 
     /**
-     * Build body for credit & debit cards
+     * Build body for credit & debit cards and gift cards
      *
+     * @param \Order $order
      * @param \OrderPayment $payment
      *
      * @return array
      */
-    protected function buildIssuers(\OrderPayment $payment): array
+    protected function buildIssuers(\Order $order, \OrderPayment $payment): array
     {
         if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
             return [
                 'name' => $payment->payment_method,
                 'version' => 2,
+            ];
+        }
+
+        if (PaymentMethodHelper::isGiftCardMethod($payment->payment_method)) {
+            $customer = new \Customer($order->id_customer);
+            return [
+                'name' => $payment->payment_method,
+                'email' => $customer->email,
+                'lastname' => $customer->lastname,
             ];
         }
 
