@@ -70,7 +70,7 @@ abstract class AbstractBuilder
     }
 
     /**
-     * Build body for credit & debit cards
+     * Build body for credit & debit cards and gift cards
      *
      * @param \OrderPayment $payment
      *
@@ -82,6 +82,13 @@ abstract class AbstractBuilder
             return [
                 'name' => $payment->payment_method,
                 'version' => 2,
+            ];
+        }
+
+        if (PaymentMethodHelper::isGiftCardMethod($payment->payment_method)) {
+            // For gift cards, use the actual service code (e.g., 'boekenbon'), not 'giftcard'
+            return [
+                'name' => $payment->payment_method,
             ];
         }
 
