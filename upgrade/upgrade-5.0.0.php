@@ -25,7 +25,7 @@ if (!defined('_PS_VERSION_')) {
  * @return mixed
  * @throws Exception
  */
-function upgrade_module_4_6_0($object)
+function upgrade_module_5_0_0($object)
 {
     // Helper: check if a payment method with given name exists
     $db = Db::getInstance();
