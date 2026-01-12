@@ -148,6 +148,10 @@ class RawPaymentMethodRepository
             ['name' => 'idin', 'label' => 'iDIN', 'icon' => 'iDIN.svg', 'template' => 'idin.tpl', 'is_payment_method' => '0'],
             ['name' => 'multibanco', 'label' => 'Multibanco', 'icon' => 'Multibanco.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'mbway', 'label' => 'MB WAY', 'icon' => 'MBWay.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'twint', 'label' => 'Twint', 'icon' => 'Twint.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'swish', 'label' => 'Swish', 'icon' => 'Swish.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'bizum', 'label' => 'Bizum', 'icon' => 'Bizum.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'wero', 'label' => 'Wero', 'icon' => 'Wero.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'knaken', 'label' => 'goSettle', 'icon' => 'GoSettle.svg', 'template' => '', 'is_payment_method' => '1'],
         ];
     }

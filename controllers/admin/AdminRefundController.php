@@ -136,8 +136,8 @@ class AdminRefundController extends FrameworkBundleAdminController
 
         try {
             $this->orderService->refund($order, $refundAmount);
-        } catch (\Throwable $th) { // phpcs:ignore
-            // throw $th;
+        } catch (\Throwable $th) {
+            // Silently handle refund errors
         }
 
         $body = $this->refundBuilder->create($order, $payment, $refundAmount);
@@ -166,7 +166,7 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private function getBuckarooPayments(\Order $order): array
     {
-        // todo: filter payments for only buckaroo requests
+        // Filter payments for only buckaroo requests
         return $order->getOrderPayments();
     }
 

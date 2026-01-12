@@ -37,12 +37,19 @@ use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '4.5.0';
+    const MODULE_VERSION = '5.0.0';
     
     public $logger;
+
+    /**
+     * @var ContainerInterface|null
+     */
+    private $coreServiceContainer = null;
 
     public function __construct()
     {
@@ -64,7 +71,7 @@ class Buckaroo3 extends PaymentModule
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => _PS_VERSION_];
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 8.2.1');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 9.0.1');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
@@ -331,16 +338,245 @@ class Buckaroo3 extends PaymentModule
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.admin.css', 'all');
     }
 
+    /**
+     * Get the core PrestaShop service container
+     *
+     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
+     */
+    public function getCoreServiceContainer()
+    {
+        if ($this->coreServiceContainer instanceof ContainerInterface) {
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getModuleContainerIfAvailable();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getContextControllerContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getKernelServiceContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        $container = $this->getLegacySymfonyContainer();
+        if ($container instanceof ContainerInterface) {
+            $this->coreServiceContainer = $container;
+
+            return $this->coreServiceContainer;
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getModuleContainerIfAvailable()
+    {
+        if (!method_exists($this, 'getContainer')) {
+            return null;
+        }
+
+        try {
+            $container = $this->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Module::getContainer unavailable', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getContextControllerContainer()
+    {
+        if (!class_exists('\Context')) {
+            return null;
+        }
+
+        $context = \Context::getContext();
+        if (!$context || !isset($context->controller) || !is_object($context->controller)) {
+            return null;
+        }
+
+        if (!method_exists($context->controller, 'getContainer')) {
+            return null;
+        }
+
+        try {
+            $container = $context->controller->getContainer();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Context controller container unavailable', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getKernelServiceContainer()
+    {
+        global $kernel;
+
+        if ($kernel instanceof KernelInterface) {
+            try {
+                $container = $kernel->getContainer();
+                if ($container instanceof ContainerInterface) {
+                    return $container;
+                }
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue('Kernel::getContainer failed', $exception);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return ContainerInterface|null
+     */
+    private function getLegacySymfonyContainer()
+    {
+        if (!class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+            return null;
+        }
+
+        try {
+            $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+            if ($container instanceof ContainerInterface) {
+                return $container;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('SymfonyContainer::getInstance failed', $exception);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $serviceId
+     *
+     * @return mixed|null
+     */
+    private function getServiceFromAvailableContainers($serviceId)
+    {
+        if (method_exists($this, 'has')) {
+            try {
+                if ($this->has($serviceId)) {
+                    return $this->get($serviceId);
+                }
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue(
+                    sprintf('Unable to resolve "%s" via module container', $serviceId),
+                    $exception
+                );
+            }
+        }
+
+        $coreContainer = $this->getCoreServiceContainer();
+        if ($coreContainer instanceof ContainerInterface && $coreContainer->has($serviceId)) {
+            try {
+                return $coreContainer->get($serviceId);
+            } catch (\Throwable $exception) {
+                $this->logContainerAccessIssue(
+                    sprintf('Unable to resolve "%s" via core container', $serviceId),
+                    $exception
+                );
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $message
+     * @param \Throwable $exception
+     */
+    private function logContainerAccessIssue($message, \Throwable $exception)
+    {
+        if (!defined('_PS_MODE_DEV_') || !_PS_MODE_DEV_) {
+            return;
+        }
+
+        $logMessage = sprintf('[Buckaroo3] %s: %s', $message, $exception->getMessage());
+        if (class_exists('\PrestaShopLogger')) {
+            \PrestaShopLogger::addLog($logMessage, 2);
+        } else {
+            error_log($logMessage);
+        }
+    }
+
+    /**
+     * Get CSRF token from token manager
+     *
+     * @return string
+     */
+    protected function getCsrfToken(): string
+    {
+        $tokenManager = $this->getServiceFromAvailableContainers('buckaroo.csrf.token_manager');
+        if (!$tokenManager) {
+            $tokenManager = $this->getServiceFromAvailableContainers('security.csrf.token_manager');
+        }
+
+        if (!$tokenManager) {
+            return '';
+        }
+
+        $userProvider = $this->getServiceFromAvailableContainers('prestashop.user_provider');
+        if (!$userProvider) {
+            return '';
+        }
+
+        try {
+            $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+            if (!empty($token)) {
+                return $token;
+            }
+        } catch (\Throwable $exception) {
+            $this->logContainerAccessIssue('Unable to generate CSRF token', $exception);
+        }
+
+        return '';
+    }
+
     public function getContent()
     {
-        $tokenManager = $this->get('security.csrf.token_manager');
-        $userProvider = $this->get('prestashop.user_provider');
-        $token = $tokenManager->getToken($userProvider->getUsername())->getValue();
+        $token = $this->getCsrfToken();
 
+        if (empty($token)) {
+            $token = \Tools::getValue('_token');
+            if (false === $token || empty($token)) {
+                $token = \Tools::getValue('token', '');
+            }
+        }
+
+        $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
+        $adminUrl = rtrim($adminUrl, '/');
+        
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
-            'adminUrl' => explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0],
+            'adminUrl' => $adminUrl,
             'token' => $token,
         ]);
 
@@ -367,7 +603,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
+        PrestaShopLogger::addLog('Buckaroo: hookPaymentOptions() called', 1);
+        
         if (!$this->isActivated()) {
+            PrestaShopLogger::addLog('Buckaroo: Module not activated, returning empty array', 1);
             return [];
         }
 
@@ -467,7 +706,53 @@ class Buckaroo3 extends PaymentModule
             $this->logger->logError('Buckaroo3::hookPaymentOptions - ' . $e->getMessage());
         }
 
+        $this->ensureBuckarooJsLoaded();
+
         return $buckarooPaymentService->getPaymentOptions($cart);
+    }
+    
+    /**
+     * Ensure Buckaroo JavaScript is loaded and JS variables are defined
+     */
+    private function ensureBuckarooJsLoaded()
+    {
+        PrestaShopLogger::addLog('Buckaroo: ensureBuckarooJsLoaded() START - Controller: ' . ($this->context->controller ? get_class($this->context->controller) : 'null'), 1);
+        
+        try {
+            Media::addJsDef([
+                'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
+                'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
+                'paymentFeeLabel' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
+                'buckarooMessages' => [
+                    'validation' => [
+                        'date' => $this->l('Please enter correct birthdate date'),
+                        'required' => $this->l('Field is required'),
+                        'bank' => $this->l('Please select your bank'),
+                        'agreement' => $this->l('Please accept licence agreements'),
+                        'iban' => $this->l('A valid IBAN is required'),
+                        'age' => $this->l('You must be at least 18 years old'),
+                    ],
+                ],
+            ]);
+            
+            $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
+            
+            if ($this->context->controller) {
+                $this->context->controller->registerJavascript(
+                    'module-buckaroo3',
+                    $jsPath,
+                    [
+                        'position' => 'bottom',
+                        'priority' => 200,
+                    ]
+                );
+                PrestaShopLogger::addLog('Buckaroo: Script registered successfully. Path: ' . $jsPath, 1);
+            } else {
+                PrestaShopLogger::addLog('Buckaroo: ERROR - No controller available to register script', 3);
+            }
+        } catch (\Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: ERROR in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 3);
+        }
     }
 
     /**
@@ -509,26 +794,11 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-        Media::addJsDef([
-            'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
-            'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
-            'paymentFeeLabel' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
-            'buckarooMessages' => [
-                'validation' => [
-                    'date' => $this->l('Please enter correct birthdate date'),
-                    'required' => $this->l('Field is required'),
-                    'bank' => $this->l('Please select your bank'),
-                    'agreement' => $this->l('Please accept licence agreements'),
-                    'iban' => $this->l('A valid IBAN is required'),
-                    'age' => $this->l('You must be at least 18 years old'),
-                ],
-            ],
-        ]);
+
+        $this->ensureBuckarooJsLoaded();
 
         if (Tools::getValue('controller') === 'order' && Tools::getValue('buckaroo_error')) {
-
             $msg = urldecode((string) Tools::getValue('buckaroo_error_msg'));
-
             Media::addJsDef(['buckaroo_error_msg' => $msg]);
 
             $this->context->controller->registerJavascript(
@@ -539,7 +809,19 @@ class Buckaroo3 extends PaymentModule
         }
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
-        $this->context->controller->addJS($this->_path . 'views/js/buckaroo.js', 'all');
+    }
+
+    /**
+     * Hook executed at the top of the payment section
+     * This is a good place to ensure JS is loaded on checkout page
+     */
+    public function hookDisplayPaymentTop()
+    {
+        // Ensure Buckaroo JavaScript is loaded
+        $this->ensureBuckarooJsLoaded();
+        
+        // Return empty string (we just need to load the JS)
+        return '';
     }
 
     public static function resolveStatusCode($status_code, $id_order = null)
@@ -584,33 +866,89 @@ class Buckaroo3 extends PaymentModule
         return false;
     }
 
-    public function getBuckarooFee($payment_method)
+    public function getBuckarooFee($payment_method, $percentageBaseAmount = null)
     {
         $buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
 
-        if (!$buckarooFee) {
+        if ($buckarooFee === null || $buckarooFee === '') {
             return null;
         }
 
-        // Remove any whitespace from the fee.
-        $buckarooFee = trim($buckarooFee);
+        $buckarooFee = trim((string) $buckarooFee);
 
-        if (strpos($buckarooFee, '%') !== false) {
-            $buckarooFee = str_replace('%', '', $buckarooFee);
-            $buckarooFee = (float)$this->payment_request->amountDebit * ((float)$buckarooFee / 100);
+        if ($this->isPercentageFee($buckarooFee)) {
+            $percentageValue = $this->normalizePercentageValue($buckarooFee);
+            if ($percentageValue <= 0) {
+                return null;
+            }
+
+            $percentageBase = $this->resolvePercentageBaseAmount($percentageBaseAmount);
+            if ($percentageBase <= 0) {
+                return null;
+            }
+
+            $computePrecision = Context::getContext()->getComputingPrecision();
+            $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
+            
+            $buckarooFee = $roundedBase * ($percentageValue / 100);
         } else {
-            $buckarooFee = (float)$buckarooFee;
+            $buckarooFee = (float) $buckarooFee;
         }
 
-        $taxRate = $this->context->cart->getAverageProductsTaxRate();
+        if ($buckarooFee <= 0) {
+            return null;
+        }
+
+        $computePrecision = Context::getContext()->getComputingPrecision();
+        $buckarooFee = Tools::ps_round($buckarooFee, $computePrecision);
+
+        $taxRate = $this->getAverageCartTaxRate();
         $buckarooFeeTax = $buckarooFee * $taxRate;
+        $buckarooFeeTax = Tools::ps_round($buckarooFeeTax, $computePrecision);
+        
         $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
+        $buckarooFeeTaxIncl = Tools::ps_round($buckarooFeeTaxIncl, $computePrecision);
 
         return [
             'buckaroo_fee_tax_excl' => $buckarooFee,
             'buckaroo_fee_tax' => $buckarooFeeTax,
             'buckaroo_fee_tax_incl' => $buckarooFeeTaxIncl,
         ];
+    }
+
+    private function isPercentageFee($fee): bool
+    {
+        return is_string($fee) && strpos($fee, '%') !== false;
+    }
+
+    private function normalizePercentageValue($fee): float
+    {
+        $normalized = str_replace('%', '', $fee);
+        $normalized = str_replace(',', '.', $normalized);
+
+        return (float) trim($normalized);
+    }
+
+    private function resolvePercentageBaseAmount($overrideAmount = null): float
+    {
+        if ($overrideAmount !== null) {
+            return (float) $overrideAmount;
+        }
+
+        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
+            return (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+        }
+
+        return 0.0;
+    }
+
+    private function getAverageCartTaxRate(): float
+    {
+        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
+            return (float) $this->context->cart->getAverageProductsTaxRate();
+        }
+
+        return 0.0;
     }
 
     public function hookActionEmailSendBefore($params)
@@ -620,7 +958,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         $cart = new Cart($params['cart']->id);
-        $orderId = Order::getOrderByCartId($cart->id);
+        $orderId = Order::getIdByCartId($cart->id);
         $order = new Order($orderId);
 
         if (!Validate::isLoadedObject($order) || $order->module !== $this->name) {
@@ -637,9 +975,10 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeService = $this->getBuckarooFeeService();
             $paymentMethodName = $buckarooFeeService->getPaymentMethodByLabel($paymentMethodLabel);
 
-            $buckarooFee = $this->getBuckarooFee($paymentMethodName);
+            
+            $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $buckarooFee = $this->getBuckarooFee($paymentMethodName, $cartTotal);
 
-            // Ensure buckarooFee is an array
             if (!is_array($buckarooFee)) {
                 $buckarooFee = [
                     'buckaroo_fee_tax_excl' => 0,
@@ -652,18 +991,20 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
 
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+            $currency = new Currency($order->id_currency);
+            $context = Context::getContext();
 
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFeeTaxIncl > 0) {
-                $params['templateVars']['{payment_fee}'] = Tools::displayPrice($buckarooFeeTaxExcl);
-                $params['templateVars']['{payment_fee_tax}'] = Tools::displayPrice($buckarooFee['buckaroo_fee_tax']);
-                $params['templateVars']['{total_paid}'] = Tools::displayPrice($order->total_paid + $buckarooFeeTaxIncl);
+                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice($buckarooFeeTaxExcl, $currency->iso_code);
+                $params['templateVars']['{payment_fee_tax}'] = $context->getCurrentLocale()->formatPrice($buckarooFee['buckaroo_fee_tax'], $currency->iso_code);
+                $params['templateVars']['{total_paid}'] = $context->getCurrentLocale()->formatPrice($order->total_paid + $buckarooFeeTaxIncl, $currency->iso_code);
                 // Include the total tax paid, which includes the payment fee tax
                 $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
-                $params['templateVars']['{total_tax_paid}'] = Tools::displayPrice($totalTaxPaid);
+                $params['templateVars']['{total_tax_paid}'] = $context->getCurrentLocale()->formatPrice($totalTaxPaid, $currency->iso_code);
             } else {
-                $params['templateVars']['{payment_fee}'] = Tools::displayPrice(0);
+                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice(0, $currency->iso_code);
             }
         }
 

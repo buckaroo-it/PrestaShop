@@ -21,7 +21,9 @@ export default class Router {
 
   constructor(adminUrl: string, token:string) {
     Routing.setData(routes);
-    Routing.setBaseUrl(adminUrl);
+    // Remove trailing slash from adminUrl to prevent double slashes
+    const normalizedAdminUrl = adminUrl.replace(/\/+$/, '');
+    Routing.setBaseUrl(normalizedAdminUrl);
     this.token = token;
     return this;
   }
@@ -35,8 +37,19 @@ export default class Router {
    * @returns {String}
    */
   generate(route: string, params: Record<string, unknown> = {}): string {
-    const tokenizedParams = Object.assign(params, { _token: this.token });
-
-    return Routing.generate(route, tokenizedParams);
+    // Only add token if it's not empty
+    if (this.token && this.token.trim() !== '') {
+      const tokenizedParams = Object.assign(params, { _token: this.token });
+      return Routing.generate(route, tokenizedParams);
+    }
+    
+    // If no token, generate URL without token parameter
+    // The params might already have a token from the URL
+    if (!params._token) {
+      // Don't add empty token
+      return Routing.generate(route, params);
+    }
+    
+    return Routing.generate(route, params);
   }
 }

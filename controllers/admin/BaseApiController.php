@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -26,6 +27,23 @@ if (!defined('_PS_VERSION_')) {
 
 class BaseApiController extends FrameworkBundleAdminController
 {
+    protected function getCsrfTokenManager(): ?CsrfTokenManagerInterface
+    {
+        try {
+            if ($this->has('security.csrf.token_manager')) {
+                return $this->get('security.csrf.token_manager');
+            }
+            
+            if ($this->has('buckaroo.csrf.token_manager')) {
+                return $this->get('buckaroo.csrf.token_manager');
+            }
+        } catch (\Exception $e) {
+            // Service not available
+        }
+        
+        return null;
+    }
+
     protected function sendResponse($data, $status = 200)
     {
         return new JsonResponse($data, $status);

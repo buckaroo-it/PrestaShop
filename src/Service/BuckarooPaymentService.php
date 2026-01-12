@@ -280,6 +280,10 @@ class BuckarooPaymentService
                 return !$this->isIn3Available($cart);
             case 'afterpay':
                 return !$this->isAfterpayAvailable($cart);
+            case 'twint':
+                return !$this->isCartCurrencyAllowed($cart, ['CHF']);
+            case 'swish':
+                return !$this->isCartCurrencyAllowed($cart, ['SEK']);
             default:
                 return false;
         }
@@ -453,11 +457,23 @@ class BuckarooPaymentService
      */
     private function getFeeLabel($configArray)
     {
-        $locale = \Tools::getContextLocale(\Context::getContext());
-        $currency = \Context::getContext()->currency;
+        if (!isset($configArray['payment_fee']) || empty($configArray['payment_fee'])) {
+            return '';
+        }
 
-        if (isset($configArray['payment_fee']) && $configArray['payment_fee'] > 0) {
-            return ' + ' . $locale->formatPrice($configArray['payment_fee'], $currency->iso_code);
+        $paymentFee = $configArray['payment_fee'];
+
+        $isPercentage = is_string($paymentFee) && strpos(trim($paymentFee), '%') !== false;
+
+        if ($isPercentage) {
+            return ' + ' . trim($paymentFee);
+        }
+
+        $feeAmount = (float) $paymentFee;
+        if ($feeAmount > 0) {
+            $locale = \Tools::getContextLocale(\Context::getContext());
+            $currency = \Context::getContext()->currency;
+            return ' + ' . $locale->formatPrice($feeAmount, $currency->iso_code);
         }
 
         return '';
@@ -560,6 +576,26 @@ class BuckarooPaymentService
         $shippingCountry = $shippingAddress ? \Country::getIsoById($shippingAddress->id_country) : null;
 
         return [$billingAddress, $billingCountry, $shippingAddress, $shippingCountry];
+    }
+
+    private function isCartCurrencyAllowed($cart, array $allowedCurrencies): bool
+    {
+        if (!is_array($allowedCurrencies) || empty($allowedCurrencies)) {
+            return true;
+        }
+
+        $currency = new \Currency((int) $cart->id_currency);
+        if (!\Validate::isLoadedObject($currency)) {
+            return false;
+        }
+
+        $isoCode = \Tools::strtoupper((string) $currency->iso_code);
+
+        $normalizedCurrencies = array_map(static function ($currencyCode) {
+            return \Tools::strtoupper((string) $currencyCode);
+        }, $allowedCurrencies);
+
+        return in_array($isoCode, $normalizedCurrencies, true);
     }
 
     /**

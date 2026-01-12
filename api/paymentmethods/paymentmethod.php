@@ -20,6 +20,7 @@ require_once dirname(__FILE__) . '/responsefactory.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
+use PrestaShop\Decimal\DecimalNumber;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -112,12 +113,13 @@ abstract class PaymentMethod extends BuckarooAbstract
     {
         $refund_amount = Tools::getValue('refund_amount') ? Tools::getValue('refund_amount') : $this->amountCredit;
         if (in_array($this->type, ['afterpay', 'billink'])) {
+            $refundAmountDecimal = new DecimalNumber((string) $refund_amount);
             $this->data['articles'] = [[
                 'refundType' => 'Return',
                 'identifier' => 1,
                 'description' => 'Refund',
                 'quantity' => 1,
-                'price' => round($refund_amount, 2),
+                'price' => $refundAmountDecimal->toPrecision(2),
                 'vatPercentage' => 0,
             ]];
         }

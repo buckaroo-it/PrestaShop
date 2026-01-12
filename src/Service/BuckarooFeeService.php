@@ -56,13 +56,27 @@ class BuckarooFeeService
         foreach ($paymentMethods as $method) {
             $buckarooFee = $this->getBuckarooFeeValue($method->getName());
 
-            if ($buckarooFee > 0) {
-                $formattedPrice = $this->formatPrice($buckarooFee);
+            if (!$buckarooFee) {
+                continue;
+            }
 
+            $isPercentage = is_string($buckarooFee) && strpos(trim($buckarooFee), '%') !== false;
+            
+            if ($isPercentage) {
                 $result[$method->getName()] = [
-                    'buckarooFee' => $buckarooFee,
-                    'buckarooFeeDisplay' => $formattedPrice,
+                    'buckarooFee' => trim($buckarooFee),
+                    'buckarooFeeDisplay' => trim($buckarooFee),
                 ];
+            } else {
+                $buckarooFee = (float) $buckarooFee;
+                if ($buckarooFee > 0) {
+                    $formattedPrice = $this->formatPrice($buckarooFee);
+
+                    $result[$method->getName()] = [
+                        'buckarooFee' => $buckarooFee,
+                        'buckarooFeeDisplay' => $formattedPrice,
+                    ];
+                }
             }
         }
 
@@ -71,7 +85,15 @@ class BuckarooFeeService
 
     public function getBuckarooFeeInputs($method)
     {
-        return $this->getFeeData($this->getSpecificValueFromConfig($method, 'payment_fee'));
+        $feeData = $this->getFeeData($this->getSpecificValueFromConfig($method, 'payment_fee'));
+
+        $buckarooKeyInput = [
+            'type' => 'hidden',
+            'name' => 'buckarooKey',
+            'value' => $method,
+        ];
+
+        return array_merge([$buckarooKeyInput], $feeData);
     }
 
     public function getConfigArrayForMethod($method)
@@ -112,17 +134,44 @@ class BuckarooFeeService
      */
     private function getFeeData($configArray): array
     {
-        return $configArray > 0 ? [
-            [
-                'type' => 'hidden',
-                'name' => 'payment-fee-price',
-                'value' => $configArray,
-            ],
-            [
-                'type' => 'hidden',
-                'name' => 'payment-fee-price-display',
-                'value' => $this->formatPrice($configArray),
-            ],
-        ] : [];
+        if (empty($configArray)) {
+            return [];
+        }
+
+        // Check if fee is a percentage (contains %)
+        $isPercentage = is_string($configArray) && strpos(trim($configArray), '%') !== false;
+
+        if ($isPercentage) {
+            return [
+                [
+                    'type' => 'hidden',
+                    'name' => 'payment-fee-price',
+                    'value' => trim($configArray),
+                ],
+                [
+                    'type' => 'hidden',
+                    'name' => 'payment-fee-price-display',
+                    'value' => trim($configArray),
+                ],
+            ];
+        }
+
+        $feeAmount = (float) $configArray;
+        if ($feeAmount > 0) {
+            return [
+                [
+                    'type' => 'hidden',
+                    'name' => 'payment-fee-price',
+                    'value' => $feeAmount,
+                ],
+                [
+                    'type' => 'hidden',
+                    'name' => 'payment-fee-price-display',
+                    'value' => $this->formatPrice($feeAmount),
+                ],
+            ];
+        }
+
+        return [];
     }
 }

@@ -58,6 +58,10 @@ abstract class Checkout
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
     public const CHECKOUT_TYPE_KNAKEN = 'knaken';
     public const CHECKOUT_TYPE_BLIK = 'blik';
+    public const CHECKOUT_TYPE_TWINT = 'twint';
+    public const CHECKOUT_TYPE_SWISH = 'swish';
+    public const CHECKOUT_TYPE_BIZUM = 'bizum';
+    public const CHECKOUT_TYPE_WERO = 'wero';
 
     public static $payment_method_type = [
         self::CHECKOUT_TYPE_PAYPAL => 'PayPal',
@@ -87,7 +91,11 @@ abstract class Checkout
         self::CHECKOUT_TYPE_MBWAY => 'Mbway',
         self::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
         self::CHECKOUT_TYPE_KNAKEN => 'Knaken',
-        self::CHECKOUT_TYPE_BLIK => 'Blik'
+        self::CHECKOUT_TYPE_BLIK => 'Blik',
+        self::CHECKOUT_TYPE_TWINT => 'Twint',
+        self::CHECKOUT_TYPE_SWISH => 'Swish',
+        self::CHECKOUT_TYPE_BIZUM => 'Bizum',
+        self::CHECKOUT_TYPE_WERO => 'Wero'
     ];
 
     protected $payment_request;
@@ -154,8 +162,9 @@ abstract class Checkout
     protected function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
-        $this->payment_request->amountDebit = (string) ((float) $this->cart->getOrderTotal(true, Cart::BOTH));
-        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
+        $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
+        $this->payment_request->amountDebit = $this->roundBuckarooPrice($cartTotalInclTax);
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'), $cartTotalInclTax);
 
         if (is_array($buckarooFee) && $buckarooFee['buckaroo_fee_tax_incl'] > 0) {
             $this->updateOrderFee($buckarooFee);
@@ -199,7 +208,9 @@ abstract class Checkout
 
         \PrestaShopLogger::addLog('buckarooFeeTaxExcl: ' . $buckarooFeeTaxExcl . ', buckarooFeeTaxIncl: ' . $buckarooFeeTaxIncl, 1);
 
-        $this->payment_request->amountDebit = (string) ((float) $this->payment_request->amountDebit + $buckarooFeeTaxIncl);
+        $this->payment_request->amountDebit = $this->roundBuckarooPrice(
+            (float) $this->payment_request->amountDebit + (float) $buckarooFeeTaxIncl
+        );
 
         (new RawBuckarooFeeRepository())->insertFee($this->reference, $this->cart->id, $order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl, $currency->iso_code);
 
@@ -322,14 +333,17 @@ abstract class Checkout
             }
         }
 
-        return $this->mergeProductsBySKU($products);
+        $products = $this->mergeProductsBySKU($products);
+
+        return $this->applyRoundingAdjustment($products);
     }
 
     protected function prepareWrappingArticle()
     {
-        $wrappingCostInclTax = new DecimalNumber((string) $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING));
+        $wrappingCostInclTax = (float) $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
+        $wrappingRounded = $this->roundBuckarooPrice($wrappingCostInclTax);
 
-        if ($wrappingCostInclTax->toPrecision(2) <= 0) {
+        if ((float) $wrappingRounded <= 0) {
             return [];
         }
 
@@ -338,7 +352,7 @@ abstract class Checkout
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => $wrappingCostInclTax->toPrecision(2),
+            'price' => $wrappingRounded,
             'vatPercentage' => $wrappingVatRate,
             'description' => 'Wrapping',
         ];
@@ -346,16 +360,18 @@ abstract class Checkout
 
     protected function prepareBuckarooFeeArticle()
     {
-        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'));
+        $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'), (float) $this->cart->getOrderTotal(true, Cart::BOTH));
 
-        if (!is_array($buckarooFee) || $buckarooFee['buckaroo_fee_tax_excl'] <= 0) {
+        if (!is_array($buckarooFee) || (float) $buckarooFee['buckaroo_fee_tax_excl'] <= 0) {
             return [];
         }
+
+        $buckarooFeeTaxIncl = $this->roundBuckarooPrice($buckarooFee['buckaroo_fee_tax_incl']);
 
         return [
             'identifier' => '0',
             'quantity' => '1',
-            'price' => round($buckarooFee['buckaroo_fee_tax_incl'], 2),
+            'price' => $buckarooFeeTaxIncl,
             'vatPercentage' => '0',
             'description' => 'buckaroo_fee',
         ];
@@ -365,10 +381,12 @@ abstract class Checkout
     {
         $articles = [];
         foreach ($this->products as $item) {
+            $productPrice = $this->roundBuckarooPrice($item['price_wt']);
+
             $article = [
                 'identifier' => $item['id_product'],
                 'quantity' => $item['quantity'],
-                'price' => round($item['price_wt'], 2),
+                'price' => $productPrice,
                 'vatPercentage' => $item['rate'],
                 'description' => $item['name'],
             ];
@@ -428,11 +446,42 @@ abstract class Checkout
         return $mergedProducts;
     }
 
+    /**
+     * Add a small adjustment line if the summed article amounts differ from the total.
+     */
+    protected function applyRoundingAdjustment(array $products)
+    {
+        $sum = new DecimalNumber('0');
+
+        foreach ($products as $item) {
+            $linePrice = new DecimalNumber((string) $item['price']);
+            $lineTotal = $linePrice->times(new DecimalNumber((string) $item['quantity']));
+            $sum = $sum->plus($lineTotal);
+        }
+
+        $amountDebit = new DecimalNumber((string) $this->payment_request->amountDebit);
+        $difference = $amountDebit->minus($sum);
+        $differencePrecise = $difference->toPrecision(2);
+
+        if (abs((float) $differencePrecise) >= 0.01) {
+            $products[] = [
+                'identifier' => 'adjustment',
+                'quantity' => 1,
+                'price' => $this->roundBuckarooPrice($differencePrecise),
+                'vatPercentage' => '0',
+                'description' => 'Adjustment',
+            ];
+        }
+
+        return $products;
+    }
+
     protected function prepareShippingCostArticle()
     {
-        $shippingCost = new DecimalNumber((string) $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING));
+        $shippingCost = (float) $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
+        $shippingRounded = $this->roundBuckarooPrice($shippingCost);
 
-        if ($shippingCost->toPrecision(2) <= 0) {
+        if ((float) $shippingRounded <= 0) {
             return null;
         }
 
@@ -443,7 +492,7 @@ abstract class Checkout
             'description' => 'Shipping Costs',
             'vatPercentage' => $shippingCostsTax,
             'quantity' => 1,
-            'price' => $shippingCost->toPrecision(2),
+            'price' => $shippingRounded,
         ];
     }
 
@@ -461,6 +510,25 @@ abstract class Checkout
         $taxManager = TaxManagerFactory::getManager($address, $taxRulesGroupId);
         $taxCalculator = $taxManager->getTaxCalculator();
         return $taxCalculator->getTotalRate();
+    }
+
+    /**
+     * Round amounts using the shop price precision and rounding configuration.
+     */
+    protected function roundBuckarooPrice($amount)
+    {
+        $precision = $this->getPricePrecision();
+        $decimal = new DecimalNumber((string) $amount);
+
+        return $decimal->toPrecision($precision);
+    }
+
+    /**
+     * Determine the precision based on the current cart currency.
+     */
+    protected function getPricePrecision()
+    {
+        return 2;
     }
 
     public function initials($str)

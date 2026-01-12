@@ -25,7 +25,7 @@ class AfterPay extends PaymentMethod
     public function __construct()
     {
         $this->type = 'afterpay';
-        $this->version = '1';
+        $this->version = '2';
     }
 
     // @codingStandardsIgnoreStart

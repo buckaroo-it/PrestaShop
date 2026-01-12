@@ -30,7 +30,7 @@ class Builder extends AbstractBuilder
     {
         return array_merge(
             $this->buildCommon($order, $payment, $this->round($refundSummary->getRefundedAmount())),
-            $this->buildIssuers($payment),
+            $this->buildIssuers($order, $payment),
             $this->buildArticles($refundSummary, $payment->payment_method)
         );
     }

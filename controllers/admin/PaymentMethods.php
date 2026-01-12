@@ -25,12 +25,11 @@ if (!defined('_PS_VERSION_')) {
 
 class PaymentMethods extends BaseApiController
 {
-    private BuckarooConfigService $buckarooConfigService;
+    private BuckarooConfigService $configService;
 
-    public function __construct(BuckarooConfigService $buckarooConfigService)
+    public function __construct(BuckarooConfigService $configService)
     {
-        parent::__construct();
-        $this->buckarooConfigService = $buckarooConfigService;
+        $this->configService = $configService;
     }
 
     public function initContent()
@@ -55,6 +54,6 @@ class PaymentMethods extends BaseApiController
      */
     private function getPaymentConfigurations()
     {
-        return $this->buckarooConfigService->getPaymentMethodsFromDBWithConfig();
+        return $this->configService->getPaymentMethodsFromDBWithConfig();
     }
 }

@@ -65,22 +65,33 @@ abstract class AbstractBuilder
      */
     private function getPushUrl(): string
     {
-        return 'http' . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 's' : '') . '://' . $_SERVER['SERVER_NAME'] . __PS_BASE_URI__ . 'index.php?fc=module&module=buckaroo3&controller=userreturn';
+        $link = new \Link();
+        return $link->getModuleLink('buckaroo3', 'userreturn', [], true);
     }
 
     /**
-     * Build body for credit & debit cards
+     * Build body for credit & debit cards and gift cards
      *
+     * @param \Order $order
      * @param \OrderPayment $payment
      *
      * @return array
      */
-    protected function buildIssuers(\OrderPayment $payment): array
+    protected function buildIssuers(\Order $order, \OrderPayment $payment): array
     {
         if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
             return [
                 'name' => $payment->payment_method,
                 'version' => 2,
+            ];
+        }
+
+        if (PaymentMethodHelper::isGiftCardMethod($payment->payment_method)) {
+            $customer = new \Customer($order->id_customer);
+            return [
+                'name' => $payment->payment_method,
+                'email' => $customer->email,
+                'lastname' => $customer->lastname,
             ];
         }
 

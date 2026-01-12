@@ -25,12 +25,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Countries extends BaseApiController
 {
-    public CountryRepository $countryRepository;
+    private CountryRepository $countryRepository;
 
-    public function __construct()
+    public function __construct(CountryRepository $countryRepository)
     {
-        parent::__construct();
-        $this->countryRepository = new CountryRepository();
+        $this->countryRepository = $countryRepository;
     }
 
     public function initContent()

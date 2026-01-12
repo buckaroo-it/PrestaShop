@@ -39,7 +39,15 @@ class Handler
     public function refund(array $body, string $method): TransactionResponse
     {
         $buckaroo = $this->getClient($method);
-        return $buckaroo->method($method)->refund($body);
+        
+        // For gift cards, use 'giftcard' as the method name for SDK call
+        // The actual service code (e.g., 'boekenbon') should be in the payload's 'name' field
+        $sdkMethod = $method;
+        if (PaymentMethodHelper::isGiftCardMethod($method)) {
+            $sdkMethod = 'giftcard';
+        }
+        
+        return $buckaroo->method($sdkMethod)->refund($body);
     }
 
     /**
@@ -52,14 +60,20 @@ class Handler
      */
     private function getClient(string $method): BuckarooClient
     {
+        // Normalize method for configuration lookup
+        $configMethod = $method;
         if (PaymentMethodHelper::isCreditCardMethod($method)) {
-            $method = 'creditcard';
+            $configMethod = 'creditcard';
+        } elseif (PaymentMethodHelper::isGiftCardMethod($method)) {
+            // For gift cards, use 'giftcard' for configuration lookup
+            // but keep the original service code for the actual refund API call
+            $configMethod = 'giftcard';
         }
 
         return new BuckarooClient(
             \Configuration::get('BUCKAROO_MERCHANT_KEY'),
             \Configuration::get('BUCKAROO_SECRET_KEY'),
-            Config::getMode($method)
+            Config::getMode($configMethod)
         );
     }
 }

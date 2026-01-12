@@ -14,9 +14,9 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
+include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
+include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -55,7 +55,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
-            $id_order = Order::getOrderByCartId($response->getCartId());
+            $id_order = Order::getIdByCartId($response->getCartId());
             $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
             if ($response->hasSucceeded()) {
@@ -69,7 +69,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 }
 
                 $this->context->cart->delete();
-                $redirectUrl = $this->context->link->getPageLink('order-confirmation', null, null, [
+                $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
                     'id_cart' => $cart->id,
                     'id_module' => $this->module->id,
                     'id_order' => $id_order,
@@ -90,7 +90,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     'Your payment was unsuccessful. Please try again or choose another payment method.'
                 );
 
-                $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+                $redirectUrl = $this->context->link->getPageLink('order', true, null, [
                     'step'               => 3,
                     'buckaroo_error_msg' => urlencode($msg),
                     'buckaroo_error'     => 1
@@ -109,7 +109,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             );
 
             Tools::redirect(
-                $this->context->link->getPageLink('order', null, null, [
+                $this->context->link->getPageLink('order', true, null, [
                     'step' => 4,
                     'buckaroo_error' => 1
                 ])
