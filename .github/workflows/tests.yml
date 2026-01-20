@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: html/modules/buckaroo3
+        working-directory: modules/buckaroo3
 
     steps:
       - name: Checkout code
