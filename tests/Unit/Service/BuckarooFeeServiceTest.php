@@ -43,6 +43,21 @@ class BuckarooFeeServiceTest extends TestCase
 
                 return null;
             }
+
+            /**
+             * Minimal emulation of the real repository API used by
+             * BuckarooFeeService::getConfigArrayForMethod().
+             */
+            public function findOneByName(string $name)
+            {
+                foreach ($this->methods as $method) {
+                    if ($method->getName() === $name) {
+                        return $method;
+                    }
+                }
+
+                return null;
+            }
         };
 
         $configRepo = new class($configByMethodId) {

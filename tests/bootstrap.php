@@ -195,4 +195,29 @@ if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
     ');
 }
 
+// ---- Minimal Doctrine ORM EntityManager stub ----
+// The module services type-hint Doctrine\ORM\EntityManager, but for isolated
+// unit tests we only need the symbol to exist so that anonymous subclasses
+// in the tests can extend it and provide an in-memory repository.
+if (!class_exists('\Doctrine\ORM\EntityManager')) {
+    eval('
+    namespace Doctrine\ORM;
+
+    abstract class EntityManager
+    {
+        /**
+         * In production this would return a Doctrine repository. For unit tests
+         * we never call this implementation because test doubles override it.
+         *
+         * @param string $className
+         * @return mixed
+         */
+        public function getRepository($className)
+        {
+            return null;
+        }
+    }
+    ');
+}
+
 
