@@ -35,16 +35,21 @@ if (!defined('_PS_VERSION_')) {
 }
 class BuckarooPaymentService
 {
+    /**
+     * Core dependencies are kept protected so that dedicated test doubles
+     * can inject lightweight stubs without going through the full
+     * PrestaShop / Doctrine initialisation flow.
+     */
     public $module;
     protected $logger;
-    private $bkOrderingRepository;
-    private $paymentMethodRepository;
-    private $context;
-    private BuckarooConfigService $buckarooConfigService;
-    private BuckarooFeeService $buckarooFeeService;
-    private $issuersPayByBank;
-    private $capayableIn3;
-    private $countryRepository;
+    protected $bkOrderingRepository;
+    protected $paymentMethodRepository;
+    protected $context;
+    protected $buckarooConfigService;
+    protected $buckarooFeeService;
+    protected $issuersPayByBank;
+    protected $capayableIn3;
+    protected $countryRepository;
 
     public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
     {
