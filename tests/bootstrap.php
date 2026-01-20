@@ -20,6 +20,36 @@ if (!defined('_PS_MODULE_DIR_')) {
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
+/**
+ * Lightweight stubs for legacy module dependencies that rely on a full
+ * PrestaShop runtime. For isolated unit tests we only need the symbols
+ * to exist so the production code can be loaded safely.
+ */
+if (!class_exists('Checkout')) {
+    class Checkout
+    {
+        public function setCheckout()
+        {
+            // No-op in tests; concrete subclasses can still override.
+        }
+    }
+}
+
+if (!class_exists('CarrierHandler')) {
+    class CarrierHandler
+    {
+        public function __construct($cart = null)
+        {
+        }
+
+        public function handleSendCloud()
+        {
+            // In unit tests we assume no external carrier integration.
+            return null;
+        }
+    }
+}
+
 // Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
 
