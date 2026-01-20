@@ -19,7 +19,7 @@ jobs:
           php-version: '8.3'
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
           coverage: none
-          tools: composer:v2
+          tools: composer:v2, phpunit
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -39,7 +39,7 @@ jobs:
           composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
 
       - name: Run Unit Tests (all)
-        run: vendor/bin/phpunit --configuration tests/phpunit.xml --no-coverage --colors=always
+        run: phpunit --configuration tests/phpunit.xml --no-coverage --colors=always
 
       - name: Display Results
         if: success()
