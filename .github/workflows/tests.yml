@@ -39,7 +39,7 @@ jobs:
           composer update phpunit/phpunit --prefer-dist --no-progress --no-interaction --ignore-platform-reqs --prefer-stable
 
       - name: Run Unit Tests (all)
-        run: phpunit --configuration tests/phpunit.xml --no-coverage --colors=always
+        run: phpunit --configuration phpunit.xml --no-coverage --colors=always
 
       - name: Display Results
         if: success()
