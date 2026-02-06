@@ -115,7 +115,7 @@ class BuckarooFeeServiceTest extends TestCase
 
             public function getLabel(): string
             {
-                return 'iDEAL';
+                return 'iDEAL | Wero';
             }
         };
 
@@ -281,7 +281,7 @@ class BuckarooFeeServiceTest extends TestCase
 
             public function getLabel(): string
             {
-                return 'iDEAL';
+                return 'iDEAL | Wero';
             }
         };
 
@@ -292,7 +292,7 @@ class BuckarooFeeServiceTest extends TestCase
             ]
         );
 
-        $this->assertSame('ideal', $service->getPaymentMethodByLabel('iDEAL'));
+        $this->assertSame('ideal', $service->getPaymentMethodByLabel('iDEAL | Wero'));
         $this->assertNull($service->getPaymentMethodByLabel('Unknown'));
     }
 }
