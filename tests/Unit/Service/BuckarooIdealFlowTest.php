@@ -14,7 +14,7 @@ class BuckarooIdealFlowTest extends BuckarooPaymentServiceFlowTestCase
             'ideal' => [
                 'min_order_amount' => 0,
                 'max_order_amount' => 0,
-                'frontend_label' => 'iDEAL',
+                'frontend_label' => 'iDEAL | Wero',
             ],
         ];
 

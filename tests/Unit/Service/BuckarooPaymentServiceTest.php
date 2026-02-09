@@ -104,7 +104,7 @@ class BuckarooPaymentServiceTest extends TestCase
     {
         $configService = new FakeBuckarooConfigService([
             'ideal' => [
-                'frontend_label' => 'iDEAL',
+                'frontend_label' => 'iDEAL | Wero',
                 'payment_fee' => 1.23,
                 'display_in_checkout' => 'grouped',
             ],
@@ -132,7 +132,7 @@ class BuckarooPaymentServiceTest extends TestCase
 
             public function getLabel(): string
             {
-                return 'iDEAL default';
+                return 'iDEAL | Wero default';
             }
 
             public function getTemplate(): ?string
@@ -268,7 +268,7 @@ class BuckarooPaymentServiceTest extends TestCase
 
         $option = $options[0];
         $this->assertSame('ideal', $option->getModuleName());
-        $this->assertStringContainsString('iDEAL', $option->getCallToActionText());
+        $this->assertStringContainsString('iDEAL | Wero', $option->getCallToActionText());
         $this->assertNotEmpty($option->getInputs());
     }
 
