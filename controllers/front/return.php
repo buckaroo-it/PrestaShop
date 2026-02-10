@@ -67,7 +67,14 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $response = ResponseFactory::getResponse();
         $this->logger->logInfo('Parse response', $response);
 
-        if ($response->isValid()) {
+        $isRefundPush =
+            Tools::getIsset('brq_amount_credit')
+            && Tools::getIsset('brq_relatedtransaction_refund');
+
+        if ($response->isValid() || $isRefundPush) {
+            if (!$response->isValid() && $isRefundPush) {
+                $this->logger->logWarn('Refund push detected and processed despite failed validation');
+            }
             $this->logger->logInfo('Response valid');
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -223,13 +230,36 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
     private function handleRefundPush(?\Order $order, $response): void
     {
-        if (!$this->hasService('buckaroo.refund.push.handler')) {
-            $this->logger->logWarn('Refund push received but service is not available');
-            return;
-        }
-
         try {
-            $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
+            if ($this->hasService('buckaroo.refund.push.handler')) {
+                $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
+            } else {
+                $this->logger->logWarn('Refund push handler service not found via module container, using fallback instantiation');
+
+                $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+                if (!$container) {
+                    $this->logger->logError('Unable to obtain Symfony container for refund push handling');
+                    return;
+                }
+
+                $entityManager = $container->get('doctrine.orm.entity_manager');
+
+                // Try to reuse configured services when possible
+                if ($container->has('buckaroo.refund.payment.service')) {
+                    $paymentService = $container->get('buckaroo.refund.payment.service');
+                } else {
+                    $paymentService = new \Buckaroo\PrestaShop\Src\Refund\Payment\Service();
+                }
+
+                $statusService = $container->get('buckaroo.refund.status.service');
+
+                $refundPushHandler = new \Buckaroo\PrestaShop\Src\Refund\Push\Handler(
+                    $entityManager,
+                    $paymentService,
+                    $statusService
+                );
+            }
+
             $refundPushHandler->handle();
 
             if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
