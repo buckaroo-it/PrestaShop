@@ -232,60 +232,91 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     {
         try {
             if ($this->hasService('buckaroo.refund.push.handler')) {
+                // Preferred path: use the Symfony service so refunds are tracked
                 $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
-            } else {
-                $this->logger->logWarn('Refund push handler service not found via module container, attempting fallback instantiation');
+                $refundPushHandler->handle();
 
-                $container = null;
-
-                // 1) Try the modern SymfonyContainer singleton
-                if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-                    $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+                if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
+                    $messageRepo = $this->getService('buckaroo.refund.order.message');
+                    $messageRepo->add(
+                        $order,
+                        'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+                    );
                 }
-
-                // 2) If that failed, try the global kernel
-                if (!$container && isset($GLOBALS['kernel']) && $GLOBALS['kernel'] instanceof \Symfony\Component\HttpKernel\KernelInterface) {
-                    $container = $GLOBALS['kernel']->getContainer();
-                }
-
-                // 3) As a last resort, boot the legacy AppKernel like the module's ContainerAwareTrait
-                if (!$container && class_exists('\AppKernel')) {
-                    $kernel = new \AppKernel('prod', false);
-                    $kernel->boot();
-                    $container = $kernel->getContainer();
-                }
-
-                if (!$container) {
-                    $this->logger->logError('Unable to obtain Symfony container for refund push handling');
-                    return;
-                }
-
-                $entityManager = $container->get('doctrine.orm.entity_manager');
-
-                // Try to reuse configured services when possible
-                if ($container->has('buckaroo.refund.payment.service')) {
-                    $paymentService = $container->get('buckaroo.refund.payment.service');
-                } else {
-                    $paymentService = new \Buckaroo\PrestaShop\Src\Refund\Payment\Service();
-                }
-
-                $statusService = $container->get('buckaroo.refund.status.service');
-
-                $refundPushHandler = new \Buckaroo\PrestaShop\Src\Refund\Push\Handler(
-                    $entityManager,
-                    $paymentService,
-                    $statusService
-                );
+                return;
             }
 
-            $refundPushHandler->handle();
+            // Fallback path: container service not available (common on some PS9 setups).
+            // We still want the order in PrestaShop to reflect the refund, even if we
+            // cannot use the full refund tracking stack.
+            $this->logger->logWarn('Refund push handler service not available, applying simple refund fallback');
 
-            if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
-                $messageRepo = $this->getService('buckaroo.refund.order.message');
-                $messageRepo->add(
-                    $order,
-                    'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+            if (!$order instanceof Order) {
+                $this->logger->logError('Refund push fallback: unable to resolve Order instance');
+                return;
+            }
+
+            $amountCredit = (float) Tools::getValue('brq_amount_credit', 0);
+            if ($amountCredit <= 0) {
+                $this->logger->logError('Refund push fallback: invalid or missing brq_amount_credit');
+                return;
+            }
+
+            // Decide full vs partial based only on this refund amount vs order total
+            $totalPaid = (float) $order->total_paid;
+            $epsilon = 0.005;
+
+            $statusRefunded = (int) Configuration::get('PS_OS_REFUND');
+            $statusPartialRefunded = (int) Configuration::get('PS_CHECKOUT_STATE_PARTIALLY_REFUNDED');
+
+            if ($statusRefunded <= 0 && $statusPartialRefunded <= 0) {
+                $this->logger->logError('Refund push fallback: no refund order states configured (PS_OS_REFUND / PS_CHECKOUT_STATE_PARTIALLY_REFUNDED)');
+                return;
+            }
+
+            $targetStatus = 0;
+            if ($totalPaid > 0 && abs($amountCredit - $totalPaid) <= $epsilon && $statusRefunded > 0) {
+                $targetStatus = $statusRefunded;
+            } elseif ($statusPartialRefunded > 0) {
+                $targetStatus = $statusPartialRefunded;
+            }
+
+            if ($targetStatus > 0) {
+                $history = new OrderHistory();
+                $history->id_order = (int) $order->id;
+                $history->date_add = date('Y-m-d H:i:s');
+                $history->date_upd = date('Y-m-d H:i:s');
+                $history->changeIdOrderState($targetStatus, (int) $order->id);
+                $history->addWithemail(false);
+            }
+
+            // Optionally create a negative payment when configured
+            if (Configuration::get(\Buckaroo\PrestaShop\Src\Refund\Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT)) {
+                $refundKey = (string) Tools::getValue('brq_transactions', '');
+                $method = (string) Tools::getValue('brq_transaction_method', '');
+
+                if ($refundKey !== '' && $method !== '') {
+                    $payment = new OrderPayment();
+                    $payment->order_reference = $order->reference;
+                    $payment->id_currency = $order->id_currency;
+                    $payment->transaction_id = $refundKey;
+                    $payment->amount = -1 * $amountCredit;
+                    $payment->payment_method = $method;
+                    $payment->save();
+                }
+            }
+
+            // Add a basic order message so there is some audit trail
+            if ($order instanceof Order) {
+                $message = new Message();
+                $message->id_order = (int) $order->id;
+                $message->message = sprintf(
+                    'Buckaroo refund (fallback) of %s received. Transaction key: %s. Message: %s',
+                    $amountCredit,
+                    (string) $response->transactions,
+                    (string) $response->statusmessage
                 );
+                $message->add();
             }
         } catch (\Throwable $th) {
             $this->logger->logInfo('PUSH', (string) $th);
