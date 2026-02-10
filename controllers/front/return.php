@@ -234,9 +234,27 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if ($this->hasService('buckaroo.refund.push.handler')) {
                 $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
             } else {
-                $this->logger->logWarn('Refund push handler service not found via module container, using fallback instantiation');
+                $this->logger->logWarn('Refund push handler service not found via module container, attempting fallback instantiation');
 
-                $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+                $container = null;
+
+                // 1) Try the modern SymfonyContainer singleton
+                if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+                    $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+                }
+
+                // 2) If that failed, try the global kernel
+                if (!$container && isset($GLOBALS['kernel']) && $GLOBALS['kernel'] instanceof \Symfony\Component\HttpKernel\KernelInterface) {
+                    $container = $GLOBALS['kernel']->getContainer();
+                }
+
+                // 3) As a last resort, boot the legacy AppKernel like the module's ContainerAwareTrait
+                if (!$container && class_exists('\AppKernel')) {
+                    $kernel = new \AppKernel('prod', false);
+                    $kernel->boot();
+                    $container = $kernel->getContainer();
+                }
+
                 if (!$container) {
                     $this->logger->logError('Unable to obtain Symfony container for refund push handling');
                     return;
