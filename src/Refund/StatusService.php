@@ -91,6 +91,13 @@ class StatusService
      */
     public function update(int $orderId, $status)
     {
+        // Basic status validation (from develop branch logic)
+        $newStatus = (int) $status;
+        if ($newStatus <= 0) {
+            // Invalid status, do not create history entry
+            return;
+        }
+
         try {
             $order = new \Order($orderId);
 
@@ -100,7 +107,6 @@ class StatusService
             }
 
             $currentState = (int) $order->getCurrentState();
-            $newStatus = (int) $status;
 
             // Skip if same state
             if ($currentState === $newStatus) {
