@@ -138,8 +138,20 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             } else {
                 $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
-                $new_status_code = Buckaroo3::resolveStatusCode($response->status, $id_order);
+                $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
                 $order = new Order($id_order);
+
+                // Validate that the resolved order state actually exists in this shop.
+                if (!$this->isValidOrderStateId($new_status_code)) {
+                    $this->logger->logError(
+                        sprintf(
+                            'Resolved order state id %d is invalid for order %d; status change skipped',
+                            $new_status_code,
+                            $id_order
+                        )
+                    );
+                    $new_status_code = (int) $order->getCurrentState();
+                }
 
                 if (!in_array($order->reference, $references)) {
                     header('HTTP/1.1 503 Service Unavailable');
@@ -226,6 +238,28 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         }
 
         exit;
+    }
+
+    /**
+     * Check whether an order state id is valid and available in this shop.
+     *
+     * This is important on upgraded shops (including PS 9.x) where custom
+     * states may have been removed or not migrated correctly.
+     *
+     * @param int $id_order_state
+     *
+     * @return bool
+     */
+    private function isValidOrderStateId($id_order_state)
+    {
+        $id_order_state = (int) $id_order_state;
+        if ($id_order_state <= 0) {
+            return false;
+        }
+
+        $state = new OrderState($id_order_state);
+
+        return Validate::isLoadedObject($state);
     }
 
     private function handleRefundPush(?\Order $order, $response): void

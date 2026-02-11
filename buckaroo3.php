@@ -824,45 +824,163 @@ class Buckaroo3 extends PaymentModule
         return '';
     }
 
+    /**
+     * Resolve a Buckaroo status into a concrete PrestaShop order state.
+     *
+     * This method is central for status handling and must work across
+     * PrestaShop 1.7 and 9.x. It now includes:
+     * - safer fallbacks when configured states are missing or deleted
+     * - explicit backorder handling using stock information
+     *
+     * @param int      $status_code Buckaroo payment status constant
+     * @param int|null $id_order    Optional order id for stock/backorder checks
+     *
+     * @return int Valid PrestaShop order state id
+     */
     public static function resolveStatusCode($status_code, $id_order = null)
     {
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return self::isOrderBackOrder($id_order) ?
-                    Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
-                    (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
+                $isBackOrder = $id_order ? self::isOrderBackOrder($id_order) : false;
+
+                $candidates = [];
+
+                // For successful payments on backorders prefer the out‑of‑stock‑paid state
+                if ($isBackOrder) {
+                    $candidates[] = Configuration::get('PS_OS_OUTOFSTOCK_PAID');
+                }
+
+                // Configured Buckaroo success state and default PrestaShop paid state
+                $candidates[] = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS');
+                $candidates[] = Configuration::get('PS_OS_PAYMENT');
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_PAYMENT'));
+
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-                return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+                // Pending payments fall back to the module specific default,
+                // then to common waiting/pending core states.
+                $candidates = [
+                    Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT'),
+                    Configuration::get('PS_OS_BANKWIRE'),
+                    Configuration::get('PS_OS_WAITING_PAYMENT'),
+                ];
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_BANKWIRE'));
+
             case BuckarooAbstract::BUCKAROO_CANCELED:
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
-                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
+                // Failed/cancelled/error map to a configured failure state,
+                // then to the generic Cancelled state.
+                $candidates = [
+                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED'),
+                    Configuration::get('PS_OS_CANCELED'),
+                ];
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_ERROR'));
+
             default:
-                return Configuration::get('PS_OS_ERROR');
+                // Any unknown status falls back to a generic error.
+                return (int) Configuration::get('PS_OS_ERROR');
         }
     }
 
-    private static function isOrderBackOrder($orderId)
+    /**
+     * Return the first valid OrderState id from the list of candidates.
+     *
+     * This protects against misconfigured or deleted states, which is
+     * particularly important on upgraded shops (e.g. PS 9.x).
+     *
+     * @param array      $candidateIds List of ids (or scalar config values) to try
+     * @param int|string $fallbackId   Fallback state id when none of the candidates is valid
+     *
+     * @return int
+     */
+    private static function resolveValidOrderStateId(array $candidateIds, $fallbackId)
     {
-        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
-            return false; // If stock management is disabled, no order is a backorder
-        }
+        foreach ($candidateIds as $candidate) {
+            $id = (int) $candidate;
+            if ($id <= 0) {
+                continue;
+            }
 
-        $order = new Order($orderId);
-        $orderDetails = $order->getOrderDetailList();
-
-        foreach ($orderDetails as $detail) {
-            $orderDetail = new OrderDetail($detail['id_order_detail']);
-
-            // If any product is in stock, the order is not a backorder
-            if ($orderDetail->product_quantity_in_stock < 0) {
-                return true;
+            $state = new OrderState($id);
+            if (Validate::isLoadedObject($state)) {
+                return (int) $state->id;
             }
         }
 
-        // If all products are out of stock, the order is a backorder
+        $fallback = (int) $fallbackId;
+        if ($fallback > 0) {
+            $fallbackState = new OrderState($fallback);
+            if (Validate::isLoadedObject($fallbackState)) {
+                return (int) $fallbackState->id;
+            }
+        }
+
+        return (int) Configuration::get('PS_OS_ERROR');
+    }
+
+    /**
+     * Determine whether an order should be treated as a backorder.
+     *
+     * The previous implementation only checked for negative stock values,
+     * which could miss partial backorders. The new logic considers:
+     * - global stock management setting
+     * - ordered vs. in‑stock quantities per order line
+     * - advanced stock via StockAvailable when present
+     *
+     * @param int|null $orderId
+     *
+     * @return bool
+     */
+    private static function isOrderBackOrder($orderId)
+    {
+        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
+            // If stock management is disabled, treat all orders as non‑backorder
+            return false;
+        }
+
+        $orderId = (int) $orderId;
+        if ($orderId <= 0) {
+            return false;
+        }
+
+        $order = new Order($orderId);
+        if (!Validate::isLoadedObject($order)) {
+            return false;
+        }
+
+        $orderDetails = $order->getOrderDetailList();
+        if (!is_array($orderDetails) || empty($orderDetails)) {
+            return false;
+        }
+
+        foreach ($orderDetails as $detail) {
+            $orderedQty = (int) $detail['product_quantity'];
+
+            // Quantity that was in stock when the order was placed
+            $inStockAtOrder = (int) $detail['product_quantity_in_stock'];
+
+            // If there wasn't enough stock at order time, this line is (at least partly) backordered
+            if ($inStockAtOrder < $orderedQty) {
+                return true;
+            }
+
+            // As an additional safety net, check current stock when available
+            if (class_exists('StockAvailable')) {
+                $currentQty = (int) StockAvailable::getQuantityAvailableByProduct(
+                    (int) $detail['product_id'],
+                    (int) $detail['product_attribute_id']
+                );
+
+                if ($currentQty < 0 || $currentQty < $orderedQty) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 
