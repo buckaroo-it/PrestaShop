@@ -207,6 +207,6 @@
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "IDIN",
-  "dashboard.pages.payments.displayInCheckout": "Group Credit-debitcards",
-  "dashboard.pages.payments.displayInCheckoutDesc": "Cards option on how to show the brands in the checkout. <br/> <b>Separate</b>: Card issuers are showed seperately in the checkout.</br><b>Grouped</b>: Card issuers are showed within one group."
+  "dashboard.pages.payments.displayInCheckout": "Regroupement des marques au paiement",
+  "dashboard.pages.payments.displayInCheckoutDesc": "Option pour définir la façon dont les marques sont affichées lors du paiement. <br/> <b>Separate</b> : Les marques sont affichées séparément lors du paiement.</br><b>Grouped</b> : Les marques sont affichées dans un seul groupe."
 }
