@@ -11,12 +11,12 @@
 
         <div>
           <h1 class="font-bold md:text-2xl text-lg">
-            {{ selectedPayment.name === 'ideal' ? 'IDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`) }}
+            {{ selectedPayment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`) }}
           </h1>
           <div class="text-gray-400 md:text-sm text-xs">
             {{
               $t('dashboard.pages.payments.configure_your_payment_name_settings', {
-                'payment_name': selectedPayment.name === 'ideal' ? 'IDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`)
+                'payment_name': selectedPayment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`)
               })
             }}
           </div>

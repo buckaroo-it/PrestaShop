@@ -6,7 +6,7 @@
             </div>
 
             <h3 class="font-bold text-lg modal-title">
-                {{ payment.name === 'ideal' ? 'IDEAL | Wero' : $t(`payment_methods.${ payment.name }`) }}
+                {{ payment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ payment.name }`) }}
             </h3>
 
             <div>
