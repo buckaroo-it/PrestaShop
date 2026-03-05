@@ -5,7 +5,9 @@
                 <img :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
             </div>
 
-            <h3 class="font-bold text-lg modal-title">{{ $t(`payment_methods.${ payment.name }`) }}</h3>
+            <h3 class="font-bold text-lg modal-title">
+                {{ payment.name === 'ideal' ? 'IDEAL | Wero' : $t(`payment_methods.${ payment.name }`) }}
+            </h3>
 
             <div>
                 <div class="rounded-lg border border-gray-300 inline-block text-xs shadow text-center overflow-hidden p-1">
