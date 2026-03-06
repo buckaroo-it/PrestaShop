@@ -23,18 +23,18 @@ if (!defined('_PS_VERSION_')) {
 
 class CapayableIn3
 {
-    protected $apiVersion;
     public const VERSION_V2 = 'V2';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
     public function __construct($buckarooConfigService)
     {
-        $this->apiVersion = $buckarooConfigService->getConfigValue('in3', 'version');
+        // Intentionally ignore stored API version configuration.
+        // All In3 payments now always use the V3 API.
     }
 
     public function isV3(): bool
     {
-        return $this->apiVersion !== self::VERSION_V2;
+        return true;
     }
 
     public function getLogo(): string
@@ -44,6 +44,6 @@ class CapayableIn3
 
     public function getMethod(): string
     {
-        return $this->isV3() ? 'in3' : 'in3Old';
+        return 'in3';
     }
 }
