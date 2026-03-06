@@ -29,22 +29,34 @@
             </div>
         {/if}
         {l s='Please provide additional data for Riverty.' mod='buckaroo3'}<br/><br/>
-                <div class="row row-padding">
-            <div class="col-sm-5">
-                <label for="phone_afterpay_billing_digi"
-                       class="required">
-                    {l s='Invoice person phone number' mod='buckaroo3'}:
-                </label>
+
+        {if empty($phone_afterpay_billing)}
+            <div class="row row-padding">
+                <div class="col-sm-5">
+                    <label for="phone_afterpay_billing_digi"
+                           class="required">
+                        {l s='Invoice person phone number' mod='buckaroo3'}:
+                    </label>
+                </div>
+                <div class="col-sm-7">
+                    <input type="text"
+                           class="form-control bk-form-control-large"
+                           id="phone_afterpay_billing_digi"
+                           name="phone_afterpay_billing"
+                           value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
+                    >
+                </div>
             </div>
-            <div class="col-sm-7">
-                <input type="text"
-                       class="form-control bk-form-control-large"
-                       id="phone_afterpay_billing_digi"
-                       name="phone_afterpay_billing"
-                       value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
-                >
-            </div>
-        </div>
+        {else}
+            {* Phone number is already available in the invoice address.
+               Provide it as a hidden field so the checkout logic can still use it without asking again. *}
+            <input type="hidden"
+                   class="form-control bk-form-control-large"
+                   id="phone_afterpay_billing_digi"
+                   name="phone_afterpay_billing"
+                   value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
+            >
+        {/if}
         
 
 
