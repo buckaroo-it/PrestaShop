@@ -177,6 +177,7 @@
   "payment_methods.afterpay": "Rivière",
   "payment_methods.alipay": "Alipay",
   "payment_methods.applepay": "Apple Payer",
+  "payment_methods.googlepay": "Google Pay",
   "payment_methods.bancontact": "Bancontact",
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.belfius": "Belfius",

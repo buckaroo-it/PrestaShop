@@ -34,6 +34,7 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_AFTERPAY = 'afterpay';
     public const REQUEST_TYPE_KLARNA = 'klarna';
     public const REQUEST_TYPE_APPLEPAY = 'applepay';
+    public const REQUEST_TYPE_GOOGLEPAY = 'googlepay';
     public const REQUEST_TYPE_BELFIUS = 'belfius';
     public const REQUEST_TYPE_IDIN = 'idin';
     public const REQUEST_TYPE_IN3 = 'in3';
@@ -69,6 +70,7 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_AFTERPAY => 'AfterPay',
         PaymentRequestFactory::REQUEST_TYPE_KLARNA => 'Klarna',
         PaymentRequestFactory::REQUEST_TYPE_APPLEPAY => 'ApplePay',
+        PaymentRequestFactory::REQUEST_TYPE_GOOGLEPAY => 'GooglePay',
         PaymentRequestFactory::REQUEST_TYPE_BELFIUS => 'Belfius',
         PaymentRequestFactory::REQUEST_TYPE_IDIN => 'Idin',
         PaymentRequestFactory::REQUEST_TYPE_IN3 => 'In3',

@@ -173,6 +173,7 @@
   "payment_methods.afterpay": "Riverty",
   "payment_methods.alipay": "Alipay",
   "payment_methods.applepay": "Apple Pay",
+  "payment_methods.googlepay": "Google Pay",
   "payment_methods.bancontact": "Bancontact",
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.belfius": "Belfius",
