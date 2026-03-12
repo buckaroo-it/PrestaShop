@@ -44,7 +44,7 @@ class GuzzleHttpClientV5 extends HttpClientAbstract
      * @throws BuckarooException|GuzzleException
      */
 
-    public function call(string $url, array $headers, string $method, string $data = null)
+    public function call(string $url, array $headers, string $method, ?string $data = null)
     {
         $headers = $this->convertHeadersFormat($headers);
 
@@ -53,8 +53,7 @@ class GuzzleHttpClientV5 extends HttpClientAbstract
             'body' => $data,
         ]);
 
-        try
-        {
+        try {
             $response = $this->httpClient->send($request);
 
             $result = (string) $response->getBody();

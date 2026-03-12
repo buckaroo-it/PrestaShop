@@ -46,14 +46,13 @@ class GuzzleHttpClientV7 extends HttpClientAbstract
      * @throws TransferException
      * @throws BuckarooException
      */
-    public function call(string $url, array $headers, string $method, string $data = null)
+    public function call(string $url, array $headers, string $method, ?string $data = null)
     {
         $headers = $this->convertHeadersFormat($headers);
 
         $request = new Request($method, $url, $headers, $data);
 
-        try
-        {
+        try {
             $response = $this->httpClient->send($request, ['http_errors' => false]);
 
             $result = (string) $response->getBody();

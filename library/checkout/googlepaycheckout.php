@@ -26,24 +26,10 @@ class GooglePayCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
-
         $this->customVars = [
             'servicesSelectableByClient' => 'googlepay',
             'continueOnIncomplete' => '1',
         ];
-
-        // When using the Hosted Checkout Google Pay button, the frontend sends the
-        // raw Google Pay token and (optionally) the card holder name. The Buckaroo
-        // SDK expects the token to be base64-encoded in the "paymentData" field.
-        $token = \Tools::getValue('googlePayToken');
-        if (!empty($token)) {
-            $this->customVars['paymentData'] = base64_encode((string) $token);
-
-            $cardName = \Tools::getValue('googlePayCardName');
-            if (!empty($cardName)) {
-                $this->customVars['customerCardName'] = (string) $cardName;
-            }
-        }
     }
 
     public function startPayment()
@@ -53,6 +39,8 @@ class GooglePayCheckout extends Checkout
 
     public function isRedirectRequired()
     {
+        // Google Pay returns a RequiredAction with a RedirectURL (status 790 - Pending input),
+        // so we should follow the redirect just like other hosted flows.
         return true;
     }
 

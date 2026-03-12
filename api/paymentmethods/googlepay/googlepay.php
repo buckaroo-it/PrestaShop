@@ -36,9 +36,11 @@ class GooglePay extends PaymentMethod
 
     public function pay($customVars = [])
     {
+        // Merge Google Pay–specific custom variables (e.g. paymentData, customerCardName)
+        // into the base payload and use the standard "pay" action.
         $this->payload = $this->getPayload($customVars);
 
-        return parent::executeCustomPayAction('payRedirect');
+        return $this->payGlobal();
     }
 }
 
