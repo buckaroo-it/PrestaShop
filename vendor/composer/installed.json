@@ -65,17 +65,17 @@
         },
         {
             "name": "buckaroo/sdk",
-            "version": "1.18.0",
-            "version_normalized": "1.18.0.0",
+            "version": "1.23.1",
+            "version_normalized": "1.23.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buckaroo-it/BuckarooSDK_PHP.git",
-                "reference": "08711fa55d7f59e7c7cb9cc434bcfa76eea54dd0"
+                "reference": "abb8286e6ff489b2b369e7d0bf2554786cf21d92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/08711fa55d7f59e7c7cb9cc434bcfa76eea54dd0",
-                "reference": "08711fa55d7f59e7c7cb9cc434bcfa76eea54dd0",
+                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/abb8286e6ff489b2b369e7d0bf2554786cf21d92",
+                "reference": "abb8286e6ff489b2b369e7d0bf2554786cf21d92",
                 "shasum": ""
             },
             "require": {
@@ -90,12 +90,13 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.13",
+                "mockery/mockery": "^1.6",
                 "phpunit/phpunit": "^9.5",
                 "squizlabs/php_codesniffer": "3.*",
                 "symfony/var-dumper": "^5.4.9",
                 "vlucas/phpdotenv": "^5.4"
             },
-            "time": "2025-04-14T07:52:17+00:00",
+            "time": "2026-02-19T17:41:11+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -118,23 +119,23 @@
             "description": "Buckaroo payment SDK",
             "support": {
                 "issues": "https://github.com/buckaroo-it/BuckarooSDK_PHP/issues",
-                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/1.18.0"
+                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/1.23.1"
             },
             "install-path": "../buckaroo/sdk"
         },
         {
             "name": "composer/ca-bundle",
-            "version": "1.5.6",
-            "version_normalized": "1.5.6.0",
+            "version": "1.5.9",
+            "version_normalized": "1.5.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/ca-bundle.git",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175"
+                "reference": "1905981ee626e6f852448b7aaa978f8666c5bc54"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/f65c239c970e7f072f067ab78646e9f0b2935175",
-                "reference": "f65c239c970e7f072f067ab78646e9f0b2935175",
+                "url": "https://api.github.com/repos/composer/ca-bundle/zipball/1905981ee626e6f852448b7aaa978f8666c5bc54",
+                "reference": "1905981ee626e6f852448b7aaa978f8666c5bc54",
                 "shasum": ""
             },
             "require": {
@@ -148,7 +149,7 @@
                 "psr/log": "^1.0 || ^2.0 || ^3.0",
                 "symfony/process": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
-            "time": "2025-03-06T14:30:56+00:00",
+            "time": "2025-11-06T11:46:17+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {
@@ -183,7 +184,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/ca-bundle/issues",
-                "source": "https://github.com/composer/ca-bundle/tree/1.5.6"
+                "source": "https://github.com/composer/ca-bundle/tree/1.5.9"
             },
             "funding": [
                 {
@@ -193,33 +194,29 @@
                 {
                     "url": "https://github.com/composer",
                     "type": "github"
-                },
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/composer/composer",
-                    "type": "tidelift"
                 }
             ],
             "install-path": "./ca-bundle"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.9.3",
-            "version_normalized": "7.9.3.0",
+            "version": "7.10.0",
+            "version_normalized": "7.10.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77"
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
-                "reference": "7b2f29fe81dc4da0ca0ea7d42107a0845946ea77",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
+                "reference": "b51ac707cfa420b7bfd4e4d5e510ba8008e822b4",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^1.5.3 || ^2.0.3",
-                "guzzlehttp/psr7": "^2.7.0",
+                "guzzlehttp/promises": "^2.3",
+                "guzzlehttp/psr7": "^2.8",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
                 "symfony/deprecation-contracts": "^2.2 || ^3.0"
@@ -240,7 +237,7 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr/log": "Required for using the Log middleware"
             },
-            "time": "2025-03-27T13:37:11+00:00",
+            "time": "2025-08-23T22:36:01+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -312,7 +309,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.9.3"
+                "source": "https://github.com/guzzle/guzzle/tree/7.10.0"
             },
             "funding": [
                 {
@@ -332,17 +329,17 @@
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.2.0",
-            "version_normalized": "2.2.0.0",
+            "version": "2.3.0",
+            "version_normalized": "2.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c"
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/7c69f28996b0a6920945dd20b3857e499d9ca96c",
-                "reference": "7c69f28996b0a6920945dd20b3857e499d9ca96c",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/481557b130ef3790cf82b713667b43030dc9c957",
+                "reference": "481557b130ef3790cf82b713667b43030dc9c957",
                 "shasum": ""
             },
             "require": {
@@ -350,9 +347,9 @@
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
-                "phpunit/phpunit": "^8.5.39 || ^9.6.20"
+                "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
-            "time": "2025-03-27T13:27:01+00:00",
+            "time": "2025-08-22T14:34:08+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -398,7 +395,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.2.0"
+                "source": "https://github.com/guzzle/promises/tree/2.3.0"
             },
             "funding": [
                 {
@@ -418,17 +415,17 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.7.1",
-            "version_normalized": "2.7.1.0",
+            "version": "2.8.0",
+            "version_normalized": "2.8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16"
+                "reference": "21dc724a0583619cd1652f673303492272778051"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/c2270caaabe631b3b44c85f99e5a04bbb8060d16",
-                "reference": "c2270caaabe631b3b44c85f99e5a04bbb8060d16",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/21dc724a0583619cd1652f673303492272778051",
+                "reference": "21dc724a0583619cd1652f673303492272778051",
                 "shasum": ""
             },
             "require": {
@@ -444,12 +441,12 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "http-interop/http-factory-tests": "0.9.0",
-                "phpunit/phpunit": "^8.5.39 || ^9.6.20"
+                "phpunit/phpunit": "^8.5.44 || ^9.6.25"
             },
             "suggest": {
                 "laminas/laminas-httphandlerrunner": "Emit PSR-7 responses"
             },
-            "time": "2025-03-27T12:30:47+00:00",
+            "time": "2025-08-23T21:21:41+00:00",
             "type": "library",
             "extra": {
                 "bamarni-bin": {
@@ -517,7 +514,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.7.1"
+                "source": "https://github.com/guzzle/psr7/tree/2.8.0"
             },
             "funding": [
                 {
@@ -1175,8 +1172,8 @@
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.32.0",
-            "version_normalized": "1.32.0.0",
+            "version": "v1.33.0",
+            "version_normalized": "1.33.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
@@ -1237,7 +1234,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -1249,6 +1246,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -1257,8 +1258,8 @@
         },
         {
             "name": "symfony/polyfill-php80",
-            "version": "v1.32.0",
-            "version_normalized": "1.32.0.0",
+            "version": "v1.33.0",
+            "version_normalized": "1.33.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
@@ -1320,7 +1321,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -1332,6 +1333,10 @@
                     "type": "github"
                 },
                 {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
                     "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
                     "type": "tidelift"
                 }
@@ -1340,8 +1345,8 @@
         },
         {
             "name": "symfony/polyfill-php81",
-            "version": "v1.32.0",
-            "version_normalized": "1.32.0.0",
+            "version": "v1.33.0",
+            "version_normalized": "1.33.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php81.git",
@@ -1399,7 +1404,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php81/tree/v1.32.0"
+                "source": "https://github.com/symfony/polyfill-php81/tree/v1.33.0"
             },
             "funding": [
                 {
@@ -1408,6 +1413,10 @@
                 },
                 {
                     "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
                     "type": "github"
                 },
                 {

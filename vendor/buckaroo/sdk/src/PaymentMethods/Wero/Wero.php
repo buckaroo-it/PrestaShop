@@ -18,16 +18,48 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-declare(strict_types=1);
-
 namespace Buckaroo\PaymentMethods\Wero;
 
 use Buckaroo\PaymentMethods\PayablePaymentMethod;
+use Buckaroo\Transaction\Response\TransactionResponse;
 
 class Wero extends PayablePaymentMethod
 {
-    // Service name must be lowercase in the Services.ServiceList.Name field
     protected string $paymentName = 'wero';
+
+    /**
+     * @return TransactionResponse
+     */
+    public function authorize(): TransactionResponse
+    {
+        $this->setPayPayload();
+
+        $this->setServiceList('Authorize');
+
+        return $this->postRequest();
+    }
+
+    /**
+     * @return TransactionResponse
+     */
+    public function cancelAuthorize(): TransactionResponse
+    {
+        $this->setRefundPayload();
+
+        $this->setServiceList('CancelAuthorize');
+
+        return $this->postRequest();
+    }
+
+    /**
+     * @return TransactionResponse
+     */
+    public function capture(): TransactionResponse
+    {
+        $this->setPayPayload();
+
+        $this->setServiceList('Capture');
+
+        return $this->postRequest();
+    }
 }
-
-

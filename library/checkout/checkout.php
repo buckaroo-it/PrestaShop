@@ -42,6 +42,7 @@ abstract class Checkout
     public const CHECKOUT_TYPE_AFTERPAY = 'afterpay';
     public const CHECKOUT_TYPE_KLARNA = 'klarna';
     public const CHECKOUT_TYPE_APPLEPAY = 'applepay';
+    public const CHECKOUT_TYPE_GOOGLEPAY = 'googlepay';
     public const CHECKOUT_TYPE_BELFIUS = 'belfius';
     public const CHECKOUT_TYPE_IDIN = 'idin';
     public const CHECKOUT_TYPE_IN3 = 'in3';
@@ -76,6 +77,7 @@ abstract class Checkout
         self::CHECKOUT_TYPE_AFTERPAY => 'AfterPay',
         self::CHECKOUT_TYPE_KLARNA => 'Klarna',
         self::CHECKOUT_TYPE_APPLEPAY => 'ApplePay',
+        self::CHECKOUT_TYPE_GOOGLEPAY => 'GooglePay',
         self::CHECKOUT_TYPE_BELFIUS => 'Belfius',
         self::CHECKOUT_TYPE_IDIN => 'Idin',
         self::CHECKOUT_TYPE_IN3 => 'In3',

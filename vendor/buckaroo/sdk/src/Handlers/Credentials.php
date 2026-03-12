@@ -58,16 +58,13 @@ class Credentials
 
         $request = new TransactionRequest;
 
-        try
-        {
-            $response = $this->client->specification($request, 'ideal', 2);
-        } catch (BuckarooException $e)
-        {
+        try {
+            $response = $this->client->specification('ideal', 2, $request);
+        } catch (BuckarooException $e) {
             return false;
         }
 
-        if ($response->getHttpResponse()->getStatusCode() == 200)
-        {
+        if ($response->getHttpResponse()->getStatusCode() == 200) {
             return true;
         }
 

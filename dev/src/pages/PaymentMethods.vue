@@ -41,6 +41,7 @@
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
           <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
           <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
+          <GooglePayPaymentConfig v-if="selectedPayment.name === 'googlepay'" />
         </DefaultPaymentConfig>
       </div>
     </div>
@@ -66,6 +67,7 @@ import Loading from "../components/Loading.vue";
 import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue";
 import GiftcardPaymentConfig  from "../components/payments/GiftcardPaymentConfig.vue";
 import KlarnaPaymentConfig from "../components/payments/KlarnaPaymentConfig.vue";
+import GooglePayPaymentConfig from "../components/payments/GooglePayPaymentConfig.vue";
 
 export default {
   name: "PaymentMethods",
@@ -84,7 +86,8 @@ export default {
     PayPerEmailPaymentConfig,
     PaymentMethodBlock,
     GiftcardPaymentConfig,
-    KlarnaPaymentConfig
+    KlarnaPaymentConfig,
+    GooglePayPaymentConfig
   },
   setup() {
     const payments = ref([])

@@ -474,17 +474,40 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function handleFailedRequest($cartId)
     {
-        $response = $this->checkout->getResponse();
+        // It is possible that no payment response is available (e.g. when
+        // the underlying Buckaroo SDK fails before returning a response).
+        // In that case, we must gracefully fall back instead of causing a
+        // fatal error by calling methods on null, and surface a clear error
+        // back to the checkout page.
+        $response = null;
+        if ($this->checkout) {
+            $response = $this->checkout->getResponse();
+        }
+
         $this->logger->logInfo('Request not succeeded');
 
         $this->setCartCookie($cartId);
 
-        if ($response->getResponse() instanceof TransactionResponse) {
-            $this->logger->logInfo('Buckaroo error', $response->getSomeError());
+        $msg = $this->module->l(
+            'Your payment was unsuccessful. Please try again or choose another payment method.'
+        );
+
+        if ($response && method_exists($response, 'getResponse') && $response->getResponse() instanceof TransactionResponse) {
+            $error = $response->getSomeError();
+            if (!empty($error)) {
+                $this->logger->logInfo('Buckaroo error', $error);
+                $msg = $error;
+            }
         }
 
-        // Back to PrestaShop checkout (payment step)
-        Tools::redirect('index.php?controller=order&step=1');
+        // Back to PrestaShop checkout payment step with an error message
+        $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+            'step'               => 3,
+            'buckaroo_error_msg' => urlencode($msg),
+            'buckaroo_error'     => 1
+        ]);
+
+        Tools::redirect($redirectUrl);
     }
 
     private function createTransactionMessage($orderId, $messageString)

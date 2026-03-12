@@ -26,8 +26,8 @@ use Buckaroo\Config\Config;
 use Buckaroo\Exceptions\BuckarooException;
 use Buckaroo\Handlers\Logging\Subject;
 use Buckaroo\Resources\Constants\Endpoints;
-use Buckaroo\Services\TransactionHeaders\CultureHeader;
 use Buckaroo\Services\TransactionHeaders\ChannelHeader;
+use Buckaroo\Services\TransactionHeaders\CultureHeader;
 use Buckaroo\Services\TransactionHeaders\DefaultHeader;
 use Buckaroo\Services\TransactionHeaders\HmacHeader;
 use Buckaroo\Services\TransactionHeaders\SoftwareHeader;
@@ -111,9 +111,9 @@ class Client
      * @param $responseClass
      * @return mixed
      */
-    public function get($responseClass = Response::class, string $endPoint = null)
+    public function get($responseClass = Response::class, ?string $endPoint = null)
     {
-        return $this->call(self::METHOD_GET, null, $responseClass, $endPoint);
+        return $this->call(self::METHOD_GET, $responseClass, null, $endPoint);
     }
 
     /**
@@ -121,9 +121,9 @@ class Client
      * @param $responseClass
      * @return mixed
      */
-    public function post(Request $data = null, $responseClass = TransactionResponse::class)
+    public function post(?Request $data = null, $responseClass = TransactionResponse::class)
     {
-        return $this->call(self::METHOD_POST, $data, $responseClass);
+        return $this->call(self::METHOD_POST, $responseClass, $data);
     }
 
     /**
@@ -132,11 +132,11 @@ class Client
      * @return mixed
      * @throws BuckarooException
      */
-    public function dataRequest(Request $data = null, $responseClass = TransactionResponse::class)
+    public function dataRequest(?Request $data = null, $responseClass = TransactionResponse::class)
     {
         $endPoint = $this->getEndpoint('json/DataRequest/');
 
-        return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
+        return $this->call(self::METHOD_POST, $responseClass, $data, $endPoint);
     }
 
     /**
@@ -145,11 +145,11 @@ class Client
      * @return mixed
      * @throws BuckarooException
      */
-    public function dataBatchRequest(Request $data = null, $responseClass = TransactionResponse::class)
+    public function dataBatchRequest(?Request $data = null, $responseClass = TransactionResponse::class)
     {
         $endPoint = $this->getEndpoint('json/batch/DataRequests');
 
-        return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
+        return $this->call(self::METHOD_POST, $responseClass, $data, $endPoint);
     }
 
     /**
@@ -158,40 +158,40 @@ class Client
      * @return mixed
      * @throws BuckarooException
      */
-    public function transactionBatchRequest(Request $data = null, $responseClass = TransactionResponse::class)
+    public function transactionBatchRequest(?Request $data = null, $responseClass = TransactionResponse::class)
     {
         $endPoint = $this->getEndpoint('json/batch/Transactions');
 
-        return $this->call(self::METHOD_POST, $data, $responseClass, $endPoint);
+        return $this->call(self::METHOD_POST, $responseClass, $data, $endPoint);
     }
 
     /**
-     * @param Request|null $data
      * @param string $paymentName
      * @param int $serviceVersion
+     * @param Request|null $data
      * @return mixed
      * @throws BuckarooException
      */
-    public function specification(Request $data = null, string $paymentName, int $serviceVersion = 0)
+    public function specification(string $paymentName, int $serviceVersion = 0, ?Request $data = null)
     {
         $endPoint = $this->getEndpoint(
             'json/Transaction/Specification/' . $paymentName .
             '?serviceVersion=' . $serviceVersion
         );
 
-        return $this->call(self::METHOD_GET, $data, TransactionResponse::class, $endPoint);
+        return $this->call(self::METHOD_GET, TransactionResponse::class, $data, $endPoint);
     }
 
     /**
      * @param $method
-     * @param Request $data
      * @param string $responseClass
+     * @param Request|null $data
      * @param string|null $endPoint
      * @return mixed
      * @throws BuckarooException
      * @throws \Buckaroo\Exceptions\TransferException
      */
-    protected function call($method, Request $data = null, string $responseClass, string $endPoint = null)
+    protected function call($method, string $responseClass, ?Request $data = null, ?string $endPoint = null)
     {
         $endPoint = $endPoint ?? $this->getTransactionUrl();
 
@@ -202,8 +202,7 @@ class Client
         $this->config->getLogger()->info($method . ' ' . $endPoint);
         $this->config->getLogger()->info('HEADERS: ' . json_encode($headers));
 
-        if ($data)
-        {
+        if ($data) {
             $this->config->getLogger()->info(
                 'PAYLOAD: ' . $data->toJson()
             );
@@ -228,13 +227,11 @@ class Client
      */
     public function config(?Config $config = null)
     {
-        if ($config)
-        {
+        if ($config) {
             $this->config = $config;
         }
 
-        if (! $this->config)
-        {
+        if (!$this->config) {
             throw new BuckarooException(
                 $this->logger,
                 "No config has been configured.

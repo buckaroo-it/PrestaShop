@@ -35,7 +35,7 @@ class Afterpay extends PayablePaymentMethod
     /**
      * @var int
      */
-    protected int $serviceVersion = 2;
+    protected int $serviceVersion = 1;
 
     /**
      * @param Model|null $model

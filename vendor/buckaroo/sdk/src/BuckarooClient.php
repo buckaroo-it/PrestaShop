@@ -49,16 +49,15 @@ class BuckarooClient
      * @param string|Config $websiteKey
      * @param string $secretKey
      * @param string|null $mode
+     * @throws BuckarooException
      */
-    public function __construct($websiteKey, string $secretKey = null, string $mode = null)
+    public function __construct($websiteKey, ?string $secretKey = null, ?string $mode = null)
     {
-        if ($websiteKey instanceof Config)
-        {
+        if ($websiteKey instanceof Config) {
             $this->config = $websiteKey;
         }
 
-        if (is_string($websiteKey))
-        {
+        if (is_string($websiteKey)) {
             $this->config = $this->getConfig($websiteKey, $secretKey, $mode);
         }
 
@@ -66,14 +65,13 @@ class BuckarooClient
     }
 
     /**
-     * @param string $method
+     * @param string|null $method
      * @return PaymentFacade
      */
-    public function method(string $method = null): PaymentFacade
+    public function method(?string $method = null): PaymentFacade
     {
         return new PaymentFacade($this->client, $method);
     }
-
 
     public function getActiveSubscriptions(): array
     {
@@ -143,11 +141,11 @@ class BuckarooClient
      * @param string $secretKey
      * @param string|null $mode
      * @return Config|null
+     * @throws BuckarooException
      */
-    private function getConfig(string $websiteKey, string $secretKey, string $mode = null): ?Config
+    private function getConfig(string $websiteKey, string $secretKey, ?string $mode = null): ?Config
     {
-        if ($websiteKey && $secretKey)
-        {
+        if ($websiteKey && $secretKey) {
             return new DefaultConfig($websiteKey, $secretKey, $mode);
         }
 
