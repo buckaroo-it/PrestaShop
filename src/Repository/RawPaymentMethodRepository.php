@@ -122,7 +122,7 @@ class RawPaymentMethodRepository
     private function getPaymentMethodsData()
     {
         return [
-            ['name' => 'ideal', 'label' => 'iDEAL', 'icon' => 'iDEAL.svg', 'template' => 'payment_ideal.tpl', 'is_payment_method' => '1'],
+            ['name' => 'ideal', 'label' => 'iDEAL | Wero', 'icon' => 'iDEAL.svg', 'template' => 'payment_ideal.tpl', 'is_payment_method' => '1'],
             ['name' => 'paybybank', 'label' => 'PayByBank', 'icon' => 'PayByBank.svg', 'template' => 'payment_paybybank.tpl', 'is_payment_method' => '1'],
             ['name' => 'paypal', 'label' => 'PayPal', 'icon' => 'PayPal.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'sepadirectdebit', 'label' => 'SEPA Direct Debit', 'icon' => 'SEPA-directdebit.svg', 'template' => 'payment_sepadirectdebit.tpl', 'is_payment_method' => '1'],

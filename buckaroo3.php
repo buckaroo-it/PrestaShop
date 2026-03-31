@@ -42,7 +42,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.0.0';
+    const MODULE_VERSION = '5.1.0';
     
     public $logger;
 

@@ -49,7 +49,9 @@
                   <template #item="{ element }">
                     <div class="p-3 flex items-center space-x-2 cursor-move bg-white">
                       <img v-if="element.icon" :src="`/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/${ element.icon }`" alt="icon" class="w-8">
-                      <div class="flex-1">{{ $t(`payment_methods.${ element.name }`) }} </div>
+                      <div class="flex-1">
+                        {{ element.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ element.name }`) }}
+                      </div>
                       <i class="fas fa-arrows-alt-v"></i>
                     </div>
                   </template>
