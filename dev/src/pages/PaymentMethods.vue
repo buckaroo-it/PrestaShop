@@ -10,10 +10,16 @@
         <button @click="selectedPayment = null" class="hover:bg-gray-100 w-9 h-9 rounded-full"><i class="fas fa-chevron-left"></i></button>
 
         <div>
-          <h1 class="font-bold md:text-2xl text-lg">{{ $t(`payment_methods.${ selectedPayment.name }`) }}</h1>
-          <div class="text-gray-400 md:text-sm text-xs">{{ $t('dashboard.pages.payments.configure_your_payment_name_settings', {
-            'payment_name': $t(`payment_methods.${ selectedPayment.name }`)
-          }) }}</div>
+          <h1 class="font-bold md:text-2xl text-lg">
+            {{ selectedPayment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`) }}
+          </h1>
+          <div class="text-gray-400 md:text-sm text-xs">
+            {{
+              $t('dashboard.pages.payments.configure_your_payment_name_settings', {
+                'payment_name': selectedPayment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ selectedPayment.name }`)
+              })
+            }}
+          </div>
         </div>
       </div>
 

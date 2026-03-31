@@ -40,7 +40,7 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [Credit- debitcards](https://www.buckaroo.eu/solutions/payment-methods/creditcards)  |  ![Creditcards](Payment%20methods/PNG/CreditCards.png) | ![Creditcards](Payment%20methods/SVG/CreditCards.svg) |
 | [EPS](https://www.buckaroo.eu/solutions/payment-methods/eps)  |  ![EPS](Payment%20methods/PNG/EPS.png) | ![EPS](Payment%20methods/SVG/EPS.svg) |
 | [Giftcards](https://www.buckaroo.eu/solutions/payment-methods/giftcards)  |  ![Giftcards](Payment%20methods/PNG/Giftcards.png) | ![Giftcards](Payment%20methods/SVG/Giftcards.svg) |
-| [iDEAL](https://www.buckaroo.eu/solutions/payment-methods/ideal)  |  ![iDEAL](Payment%20methods/PNG/iDEAL.png) | ![iDEAL](Payment%20methods/SVG/iDEAL.svg) |
+| [iDEAL | Wero](https://www.buckaroo.eu/solutions/payment-methods/ideal)  |  ![iDEAL | Wero](Payment%20methods/PNG/iDEAL.png) | ![iDEAL | Wero](Payment%20methods/SVG/iDEAL.svg) |
 
 | [In3](https://www.buckaroo.eu/solutions/payment-methods/in3)  |  ![In3](Payment%20methods/PNG/In3.png) | ![In3](Payment%20methods/SVG/In3.svg) |
 | [KBC](https://www.buckaroo.eu/solutions/payment-methods/kbc)  |  ![KBC](Payment%20methods/PNG/KBC.png) | ![KBC](Payment%20methods/SVG/KBC.svg) |

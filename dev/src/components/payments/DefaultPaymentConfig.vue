@@ -6,7 +6,9 @@
             </div>
 
             <div>
-                <h2 class="font-bold h2-title">{{ $t(`payment_methods.${ payment.name }`) }}</h2>
+                <h2 class="font-bold h2-title">
+                    {{ payment.name === 'ideal' ? 'iDEAL | Wero' : $t(`payment_methods.${ payment.name }`) }}
+                </h2>
                 <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.settings`) }}</div>
             </div>
         </div>
