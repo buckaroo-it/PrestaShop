@@ -16,6 +16,7 @@
     <input type="hidden" name="buckarooKey" value="giftcard">
     <form id="booGiftcardsForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'giftcard'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         {if $giftCardDisplayMode === 'separate'}
+            <input type="hidden" name="cardCode" value="{$cardCode|escape:'html':'UTF-8'}">
             <div class="row row-padding">
                 <div class="col-sm-5">
                     <label for="phone_afterpay_billing_digi"
