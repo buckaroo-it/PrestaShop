@@ -84,7 +84,7 @@ abstract class PaymentMethod extends BuckarooAbstract
     {
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
 
-        $this->payload = array_merge([
+        $basePayload = [
             'currency' => $this->currency,
             'amountDebit' => $this->amountDebit,
             'invoice' => $this->invoiceId,
@@ -97,7 +97,13 @@ abstract class PaymentMethod extends BuckarooAbstract
             'moduleVersion' => $this->moduleVersion,
             'moduleSupplier' => $this->moduleSupplier,
             'moduleName' => $this->moduleName,
-        ], $this->payload);
+        ];
+
+        if (!empty($this->OriginalTransactionKey)) {
+            $basePayload['originalTransactionKey'] = $this->OriginalTransactionKey;
+        }
+
+        $this->payload = array_merge($basePayload, $this->payload);
 
         $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
         // Pay

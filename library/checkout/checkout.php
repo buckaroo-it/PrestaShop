@@ -165,7 +165,20 @@ abstract class Checkout
     {
         $currency = new Currency((int) $this->cart->id_currency);
         $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
-        $this->payment_request->amountDebit = $this->roundBuckarooPrice($cartTotalInclTax);
+
+        // When a giftcard was partially applied, charge only the outstanding remainder
+        // (skip for GiftCardCheckout itself so the full amount reaches Buckaroo first)
+        $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+        $giftcardGroupTx   = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+        $isGiftcardCheckout = ($this instanceof GiftCardCheckout);
+
+        if (!$isGiftcardCheckout && $giftcardRemainder > 0 && !empty($giftcardGroupTx)) {
+            $this->payment_request->amountDebit        = $this->roundBuckarooPrice($giftcardRemainder);
+            $this->payment_request->OriginalTransactionKey = $giftcardGroupTx;
+        } else {
+            $this->payment_request->amountDebit = $this->roundBuckarooPrice($cartTotalInclTax);
+        }
+
         $buckarooFee = $this->module->getBuckarooFee(Tools::getValue('method'), $cartTotalInclTax);
 
         if (is_array($buckarooFee) && $buckarooFee['buckaroo_fee_tax_incl'] > 0) {

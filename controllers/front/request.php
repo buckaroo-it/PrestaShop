@@ -376,10 +376,83 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         if ($response->hasSucceeded()) {
+            // Check whether this is a partial giftcard payment (giftcard covers only part of total)
+            $groupTransaction = $response->getGroupTransaction();
+            $remainingAmount  = $response->getRemainderAmount();
+
+            if (!empty($groupTransaction) && $remainingAmount > 0) {
+                $this->handleGiftcardPartialPayment($cartId, $response, $groupTransaction, $remainingAmount);
+                return;
+            }
+
+            // Full payment – clear any outstanding giftcard partial-payment state
+            $this->clearGiftcardPartialPaymentCookies();
+
             $this->processSuccessfulPayment($cartId, $customer, $response);
         } else {
             $this->processFailedPayment($cartId, $response);
         }
+    }
+
+    /**
+     * Store the giftcard partial-payment state and return the customer to checkout
+     * so they can pay the outstanding remainder with another payment method.
+     */
+    private function handleGiftcardPartialPayment($cartId, $response, string $groupTransaction, float $remainingAmount): void
+    {
+        $this->logger->logInfo('Giftcard partial payment – group tx: ' . $groupTransaction . ', remainder: ' . $remainingAmount);
+
+        // Persist partial-payment state in the PrestaShop session cookie
+        $this->context->cookie->buckaroo_giftcard_group_tx  = $groupTransaction;
+        $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
+        $this->context->cookie->write();
+
+        // Record the giftcard amount on the existing order so total_paid_real reflects it
+        $orderId = Order::getIdByCartId($cartId);
+        if ($orderId) {
+            $appliedAmount = (float) $response->getAmount();
+            $order         = new Order($orderId);
+
+            $payment                  = new OrderPayment();
+            $payment->order_reference = $order->reference;
+            $payment->id_currency     = $order->id_currency;
+            $payment->conversion_rate = 1;
+            $payment->amount          = $appliedAmount;
+            $payment->payment_method  = $response->payment_method ?? 'giftcard';
+            $payment->transaction_id  = $response->getResponse() ? $response->getResponse()->getTransactionKey() : '';
+            $payment->save();
+
+            $order->total_paid_real += $appliedAmount;
+            $order->save();
+
+            $this->logger->logInfo('Recorded giftcard partial payment of ' . $appliedAmount . ' on order ' . $orderId);
+        }
+
+        // Give the customer their cart back and send them to checkout step 3
+        $this->setCartCookie($cartId);
+
+        $msg = sprintf(
+            $this->module->l('Giftcard applied. Please pay the remaining amount of %s with another payment method.'),
+            $this->context->currentLocale
+                ? $this->context->currentLocale->formatPrice($remainingAmount, $this->context->currency->iso_code)
+                : number_format($remainingAmount, 2)
+        );
+
+        $redirectUrl = $this->context->link->getPageLink('order', null, null, [
+            'step'                    => 3,
+            'buckaroo_giftcard_applied' => 1,
+            'buckaroo_giftcard_msg'   => urlencode($msg),
+        ]);
+
+        Tools::redirect($redirectUrl);
+    }
+
+    /** Remove giftcard partial-payment cookies after the order is fully settled. */
+    private function clearGiftcardPartialPaymentCookies(): void
+    {
+        unset($this->context->cookie->buckaroo_giftcard_group_tx);
+        unset($this->context->cookie->buckaroo_giftcard_remainder);
+        $this->context->cookie->write();
     }
 
     private function processSuccessfulPayment($cartId, $customer, $response)
