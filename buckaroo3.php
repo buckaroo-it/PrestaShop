@@ -696,7 +696,9 @@ class Buckaroo3 extends PaymentModule
                     'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
+                    'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
+                    'buckarooGiftcardApplied'    => (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0),
+                    'buckarooGiftcardRemainder'  => (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)

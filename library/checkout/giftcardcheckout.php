@@ -22,9 +22,6 @@ if (!defined('_PS_VERSION_')) {
 
 class GiftCardCheckout extends Checkout
 {
-    /** @var bool Whether card number and PIN were submitted directly */
-    private $hasCardDetails = false;
-
     /**
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
@@ -33,26 +30,10 @@ class GiftCardCheckout extends Checkout
     {
         parent::setCheckout();
 
-        $cardNumber = Tools::getValue('giftcard_card_number');
-        $securityCode = Tools::getValue('giftcard_security_code');
-
-        if (!empty($cardNumber) && !empty($securityCode)) {
-            $this->hasCardDetails = true;
-            $this->customVars = [
-                'cardNumber' => $cardNumber,
-                'pin'        => $securityCode,
-            ];
-
-            $cardCode = Tools::getValue('cardCode');
-            if (!empty($cardCode)) {
-                $this->customVars['name'] = $cardCode;
-            }
-        } else {
-            $this->customVars = [
-                'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
-                'continueOnIncomplete'       => '1',
-            ];
-        }
+        $this->customVars = [
+            'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
+            'continueOnIncomplete'       => '1',
+        ];
 
         if (!empty($this->customer->email) && Validate::isEmail($this->customer->email)) {
             $this->customVars['additionalParameters'] = [
@@ -63,16 +44,12 @@ class GiftCardCheckout extends Checkout
 
     public function startPayment()
     {
-        if ($this->hasCardDetails) {
-            $this->payment_response = $this->payment_request->payDirect($this->customVars);
-        } else {
-            $this->payment_response = $this->payment_request->pay($this->customVars);
-        }
+        $this->payment_response = $this->payment_request->pay($this->customVars);
     }
 
     public function isRedirectRequired()
     {
-        return !$this->hasCardDetails;
+        return true;
     }
 
     public function isVerifyRequired()
