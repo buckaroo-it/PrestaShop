@@ -60,7 +60,15 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         $cardCode     = (string) Tools::getValue('cardCode', '');
 
         if (empty($cardNumber) || empty($securityCode)) {
-            $this->redirectWithError($this->module->l('Please fill in all giftcard fields.'));
+            // Card details missing – if a giftcard is already applied the customer should
+            // choose another payment method for the remaining balance rather than re-apply.
+            $alreadyApplied  = (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
+            $alreadyRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+            if ($alreadyApplied > 0 && $alreadyRemainder > 0) {
+                $this->redirectWithGiftcardApplied($alreadyApplied, $alreadyRemainder);
+            } else {
+                $this->redirectWithError($this->module->l('Please fill in all giftcard fields.'));
+            }
             return;
         }
 
