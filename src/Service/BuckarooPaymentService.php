@@ -197,7 +197,7 @@ class BuckarooPaymentService
         }
 
         $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]))
+            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
             ->setModuleName($method);
 
         $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
