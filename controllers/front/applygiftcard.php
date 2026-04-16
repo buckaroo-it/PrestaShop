@@ -19,6 +19,8 @@ include_once __DIR__ . '/../../api/paymentmethods/paymentrequestfactory.php';
 include_once __DIR__ . '/../../library/logger.php';
 include_once __DIR__ . '/common.php';
 
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -132,7 +134,19 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             'group_tx'  => $groupTransaction,
         ]);
 
-        // Persist giftcard state so the next payment step can reference it
+        // Persist the partial payment to the DB so the checkout summary can reflect it
+        // across page reloads and after Buckaroo push confirmation.
+        $groupTransactionService = new BuckarooGroupTransactionService();
+        $groupTransactionService->saveGroupTransaction((int) $cart->id, [
+            'transaction_key'      => $transactionKey,
+            'group_transaction_id' => $groupTransaction,
+            'amount'               => $appliedAmount,
+            'currency'             => $currency->iso_code,
+            'card_code'            => $cardCode,
+            'status'               => 190,
+        ]);
+
+        // Also store in session cookies as fast-access cache for this page-load
         $this->context->cookie->buckaroo_giftcard_group_tx  = $groupTransaction;
         $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
         $this->context->cookie->buckaroo_giftcard_applied   = (string) $appliedAmount;
@@ -181,6 +195,10 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
         $orderId = $this->module->currentOrder;
         $order   = new Order($orderId);
+
+        // Link all group-transaction rows for this cart to the newly created order
+        $groupTransactionService = new BuckarooGroupTransactionService();
+        $groupTransactionService->linkOrderToCart((int) $cart->id, (int) $orderId);
 
         $payment                  = new OrderPayment();
         $payment->order_reference = $order->reference;

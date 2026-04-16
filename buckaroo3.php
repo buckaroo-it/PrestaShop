@@ -35,6 +35,7 @@ use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -42,7 +43,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.1.1';
+    const MODULE_VERSION = '5.2.0';
     
     public $logger;
 
@@ -697,8 +698,8 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
-                    'buckarooGiftcardApplied'    => (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0),
-                    'buckarooGiftcardRemainder'  => (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0),
+                    'buckarooGiftcardApplied'    => $this->getGiftcardAlreadyPaid($cart),
+                    'buckarooGiftcardRemainder'  => $this->getGiftcardRemainingAmount($cart),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
@@ -721,6 +722,11 @@ class Buckaroo3 extends PaymentModule
         PrestaShopLogger::addLog('Buckaroo: ensureBuckarooJsLoaded() START - Controller: ' . ($this->context->controller ? get_class($this->context->controller) : 'null'), 1);
         
         try {
+            $cart = $this->context->cart;
+            $alreadyPaid     = $cart ? $this->getGiftcardAlreadyPaid($cart) : 0;
+            $remainingAmount = $cart ? $this->getGiftcardRemainingAmount($cart) : 0;
+            $displayItems    = $cart ? $this->getGiftcardDisplayItems($cart) : [];
+
             Media::addJsDef([
                 'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
                 'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
@@ -735,6 +741,16 @@ class Buckaroo3 extends PaymentModule
                         'age' => $this->l('You must be at least 18 years old'),
                     ],
                 ],
+                'buckarooAlreadyPaidData' => [
+                    'alreadyPaid'     => $alreadyPaid,
+                    'remainingAmount' => $remainingAmount,
+                    'giftcardItems'   => $displayItems,
+                    'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
+                ],
+                'buckarooAlreadyPaidLabels' => [
+                    'paidWith'  => $this->l('Paid with Giftcard'),
+                    'remaining' => $this->l('Remaining Amount'),
+                ],
             ]);
             
             $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
@@ -746,6 +762,14 @@ class Buckaroo3 extends PaymentModule
                     [
                         'position' => 'bottom',
                         'priority' => 200,
+                    ]
+                );
+                $this->context->controller->registerJavascript(
+                    'module-buckaroo3-already-paid',
+                    'modules/' . $this->name . '/views/js/already-paid.js',
+                    [
+                        'position' => 'bottom',
+                        'priority' => 210,
                     ]
                 );
                 PrestaShopLogger::addLog('Buckaroo: Script registered successfully. Path: ' . $jsPath, 1);
@@ -824,6 +848,83 @@ class Buckaroo3 extends PaymentModule
         
         // Return empty string (we just need to load the JS)
         return '';
+    }
+
+    /**
+     * Inject "Paid with X Giftcard" and "Remaining Amount" lines into the
+     * checkout order summary. Mirrors the Magento 2 BuckarooAlreadyPay quote
+     * total segment rendered by hookDisplayShoppingCartFooter.
+     */
+    public function hookDisplayShoppingCartFooter($params)
+    {
+        $cart = $this->context->cart;
+        if (!$cart || !Validate::isLoadedObject($cart)) {
+            return '';
+        }
+
+        $alreadyPaid = $this->getGiftcardAlreadyPaid($cart);
+        if ($alreadyPaid <= 0) {
+            return '';
+        }
+
+        $remainingAmount = $this->getGiftcardRemainingAmount($cart);
+        $displayItems    = $this->getGiftcardDisplayItems($cart);
+
+        $this->context->smarty->assign([
+            'buckarooAlreadyPaid'     => $alreadyPaid,
+            'buckarooRemainingAmount' => $remainingAmount,
+            'buckarooGiftcardItems'   => $displayItems,
+            'currency'                => $this->context->currency,
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/hook/already-paid.tpl');
+    }
+
+    /**
+     * Get the total amount already paid via gift card(s) for the current cart.
+     * Prefers the DB (persistent across page loads) with a cookie fallback for
+     * the brief window between applygiftcard redirect and the next page load.
+     *
+     * @param \Cart $cart
+     * @return float
+     */
+    private function getGiftcardAlreadyPaid(\Cart $cart): float
+    {
+        $service   = new BuckarooGroupTransactionService();
+        $dbAmount  = $service->getAlreadyPaid((int) $cart->id);
+        if ($dbAmount > 0) {
+            return $dbAmount;
+        }
+        return (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
+    }
+
+    /**
+     * Get the remaining amount to pay after gift card deductions.
+     *
+     * @param \Cart $cart
+     * @return float
+     */
+    private function getGiftcardRemainingAmount(\Cart $cart): float
+    {
+        $service  = new BuckarooGroupTransactionService();
+        $dbAmount = $service->getAlreadyPaid((int) $cart->id);
+        if ($dbAmount > 0) {
+            $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            return $service->getRemainingAmount((int) $cart->id, $cartTotal);
+        }
+        return (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+    }
+
+    /**
+     * Get display-ready gift card rows (label + amount) for the current cart.
+     *
+     * @param \Cart $cart
+     * @return array
+     */
+    private function getGiftcardDisplayItems(\Cart $cart): array
+    {
+        $service = new BuckarooGroupTransactionService();
+        return $service->getDisplayItems((int) $cart->id);
     }
 
     /**

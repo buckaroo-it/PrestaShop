@@ -125,6 +125,22 @@
                 `created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
+            $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_group_transaction` (
+				`id`                    INT(11) AUTO_INCREMENT PRIMARY KEY,
+				`cart_id`               INT(11) NOT NULL,
+				`order_id`              INT(11) DEFAULT NULL,
+				`transaction_key`       VARCHAR(255) NOT NULL,
+				`group_transaction_id`  VARCHAR(255) DEFAULT NULL,
+				`amount`                DOUBLE PRECISION NOT NULL,
+				`refunded_amount`       DOUBLE PRECISION DEFAULT 0,
+				`currency`              VARCHAR(10) NOT NULL,
+				`card_code`             VARCHAR(100) DEFAULT NULL,
+				`status`                INT(11) DEFAULT 0,
+                `created_at`            TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+				INDEX cart_idx (cart_id),
+				INDEX tx_key_idx (transaction_key)
+			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
             return $sql;
         }
     }
