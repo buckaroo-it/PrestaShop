@@ -55,6 +55,27 @@
                 </div>
             </div>
         </div>
+        <div class="row row-padding" style="margin: 25px 0 0 0">
+            <div class="col-xs-1">
+                <span class="custom-checkbox">
+                    <input id="bpe_in3_accept" name="bpe_in3_accept" required="" type="checkbox" value="ON">
+                    <span>
+                        <i class="material-icons checkbox-checked">&#xE5CA;</i>
+                    </span>
+                </span>
+            </div>
+            <div class="col-xs-11">
+                <label class="required" for="bpe_in3_accept" style="display: inline">
+                    {l s='Ik accepteer de' mod='buckaroo3'}
+                    <a href="https://www.in3.nl/voorwaarden/" target="_blank" style="text-decoration: underline">{l s='Algemene Voorwaarden' mod='buckaroo3'}</a>,
+                    <a href="https://www.in3.nl/privacy/" target="_blank" style="text-decoration: underline">{l s='Privacyverklaring' mod='buckaroo3'}</a>
+                    {l s='en' mod='buckaroo3'}
+                    <a href="https://www.in3.nl/cookieverklaring/" target="_blank" style="text-decoration: underline">{l s='Cookieverklaring' mod='buckaroo3'}</a>
+                    {l s='van in3.' mod='buckaroo3'}
+                </label>
+            </div>
+        </div>
+
             {if ($country == 'NL' && $methodsWithFinancialWarning['in3']) }
                 <p class="small">
                     {l s=$methodsWithFinancialWarning['warningText'] sprintf=['in3'] mod='buckaroo3'}

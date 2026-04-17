@@ -347,6 +347,13 @@ function buckaroo() {
             if (invalid) {
                 methodValidator.valid = false;
             }
+        }, in3Trigger: () => {
+            // Check that the customer has accepted in3's T&C checkbox
+            let invalid = !$("#bpe_in3_accept").is(':checked');
+            methodValidator.displayMessage($("#bpe_in3_accept").closest('.row'), buckarooMessages.validation.agreement, !invalid);
+            if (invalid) {
+                methodValidator.valid = false;
+            }
         }, sepaDirectdebitTrigger: () => {
             let invalid = !validateIBAN($("#bpe_sepadirectdebit_iban").val());
             methodValidator.displayMessage($("#bpe_sepadirectdebit_iban"), buckarooMessages.validation.iban, !invalid);
@@ -388,6 +395,10 @@ function buckaroo() {
             methodValidator.requiredAll();
             // we validate based on the selected method
             switch (methodValidator.methodSelector) {
+                case 'in3':
+                case 'in3Old':
+                    methodValidator.in3Trigger();
+                    break;
                 case 'sepadirectdebit':
                     methodValidator.sepaDirectdebitTrigger();
                     break;
