@@ -16,6 +16,7 @@
  */
 
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
 include_once __DIR__ . '/../../library/logger.php';
@@ -97,6 +98,22 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
             if ($response->brq_relatedtransaction_partialpayment != null) {
                 $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
+
+                // Confirm the gift card group-transaction row in the DB regardless of whether
+                // the order exists yet (the push may arrive before validateOrder completes).
+                $groupTransactionService = new BuckarooGroupTransactionService();
+                if ($response->hasSucceeded()) {
+                    $groupTransactionService->updateGroupTransactionStatus(
+                        (string) $response->transactions,
+                        190
+                    );
+                } else {
+                    $groupTransactionService->updateGroupTransactionStatus(
+                        (string) $response->transactions,
+                        (int) $response->status
+                    );
+                }
+
                 if ($id_order && $response->hasSucceeded()) {
                     $order = new Order($id_order);
                     $order->setInvoice(false);
@@ -115,6 +132,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
                         VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
                     );
+
+                    // Link group-transaction rows to the order if not already done
+                    if ($order->id_cart) {
+                        $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
+                    }
 
                     $message = new Message();
                     $message->id_order = $id_order;

@@ -115,6 +115,7 @@ class Installer implements InstallerInterface
             'displayProductExtraContent',
             'actionProductFormBuilderModifier',
             'actionAfterUpdateProductFormHandler',
+            'displayShoppingCartFooter',
         ];
     }
 

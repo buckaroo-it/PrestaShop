@@ -16,6 +16,7 @@
  */
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
@@ -143,12 +144,20 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             ]);
 
             $buckarooFees = $presentedCart['_buckarooFees'] ?? [];
+
+            $groupTransactionService = new BuckarooGroupTransactionService();
+            $cartTotal   = (float) $cart->getOrderTotal(true, Cart::BOTH);
+            $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $cart->id);
+
             $responseArray = [
                 'cart_summary_totals' => $this->render('checkout/_partials/cart-summary-totals'),
                 'paymentFee' => $buckarooFees['paymentFee'] ?? ($presentedCart['totals']['paymentFee'] ?? null),
                 'paymentFeeTax' => $buckarooFees['paymentFeeTax'] ?? ($presentedCart['totals']['paymentFeeTax'] ?? null),
                 'paymentFeeTotal' => $buckarooFees['paymentFeeTotal'] ?? ($presentedCart['totals']['paymentFeeTotal'] ?? null),
                 'includedTaxes' => $presentedCart['totals']['includedTaxes'] ?? null,
+                'alreadyPaid'     => $alreadyPaid,
+                'remainingAmount' => $groupTransactionService->getRemainingAmount((int) $cart->id, $cartTotal),
+                'giftcardItems'   => $groupTransactionService->getDisplayItems((int) $cart->id),
             ];
 
             $this->ajaxRender(json_encode($responseArray));

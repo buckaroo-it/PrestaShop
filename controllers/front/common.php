@@ -100,4 +100,51 @@ class BuckarooCommonController extends ModuleFrontController
     {
         parent::initContent();
     }
+
+    /**
+     * If a giftcard was applied before the current payment (partial coverage),
+     * record it as an OrderPayment on the order and add the amount to total_paid_real.
+     * Clears all giftcard session cookies afterwards.
+     */
+    protected function recordAppliedGiftcardPayment(int $orderId): void
+    {
+        $applied = (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
+        $groupTx = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+
+        if ($applied <= 0 || empty($groupTx)) {
+            return;
+        }
+
+        $order = new Order($orderId);
+        if (!Validate::isLoadedObject($order)) {
+            return;
+        }
+
+        $payment                  = new OrderPayment();
+        $payment->order_reference = $order->reference;
+        $payment->id_currency     = $order->id_currency;
+        $payment->conversion_rate = 1;
+        $payment->amount          = $applied;
+        $payment->payment_method  = (string) ($this->context->cookie->buckaroo_giftcard_card_code ?: 'giftcard');
+        $payment->transaction_id  = (string) ($this->context->cookie->buckaroo_giftcard_tx_key ?? '');
+        $payment->save();
+
+        $order->total_paid_real = (float) $order->total_paid_real + $applied;
+        $order->save();
+
+        $this->clearGiftcardCookies();
+    }
+
+    /**
+     * Unset all giftcard partial-payment session cookies.
+     */
+    protected function clearGiftcardCookies(): void
+    {
+        unset($this->context->cookie->buckaroo_giftcard_group_tx);
+        unset($this->context->cookie->buckaroo_giftcard_remainder);
+        unset($this->context->cookie->buckaroo_giftcard_applied);
+        unset($this->context->cookie->buckaroo_giftcard_tx_key);
+        unset($this->context->cookie->buckaroo_giftcard_card_code);
+        $this->context->cookie->write();
+    }
 }

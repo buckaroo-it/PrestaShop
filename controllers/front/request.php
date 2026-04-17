@@ -398,13 +398,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
+        // If a giftcard was applied before this payment, record it on the order now
+        $this->recordAppliedGiftcardPayment((int) $id_order);
+
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
-            'id_cart' => $cartId,
-            'id_module' => $this->module->id,
-            'id_order' => $id_order,
-            'key' => $customer->secure_key,
-            'success' => 'true',
-            'response_received' => $response->payment_method
+            'id_cart'           => $cartId,
+            'id_module'         => $this->module->id,
+            'id_order'          => $id_order,
+            'key'               => $customer->secure_key,
+            'success'           => 'true',
+            'response_received' => $response->payment_method,
         ]));
     }
 
