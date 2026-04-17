@@ -602,4 +602,99 @@ function buckaroo() {
     }
 
     new BuckarooApplePay().init();
+
+    // -----------------------------------------------------------------------
+    // BNPL phone field dynamic update
+    // When the customer navigates back to the address step and changes their
+    // phone number, the payment step must reflect that change without a full
+    // page reload.  We call the lightweight `getPhoneStatus` AJAX action and
+    // toggle the visibility of each phone row + the type of its input element.
+    // -----------------------------------------------------------------------
+
+    /**
+     * Apply a phone value to a BNPL phone row.
+     *
+     * @param {jQuery} $row   The wrapper div (e.g. #bk-in3-phone-row)
+     * @param {jQuery} $input The single <input> inside that row
+     * @param {string} phone  The phone value from the address (empty string = none)
+     */
+    function applyPhoneToRow($row, $input, phone) {
+        if (!$row.length || !$input.length) {
+            return;
+        }
+        if (phone) {
+            // Phone available from address: hide the visible row, carry the value
+            // in a hidden field so the backend receives it on form submit.
+            $input.attr('type', 'hidden').val(phone);
+            $row.hide();
+        } else {
+            // No phone in address: let the customer fill it in.
+            $input.attr('type', 'text').val('');
+            $row.show();
+        }
+    }
+
+    function fetchAndUpdateBnplPhoneFields() {
+        if (typeof buckarooAjaxUrl === 'undefined' || !buckarooAjaxUrl) {
+            return;
+        }
+
+        $.ajax({
+            url: buckarooAjaxUrl,
+            method: 'GET',
+            data: { ajax: 1, action: 'getPhoneStatus' },
+            dataType: 'json',
+            success: function (response) {
+                if (!response || response.error) {
+                    return;
+                }
+
+                var deliveryPhone = response.delivery_phone || '';
+                var billingPhone  = response.billing_phone  || '';
+
+                // In3
+                var $in3Row   = $('#bk-in3-phone-row');
+                var $in3Input = $in3Row.find('#customer_phone');
+                applyPhoneToRow($in3Row, $in3Input, deliveryPhone);
+
+                // Riverty / Afterpay billing
+                var $afterpayRow   = $('#bk-afterpay-billing-phone-row');
+                var $afterpayInput = $afterpayRow.find('#phone_afterpay_billing_digi');
+                applyPhoneToRow($afterpayRow, $afterpayInput, billingPhone);
+            }
+        });
+    }
+
+    // Trigger on PrestaShop checkout events that fire after address changes.
+    // PS 1.7/8 fires these on the document/body when the delivery or cart state
+    // is updated (e.g. customer clicks "Continue" on the address step).
+    $(document).on(
+        'updatedDeliveryForm updateCart updated_delivery_form',
+        fetchAndUpdateBnplPhoneFields
+    );
+    $('body').on('updateCart', fetchAndUpdateBnplPhoneFields);
+
+    // Watch for the payment step becoming the active step.  PrestaShop's
+    // classic theme marks the current step with `-current`; some custom themes
+    // use `js-current-step`.  A MutationObserver on the step element is the
+    // most reliable way to detect this transition.
+    var paymentStepEl = document.getElementById('checkout-payment-step');
+    if (paymentStepEl) {
+        var _paymentStepWasActive = $(paymentStepEl).hasClass('-current') ||
+                                    $(paymentStepEl).hasClass('js-current-step');
+
+        new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') {
+                    return;
+                }
+                var isActive = $(paymentStepEl).hasClass('-current') ||
+                               $(paymentStepEl).hasClass('js-current-step');
+                if (isActive && !_paymentStepWasActive) {
+                    fetchAndUpdateBnplPhoneFields();
+                }
+                _paymentStepWasActive = isActive;
+            });
+        }).observe(paymentStepEl, { attributes: true });
+    }
 }

@@ -59,6 +59,8 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             $action = Tools::getValue('action');
             if ($action === 'getTotalCartPrice') {
                 $this->calculateTotalWithPaymentFee();
+            } elseif ($action === 'getPhoneStatus') {
+                $this->getPhoneStatus();
             } else {
                 $this->ajaxRender(json_encode([
                     'error' => true,
@@ -107,6 +109,53 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 'includedTaxes' => null,
             ]));
         }
+    }
+
+    /**
+     * Returns the delivery and billing address phone numbers for the current cart.
+     * Used by the frontend to dynamically show/hide BNPL phone fields.
+     */
+    private function getPhoneStatus()
+    {
+        $cart = $this->context->cart;
+        if (!$cart || !Validate::isLoadedObject($cart)) {
+            $this->ajaxRender(json_encode(['error' => true, 'delivery_phone' => '', 'billing_phone' => '']));
+            return;
+        }
+
+        $customer = new Customer((int) $cart->id_customer);
+        $idLang = (int) $this->context->language->id;
+        $addresses = $customer->getAddresses($idLang);
+
+        $phone = '';
+        $phoneMobile = '';
+        $phoneBilling = '';
+        $phoneMobileBilling = '';
+
+        foreach ($addresses as $address) {
+            if ((int) $address['id_address'] === (int) $cart->id_address_delivery) {
+                $phone = $address['phone'];
+                $phoneMobile = $address['phone_mobile'];
+            }
+            if ((int) $address['id_address'] === (int) $cart->id_address_invoice) {
+                $phoneBilling = $address['phone'];
+                $phoneMobileBilling = $address['phone_mobile'];
+            }
+        }
+
+        $deliveryPhone = !empty($phoneMobile) ? $phoneMobile : $phone;
+
+        $billingPhone = '';
+        if (!empty($phoneMobileBilling)) {
+            $billingPhone = $phoneMobileBilling;
+        } elseif (!empty($phoneBilling)) {
+            $billingPhone = $phoneBilling;
+        }
+
+        $this->ajaxRender(json_encode([
+            'delivery_phone' => $deliveryPhone,
+            'billing_phone'  => $billingPhone,
+        ]));
     }
 
     /**

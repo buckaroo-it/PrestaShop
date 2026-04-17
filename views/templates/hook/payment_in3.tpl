@@ -17,27 +17,44 @@
     <form name="booIn3Form" id="booIn3Form"
           action="{$link->getModuleLink('buckaroo3', 'request', ['method' => {$in3Method|escape:'html':'UTF-8'}])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
 
-        {if empty($phone) && empty($phone_mobile)}
+        {* Resolve which phone value is available from the address *}
+        {if !empty($phone)}
+            {assign var='bk_in3_phone' value=$phone}
+        {elseif !empty($phone_mobile)}
+            {assign var='bk_in3_phone' value=$phone_mobile}
+        {else}
+            {assign var='bk_in3_phone' value=''}
+        {/if}
+
+        {*
+         * Phone row wrapper — hidden when the address already supplies a phone.
+         * The JS updater (fetchAndUpdateBnplPhoneFields) can re-show this wrapper and
+         * flip the input type back to "text" if the customer removes the phone from
+         * their address, and vice-versa.
+         *}
+        <div id="bk-in3-phone-row" class="bk-bnpl-phone-row"{if !empty($bk_in3_phone)} style="display:none"{/if}>
             <div id="booIn3Err" class="booBlAnimError">
                 {l s='Phone number is required' mod='buckaroo3'}
             </div>
-
             <div class="row row-padding">
                 <div class="col-xs-3">
                     <label class="required">{l s='Phone number' mod='buckaroo3'}:</label>
                 </div>
                 <div class="col-xs-9">
-                    <input name="customer_phone" id="customer_phone" value="{$phone|escape:'html':'UTF-8'}" type="text" class="form-control bk-form-control-large"/>
+                    {*
+                     * Single input — type is "hidden" (with the address phone value) when the
+                     * address already has a phone so the value is passed to the backend without
+                     * bothering the customer; type is "text" when the address has no phone so
+                     * the customer can fill it in themselves.
+                     *}
+                    <input name="customer_phone"
+                           id="customer_phone"
+                           type="{if !empty($bk_in3_phone)}hidden{else}text{/if}"
+                           value="{$bk_in3_phone|escape:'html':'UTF-8'}"
+                           class="form-control bk-form-control-large"/>
                 </div>
             </div>
-        {else}
-            {* Phone number is already available in the address information.
-               Provide it as a hidden field so the checkout logic can still use it without asking again. *}
-            <input type="hidden"
-                   name="customer_phone"
-                   id="customer_phone"
-                   value="{if !empty($phone)}{$phone|escape:'html':'UTF-8'}{else}{$phone_mobile|escape:'html':'UTF-8'}{/if}"/>
-        {/if}
+        </div>
             {if ($country == 'NL' && $methodsWithFinancialWarning['in3']) }
                 <p class="small">
                     {l s=$methodsWithFinancialWarning['warningText'] sprintf=['in3'] mod='buckaroo3'}
