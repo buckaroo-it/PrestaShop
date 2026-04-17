@@ -66,12 +66,9 @@
             </div>
             <div class="col-xs-11">
                 <label class="required" for="bpe_in3_accept" style="display: inline">
-                    {l s='Ik accepteer de' mod='buckaroo3'}
-                    <a href="https://www.in3.nl/voorwaarden/" target="_blank" style="text-decoration: underline">{l s='Algemene Voorwaarden' mod='buckaroo3'}</a>,
-                    <a href="https://www.in3.nl/privacy/" target="_blank" style="text-decoration: underline">{l s='Privacyverklaring' mod='buckaroo3'}</a>
-                    {l s='en' mod='buckaroo3'}
-                    <a href="https://www.in3.nl/cookieverklaring/" target="_blank" style="text-decoration: underline">{l s='Cookieverklaring' mod='buckaroo3'}</a>
-                    {l s='van in3.' mod='buckaroo3'}
+                    <a href="https://www.in3.nl/voorwaarden/" target="_blank" style="text-decoration: underline">
+                        {l s='Ik accepteer de Algemene Voorwaarden, Privacyverklaring en Cookieverklaring van in3.' mod='buckaroo3'}
+                    </a>
                 </label>
             </div>
         </div>
