@@ -30,7 +30,12 @@
         {/if}
         {l s='Please provide additional data for Riverty.' mod='buckaroo3'}<br/><br/>
 
-        {if empty($phone_afterpay_billing)}
+        {*
+         * Phone row wrapper — hidden when the billing address already supplies a phone.
+         * The JS updater (fetchAndUpdateBnplPhoneFields) can toggle this at runtime if
+         * the customer navigates back and changes the phone in their address.
+         *}
+        <div id="bk-afterpay-billing-phone-row" class="bk-bnpl-phone-row"{if !empty($phone_afterpay_billing)} style="display:none"{/if}>
             <div class="row row-padding">
                 <div class="col-sm-5">
                     <label for="phone_afterpay_billing_digi"
@@ -39,24 +44,19 @@
                     </label>
                 </div>
                 <div class="col-sm-7">
-                    <input type="text"
-                           class="form-control bk-form-control-large"
-                           id="phone_afterpay_billing_digi"
+                    {*
+                     * Single input — type "hidden" with the address phone when already provided,
+                     * type "text" when the customer must supply it themselves.
+                     *}
+                    <input id="phone_afterpay_billing_digi"
                            name="phone_afterpay_billing"
+                           type="{if !empty($phone_afterpay_billing)}hidden{else}text{/if}"
+                           class="form-control bk-form-control-large"
                            value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
                     >
                 </div>
             </div>
-        {else}
-            {* Phone number is already available in the invoice address.
-               Provide it as a hidden field so the checkout logic can still use it without asking again. *}
-            <input type="hidden"
-                   class="form-control bk-form-control-large"
-                   id="phone_afterpay_billing_digi"
-                   name="phone_afterpay_billing"
-                   value="{$phone_afterpay_billing|escape:'html':'UTF-8'}"
-            >
-        {/if}
+        </div>
         
 
 
