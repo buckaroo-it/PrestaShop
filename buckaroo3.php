@@ -519,7 +519,7 @@ class Buckaroo3 extends PaymentModule
             return;
         }
 
-        $logMessage = sprintf('[Buckaroo3] %s: %s', $message, $exception->getMessage());
+        $logMessage = sprintf('Buckaroo: %s - %s', $message, $exception->getMessage());
         if (class_exists('\PrestaShopLogger')) {
             \PrestaShopLogger::addLog($logMessage, 2);
         } else {
@@ -604,10 +604,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-        PrestaShopLogger::addLog('Buckaroo: hookPaymentOptions() called', 1);
-        
         if (!$this->isActivated()) {
-            PrestaShopLogger::addLog('Buckaroo: Module not activated, returning empty array', 1);
             return [];
         }
 
@@ -730,8 +727,6 @@ class Buckaroo3 extends PaymentModule
      */
     private function ensureBuckarooJsLoaded()
     {
-        PrestaShopLogger::addLog('Buckaroo: ensureBuckarooJsLoaded() START - Controller: ' . ($this->context->controller ? get_class($this->context->controller) : 'null'), 1);
-        
         // Resolve gift card inline data separately so that a failure here
         // never prevents the core JS variables (buckarooAjaxUrl, buckarooFees)
         // from being registered.
@@ -793,7 +788,6 @@ class Buckaroo3 extends PaymentModule
                         'priority' => 210,
                     ]
                 );
-                PrestaShopLogger::addLog('Buckaroo: Script registered successfully. Path: ' . $jsPath, 1);
             } else {
                 PrestaShopLogger::addLog('Buckaroo: ERROR - No controller available to register script', 3);
             }
@@ -841,8 +835,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-
-        $this->ensureBuckarooJsLoaded();
+        $controller = $this->context->controller;
+        if ($controller && in_array($controller->php_self, ['order', 'order-opc'])) {
+            $this->ensureBuckarooJsLoaded();
+        }
 
         if (Tools::getValue('controller') === 'order' && Tools::getValue('buckaroo_error')) {
             $msg = urldecode((string) Tools::getValue('buckaroo_error_msg'));
