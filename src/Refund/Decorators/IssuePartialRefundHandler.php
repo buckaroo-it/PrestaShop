@@ -60,15 +60,17 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
      */
     public function handle(IssuePartialRefundCommand $command): void
     {
-        if (\Configuration::get(Settings::LABEL_REFUND_CONF)){
+        $buckarooRefundEnabled = (bool) \Configuration::get(Settings::LABEL_REFUND_CONF);
+
+        if ($buckarooRefundEnabled) {
             $refundSummary = $this->refundHandler->getRefundSummary($command);
-            $this->handler->handle($command);
-            if (
-                !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)
-            ) {
-                $this->refundHandler->execute($command, $refundSummary);
-                $this->session->remove(self::KEY_SKIP_REFUND_REQUEST);
-            }
+        }
+
+        $this->handler->handle($command);
+
+        if ($buckarooRefundEnabled && !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)) {
+            $this->refundHandler->execute($command, $refundSummary);
+            $this->session->remove(self::KEY_SKIP_REFUND_REQUEST);
         }
     }
 }
