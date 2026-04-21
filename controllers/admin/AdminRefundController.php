@@ -134,11 +134,7 @@ class AdminRefundController extends FrameworkBundleAdminController
         }
         $maxRefundAmount -= $refundAmount;
 
-        try {
-            $this->orderService->refund($order, $refundAmount);
-        } catch (\Throwable $th) {
-            // Silently handle refund errors
-        }
+        $this->orderService->refund($order, $refundAmount);
 
         $body = $this->refundBuilder->create($order, $payment, $refundAmount);
 
