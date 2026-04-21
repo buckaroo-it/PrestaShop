@@ -70,17 +70,17 @@
                 <input title="Day" name="customerbirthdate_d_billing" id="customerbirthdate_d_billing_digi"
                        type="text" value="{$customer_birthday[2]|escape:'html':'UTF-8'}"
                        class="form-control bk-form-control-small" style="width: 50px;"
-                       autocomplete="off" maxlength="2"/>
+                       autocomplete="off" maxlength="2" placeholder="{l s='DD' mod='buckaroo3'}"/>
                 {l s='DD' mod='buckaroo3'}
                 <input title="Month" name="customerbirthdate_m_billing" id="customerbirthdate_m_billing_digi"
                        type="text" value="{$customer_birthday[1]|escape:'html':'UTF-8'}"
                        class="form-control bk-form-control-small" style="width: 50px;"
-                       autocomplete="off" maxlength="2"/>
+                       autocomplete="off" maxlength="2" placeholder="{l s='MM' mod='buckaroo3'}"/>
                 {l s='MM' mod='buckaroo3'}
                 <input title="Year" name="customerbirthdate_y_billing" id="customerbirthdate_y_billing_digi"
                        type="text" value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
                        class="form-control bk-form-control-middle" style="width: 70px;"
-                       autocomplete="off" maxlength="4"/>
+                       autocomplete="off" maxlength="4" placeholder="{l s='YYYY' mod='buckaroo3'}"/>
                 {l s='YYYY' mod='buckaroo3'}
             </div>
         </div>
@@ -97,17 +97,20 @@
                     <input title="Day" name="customerbirthdate_d_shipping"
                            id="customerbirthdate_d_shipping_digi" type="text"
                            value="{$customer_birthday[2]|escape:'html':'UTF-8'}"
-                           class="form-control bk-form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"
+                           placeholder="{l s='DD' mod='buckaroo3'}"/>
                     {l s='DD' mod='buckaroo3'}
                     <input title="Month" name="customerbirthdate_m_shipping"
                            id="customerbirthdate_m_shipping_digi" type="text"
                            value="{$customer_birthday[1]|escape:'html':'UTF-8'}"
-                           class="form-control bk-form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"
+                           placeholder="{l s='MM' mod='buckaroo3'}"/>
                     {l s='MM' mod='buckaroo3'}
                     <input title="Year" name="customerbirthdate_y_shipping"
                            id="customerbirthdate_y_shipping_digi" type="text"
                            value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
-                           class="form-control bk-form-control-small" autocomplete="off"/>
+                           class="form-control bk-form-control-small" autocomplete="off"
+                           placeholder="{l s='YYYY' mod='buckaroo3'}"/>
                     {l s='YYYY' mod='buckaroo3'}
                 </div>
             </div>
@@ -142,6 +145,19 @@
             </div>
         {/if}
 
+        {if $country == 'NL'}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/nl_nl/'}
+        {elseif $country == 'BE'}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/be_nl/'}
+        {elseif $country == 'DE'}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/de_de/'}
+        {elseif $country == 'AT'}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/at_de/'}
+        {elseif $country == 'FI'}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/fi_fi/'}
+        {else}
+            {assign var='riverty_tc_url' value='https://documents.riverty.com/terms_conditions/payment_methods/invoice/'}
+        {/if}
         <div class="row row-padding" style="margin: 25px 0 0 0">
 
             <!--div class="col-xs-12 hidden"><label class="required"></label></div-->
@@ -156,7 +172,7 @@
             </div>
             <div class="col-xs-11">
                 <label class="required" for="bpe_afterpay_accept" style="display: inline">
-                    <a href="https://www.afterpay.nl/nl/klantenservice/betalingsvoorwaarden/"
+                    <a href="{$riverty_tc_url}"
                             target="_blank"
                             style="text-decoration: underline">
                         {l s='Ik accepteer de algemene voorwaarden van Riverty.' mod='buckaroo3'}
