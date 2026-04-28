@@ -63,10 +63,6 @@ class RawPaymentMethodRepository
         $configValue = ['mode' => 'off'];
 
         switch ($paymentName) {
-            case 'klarna':
-                $configValue['financial_warning'] = true;
-                break;
-
             case 'creditcard':
                 $configValue['show_issuers'] = true;
                 $configValue['display_type'] = 'radio';
@@ -78,7 +74,6 @@ class RawPaymentMethodRepository
 
             case 'in3':
                 $configValue['version'] = 'V3';
-                $configValue['financial_warning'] = true;
                 break;
 
             case 'paypal':
@@ -88,7 +83,6 @@ class RawPaymentMethodRepository
             case 'afterpay':
             case 'billink':
                 $configValue['customer_type'] = 'B2C';
-                $configValue['financial_warning'] = true;
                 break;
 
             case 'payperemail':
