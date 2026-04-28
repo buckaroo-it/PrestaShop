@@ -17,7 +17,32 @@ class BuckarooFeeManager {
     init() {
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
-        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+        this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
+    }
+
+    _findTotalsContainer() {
+        if ($('.card-block.cart-summary-totals').length) {
+            return $('.card-block.cart-summary-totals').first();
+        }
+        if ($('.card-body.cart-summary-totals').length) {
+            return $('.card-body.cart-summary-totals').first();
+        }
+        return $('.cart-summary-totals').first();
+    }
+
+    _findSubtotalsContainer() {
+        const $existing = $('.cart-summary-subtotals-container');
+        if ($existing.length) {
+            return $existing;
+        }
+        const $totalsBlock = this._findTotalsContainer();
+        if ($totalsBlock.length) {
+            if (!$('#bk-fee-wrapper').length) {
+                $totalsBlock.before('<div id="bk-fee-wrapper" class="cart-summary-subtotals-container"></div>');
+            }
+            return $('#bk-fee-wrapper');
+        }
+        return $();
     }
 
     handlePaymentOptionChange($paymentOption) {
@@ -158,7 +183,7 @@ class BuckarooFeeManager {
         }
 
         const { cart_summary_totals, paymentFee, paymentFeeTax, includedTaxes } = response;
-        const $cartSummaryTotals = $('.card-block.cart-summary-totals');
+        const $cartSummaryTotals = this._findTotalsContainer();
 
         if (!$cartSummaryTotals.length) {
             console.warn('Cart summary totals container not found');
@@ -174,8 +199,8 @@ class BuckarooFeeManager {
         }
 
         // Re-initialize container reference after cart summary replacement
-        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
-        
+        this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
+
         // Re-initialize fee element references (they should not exist after removePaymentFee)
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
@@ -195,9 +220,9 @@ class BuckarooFeeManager {
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
         
-        // Ensure container reference is up to date
+        // Ensure container reference is up to date, with PS9 fallback
         if (!this.$cartSummarySubtotalsContainer || this.$cartSummarySubtotalsContainer.length === 0) {
-            this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+            this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
         }
 
         const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFee">
@@ -249,6 +274,7 @@ class BuckarooFeeManager {
     removePaymentFee() {
         $('#cart-subtotal-buckarooFee').remove();
         $('#cart-subtotal-buckarooFeeTax').remove();
+        $('#bk-fee-wrapper').remove();
     }
 }
 
