@@ -17,7 +17,7 @@
     <form id="booIdealForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'billink'])|escape:'quotes':'UTF-8'}" method="post" class="mb-2">
         <div class="row row-padding">
             <div class="col-xs-5">
-                <label class="required">{l s='Please select gender:' mod='buckaroo3'}</label>
+                <label class="required">{l s='Gender:' mod='buckaroo3'}</label>
             </div>
             <div class="col-xs-7">
                 <select name="bpe_billink_person_gender"

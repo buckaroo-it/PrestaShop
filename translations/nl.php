@@ -113,9 +113,20 @@ $_MODULE['<{buckaroo3}prestashop>payment_0b4e46282f66f986caae9d413b3d21b0'] = 'V
 $_MODULE['<{buckaroo3}prestashop>payment_afterpay_0b4e46282f66f986caae9d413b3d21b0'] = 'Vul alstublieft aanvullende gegevens in voor Riverty.';
 $_MODULE['<{buckaroo3}prestashop>payment_de6f8db3576c002f67d8e667cfbc00ff'] = 'Geboortedatum voor persoon van factuuradres';
 $_MODULE['<{buckaroo3}prestashop>payment_afterpay_de6f8db3576c002f67d8e667cfbc00ff'] = 'Geboortedatum voor persoon van factuuradres';
+// Date of birth (new label used in Riverty/afterpay and Billink)
+$_MODULE['<{buckaroo3}prestashop>payment_4965e9e891c3381d1ec7379f036131de'] = 'Geboortedatum';
+$_MODULE['<{buckaroo3}prestashop>payment_afterpay_4965e9e891c3381d1ec7379f036131de'] = 'Geboortedatum';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_4965e9e891c3381d1ec7379f036131de'] = 'Geboortedatum';
+// Date of birth (shipping) label used in Riverty/afterpay when billing and shipping addresses differ
+$_MODULE['<{buckaroo3}prestashop>payment_aff945f1c24fe3821254851ce65e9525'] = 'Geboortedatum (afleveradres)';
+$_MODULE['<{buckaroo3}prestashop>payment_afterpay_aff945f1c24fe3821254851ce65e9525'] = 'Geboortedatum (afleveradres)';
 $_MODULE['<{buckaroo3}prestashop>payment_350bfcb1e3cfb28ddff48ce525d4f139'] = 'DD';
 $_MODULE['<{buckaroo3}prestashop>payment_ad05f78187c942f9dd521605fa81f1ba'] = 'MM';
 $_MODULE['<{buckaroo3}prestashop>payment_8df34bb962577b90d574a51ed2ca757f'] = 'JJJJ';
+// DD / MM / JJJJ for Billink
+$_MODULE['<{buckaroo3}prestashop>payment_billink_350bfcb1e3cfb28ddff48ce525d4f139'] = 'DD';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_ad05f78187c942f9dd521605fa81f1ba'] = 'MM';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_8df34bb962577b90d574a51ed2ca757f'] = 'JJJJ';
 $_MODULE['<{buckaroo3}prestashop>payment_9c5deb329d8968844dcd60f94ed6d4cd'] = 'Geboortedatum voor persoon van afleveradres';
 $_MODULE['<{buckaroo3}prestashop>payment_ec003bdd4337c2e6c4c424e79dc41bf3'] = 'Ik accepteer de algemene voorwaarden van AfterPay.';
 $_MODULE['<{buckaroo3}prestashop>payment_8c4798f7b0dee03ef48a3be454963e68'] = 'U moet de BIC invullen';
@@ -127,6 +138,16 @@ $_MODULE['<{buckaroo3}prestashop>payment_36230a08292609c5ca5582a46a63ae55'] = 'B
 $_MODULE['<{buckaroo3}prestashop>payment_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Selecteer a.u.b. een geslacht';
 $_MODULE['<{buckaroo3}prestashop>payment_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Hij/hem';
 $_MODULE['<{buckaroo3}prestashop>payment_68b62df49a394689d2779ec0e4534e9b'] = 'Zij/haar';
+// Gender: label (replaces 'Please select gender:' in Billink)
+$_MODULE['<{buckaroo3}prestashop>payment_caa5b7a48ce4b1c1492c445446433fb5'] = 'Geslacht:';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_caa5b7a48ce4b1c1492c445446433fb5'] = 'Geslacht:';
+// He/him, She/her, They/Them, I prefer not to say for Billink
+$_MODULE['<{buckaroo3}prestashop>payment_billink_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Hij/hem';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_68b62df49a394689d2779ec0e4534e9b'] = 'Zij/haar';
+$_MODULE['<{buckaroo3}prestashop>payment_39056d267dad6001a11d789756d26512'] = 'Hen/hun';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_39056d267dad6001a11d789756d26512'] = 'Hen/hun';
+$_MODULE['<{buckaroo3}prestashop>payment_b8ce55ba025e0b423379182b33ea6773'] = 'Ik zeg liever niet';
+$_MODULE['<{buckaroo3}prestashop>payment_billink_b8ce55ba025e0b423379182b33ea6773'] = 'Ik zeg liever niet';
 $_MODULE['<{buckaroo3}prestashop>payment_creditcard_472210090b17f3fbe315e8df9eebffa5'] = 'Kies uw creditcard of debitcard';
 $_MODULE['<{buckaroo3}prestashop>payment_klarna_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Selecteer a.u.b. een geslacht';
 $_MODULE['<{buckaroo3}prestashop>payment_klarna_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Hij/hem';

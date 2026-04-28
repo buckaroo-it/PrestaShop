@@ -28,8 +28,6 @@
                 {l s='Invalid shipping address, cannot find house number' mod='buckaroo3'}
             </div>
         {/if}
-        {l s='Please provide additional data for Riverty.' mod='buckaroo3'}<br/><br/>
-
         {*
          * Phone row wrapper — hidden when the billing address already supplies a phone.
          * The JS updater (fetchAndUpdateBnplPhoneFields) can toggle this at runtime if
@@ -63,7 +61,7 @@
         <div class="row row-padding">
             <div class="col-xs-5">
                 <label class="required">
-                    {l s='Invoice person date of birth' mod='buckaroo3'} :
+                    {l s='Date of birth' mod='buckaroo3'}:
                 </label>
             </div>
             <div class="col-xs-7" id="afterpay_digi_date">
@@ -90,7 +88,7 @@
             <div class="row row-padding">
                 <div class="col-xs-5">
                     <label class="required">
-                        {l s='Shipping person date of Birth' mod='buckaroo3'} :
+                        {l s='Date of birth (shipping)' mod='buckaroo3'}:
                     </label>
                 </div>
                 <div class="col-xs-7">
