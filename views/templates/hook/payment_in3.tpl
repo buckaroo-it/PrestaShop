@@ -73,10 +73,5 @@
             </div>
         </div>
 
-            {if ($country == 'NL' && $methodsWithFinancialWarning['in3']) }
-                <p class="small">
-                    {l s=$methodsWithFinancialWarning['warningText'] sprintf=['in3'] mod='buckaroo3'}
-                </p>
-            {/if}
     </form>
 </section>

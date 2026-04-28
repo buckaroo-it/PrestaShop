@@ -76,29 +76,6 @@ class BuckarooPaymentServiceTest extends TestCase
         $this->assertTrue($service->isAvailableByAmount(9999.99, 'AFTERPAY'));
     }
 
-    public function testPaymentMethodsWithFinancialWarningUsesConfigValuesAndDefaults(): void
-    {
-        $service = $this->createService([
-            'klarna' => ['financial_warning' => false],
-            // afterpay omitted on purpose to test default "true"
-            'billink' => ['financial_warning' => true],
-            'in3' => ['financial_warning' => false],
-        ]);
-
-        $result = $service->paymentMethodsWithFinancialWarning();
-
-        $this->assertArrayHasKey('klarna', $result);
-        $this->assertArrayHasKey('afterpay', $result);
-        $this->assertArrayHasKey('billink', $result);
-        $this->assertArrayHasKey('in3', $result);
-        $this->assertArrayHasKey('warningText', $result);
-
-        $this->assertFalse($result['klarna']);
-        $this->assertTrue($result['afterpay'], 'Missing config should default to true');
-        $this->assertTrue($result['billink']);
-        $this->assertFalse($result['in3']);
-        $this->assertNotEmpty($result['warningText']);
-    }
 
     public function testGetPaymentOptionsReturnsConfiguredMethod(): void
     {

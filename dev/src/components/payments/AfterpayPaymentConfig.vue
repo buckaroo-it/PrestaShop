@@ -37,17 +37,14 @@
         </div>
       </div>
     </div>
-    <FinancialWarning />
 </template>
 
 <script>
 import {inject} from 'vue'
 import {useI18n} from "vue-i18n";
-import FinancialWarning from "../fields/FinancialWarning.vue";
 export default {
     name: "AfterpayPaymentConfig",
     components: {
-        FinancialWarning
     },
     setup(props) {
       const { t } = useI18n();

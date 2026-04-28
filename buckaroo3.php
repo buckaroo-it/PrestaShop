@@ -702,7 +702,6 @@ class Buckaroo3 extends PaymentModule
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
-                    'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),

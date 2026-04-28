@@ -1,17 +1,11 @@
 <template>
-  <div>
-    <FinancialWarning/>
-  </div>
+  <div></div>
 </template>
 
 <script>
-import FinancialWarning from "../fields/FinancialWarning.vue";
-
 export default {
   name: "In3PaymentConfig",
-  components: {
-    FinancialWarning
-  }
+  components: {}
 }
 </script>
 
