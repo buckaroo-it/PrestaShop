@@ -20,6 +20,7 @@ namespace Buckaroo\PrestaShop\Src\Refund\Decorators;
 use Buckaroo\PrestaShop\Src\Refund\Handler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
 use Buckaroo\PrestaShop\Src\Refund\StatusService;
+use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssuePartialRefundHandlerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -69,6 +70,8 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
     public function handle(IssuePartialRefundCommand $command): void
     {
         $buckarooRefundEnabled = (bool) \Configuration::get(Settings::LABEL_REFUND_CONF);
+        $orderId = $command->getOrderId()->getValue();
+        $feeSessionKey = 'buckaroo_include_fee_' . $orderId;
 
         if ($buckarooRefundEnabled) {
             $refundSummary = $this->refundHandler->getRefundSummary($command);
@@ -77,7 +80,18 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
         $this->handler->handle($command);
 
         if ($buckarooRefundEnabled && !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)) {
-            $this->refundHandler->execute($command, $refundSummary);
+            $feeAmount = 0.0;
+            if ($this->session->has($feeSessionKey)) {
+                $feeAmount = (float) $this->session->get($feeSessionKey);
+            }
+
+            $this->refundHandler->execute($command, $refundSummary, $feeAmount);
+
+            if ($feeAmount > 0.0) {
+                (new RawBuckarooFeeRepository())->markFeeRefunded($orderId);
+                $this->session->remove($feeSessionKey);
+            }
+
             $this->session->remove(self::KEY_SKIP_REFUND_REQUEST);
         } elseif (!$buckarooRefundEnabled) {
             $order = new \Order($command->getOrderId()->getValue());

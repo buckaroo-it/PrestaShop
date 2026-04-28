@@ -66,34 +66,37 @@ class Handler
     }
 
     /**
-     * Undocumented function
+     * Execute refund for all Buckaroo payments on the order.
      *
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
+     * @param OrderRefundSummary $refundSummary
+     * @param float $extraFeeAmount Optional payment fee to add on top of the product/shipping refund amount.
      *
      * @return void
      */
-    public function execute($command, $refundSummary)
+    public function execute($command, $refundSummary, float $extraFeeAmount = 0.0)
     {
         $order = $this->getOrder($command);
         $buckarooPayments = $this->getBuckarooPayments($order);
         if (count($buckarooPayments)) {
             foreach ($buckarooPayments as $payment) {
-                $this->refund($order, $payment, $refundSummary);
+                $this->refund($order, $payment, $refundSummary, $extraFeeAmount);
             }
         }
     }
 
-    private function refund(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary)
+    private function refund(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $extraFeeAmount = 0.0)
     {
         if ($payment->amount < 0) {
             return null;
         }
 
-        if ($refundSummary->getRefundedAmount() - $payment->amount >= 0.01) {
+        $totalRefundAmount = $refundSummary->getRefundedAmount() + $extraFeeAmount;
+        if ($totalRefundAmount - $payment->amount >= 0.01) {
             throw new OrderException('Maximum amount that can be refunded in a single request is ' . $payment->amount);
         }
 
-        $body = $this->refundBuilder->create($order, $payment, $refundSummary);
+        $body = $this->refundBuilder->create($order, $payment, $refundSummary, $extraFeeAmount);
         $this->responseHandler->parse(
             $this->refundHandler->refund(
                 $body,
