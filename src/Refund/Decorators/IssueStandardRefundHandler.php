@@ -18,6 +18,8 @@
 namespace Buckaroo\PrestaShop\Src\Refund\Decorators;
 
 use Buckaroo\PrestaShop\Src\Refund\Handler;
+use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\PrestaShop\Src\Refund\StatusService;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssueStandardRefundHandlerInterface;
 
@@ -37,12 +39,19 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
      */
     protected $refundHandler;
 
+    /**
+     * @var StatusService
+     */
+    private $statusService;
+
     public function __construct(
         IssueStandardRefundHandlerInterface $handler,
-        Handler $refundHandler
+        Handler $refundHandler,
+        StatusService $statusService
     ) {
         $this->handler = $handler;
         $this->refundHandler = $refundHandler;
+        $this->statusService = $statusService;
     }
 
     /**
@@ -50,8 +59,19 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
      */
     public function handle(IssueStandardRefundCommand $command): void
     {
-        $refundSummary = $this->refundHandler->getRefundSummary($command);
+        $buckarooRefundEnabled = (bool) \Configuration::get(Settings::LABEL_REFUND_CONF);
+
+        if ($buckarooRefundEnabled) {
+            $refundSummary = $this->refundHandler->getRefundSummary($command);
+        }
+
         $this->handler->handle($command);
-        $this->refundHandler->execute($command, $refundSummary);
+
+        if ($buckarooRefundEnabled) {
+            $this->refundHandler->execute($command, $refundSummary);
+        } else {
+            $order = new \Order($command->getOrderId()->getValue());
+            $this->statusService->setRefunded($order);
+        }
     }
 }

@@ -19,6 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Refund\Decorators;
 
 use Buckaroo\PrestaShop\Src\Refund\Handler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\PrestaShop\Src\Refund\StatusService;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssuePartialRefundHandlerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -45,14 +46,21 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
      */
     protected $session;
 
+    /**
+     * @var StatusService
+     */
+    private $statusService;
+
     public function __construct(
         IssuePartialRefundHandlerInterface $handler,
         Handler $refundHandler,
-        SessionInterface $session
+        SessionInterface $session,
+        StatusService $statusService
     ) {
         $this->handler = $handler;
         $this->refundHandler = $refundHandler;
         $this->session = $session;
+        $this->statusService = $statusService;
     }
 
     /**
@@ -71,6 +79,9 @@ class IssuePartialRefundHandler implements IssuePartialRefundHandlerInterface
         if ($buckarooRefundEnabled && !$this->session->has(self::KEY_SKIP_REFUND_REQUEST)) {
             $this->refundHandler->execute($command, $refundSummary);
             $this->session->remove(self::KEY_SKIP_REFUND_REQUEST);
+        } elseif (!$buckarooRefundEnabled) {
+            $order = new \Order($command->getOrderId()->getValue());
+            $this->statusService->setRefunded($order);
         }
     }
 }

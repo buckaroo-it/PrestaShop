@@ -96,6 +96,7 @@ services:
       - "@buckaroo.decorator.issue_partial_refund_handler.inner"
       - "@buckaroo.refund_handler"
       - "@buckaroo.session"
+      - "@buckaroo.refund.status.service"
     public: false
 
   buckaroo.decorator.issue_standard_refund_handler:
@@ -104,6 +105,7 @@ services:
     arguments:
       - "@buckaroo.decorator.issue_standard_refund_handler.inner"
       - "@buckaroo.refund_handler"
+      - "@buckaroo.refund.status.service"
     public: false
 
   Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier:
