@@ -63,20 +63,23 @@ class Builder extends AbstractBuilder
                     continue;
                 }
 
-                $amount = $this->round((float) $productRefund['amount']);
-                if ($amount <= 0) {
+                $lineTotal = $this->round((float) $productRefund['amount']);
+                if ($lineTotal <= 0) {
                     continue;
                 }
 
+                $quantity = (int) $productRefund['quantity'];
+                $unitPrice = $quantity > 0 ? $this->round($lineTotal / $quantity) : $lineTotal;
+                $total += $this->round($unitPrice * $quantity);
+
                 $orderDetail = $refundSummary->getOrderDetailById($orderDetailId);
-                $total += $amount;
 
                 $articles[] = [
                     'refundType' => 'Return',
                     'identifier' => $orderDetail->product_id,
                     'description' => $orderDetail->product_name,
-                    'quantity' => $productRefund['quantity'],
-                    'price' => $amount,
+                    'quantity' => $quantity,
+                    'price' => $unitPrice,
                     'vatPercentage' => $this->getVatPercentage($orderDetail),
                 ];
             }
