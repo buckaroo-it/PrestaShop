@@ -76,17 +76,27 @@ class PayPalCheckout extends Checkout
             $address_components['house_number'] = $this->invoice_address->address2;
         }
 
-        $state = new State((int) $this->invoice_address->id_state);
-
-        return [
-            'street' => $address_components['street'],
-            'street2' => $address_components['house_number'],
+        $address = [
+            'street'  => $address_components['street'] ?? '',
+            'street2' => $address_components['house_number'] ?? '',
             'zipcode' => $this->invoice_address->postcode,
-            'state' => $state !== null ? $state->name : null,
-            'city' => $this->invoice_address->city,
+            'city'    => $this->invoice_address->city,
             'country' => Tools::strtoupper(
                 (new Country($this->invoice_address->id_country))->iso_code
             ),
         ];
+
+        if ($this->invoice_address->id_state) {
+            $state = new State((int) $this->invoice_address->id_state);
+            $stateName = $state->name;
+            if (is_array($stateName)) {
+                $stateName = reset($stateName) ?: null;
+            }
+            if (!empty($stateName)) {
+                $address['state'] = (string) $stateName;
+            }
+        }
+
+        return $address;
     }
 }
