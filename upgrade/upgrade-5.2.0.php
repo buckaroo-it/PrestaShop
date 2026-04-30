@@ -56,5 +56,16 @@ function upgrade_module_5_2_0($object)
     // "Remaining Amount" lines appear in the checkout order summary.
     $object->registerHook('displayShoppingCartFooter');
 
+    // Add fee_refunded column to bk_buckaroo_fee if it does not already exist.
+    $columns = $db->executeS('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'bk_buckaroo_fee` LIKE \'fee_refunded\'');
+    if (empty($columns)) {
+        if (!$db->execute(
+            'ALTER TABLE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
+             ADD COLUMN `fee_refunded` TINYINT(1) NOT NULL DEFAULT 0'
+        )) {
+            return false;
+        }
+    }
+
     return true;
 }

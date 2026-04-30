@@ -147,9 +147,15 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
         }
 
+        $session = $this->get('buckaroo.session');
+        $feeSessionKey = 'buckaroo_include_fee_' . $order->id;
+
         $this->context->smarty->assign([
             'buckaroo_fee' => $buckarooFeeData,
-            'currency' => new Currency($order->id_currency)
+            'currency' => new Currency($order->id_currency),
+            'buckaroo_fee_refunded' => !empty($buckarooFeeData['fee_refunded']),
+            'buckaroo_fee_flag_set' => $session->has($feeSessionKey),
+            'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
         ]);
 
         // Display both templates

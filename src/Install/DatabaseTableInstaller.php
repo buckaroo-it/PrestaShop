@@ -76,6 +76,7 @@
 				`buckaroo_fee_tax_incl`     FLOAT,
 				`buckaroo_fee_tax_excl`     FLOAT,
 				`currency`                  TEXT NOT NULL,
+                `fee_refunded`              TINYINT(1) NOT NULL DEFAULT 0,
                 `created_at`                TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 

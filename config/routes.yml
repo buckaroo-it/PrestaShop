@@ -4,6 +4,12 @@ buckaroo_refund:
     defaults:
         _controller: 'Buckaroo\PrestaShop\Controllers\admin\AdminRefundController::refund'
 
+buckaroo_set_refund_fee_flag:
+    path: buckaroo3/refund/fee-flag
+    methods: [POST]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\AdminRefundController::setRefundFeeFlag'
+
 buckaroo_config_paymentMethod:
     path: buckaroo3/config/payment/methods
     methods: [POST, GET]
