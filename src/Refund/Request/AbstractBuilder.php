@@ -79,17 +79,19 @@ abstract class AbstractBuilder
      */
     protected function buildIssuers(\Order $order, \OrderPayment $payment): array
     {
-        if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
+        $paymentMethod = PaymentMethodHelper::normalizeMethod((string) $payment->payment_method);
+
+        if (PaymentMethodHelper::isCreditCardMethod($paymentMethod)) {
             return [
-                'name' => $payment->payment_method,
+                'name' => $paymentMethod,
                 'version' => 2,
             ];
         }
 
-        if (PaymentMethodHelper::isGiftCardMethod($payment->payment_method)) {
+        if (PaymentMethodHelper::isGiftCardMethod($paymentMethod)) {
             $customer = new \Customer($order->id_customer);
             return [
-                'name' => $payment->payment_method,
+                'name' => $paymentMethod,
                 'email' => $customer->email,
                 'lastname' => $customer->lastname,
             ];

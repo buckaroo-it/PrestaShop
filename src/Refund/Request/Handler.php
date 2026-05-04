@@ -38,15 +38,16 @@ class Handler
      */
     public function refund(array $body, string $method): TransactionResponse
     {
-        $buckaroo = $this->getClient($method);
-        
+        $normalizedMethod = PaymentMethodHelper::normalizeMethod($method);
+        $buckaroo = $this->getClient($normalizedMethod);
+
         // For gift cards, use 'giftcard' as the method name for SDK call
         // The actual service code (e.g., 'boekenbon') should be in the payload's 'name' field
-        $sdkMethod = $method;
-        if (PaymentMethodHelper::isGiftCardMethod($method)) {
+        $sdkMethod = $normalizedMethod;
+        if (PaymentMethodHelper::isGiftCardMethod($normalizedMethod)) {
             $sdkMethod = 'giftcard';
         }
-        
+
         return $buckaroo->method($sdkMethod)->refund($body);
     }
 
@@ -60,11 +61,13 @@ class Handler
      */
     private function getClient(string $method): BuckarooClient
     {
+        $normalizedMethod = PaymentMethodHelper::normalizeMethod($method);
+
         // Normalize method for configuration lookup
-        $configMethod = $method;
-        if (PaymentMethodHelper::isCreditCardMethod($method)) {
+        $configMethod = $normalizedMethod;
+        if (PaymentMethodHelper::isCreditCardMethod($normalizedMethod)) {
             $configMethod = 'creditcard';
-        } elseif (PaymentMethodHelper::isGiftCardMethod($method)) {
+        } elseif (PaymentMethodHelper::isGiftCardMethod($normalizedMethod)) {
             // For gift cards, use 'giftcard' for configuration lookup
             // but keep the original service code for the actual refund API call
             $configMethod = 'giftcard';

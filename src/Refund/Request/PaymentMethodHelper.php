@@ -22,12 +22,25 @@ use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 class PaymentMethodHelper
 {
     /**
+     * Normalize payment method value for comparisons.
+     *
+     * @param string $method
+     * @return string
+     */
+    public static function normalizeMethod(string $method): string
+    {
+        return strtolower(trim($method));
+    }
+
+    /**
      * Check if the payment method is a type of credit card.
      *
      * @param string $method The payment method to check.
      * @return bool Returns true if the method is a type of credit card, false otherwise.
      */
     public static function isCreditCardMethod(string $method): bool {
+        $method = self::normalizeMethod($method);
+
         $creditCardMethods = [
             'creditcard', 'mastercard', 'visa',
             'amex', 'vpay', 'maestro',
@@ -36,7 +49,7 @@ class PaymentMethodHelper
             'postepay',
         ];
 
-        return in_array($method, $creditCardMethods);
+        return in_array($method, $creditCardMethods, true);
     }
 
     /**
@@ -46,25 +59,51 @@ class PaymentMethodHelper
      * @return bool Returns true if the method is a gift card service code, false otherwise.
      */
     public static function isGiftCardMethod(string $method): bool {
+        $method = self::normalizeMethod($method);
+
         // First check if it's the generic giftcard method
         if ($method === 'giftcard') {
             return true;
         }
 
-        // Check if it's a specific gift card service code
+        return in_array($method, self::getGiftCardCodes(), true);
+    }
+
+    /**
+     * Return known gift card service codes.
+     *
+     * Prefer DB values, but fall back to static list when table is unavailable
+     * to keep refund routing stable.
+     *
+     * @return array
+     */
+    private static function getGiftCardCodes(): array
+    {
+        $giftCardRepository = new RawGiftCardsRepository();
+        $giftCards = [];
+
         try {
-            $giftCardRepository = new RawGiftCardsRepository();
             $giftCards = $giftCardRepository->getGiftCardsFromDB();
-            
-            foreach ($giftCards as $giftCard) {
-                if (isset($giftCard['code']) && $giftCard['code'] === $method) {
-                    return true;
-                }
-            }
         } catch (\Exception $e) {
-            return false;
+            $giftCards = [];
         }
 
-        return false;
+        if (!is_array($giftCards) || empty($giftCards)) {
+            $giftCards = $giftCardRepository->getGiftCardsData();
+        }
+
+        $codes = [];
+        foreach ($giftCards as $giftCard) {
+            if (!isset($giftCard['code']) || !is_scalar($giftCard['code'])) {
+                continue;
+            }
+
+            $code = self::normalizeMethod((string) $giftCard['code']);
+            if ($code !== '') {
+                $codes[] = $code;
+            }
+        }
+
+        return array_values(array_unique($codes));
     }
 }
