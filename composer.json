@@ -1,5 +1,6 @@
 {
     "name": "buckaroo/prestashop",
+    "version": "5.2.0",
     "description": "Buckaroo Payments",
     "authors": [
         {
