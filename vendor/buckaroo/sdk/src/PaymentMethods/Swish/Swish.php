@@ -18,8 +18,6 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-declare(strict_types=1);
-
 namespace Buckaroo\PaymentMethods\Swish;
 
 use Buckaroo\PaymentMethods\PayablePaymentMethod;
@@ -28,5 +26,3 @@ class Swish extends PayablePaymentMethod
 {
     protected string $paymentName = 'Swish';
 }
-
-

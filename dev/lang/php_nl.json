@@ -3,10 +3,6 @@
   "buckaroo.response.invalid_parameter_originaltransaction": "Ongeldige parameter originaltransaction.",
   "dashboard.channel_selector.select_channel": "Selecteer Kanaal",
   "dashboard.channel_selector.select_channel_label": "Elk kanaal heeft zijn eigen configuratie-instellingen.",
-  "dashboard.config.financial_warning": "Financiële Waarschuwing",
-  "dashboard.config.financial_warning.label": "Vanwege de voorschriften voor achteraf betaalmethoden in Nederland dien je klanten te waarschuwen voor het gebruik van een achteraf betaalmethode omdat het gemakkelijk kan leiden tot schulden. Wanneer deze functie is ingeschakeld, wordt er een waarschuwing weergegeven tijdens het afrekenen. Let op dat deze instelling alleen van toepassing is op klanten in Nederland.",
-  "dashboard.config.financial_warning.options.disabled": "Uitgeschakeld",
-  "dashboard.config.financial_warning.options.enabled": "Ingeschakeld",
   "dashboard.country_select.search_countries": "Zoek Landen",
   "dashboard.menu.channel": "Kanaal",
   "dashboard.menu.order_payment_methods": "Betaalmethoden Volgorde",
@@ -173,6 +169,7 @@
   "payment_methods.afterpay": "Riverty",
   "payment_methods.alipay": "Alipay",
   "payment_methods.applepay": "Apple Pay",
+  "payment_methods.googlepay": "Google Pay",
   "payment_methods.bancontact": "Bancontact",
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.belfius": "Belfius",
@@ -203,6 +200,6 @@
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "iDIN",
-  "dashboard.pages.payments.displayInCheckout": "Group Credit-debitcards",
-  "dashboard.pages.payments.displayInCheckoutDesc": "Cards option on how to show the brands in the checkout. <br/> <b>Separate</b>: Card issuers are showed seperately in the checkout.</br><b>Grouped</b>: Card issuers are showed within one group."
+  "dashboard.pages.payments.displayInCheckout": "Groepering van merken in checkout",
+  "dashboard.pages.payments.displayInCheckoutDesc": "Optie om te bepalen hoe merken in de checkout worden getoond. <br/> <b>Separate</b>: Merken worden afzonderlijk in de checkout getoond.</br><b>Grouped</b>: Merken worden binnen één groep getoond."
 }

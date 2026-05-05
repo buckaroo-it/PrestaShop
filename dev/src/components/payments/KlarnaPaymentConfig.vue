@@ -1,14 +1,10 @@
 <template>
-  <FinancialWarning />
+  <div></div>
 </template>
 
 <script>
-import FinancialWarning from "../fields/FinancialWarning.vue";
-
 export default {
   name: "KlarnaPaymentConfig.vue",
-  components: {
-    FinancialWarning
-  }
+  components: {}
 }
 </script>

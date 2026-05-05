@@ -2,7 +2,7 @@
 <module>
     <name>buckaroo3</name>
     <displayName><![CDATA[Buckaroo Payments]]></displayName>
-    <version><![CDATA[5.1.0]]></version>
+    <version><![CDATA[5.2.0]]></version>
     <description><![CDATA[Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 9.0.1]]></description>
     <author><![CDATA[Buckaroo]]></author>
     <tab><![CDATA[payments_gateways]]></tab>

@@ -16,6 +16,7 @@
  */
 
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
 include_once __DIR__ . '/../../library/logger.php';
@@ -67,7 +68,14 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $response = ResponseFactory::getResponse();
         $this->logger->logInfo('Parse response', $response);
 
-        if ($response->isValid()) {
+        $isRefundPush =
+            Tools::getIsset('brq_amount_credit')
+            && Tools::getIsset('brq_relatedtransaction_refund');
+
+        if ($response->isValid() || $isRefundPush) {
+            if (!$response->isValid() && $isRefundPush) {
+                $this->logger->logWarn('Refund push detected and processed despite failed validation');
+            }
             $this->logger->logInfo('Response valid');
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -90,6 +98,22 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
             if ($response->brq_relatedtransaction_partialpayment != null) {
                 $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
+
+                // Confirm the gift card group-transaction row in the DB regardless of whether
+                // the order exists yet (the push may arrive before validateOrder completes).
+                $groupTransactionService = new BuckarooGroupTransactionService();
+                if ($response->hasSucceeded()) {
+                    $groupTransactionService->updateGroupTransactionStatus(
+                        (string) $response->transactions,
+                        190
+                    );
+                } else {
+                    $groupTransactionService->updateGroupTransactionStatus(
+                        (string) $response->transactions,
+                        (int) $response->status
+                    );
+                }
+
                 if ($id_order && $response->hasSucceeded()) {
                     $order = new Order($id_order);
                     $order->setInvoice(false);
@@ -108,6 +132,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
                         VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
                     );
+
+                    // Link group-transaction rows to the order if not already done
+                    if ($order->id_cart) {
+                        $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
+                    }
 
                     $message = new Message();
                     $message->id_order = $id_order;
@@ -131,8 +160,20 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             } else {
                 $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
-                $new_status_code = Buckaroo3::resolveStatusCode($response->status, $id_order);
+                $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
                 $order = new Order($id_order);
+
+                // Validate that the resolved order state actually exists in this shop.
+                if (!$this->isValidOrderStateId($new_status_code)) {
+                    $this->logger->logError(
+                        sprintf(
+                            'Resolved order state id %d is invalid for order %d; status change skipped',
+                            $new_status_code,
+                            $id_order
+                        )
+                    );
+                    $new_status_code = (int) $order->getCurrentState();
+                }
 
                 if (!in_array($order->reference, $references)) {
                     header('HTTP/1.1 503 Service Unavailable');
@@ -221,23 +262,117 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         exit;
     }
 
-    private function handleRefundPush(?\Order $order, $response): void
+    /**
+     * Check whether an order state id is valid and available in this shop.
+     *
+     * This is important on upgraded shops (including PS 9.x) where custom
+     * states may have been removed or not migrated correctly.
+     *
+     * @param int $id_order_state
+     *
+     * @return bool
+     */
+    private function isValidOrderStateId($id_order_state)
     {
-        if (!$this->hasService('buckaroo.refund.push.handler')) {
-            $this->logger->logWarn('Refund push received but service is not available');
-            return;
+        $id_order_state = (int) $id_order_state;
+        if ($id_order_state <= 0) {
+            return false;
         }
 
-        try {
-            $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
-            $refundPushHandler->handle();
+        $state = new OrderState($id_order_state);
 
-            if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
-                $messageRepo = $this->getService('buckaroo.refund.order.message');
-                $messageRepo->add(
-                    $order,
-                    'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+        return Validate::isLoadedObject($state);
+    }
+
+    private function handleRefundPush(?\Order $order, $response): void
+    {
+        try {
+            if ($this->hasService('buckaroo.refund.push.handler')) {
+                // Preferred path: use the Symfony service so refunds are tracked
+                $refundPushHandler = $this->getService('buckaroo.refund.push.handler');
+                $refundPushHandler->handle();
+
+                if ($order instanceof Order && $this->hasService('buckaroo.refund.order.message')) {
+                    $messageRepo = $this->getService('buckaroo.refund.order.message');
+                    $messageRepo->add(
+                        $order,
+                        'Buckaroo refund message (' . $response->transactions . '): ' . $response->statusmessage
+                    );
+                }
+                return;
+            }
+
+            // Fallback path: container service not available (common on some PS9 setups).
+            // We still want the order in PrestaShop to reflect the refund, even if we
+            // cannot use the full refund tracking stack.
+            $this->logger->logWarn('Refund push handler service not available, applying simple refund fallback');
+
+            if (!$order instanceof Order) {
+                $this->logger->logError('Refund push fallback: unable to resolve Order instance');
+                return;
+            }
+
+            $amountCredit = (float) Tools::getValue('brq_amount_credit', 0);
+            if ($amountCredit <= 0) {
+                $this->logger->logError('Refund push fallback: invalid or missing brq_amount_credit');
+                return;
+            }
+
+            // Decide full vs partial based only on this refund amount vs order total
+            $totalPaid = (float) $order->total_paid;
+            $epsilon = 0.005;
+
+            $statusRefunded = (int) Configuration::get('PS_OS_REFUND');
+            $statusPartialRefunded = (int) Configuration::get('PS_CHECKOUT_STATE_PARTIALLY_REFUNDED');
+
+            if ($statusRefunded <= 0 && $statusPartialRefunded <= 0) {
+                $this->logger->logError('Refund push fallback: no refund order states configured (PS_OS_REFUND / PS_CHECKOUT_STATE_PARTIALLY_REFUNDED)');
+                return;
+            }
+
+            $targetStatus = 0;
+            if ($totalPaid > 0 && abs($amountCredit - $totalPaid) <= $epsilon && $statusRefunded > 0) {
+                $targetStatus = $statusRefunded;
+            } elseif ($statusPartialRefunded > 0) {
+                $targetStatus = $statusPartialRefunded;
+            }
+
+            if ($targetStatus > 0) {
+                $history = new OrderHistory();
+                $history->id_order = (int) $order->id;
+                $history->date_add = date('Y-m-d H:i:s');
+                $history->date_upd = date('Y-m-d H:i:s');
+                $history->changeIdOrderState($targetStatus, (int) $order->id);
+                $history->addWithemail(false);
+            }
+
+            // Optionally create a negative payment when configured
+            if (Configuration::get(\Buckaroo\PrestaShop\Src\Refund\Settings::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT)) {
+                $refundKey = (string) Tools::getValue('brq_transactions', '');
+                $method = (string) Tools::getValue('brq_transaction_method', '');
+
+                if ($refundKey !== '' && $method !== '') {
+                    $payment = new OrderPayment();
+                    $payment->order_reference = $order->reference;
+                    $payment->id_currency = $order->id_currency;
+                    $payment->transaction_id = $refundKey;
+                    $payment->amount = -1 * $amountCredit;
+                    $payment->payment_method = $method;
+                    $payment->save();
+                }
+            }
+
+            // Add a basic order message so there is some audit trail
+            if ($order instanceof Order) {
+                $message = new Message();
+                $message->id_order = (int) $order->id;
+                $message->message = sprintf(
+                    'Buckaroo refund (fallback) of %s received. Transaction key: %s. Message: %s',
+                    $amountCredit,
+                    (string) $response->transactions,
+                    (string) $response->statusmessage
                 );
+                $message->add();
             }
         } catch (\Throwable $th) {
             $this->logger->logInfo('PUSH', (string) $th);

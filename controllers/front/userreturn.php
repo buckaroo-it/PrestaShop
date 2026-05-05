@@ -68,13 +68,16 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     exit;
                 }
 
+                // If a giftcard was applied before this redirect payment, record it on the order
+                $this->recordAppliedGiftcardPayment((int) $id_order);
+
                 $this->context->cart->delete();
                 $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
-                    'id_cart' => $cart->id,
+                    'id_cart'   => $cart->id,
                     'id_module' => $this->module->id,
-                    'id_order' => $id_order,
-                    'key' => $customer->secure_key,
-                    'success' => 'true',
+                    'id_order'  => $id_order,
+                    'key'       => $customer->secure_key,
+                    'success'   => 'true',
                 ]);
                 $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
                 Tools::redirect($redirectUrl);

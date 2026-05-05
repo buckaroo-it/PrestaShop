@@ -18,8 +18,6 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-declare(strict_types=1);
-
 namespace Buckaroo\PaymentMethods\Twint;
 
 use Buckaroo\PaymentMethods\PayablePaymentMethod;
@@ -28,4 +26,3 @@ class Twint extends PayablePaymentMethod
 {
     protected string $paymentName = 'Twint';
 }
-

@@ -15,16 +15,20 @@
 <section class="additional-information">
     <input type="hidden" name="buckarooKey" value="payperemail">
     <form id="booPayPerEmailForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'payperemail'])|escape:'quotes':'UTF-8'}" method="post">
-        {l s='Please select gender:' mod='buckaroo3'}<br/><br/>
-        <div class="col-xs-12">
-            <select name="bpe_payperemail_person_gender"
-                                       id="bpe_payperemail_person_gender"
-                                       class="required-entry form-control bk-form-control-large mb-2">
-                <option value="1" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
-                <option value="2">{l s='She/her' mod='buckaroo3'}</option>
-                <option value="0">{l s='They/Them' mod='buckaroo3'}</option>
-                <option value="9">{l s='I prefer not to say' mod='buckaroo3'}</option>
-            </select>
+        <div class="row row-padding">
+            <div class="col-xs-5">
+                <label class="required">{l s='Gender:' mod='buckaroo3'}</label>
+            </div>
+            <div class="col-xs-7">
+                <select name="bpe_payperemail_person_gender"
+                                           id="bpe_payperemail_person_gender"
+                                           class="required-entry form-control bk-form-control-large custom-select">
+                    <option value="1" selected="selected" >{l s='He/him' mod='buckaroo3'}</option>
+                    <option value="2">{l s='She/her' mod='buckaroo3'}</option>
+                    <option value="0">{l s='They/Them' mod='buckaroo3'}</option>
+                    <option value="9">{l s='I prefer not to say' mod='buckaroo3'}</option>
+                </select>
+            </div>
         </div>
     </form>
 </section>

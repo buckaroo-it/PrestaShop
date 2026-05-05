@@ -1,5 +1,6 @@
 {
     "name": "buckaroo/prestashop",
+    "version": "5.2.0",
     "description": "Buckaroo Payments",
     "authors": [
         {
@@ -9,7 +10,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "buckaroo/sdk": "^1.18.0"
+        "buckaroo/sdk": "1.23.1"
     },
     "autoload": {
         "psr-4": {

@@ -17,7 +17,32 @@ class BuckarooFeeManager {
     init() {
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
-        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+        this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
+    }
+
+    _findTotalsContainer() {
+        if ($('.card-block.cart-summary-totals').length) {
+            return $('.card-block.cart-summary-totals').first();
+        }
+        if ($('.card-body.cart-summary-totals').length) {
+            return $('.card-body.cart-summary-totals').first();
+        }
+        return $('.cart-summary-totals').first();
+    }
+
+    _findSubtotalsContainer() {
+        const $existing = $('.cart-summary-subtotals-container');
+        if ($existing.length) {
+            return $existing;
+        }
+        const $totalsBlock = this._findTotalsContainer();
+        if ($totalsBlock.length) {
+            if (!$('#bk-fee-wrapper').length) {
+                $totalsBlock.before('<div id="bk-fee-wrapper" class="cart-summary-subtotals-container"></div>');
+            }
+            return $('#bk-fee-wrapper');
+        }
+        return $();
     }
 
     handlePaymentOptionChange($paymentOption) {
@@ -158,7 +183,7 @@ class BuckarooFeeManager {
         }
 
         const { cart_summary_totals, paymentFee, paymentFeeTax, includedTaxes } = response;
-        const $cartSummaryTotals = $('.card-block.cart-summary-totals');
+        const $cartSummaryTotals = this._findTotalsContainer();
 
         if (!$cartSummaryTotals.length) {
             console.warn('Cart summary totals container not found');
@@ -174,8 +199,8 @@ class BuckarooFeeManager {
         }
 
         // Re-initialize container reference after cart summary replacement
-        this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
-        
+        this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
+
         // Re-initialize fee element references (they should not exist after removePaymentFee)
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
@@ -195,9 +220,9 @@ class BuckarooFeeManager {
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
         
-        // Ensure container reference is up to date
+        // Ensure container reference is up to date, with PS9 fallback
         if (!this.$cartSummarySubtotalsContainer || this.$cartSummarySubtotalsContainer.length === 0) {
-            this.$cartSummarySubtotalsContainer = $('.cart-summary-subtotals-container');
+            this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
         }
 
         const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFee">
@@ -249,6 +274,7 @@ class BuckarooFeeManager {
     removePaymentFee() {
         $('#cart-subtotal-buckarooFee').remove();
         $('#cart-subtotal-buckarooFeeTax').remove();
+        $('#bk-fee-wrapper').remove();
     }
 }
 
@@ -347,6 +373,13 @@ function buckaroo() {
             if (invalid) {
                 methodValidator.valid = false;
             }
+        }, in3Trigger: () => {
+            // Check that the customer has accepted in3's T&C checkbox
+            let invalid = !$("#bpe_in3_accept").is(':checked');
+            methodValidator.displayMessage($("#bpe_in3_accept").closest('.row'), buckarooMessages.validation.agreement, !invalid);
+            if (invalid) {
+                methodValidator.valid = false;
+            }
         }, sepaDirectdebitTrigger: () => {
             let invalid = !validateIBAN($("#bpe_sepadirectdebit_iban").val());
             methodValidator.displayMessage($("#bpe_sepadirectdebit_iban"), buckarooMessages.validation.iban, !invalid);
@@ -388,6 +421,10 @@ function buckaroo() {
             methodValidator.requiredAll();
             // we validate based on the selected method
             switch (methodValidator.methodSelector) {
+                case 'in3':
+                case 'in3Old':
+                    methodValidator.in3Trigger();
+                    break;
                 case 'sepadirectdebit':
                     methodValidator.sepaDirectdebitTrigger();
                     break;
@@ -602,4 +639,99 @@ function buckaroo() {
     }
 
     new BuckarooApplePay().init();
+
+    // -----------------------------------------------------------------------
+    // BNPL phone field dynamic update
+    // When the customer navigates back to the address step and changes their
+    // phone number, the payment step must reflect that change without a full
+    // page reload.  We call the lightweight `getPhoneStatus` AJAX action and
+    // toggle the visibility of each phone row + the type of its input element.
+    // -----------------------------------------------------------------------
+
+    /**
+     * Apply a phone value to a BNPL phone row.
+     *
+     * @param {jQuery} $row   The wrapper div (e.g. #bk-in3-phone-row)
+     * @param {jQuery} $input The single <input> inside that row
+     * @param {string} phone  The phone value from the address (empty string = none)
+     */
+    function applyPhoneToRow($row, $input, phone) {
+        if (!$row.length || !$input.length) {
+            return;
+        }
+        if (phone) {
+            // Phone available from address: hide the visible row, carry the value
+            // in a hidden field so the backend receives it on form submit.
+            $input.attr('type', 'hidden').val(phone);
+            $row.hide();
+        } else {
+            // No phone in address: let the customer fill it in.
+            $input.attr('type', 'text').val('');
+            $row.show();
+        }
+    }
+
+    function fetchAndUpdateBnplPhoneFields() {
+        if (typeof buckarooAjaxUrl === 'undefined' || !buckarooAjaxUrl) {
+            return;
+        }
+
+        $.ajax({
+            url: buckarooAjaxUrl,
+            method: 'GET',
+            data: { ajax: 1, action: 'getPhoneStatus' },
+            dataType: 'json',
+            success: function (response) {
+                if (!response || response.error) {
+                    return;
+                }
+
+                var deliveryPhone = response.delivery_phone || '';
+                var billingPhone  = response.billing_phone  || '';
+
+                // In3
+                var $in3Row   = $('#bk-in3-phone-row');
+                var $in3Input = $in3Row.find('#customer_phone');
+                applyPhoneToRow($in3Row, $in3Input, deliveryPhone);
+
+                // Riverty / Afterpay billing
+                var $afterpayRow   = $('#bk-afterpay-billing-phone-row');
+                var $afterpayInput = $afterpayRow.find('#phone_afterpay_billing_digi');
+                applyPhoneToRow($afterpayRow, $afterpayInput, billingPhone);
+            }
+        });
+    }
+
+    // Trigger on PrestaShop checkout events that fire after address changes.
+    // PS 1.7/8 fires these on the document/body when the delivery or cart state
+    // is updated (e.g. customer clicks "Continue" on the address step).
+    $(document).on(
+        'updatedDeliveryForm updateCart updated_delivery_form',
+        fetchAndUpdateBnplPhoneFields
+    );
+    $('body').on('updateCart', fetchAndUpdateBnplPhoneFields);
+
+    // Watch for the payment step becoming the active step.  PrestaShop's
+    // classic theme marks the current step with `-current`; some custom themes
+    // use `js-current-step`.  A MutationObserver on the step element is the
+    // most reliable way to detect this transition.
+    var paymentStepEl = document.getElementById('checkout-payment-step');
+    if (paymentStepEl) {
+        var _paymentStepWasActive = $(paymentStepEl).hasClass('-current') ||
+                                    $(paymentStepEl).hasClass('js-current-step');
+
+        new MutationObserver(function (mutations) {
+            mutations.forEach(function (mutation) {
+                if (mutation.type !== 'attributes' || mutation.attributeName !== 'class') {
+                    return;
+                }
+                var isActive = $(paymentStepEl).hasClass('-current') ||
+                               $(paymentStepEl).hasClass('js-current-step');
+                if (isActive && !_paymentStepWasActive) {
+                    fetchAndUpdateBnplPhoneFields();
+                }
+                _paymentStepWasActive = isActive;
+            });
+        }).observe(paymentStepEl, { attributes: true });
+    }
 }

@@ -3,10 +3,6 @@
   "buckaroo.response.invalid_parameter_originaltransaction": "Paramètre originaltransaction non valide.",
   "dashboard.channel_selector.select_channel": "Sélectionnez la chaîne",
   "dashboard.channel_selector.select_channel_label": "Chaque canal a ses paramètres de configuration.",
-  "dashboard.config.financial_warning": "Avertissement financier client",
-  "dashboard.config.financial_warning.label": "En raison de la réglementation relative aux méthodes BNPL aux Pays-Bas, vous devrez avertir les clients de l'utilisation d'un plan BNPL, car il peut être facile de s'endetter. ",
-  "dashboard.config.financial_warning.options.disabled": "Désactivé",
-  "dashboard.config.financial_warning.options.enabled": "Activé",
   "dashboard.country_select.search_countries": "Rechercher des pays",
   "dashboard.menu.channel": "Canal",
   "dashboard.menu.order_payment_methods": "Modes de paiement des commandes",
@@ -177,6 +173,7 @@
   "payment_methods.afterpay": "Rivière",
   "payment_methods.alipay": "Alipay",
   "payment_methods.applepay": "Apple Payer",
+  "payment_methods.googlepay": "Google Pay",
   "payment_methods.bancontact": "Bancontact",
   "payment_methods.bancontactmrcash": "Bancontact",
   "payment_methods.belfius": "Belfius",
@@ -207,6 +204,6 @@
   "payment_methods.wechatpay": "WeChatPay",
   "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "IDIN",
-  "dashboard.pages.payments.displayInCheckout": "Group Credit-debitcards",
-  "dashboard.pages.payments.displayInCheckoutDesc": "Cards option on how to show the brands in the checkout. <br/> <b>Separate</b>: Card issuers are showed seperately in the checkout.</br><b>Grouped</b>: Card issuers are showed within one group."
+  "dashboard.pages.payments.displayInCheckout": "Regroupement des marques au paiement",
+  "dashboard.pages.payments.displayInCheckoutDesc": "Option pour définir la façon dont les marques sont affichées lors du paiement. <br/> <b>Separate</b> : Les marques sont affichées séparément lors du paiement.</br><b>Grouped</b> : Les marques sont affichées dans un seul groupe."
 }

@@ -60,7 +60,6 @@ class Handler
     {
         $order = new \Order($orderId);
         $this->createRefundRequest($response, $body, $orderId);
-        $this->statusService->setRefunded($order);
 
         if (!$response->isSuccess()) {
             $message = '';
@@ -72,6 +71,8 @@ class Handler
             }
             throw new OrderException($message);
         }
+
+        $this->statusService->setRefunded($order);
         $this->createNegativePayment($order, $response);
     }
 

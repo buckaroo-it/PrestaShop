@@ -35,16 +35,21 @@ if (!defined('_PS_VERSION_')) {
 }
 class BuckarooPaymentService
 {
+    /**
+     * Core dependencies are kept protected so that dedicated test doubles
+     * can inject lightweight stubs without going through the full
+     * PrestaShop / Doctrine initialisation flow.
+     */
     public $module;
     protected $logger;
-    private $bkOrderingRepository;
-    private $paymentMethodRepository;
-    private $context;
-    private BuckarooConfigService $buckarooConfigService;
-    private BuckarooFeeService $buckarooFeeService;
-    private $issuersPayByBank;
-    private $capayableIn3;
-    private $countryRepository;
+    protected $bkOrderingRepository;
+    protected $paymentMethodRepository;
+    protected $context;
+    protected $buckarooConfigService;
+    protected $buckarooFeeService;
+    protected $issuersPayByBank;
+    protected $capayableIn3;
+    protected $countryRepository;
 
     public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
     {
@@ -192,7 +197,7 @@ class BuckarooPaymentService
         }
 
         $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
+            ->setAction($this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]))
             ->setModuleName($method);
 
         $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
@@ -612,23 +617,4 @@ class BuckarooPaymentService
         }
     }
 
-    public function paymentMethodsWithFinancialWarning()
-    {
-        $buyNowPayLaterMethods = [
-            'klarna',
-            'afterpay',
-            'billink',
-            'in3',
-        ];
-        $methods = [];
-        foreach ($buyNowPayLaterMethods as $method) {
-            $methods[$method] = $this->buckarooConfigService->getConfigValue($method, 'financial_warning') ?? true;
-        }
-        $methods['warningText'] = 'Je moet minimaal 18+ zijn om deze dienst te gebruiken. Als je op tijd betaalt,
-                voorkom je extra kosten en zorg je dat je in de toekomst nogmaals gebruik kunt
-                maken van de diensten van %s. Door verder te gaan, accepteer je de Algemene
-                Voorwaarden en bevestig je dat je de Privacyverklaring en Cookieverklaring hebt gelezen.';
-
-        return $methods;
-    }
 }

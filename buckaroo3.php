@@ -35,6 +35,7 @@ use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -42,7 +43,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.1.0';
+    const MODULE_VERSION = '5.2.0';
     
     public $logger;
 
@@ -146,9 +147,15 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
         }
 
+        $session = $this->get('buckaroo.session');
+        $feeSessionKey = 'buckaroo_include_fee_' . $order->id;
+
         $this->context->smarty->assign([
             'buckaroo_fee' => $buckarooFeeData,
-            'currency' => new Currency($order->id_currency)
+            'currency' => new Currency($order->id_currency),
+            'buckaroo_fee_refunded' => !empty($buckarooFeeData['fee_refunded']),
+            'buckaroo_fee_flag_set' => $session->has($feeSessionKey),
+            'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
         ]);
 
         // Display both templates
@@ -518,7 +525,7 @@ class Buckaroo3 extends PaymentModule
             return;
         }
 
-        $logMessage = sprintf('[Buckaroo3] %s: %s', $message, $exception->getMessage());
+        $logMessage = sprintf('Buckaroo: %s - %s', $message, $exception->getMessage());
         if (class_exists('\PrestaShopLogger')) {
             \PrestaShopLogger::addLog($logMessage, 2);
         } else {
@@ -603,10 +610,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookPaymentOptions($params)
     {
-        PrestaShopLogger::addLog('Buckaroo: hookPaymentOptions() called', 1);
-        
         if (!$this->isActivated()) {
-            PrestaShopLogger::addLog('Buckaroo: Module not activated, returning empty array', 1);
             return [];
         }
 
@@ -624,6 +628,8 @@ class Buckaroo3 extends PaymentModule
         $lastNameShipping = '';
         $phone = '';
         $phone_mobile = '';
+        $phone_billing = '';
+        $phone_mobile_billing = '';
 
         foreach ($addresses as $address) {
             if ($address['id_address'] == $cart->id_address_delivery) {
@@ -672,6 +678,15 @@ class Buckaroo3 extends PaymentModule
 
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
 
+        $giftcardApplied   = 0.0;
+        $giftcardRemainder = 0.0;
+        try {
+            $giftcardApplied   = $this->getGiftcardAlreadyPaid($cart);
+            $giftcardRemainder = $this->getGiftcardRemainingAmount($cart);
+        } catch (Exception $e) {
+            $this->logger->logError('Buckaroo3::hookPaymentOptions giftcard amounts - ' . $e->getMessage());
+        }
+
         try {
             $this->context->smarty->assign(
                 [
@@ -693,10 +708,11 @@ class Buckaroo3 extends PaymentModule
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
                     'paybybankIssuers' => (new IssuersPayByBank())->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
-                    'methodsWithFinancialWarning' => $buckarooPaymentService->paymentMethodsWithFinancialWarning(),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
+                    'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
+                    'buckarooGiftcardApplied'    => $giftcardApplied,
+                    'buckarooGiftcardRemainder'  => $giftcardRemainder,
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
@@ -716,8 +732,26 @@ class Buckaroo3 extends PaymentModule
      */
     private function ensureBuckarooJsLoaded()
     {
-        PrestaShopLogger::addLog('Buckaroo: ensureBuckarooJsLoaded() START - Controller: ' . ($this->context->controller ? get_class($this->context->controller) : 'null'), 1);
-        
+        // Resolve gift card inline data separately so that a failure here
+        // never prevents the core JS variables (buckarooAjaxUrl, buckarooFees)
+        // from being registered.
+        $alreadyPaidData = [
+            'alreadyPaid'     => 0,
+            'remainingAmount' => 0,
+            'giftcardItems'   => [],
+            'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
+        ];
+        try {
+            $cart = $this->context->cart;
+            if ($cart) {
+                $alreadyPaidData['alreadyPaid']     = $this->getGiftcardAlreadyPaid($cart);
+                $alreadyPaidData['remainingAmount']  = $this->getGiftcardRemainingAmount($cart);
+                $alreadyPaidData['giftcardItems']    = $this->getGiftcardDisplayItems($cart);
+            }
+        } catch (\Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: giftcard data error in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 2);
+        }
+
         try {
             Media::addJsDef([
                 'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
@@ -733,6 +767,11 @@ class Buckaroo3 extends PaymentModule
                         'age' => $this->l('You must be at least 18 years old'),
                     ],
                 ],
+                'buckarooAlreadyPaidData'   => $alreadyPaidData,
+                'buckarooAlreadyPaidLabels' => [
+                    'paidWith'  => $this->l('Paid with Giftcard'),
+                    'remaining' => $this->l('Remaining Amount'),
+                ],
             ]);
             
             $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
@@ -746,7 +785,14 @@ class Buckaroo3 extends PaymentModule
                         'priority' => 200,
                     ]
                 );
-                PrestaShopLogger::addLog('Buckaroo: Script registered successfully. Path: ' . $jsPath, 1);
+                $this->context->controller->registerJavascript(
+                    'module-buckaroo3-already-paid',
+                    'modules/' . $this->name . '/views/js/already-paid.js',
+                    [
+                        'position' => 'bottom',
+                        'priority' => 210,
+                    ]
+                );
             } else {
                 PrestaShopLogger::addLog('Buckaroo: ERROR - No controller available to register script', 3);
             }
@@ -794,8 +840,10 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
-
-        $this->ensureBuckarooJsLoaded();
+        $controller = $this->context->controller;
+        if ($controller && in_array($controller->php_self, ['order', 'order-opc'])) {
+            $this->ensureBuckarooJsLoaded();
+        }
 
         if (Tools::getValue('controller') === 'order' && Tools::getValue('buckaroo_error')) {
             $msg = urldecode((string) Tools::getValue('buckaroo_error_msg'));
@@ -824,45 +872,256 @@ class Buckaroo3 extends PaymentModule
         return '';
     }
 
+    /**
+     * Inject "Paid with X Giftcard" and "Remaining Amount" lines into the
+     * checkout order summary. Mirrors the Magento 2 BuckarooAlreadyPay quote
+     * total segment rendered by hookDisplayShoppingCartFooter.
+     */
+    public function hookDisplayShoppingCartFooter($params)
+    {
+        $cart = $this->context->cart;
+        if (!$cart || !Validate::isLoadedObject($cart)) {
+            return '';
+        }
+
+        $alreadyPaid = $this->getGiftcardAlreadyPaid($cart);
+        if ($alreadyPaid <= 0) {
+            return '';
+        }
+
+        $remainingAmount = $this->getGiftcardRemainingAmount($cart);
+        $displayItems    = $this->getGiftcardDisplayItems($cart);
+
+        $this->context->smarty->assign([
+            'buckarooAlreadyPaid'     => $alreadyPaid,
+            'buckarooRemainingAmount' => $remainingAmount,
+            'buckarooGiftcardItems'   => $displayItems,
+            'currency'                => $this->context->currency,
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/hook/already-paid.tpl');
+    }
+
+    /**
+     * Get the total amount already paid via gift card(s) for the current cart.
+     * Prefers the DB (persistent across page loads) with a cookie fallback for
+     * the brief window between applygiftcard redirect and the next page load.
+     * Returns 0.0 on any failure so callers never receive an exception.
+     *
+     * @param \Cart $cart
+     * @return float
+     */
+    private function getGiftcardAlreadyPaid(\Cart $cart): float
+    {
+        try {
+            $service  = new BuckarooGroupTransactionService();
+            $dbAmount = $service->getAlreadyPaid((int) $cart->id);
+            if ($dbAmount > 0) {
+                return $dbAmount;
+            }
+        } catch (\Exception $e) {
+            $this->logger->logError('getGiftcardAlreadyPaid: ' . $e->getMessage());
+        }
+        return (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
+    }
+
+    /**
+     * Get the remaining amount to pay after gift card deductions.
+     * Returns the cookie value (or 0) on any failure.
+     *
+     * @param \Cart $cart
+     * @return float
+     */
+    private function getGiftcardRemainingAmount(\Cart $cart): float
+    {
+        try {
+            $service  = new BuckarooGroupTransactionService();
+            $dbAmount = $service->getAlreadyPaid((int) $cart->id);
+            if ($dbAmount > 0) {
+                $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+                return $service->getRemainingAmount((int) $cart->id, $cartTotal);
+            }
+        } catch (\Exception $e) {
+            $this->logger->logError('getGiftcardRemainingAmount: ' . $e->getMessage());
+        }
+        return (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+    }
+
+    /**
+     * Get display-ready gift card rows (label + amount) for the current cart.
+     * Returns an empty array on any failure.
+     *
+     * @param \Cart $cart
+     * @return array
+     */
+    private function getGiftcardDisplayItems(\Cart $cart): array
+    {
+        try {
+            $service = new BuckarooGroupTransactionService();
+            return $service->getDisplayItems((int) $cart->id);
+        } catch (\Exception $e) {
+            $this->logger->logError('getGiftcardDisplayItems: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Resolve a Buckaroo status into a concrete PrestaShop order state.
+     *
+     * This method is central for status handling and must work across
+     * PrestaShop 1.7 and 9.x. It now includes:
+     * - safer fallbacks when configured states are missing or deleted
+     * - explicit backorder handling using stock information
+     *
+     * @param int      $status_code Buckaroo payment status constant
+     * @param int|null $id_order    Optional order id for stock/backorder checks
+     *
+     * @return int Valid PrestaShop order state id
+     */
     public static function resolveStatusCode($status_code, $id_order = null)
     {
         switch ($status_code) {
             case BuckarooAbstract::BUCKAROO_SUCCESS:
-                return self::isOrderBackOrder($id_order) ?
-                    Configuration::get('PS_OS_OUTOFSTOCK_PAID') :
-                    (Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS') ?: Configuration::get('PS_OS_PAYMENT'));
+                $isBackOrder = $id_order ? self::isOrderBackOrder($id_order) : false;
+
+                $candidates = [];
+
+                // For successful payments on backorders prefer the out‑of‑stock‑paid state
+                if ($isBackOrder) {
+                    $candidates[] = Configuration::get('PS_OS_OUTOFSTOCK_PAID');
+                }
+
+                // Configured Buckaroo success state and default PrestaShop paid state
+                $candidates[] = Configuration::get('BUCKAROO_ORDER_STATE_SUCCESS');
+                $candidates[] = Configuration::get('PS_OS_PAYMENT');
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_PAYMENT'));
+
             case BuckarooAbstract::BUCKAROO_PENDING_PAYMENT:
-                return Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+                // Pending payments fall back to the module specific default,
+                // then to common waiting/pending core states.
+                $candidates = [
+                    Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT'),
+                    Configuration::get('PS_OS_BANKWIRE'),
+                    Configuration::get('PS_OS_WAITING_PAYMENT'),
+                ];
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_BANKWIRE'));
+
             case BuckarooAbstract::BUCKAROO_CANCELED:
             case BuckarooAbstract::BUCKAROO_ERROR:
             case BuckarooAbstract::BUCKAROO_FAILED:
             case BuckarooAbstract::BUCKAROO_INCORRECT_PAYMENT:
-                return Configuration::get('BUCKAROO_ORDER_STATE_FAILED') ?
-                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED') : Configuration::get('PS_OS_CANCELED');
+                // Failed/cancelled/error map to a configured failure state,
+                // then to the generic Cancelled state.
+                $candidates = [
+                    Configuration::get('BUCKAROO_ORDER_STATE_FAILED'),
+                    Configuration::get('PS_OS_CANCELED'),
+                ];
+
+                return self::resolveValidOrderStateId($candidates, Configuration::get('PS_OS_ERROR'));
+
             default:
-                return Configuration::get('PS_OS_ERROR');
+                // Any unknown status falls back to a generic error.
+                return (int) Configuration::get('PS_OS_ERROR');
         }
     }
 
-    private static function isOrderBackOrder($orderId)
+    /**
+     * Return the first valid OrderState id from the list of candidates.
+     *
+     * This protects against misconfigured or deleted states, which is
+     * particularly important on upgraded shops (e.g. PS 9.x).
+     *
+     * @param array      $candidateIds List of ids (or scalar config values) to try
+     * @param int|string $fallbackId   Fallback state id when none of the candidates is valid
+     *
+     * @return int
+     */
+    private static function resolveValidOrderStateId(array $candidateIds, $fallbackId)
     {
-        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
-            return false; // If stock management is disabled, no order is a backorder
-        }
+        foreach ($candidateIds as $candidate) {
+            $id = (int) $candidate;
+            if ($id <= 0) {
+                continue;
+            }
 
-        $order = new Order($orderId);
-        $orderDetails = $order->getOrderDetailList();
-
-        foreach ($orderDetails as $detail) {
-            $orderDetail = new OrderDetail($detail['id_order_detail']);
-
-            // If any product is in stock, the order is not a backorder
-            if ($orderDetail->product_quantity_in_stock < 0) {
-                return true;
+            $state = new OrderState($id);
+            if (Validate::isLoadedObject($state)) {
+                return (int) $state->id;
             }
         }
 
-        // If all products are out of stock, the order is a backorder
+        $fallback = (int) $fallbackId;
+        if ($fallback > 0) {
+            $fallbackState = new OrderState($fallback);
+            if (Validate::isLoadedObject($fallbackState)) {
+                return (int) $fallbackState->id;
+            }
+        }
+
+        return (int) Configuration::get('PS_OS_ERROR');
+    }
+
+    /**
+     * Determine whether an order should be treated as a backorder.
+     *
+     * The previous implementation only checked for negative stock values,
+     * which could miss partial backorders. The new logic considers:
+     * - global stock management setting
+     * - ordered vs. in‑stock quantities per order line
+     * - advanced stock via StockAvailable when present
+     *
+     * @param int|null $orderId
+     *
+     * @return bool
+     */
+    private static function isOrderBackOrder($orderId)
+    {
+        if (!Configuration::get('PS_STOCK_MANAGEMENT')) {
+            // If stock management is disabled, treat all orders as non‑backorder
+            return false;
+        }
+
+        $orderId = (int) $orderId;
+        if ($orderId <= 0) {
+            return false;
+        }
+
+        $order = new Order($orderId);
+        if (!Validate::isLoadedObject($order)) {
+            return false;
+        }
+
+        $orderDetails = $order->getOrderDetailList();
+        if (!is_array($orderDetails) || empty($orderDetails)) {
+            return false;
+        }
+
+        foreach ($orderDetails as $detail) {
+            $orderedQty = (int) $detail['product_quantity'];
+
+            // Quantity that was in stock when the order was placed
+            $inStockAtOrder = (int) $detail['product_quantity_in_stock'];
+
+            // If there wasn't enough stock at order time, this line is (at least partly) backordered
+            if ($inStockAtOrder < $orderedQty) {
+                return true;
+            }
+
+            // As an additional safety net, check current stock when available
+            if (class_exists('StockAvailable')) {
+                $currentQty = (int) StockAvailable::getQuantityAvailableByProduct(
+                    (int) $detail['product_id'],
+                    (int) $detail['product_attribute_id']
+                );
+
+                if ($currentQty < 0 || $currentQty < $orderedQty) {
+                    return true;
+                }
+            }
+        }
+
         return false;
     }
 

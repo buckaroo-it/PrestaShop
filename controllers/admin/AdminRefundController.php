@@ -22,10 +22,12 @@ use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
 use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
 use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
+use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -53,16 +55,23 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private $orderService;
 
+    /**
+     * @var SessionInterface
+     */
+    private $session;
+
     public function __construct(
         QuantityBasedBuilder $refundBuilder,
         RefundRequestHandler $refundHandler,
         RefundResponseHandler $responseHandler,
-        OrderService $orderService
+        OrderService $orderService,
+        SessionInterface $session
     ) {
         $this->refundHandler = $refundHandler;
         $this->refundBuilder = $refundBuilder;
         $this->responseHandler = $responseHandler;
         $this->orderService = $orderService;
+        $this->session = $session;
     }
 
     public function refund(Request $request)
@@ -134,11 +143,7 @@ class AdminRefundController extends FrameworkBundleAdminController
         }
         $maxRefundAmount -= $refundAmount;
 
-        try {
-            $this->orderService->refund($order, $refundAmount);
-        } catch (\Throwable $th) {
-            // Silently handle refund errors
-        }
+        $this->orderService->refund($order, $refundAmount);
 
         $body = $this->refundBuilder->create($order, $payment, $refundAmount);
 
@@ -168,6 +173,45 @@ class AdminRefundController extends FrameworkBundleAdminController
     {
         // Filter payments for only buckaroo requests
         return $order->getOrderPayments();
+    }
+
+    /**
+     * Set or clear the session flag that instructs the partial-refund decorator
+     * to include the Buckaroo payment fee in the next PrestaShop partial refund.
+     *
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function setRefundFeeFlag(Request $request): JsonResponse
+    {
+        $orderId = (int) $request->request->get('orderId');
+        $include = (bool) $request->request->get('include');
+
+        if (!$orderId) {
+            return $this->renderError('Invalid value for `orderId`');
+        }
+
+        $feeSessionKey = 'buckaroo_include_fee_' . $orderId;
+        $feeRepository = new RawBuckarooFeeRepository();
+
+        if ($include) {
+            $fee = $feeRepository->getFeeByOrderId($orderId);
+
+            if (!$fee || empty($fee['buckaroo_fee_tax_incl'])) {
+                return $this->renderError('No payment fee found for this order');
+            }
+
+            if (!empty($fee['fee_refunded'])) {
+                return $this->renderError('Payment fee has already been refunded');
+            }
+
+            $this->session->set($feeSessionKey, (float) $fee['buckaroo_fee_tax_incl']);
+        } else {
+            $this->session->remove($feeSessionKey);
+        }
+
+        return new JsonResponse(['error' => false, 'message' => 'OK']);
     }
 
     /**

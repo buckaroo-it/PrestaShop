@@ -63,10 +63,6 @@ class RawPaymentMethodRepository
         $configValue = ['mode' => 'off'];
 
         switch ($paymentName) {
-            case 'klarna':
-                $configValue['financial_warning'] = true;
-                break;
-
             case 'creditcard':
                 $configValue['show_issuers'] = true;
                 $configValue['display_type'] = 'radio';
@@ -78,7 +74,6 @@ class RawPaymentMethodRepository
 
             case 'in3':
                 $configValue['version'] = 'V3';
-                $configValue['financial_warning'] = true;
                 break;
 
             case 'paypal':
@@ -88,7 +83,6 @@ class RawPaymentMethodRepository
             case 'afterpay':
             case 'billink':
                 $configValue['customer_type'] = 'B2C';
-                $configValue['financial_warning'] = true;
                 break;
 
             case 'payperemail':
@@ -135,6 +129,7 @@ class RawPaymentMethodRepository
             ['name' => 'afterpay', 'label' => 'Riverty', 'icon' => 'AfterPay.svg', 'template' => 'payment_afterpay.tpl', 'is_payment_method' => '1'],
             ['name' => 'klarna', 'label' => 'Klarna', 'icon' => 'Klarna.svg', 'template' => 'payment_klarna.tpl', 'is_payment_method' => '1'],
             ['name' => 'applepay', 'label' => 'Apple Pay', 'icon' => 'ApplePay.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'googlepay', 'label' => 'Google Pay', 'icon' => 'GooglePay.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'in3', 'label' => 'In3', 'icon' => 'In3.svg', 'template' => 'payment_in3.tpl', 'is_payment_method' => '1'],
             ['name' => 'billink', 'label' => 'Billink', 'icon' => 'Billink.svg', 'template' => 'payment_billink.tpl', 'is_payment_method' => '1'],
             ['name' => 'eps', 'label' => 'EPS', 'icon' => 'EPS.svg', 'template' => '', 'is_payment_method' => '1'],

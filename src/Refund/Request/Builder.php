@@ -26,16 +26,18 @@ if (!defined('_PS_VERSION_')) {
 
 class Builder extends AbstractBuilder
 {
-    public function create(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary)
+    public function create(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $extraFeeAmount = 0.0)
     {
+        $totalAmount = $this->round($refundSummary->getRefundedAmount() + $extraFeeAmount);
+
         return array_merge(
-            $this->buildCommon($order, $payment, $this->round($refundSummary->getRefundedAmount())),
+            $this->buildCommon($order, $payment, $totalAmount),
             $this->buildIssuers($order, $payment),
-            $this->buildArticles($refundSummary, $payment->payment_method)
+            $this->buildArticles($refundSummary, $payment->payment_method, $extraFeeAmount)
         );
     }
 
-    private function buildArticles(OrderRefundSummary $refundSummary, string $paymentCode): array
+    private function buildArticles(OrderRefundSummary $refundSummary, string $paymentCode, float $extraFeeAmount = 0.0): array
     {
         if (!in_array($paymentCode, ['afterpay', 'billink'])) {
             return [];
@@ -63,20 +65,23 @@ class Builder extends AbstractBuilder
                     continue;
                 }
 
-                $amount = $this->round((float) $productRefund['amount']);
-                if ($amount <= 0) {
+                $lineTotal = $this->round((float) $productRefund['amount']);
+                if ($lineTotal <= 0) {
                     continue;
                 }
 
+                $quantity = (int) $productRefund['quantity'];
+                $unitPrice = $quantity > 0 ? $this->round($lineTotal / $quantity) : $lineTotal;
+                $total += $this->round($unitPrice * $quantity);
+
                 $orderDetail = $refundSummary->getOrderDetailById($orderDetailId);
-                $total += $amount;
 
                 $articles[] = [
                     'refundType' => 'Return',
                     'identifier' => $orderDetail->product_id,
                     'description' => $orderDetail->product_name,
-                    'quantity' => $productRefund['quantity'],
-                    'price' => $amount,
+                    'quantity' => $quantity,
+                    'price' => $unitPrice,
                     'vatPercentage' => $this->getVatPercentage($orderDetail),
                 ];
             }
@@ -110,8 +115,23 @@ class Builder extends AbstractBuilder
             ];
         }
 
+        // Include payment fee line when requested
+        if ($extraFeeAmount > 0) {
+            $feeAmount = $this->round($extraFeeAmount);
+            $total += $feeAmount;
+
+            $articles[] = [
+                'refundType' => 'Return',
+                'identifier' => 'buckaroo_payment_fee',
+                'description' => 'Payment fee',
+                'quantity' => 1,
+                'price' => $feeAmount,
+                'vatPercentage' => 0,
+            ];
+        }
+
         // Checking for rounding errors
-        $errors = $this->round($refundSummary->getRefundedAmount()) - $total;
+        $errors = $this->round($refundSummary->getRefundedAmount() + $extraFeeAmount) - $total;
         if (abs($errors) >= 0.01) {
             $articles[] = [
                 'refundType' => 'Return',

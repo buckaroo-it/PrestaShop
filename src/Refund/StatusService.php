@@ -109,7 +109,10 @@ class StatusService
     }
 
     /**
-     * Get total successful refunded amount for an order
+     * Get total successful refunded amount for an order.
+     * Uses Buckaroo API refund records when available, otherwise falls back
+     * to PrestaShop credit slip (OrderSlip) amounts for cases where the
+     * Buckaroo API refund is disabled.
      *
      * @param \Order $order
      *
@@ -117,20 +120,55 @@ class StatusService
      */
     private function getRefundedAmount(\Order $order): float
     {
+        $bkAmount = $this->getBkRefundedAmount($order);
+        if ($bkAmount > 0) {
+            return $bkAmount;
+        }
+
+        return $this->getPsSlipRefundedAmount($order);
+    }
+
+    /**
+     * Get total amount refunded through the Buckaroo API (BkRefundRequest records)
+     *
+     * @param \Order $order
+     *
+     * @return float
+     */
+    private function getBkRefundedAmount(\Order $order): float
+    {
         $refundRequestRepository = $this->entityManager->getRepository(BkRefundRequest::class);
         $refunds = $refundRequestRepository->findBy([
             'orderId' => $order->id,
             'status' => BkRefundRequest::STATUS_SUCCESS,
         ]);
 
-        $refunded = array_sum(array_map(
+        return (float) array_sum(array_map(
             function ($refund) {
                 return $refund->getAmount();
             },
             $refunds
         ));
+    }
 
-        return (float) $refunded;
+    /**
+     * Get total refunded amount from PrestaShop credit slips (OrderSlip).
+     * Used as fallback when Buckaroo API refunds are disabled.
+     *
+     * @param \Order $order
+     *
+     * @return float
+     */
+    private function getPsSlipRefundedAmount(\Order $order): float
+    {
+        $slips = \OrderSlip::getOrdersSlip($order->id_customer, $order->id);
+        if (empty($slips)) {
+            return 0.0;
+        }
+
+        return (float) array_sum(array_map(function ($slip) {
+            return (float) $slip['total_products_tax_incl'] + (float) $slip['total_shipping_tax_incl'];
+        }, $slips));
     }
 
     /**

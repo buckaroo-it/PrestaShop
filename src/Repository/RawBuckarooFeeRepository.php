@@ -64,4 +64,36 @@ class RawBuckarooFeeRepository
         $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_buckaroo_fee WHERE id_order = ' . (int)$orderId;
         return \Db::getInstance()->getRow($sql);
     }
+
+    /**
+     * Marks the payment fee for an order as refunded.
+     *
+     * @param int $orderId
+     * @return bool
+     */
+    public function markFeeRefunded(int $orderId): bool
+    {
+        try {
+            return \Db::getInstance()->update(
+                'bk_buckaroo_fee',
+                ['fee_refunded' => 1],
+                'id_order = ' . (int) $orderId
+            );
+        } catch (\Exception $e) {
+            \PrestaShopLogger::addLog('Failed to mark buckaroo fee as refunded: ' . $e->getMessage(), 3);
+            return false;
+        }
+    }
+
+    /**
+     * Returns whether the payment fee for an order has already been refunded.
+     *
+     * @param int $orderId
+     * @return bool
+     */
+    public function isFeeRefunded(int $orderId): bool
+    {
+        $row = $this->getFeeByOrderId($orderId);
+        return !empty($row['fee_refunded']);
+    }
 }
