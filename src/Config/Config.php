@@ -37,4 +37,16 @@ class Config
     public const PAYMENT_FEE_FRONTEND_LABEL = 'PAYMENT_FEE_FRONTEND_LABEL';
 
     public const FILE_NAME = 'Installer';
+
+    /**
+     * Payment methods that do not support a configurable payment fee.
+     */
+    private const PAYMENT_FEE_DISABLED_METHODS = [
+        'paybybank',
+    ];
+
+    public static function isPaymentFeeAllowed(string $method): bool
+    {
+        return !in_array(strtolower($method), self::PAYMENT_FEE_DISABLED_METHODS, true);
+    }
 }
