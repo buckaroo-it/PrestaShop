@@ -296,7 +296,55 @@ function buckaroo() {
     });
 
     $('#payment-confirmation button').on('click', (e) => {
+        ensureCreditCardIssuerInPaymentForm();
         methodValidator.init(e);
+    });
+
+    /**
+     * Copy the selected card brand onto the payment form that will be posted.
+     * Some checkouts keep issuer controls outside that form.
+     */
+    function ensureCreditCardIssuerInPaymentForm() {
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if (!$selectedOption.length) {
+            return;
+        }
+
+        const optionId = $selectedOption.attr('id');
+        const $paymentFormContainer = $('#pay-with-' + optionId + '-form');
+        const $paymentForm = $paymentFormContainer.find('form').first();
+        if (!$paymentForm.length) {
+            return;
+        }
+
+        let issuer = $paymentForm.find('input[name="BPE_CreditCard"]:checked').val()
+            || $paymentForm.find('select[name="BPE_CreditCard"]').val()
+            || $paymentForm.find('input[name="cardCode"]').val()
+            || '';
+
+        if (!issuer || issuer === '0') {
+            const $info = $('#' + optionId + '-additional-information');
+            issuer = $info.find('input[name="BPE_CreditCard"]:checked').val()
+                || $info.find('select[name="BPE_CreditCard"]').val()
+                || '';
+        }
+
+        if (!issuer || issuer === '0') {
+            return;
+        }
+
+        let $hidden = $paymentForm.find('input[type="hidden"][name="BPE_CreditCard"]');
+        if (!$hidden.length) {
+            $hidden = $('<input>', { type: 'hidden', name: 'BPE_CreditCard' }).appendTo($paymentForm);
+        }
+        $hidden.val(issuer);
+    }
+
+    $(document).on('submit', 'form', function () {
+        const action = ($(this).attr('action') || '').toLowerCase();
+        if (action.indexOf('buckaroo3') !== -1 && action.indexOf('method=creditcard') !== -1) {
+            ensureCreditCardIssuerInPaymentForm();
+        }
     });
 
     const $selectedOption = $('input[name="payment-option"]:checked');
@@ -312,7 +360,14 @@ function buckaroo() {
         valid: true,
         setMethod: (id) => {
             methodValidator.formPointer = $('#pay-with-' + id + '-form form');
-            methodValidator.methodSelector = methodValidator.formPointer.attr('action').split('method=')[1];
+            if (!methodValidator.formPointer.length) {
+                methodValidator.formPointer = $('#pay-with-' + id + '-form');
+            }
+            const action = methodValidator.formPointer.attr('action') || '';
+            const methodMatch = action.match(/[?&]method=([^&]+)/i);
+            methodValidator.methodSelector = methodMatch
+                ? decodeURIComponent(methodMatch[1]).toLowerCase()
+                : null;
         }, requiredAll: () => {
             methodValidator.formPointer.find('label.required').parent().nextAll().find('input').not('.buckaroo-validation-message').each(function () {
                 let invalid = !validateRequired($(this).val());

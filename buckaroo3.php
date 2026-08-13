@@ -1066,11 +1066,12 @@ class Buckaroo3 extends PaymentModule
     /**
      * Determine whether an order should be treated as a backorder.
      *
-     * The previous implementation only checked for negative stock values,
-     * which could miss partial backorders. The new logic considers:
-     * - global stock management setting
-     * - ordered vs. in‑stock quantities per order line
-     * - advanced stock via StockAvailable when present
+     * Uses stock quantities captured on the order lines at order creation time
+     * (`product_quantity_in_stock` vs `product_quantity`). Current live stock
+     * must not be consulted: PrestaShop already decrements stock during
+     * validateOrder, so comparing live stock to ordered qty falsely marks
+     * normal paid orders as backorders and triggers a second stock mutation
+     * via PS_OS_OUTOFSTOCK_PAID.
      *
      * @param int|null $orderId
      *
@@ -1100,25 +1101,11 @@ class Buckaroo3 extends PaymentModule
 
         foreach ($orderDetails as $detail) {
             $orderedQty = (int) $detail['product_quantity'];
-
-            // Quantity that was in stock when the order was placed
             $inStockAtOrder = (int) $detail['product_quantity_in_stock'];
 
             // If there wasn't enough stock at order time, this line is (at least partly) backordered
             if ($inStockAtOrder < $orderedQty) {
                 return true;
-            }
-
-            // As an additional safety net, check current stock when available
-            if (class_exists('StockAvailable')) {
-                $currentQty = (int) StockAvailable::getQuantityAvailableByProduct(
-                    (int) $detail['product_id'],
-                    (int) $detail['product_attribute_id']
-                );
-
-                if ($currentQty < 0 || $currentQty < $orderedQty) {
-                    return true;
-                }
             }
         }
 
