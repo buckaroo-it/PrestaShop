@@ -17,6 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
@@ -85,7 +86,7 @@ class BuckarooFeeService
 
     public function getBuckarooFeeInputs($method)
     {
-        $feeData = $this->getFeeData($this->getSpecificValueFromConfig($method, 'payment_fee'));
+        $feeData = $this->getFeeData($this->getBuckarooFeeValue($method));
 
         $buckarooKeyInput = [
             'type' => 'hidden',
@@ -116,6 +117,10 @@ class BuckarooFeeService
 
     public function getBuckarooFeeValue($method)
     {
+        if (!Config::isPaymentFeeAllowed((string) $method)) {
+            return null;
+        }
+
         return $this->getSpecificValueFromConfig($method, 'payment_fee');
     }
 

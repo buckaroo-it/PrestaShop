@@ -17,6 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
@@ -49,7 +50,10 @@ class BuckarooConfigService
             return null;
         }
 
-        return $this->configurationRepository->getConfigArray($paymentMethod->getId());
+        $configArray = $this->configurationRepository->getConfigArray($paymentMethod->getId());
+        $configArray['payment_fee_allowed'] = Config::isPaymentFeeAllowed((string) $method);
+
+        return $configArray;
     }
 
     public function getConfigValue($method, $key)
@@ -72,6 +76,10 @@ class BuckarooConfigService
         }
 
         $paymentMethodId = $paymentMethod->getId();
+
+        if (!Config::isPaymentFeeAllowed((string) $name)) {
+            $data['payment_fee'] = '';
+        }
 
         // Existing config
         $configArray = $this->configurationRepository->getConfigArray($paymentMethodId);

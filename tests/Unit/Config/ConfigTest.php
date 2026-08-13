@@ -32,5 +32,13 @@ class ConfigTest extends TestCase
         $this->assertSame('PAYMENT_FEE_MODE', Config::PAYMENT_FEE_MODE);
         $this->assertSame('PAYMENT_FEE_FRONTEND_LABEL', Config::PAYMENT_FEE_FRONTEND_LABEL);
     }
+
+    public function testPaymentFeeIsNotAllowedForPayByBank(): void
+    {
+        $this->assertFalse(Config::isPaymentFeeAllowed('paybybank'));
+        $this->assertFalse(Config::isPaymentFeeAllowed('PayByBank'));
+        $this->assertTrue(Config::isPaymentFeeAllowed('ideal'));
+        $this->assertTrue(Config::isPaymentFeeAllowed('paypal'));
+    }
 }
 

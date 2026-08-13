@@ -63,7 +63,7 @@
 
                 <slot></slot>
 
-                <div class="px-5 space-y-5">
+                <div v-if="config.payment_fee_allowed !== false" class="px-5 space-y-5">
                     <div class="space-y-2">
                         <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat`) }}</h2>
                         <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.payment_fee_incl_vat_label`) }}</div>
@@ -196,6 +196,7 @@ export default {
             mode: 'off',
             frontend_label: '',
             payment_fee: null,
+            payment_fee_allowed: true,
             min_order_amount: null,
             max_order_amount: null,
             countries: [],
@@ -217,6 +218,7 @@ export default {
                         display_type: 'dropdown',
                         frontend_label: '',
                         payment_fee: null,
+                        payment_fee_allowed: true,
                         min_order_amount: null,
                         max_order_amount: null,
                         countries: [],
