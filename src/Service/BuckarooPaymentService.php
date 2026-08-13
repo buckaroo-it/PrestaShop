@@ -168,8 +168,20 @@ class BuckarooPaymentService
             ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
             ->setModuleName($method);
 
-        
-        $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
+        // Include cardCode as a POST input so third-party checkouts (e.g. TheCheckout)
+        // still receive the brand when query-string parameters are stripped.
+        $inputs = $this->buckarooFeeService->getBuckarooFeeInputs($method);
+        $inputs[] = [
+            'type' => 'hidden',
+            'name' => 'cardCode',
+            'value' => $cardCode,
+        ];
+        $inputs[] = [
+            'type' => 'hidden',
+            'name' => 'BPE_CreditCard',
+            'value' => $cardCode,
+        ];
+        $newOption->setInputs($inputs);
 
         $logoPath = '/modules/buckaroo3/views/img/buckaroo/' . $this->getCardLogoPath($cardData['icon'] ?? null, $details);
 

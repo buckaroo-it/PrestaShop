@@ -32,7 +32,12 @@ class CreditCard extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
-        $this->payload['name'] = $this->issuer;
+        $issuer = is_string($this->issuer) ? trim($this->issuer) : '';
+        if ($issuer === '' || $issuer === '0') {
+            throw new Exception('Please select a credit or debit card before continuing with payment.');
+        }
+
+        $this->payload['name'] = $issuer;
 
         return parent::pay();
     }

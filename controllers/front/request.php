@@ -96,6 +96,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
+            // Validate credit-card issuer before creating an order. Empty brand/service
+            // names produce Buckaroo "' is not a valid service name" and left orphan orders.
+            if (!$this->isValidCreditCardIssuer($payment_method)) {
+                return;
+            }
+
             $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
             $total = $this->applyBuckarooFee($payment_method, $total);
 
@@ -252,6 +258,31 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is currently disabled.'));
             return false;
         }
+
+        return true;
+    }
+
+    private function isValidCreditCardIssuer(string $payment_method): bool
+    {
+        if ($payment_method !== 'creditcard') {
+            return true;
+        }
+
+        require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/creditcardcheckout.php';
+
+        $issuer = CreditCardCheckout::resolveIssuer();
+        if ($issuer === '') {
+            $this->logger->logError('Credit card payment started without a selected card brand/issuer.');
+            $this->redirectToCheckoutStep(
+                3,
+                $this->module->l('Please select a credit or debit card before continuing with payment.')
+            );
+
+            return false;
+        }
+
+        // Keep a single POST field so checkout/pay always see the same issuer.
+        $_POST['BPE_CreditCard'] = $issuer;
 
         return true;
     }
