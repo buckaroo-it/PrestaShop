@@ -200,7 +200,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $history->id_order = $id_order;
                     $history->date_add = date('Y-m-d H:i:s');
                     $history->date_upd = date('Y-m-d H:i:s');
-                    $history->changeIdOrderState($new_status_code, $id_order);
+                    $history->changeIdOrderState($new_status_code, $id_order, true);
                     $history->addWithemail(false);
 
                     $payments = OrderPayment::getByOrderReference($order->reference);

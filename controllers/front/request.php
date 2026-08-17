@@ -419,7 +419,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $id_order = $this->module->currentOrder;
 
         $responseData = $response->getResponse();
-        $this->createTransactionMessage($id_order, 'Transaction Key: ' . $responseData->getTransactionKey());
+        $transactionKey = $responseData ? trim((string) $responseData->getTransactionKey()) : '';
+        $this->createTransactionMessage($id_order, 'Transaction Key: ' . $transactionKey);
+
+        $method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
+        if ($transactionKey !== '' && in_array($method, ['sepadirectdebit', 'transfer', 'payperemail'], true)) {
+            $this->storeTransactionKeyOnOrderPayment((int) $id_order, $transactionKey);
+        }
 
         if ($response->payment_method == 'SepaDirectDebit') {
             $this->processSepaDirectDebit($id_order, $responseData);
@@ -550,6 +556,44 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $message->id_order = $orderId;
         $message->message = $messageString;
         $message->add();
+    }
+
+    private function storeTransactionKeyOnOrderPayment(int $orderId, string $transactionKey): void
+    {
+        if ($orderId <= 0 || $transactionKey === '') {
+            return;
+        }
+
+        $order = new Order($orderId);
+        if (!Validate::isLoadedObject($order)) {
+            return;
+        }
+
+        $payments = OrderPayment::getByOrderReference($order->reference);
+        if (!is_array($payments)) {
+            $payments = [];
+        }
+
+        foreach ($payments as $payment) {
+            if ((string) $payment->transaction_id !== '') {
+                continue;
+            }
+
+            $payment->transaction_id = $transactionKey;
+            $payment->update();
+            return;
+        }
+
+        // Pending states (Awaiting for Remote payment) do not create OrderPayment
+        // during validateOrder. Add one so the key is visible on Order Details.
+        $payment = new OrderPayment();
+        $payment->order_reference = $order->reference;
+        $payment->id_currency = (int) $order->id_currency;
+        $payment->conversion_rate = (float) ($order->conversion_rate ?: 1);
+        $payment->amount = (float) $order->total_paid_tax_incl;
+        $payment->payment_method = $order->payment ?: 'buckaroo3';
+        $payment->transaction_id = $transactionKey;
+        $payment->add();
     }
 
     private function setCartCookie($cartId)
