@@ -418,7 +418,7 @@ abstract class Checkout
     }
 
     /**
-     * Get product image URL if method is "afterpay"
+     * Get product image URL if method is "afterpay" or "klarna"
      *
      * @param array $product
      *
@@ -426,7 +426,7 @@ abstract class Checkout
      */
     private function getProductImgUrl($product)
     {
-        if (Tools::getValue('method') !== "afterpay") {
+        if (!in_array(Tools::getValue('method'), ['afterpay', 'klarna'], true)) {
             return null;
         }
 

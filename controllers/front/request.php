@@ -400,6 +400,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->logger->logInfo('Request succeeded');
 
         if ($this->checkout->isRedirectRequired()) {
+            $this->storeKlarnaDataRequestKey($response);
             $this->setCartCookie($cartId);
             $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
@@ -548,6 +549,24 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         ]);
 
         Tools::redirect($redirectUrl);
+    }
+
+    private function storeKlarnaDataRequestKey($response): void
+    {
+        $method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
+        if ($method !== 'klarna') {
+            return;
+        }
+
+        $responseData = $response->getResponse();
+        $dataRequestKey = $responseData ? trim((string) $responseData->getTransactionKey()) : '';
+        if ($dataRequestKey === '') {
+            return;
+        }
+
+        $id_order = (int) $this->module->currentOrder;
+        $this->createTransactionMessage($id_order, 'Data Request Key: ' . $dataRequestKey);
+        $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey);
     }
 
     private function createTransactionMessage($orderId, $messageString)

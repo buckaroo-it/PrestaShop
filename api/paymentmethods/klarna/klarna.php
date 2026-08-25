@@ -33,6 +33,13 @@ class Klarna extends PaymentMethod
         return array_merge_recursive($this->payload, $data);
     }
 
+    public function reserve($customVars = [])
+    {
+        $this->payload = $this->getPayload($customVars);
+
+        return $this->executeCustomPayAction('reserve');
+    }
+
     public function pay($customVars = [])
     {
         $this->payload = $this->getPayload($customVars);

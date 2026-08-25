@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Refund\KlarnaTransactionKey;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 
@@ -162,6 +163,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
                 $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
                 $order = new Order($id_order);
+
+                if (KlarnaTransactionKey::isCapturePush($response)) {
+                    KlarnaTransactionKey::storeCaptureKey($order, (string) $response->transactions);
+                }
 
                 // Validate that the resolved order state actually exists in this shop.
                 if (!$this->isValidOrderStateId($new_status_code)) {
