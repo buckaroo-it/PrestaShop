@@ -45,7 +45,7 @@ function upgrade_module_4_4_0($object)
 
     $paymentMethodId = Db::getInstance()->Insert_ID();
 
-    // Insert default configuration for Knaken Settle
+    // Insert default configuration for Blik
     $blikConfig = [
         'mode' => 'off'
     ];

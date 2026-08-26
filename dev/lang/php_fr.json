@@ -202,7 +202,6 @@
   "payment_methods.bizum": "Bizum",
   "payment_methods.wero": "Wero",
   "payment_methods.wechatpay": "WeChatPay",
-  "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "IDIN",
   "dashboard.pages.payments.displayInCheckout": "Regroupement des marques au paiement",
   "dashboard.pages.payments.displayInCheckoutDesc": "Option pour définir la façon dont les marques sont affichées lors du paiement. <br/> <b>Separate</b> : Les marques sont affichées séparément lors du paiement.</br><b>Grouped</b> : Les marques sont affichées dans un seul groupe."
