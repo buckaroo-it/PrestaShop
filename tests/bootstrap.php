@@ -212,6 +212,16 @@ if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
             return $this->callToActionText;
         }
 
+        public function getAction()
+        {
+            return $this->action;
+        }
+
+        public function getForm()
+        {
+            return $this->form;
+        }
+
         public function getInputs()
         {
             return $this->inputs;
