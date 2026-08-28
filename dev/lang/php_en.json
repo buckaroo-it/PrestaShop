@@ -207,7 +207,6 @@
   "payment_methods.bizum": "Bizum",
   "payment_methods.wero": "Wero",
   "payment_methods.wechatpay": "WeChatPay",
-  "payment_methods.knaken": "goSettle",
   "verification_methods.idin": "iDIN",
   "dashboard.pages.payments.displayInCheckout": "Group brands in checkout",
   "dashboard.pages.payments.displayInCheckoutDesc": "Option for how to show brands in the checkout. <br/> <b>Separate</b>: Brands are shown separately in the checkout.</br><b>Grouped</b>: Brands are shown within one group."

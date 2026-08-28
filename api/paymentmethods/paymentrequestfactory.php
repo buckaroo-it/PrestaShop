@@ -49,7 +49,6 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_ALIPAY = 'alipay';
     public const REQUEST_TYPE_MULTIBANCO = 'multibanco';
     public const REQUEST_TYPE_MBWAY = 'mbway';
-    public const REQUEST_TYPE_KNAKEN = 'knaken';
     public const REQUEST_TYPE_TWINT = 'twint';
     public const REQUEST_TYPE_SWISH = 'swish';
     public const REQUEST_TYPE_BIZUM = 'bizum';
@@ -85,7 +84,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
         PaymentRequestFactory::REQUEST_TYPE_MULTIBANCO => 'Multibanco',
         PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'Mbway',
-        PaymentRequestFactory::REQUEST_TYPE_KNAKEN => 'Knaken',
         PaymentRequestFactory::REQUEST_TYPE_TWINT => 'Twint',
         PaymentRequestFactory::REQUEST_TYPE_SWISH => 'Swish',
         PaymentRequestFactory::REQUEST_TYPE_BIZUM => 'Bizum',

@@ -57,7 +57,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
     public const CHECKOUT_TYPE_MBWAY = 'mbway';
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
-    public const CHECKOUT_TYPE_KNAKEN = 'knaken';
     public const CHECKOUT_TYPE_BLIK = 'blik';
     public const CHECKOUT_TYPE_TWINT = 'twint';
     public const CHECKOUT_TYPE_SWISH = 'swish';
@@ -92,7 +91,6 @@ abstract class Checkout
         self::CHECKOUT_TYPE_ALIPAY => 'Alipay',
         self::CHECKOUT_TYPE_MBWAY => 'Mbway',
         self::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
-        self::CHECKOUT_TYPE_KNAKEN => 'Knaken',
         self::CHECKOUT_TYPE_BLIK => 'Blik',
         self::CHECKOUT_TYPE_TWINT => 'Twint',
         self::CHECKOUT_TYPE_SWISH => 'Swish',
