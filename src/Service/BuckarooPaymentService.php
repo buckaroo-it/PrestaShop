@@ -139,18 +139,52 @@ class BuckarooPaymentService
     private function getIndividualGiftCards($method, $details): array
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod('giftcard');
-
         $methods = [];
-        if (isset($configArray['activeGiftcards']) && is_array($configArray['activeGiftcards']) && count($configArray['activeGiftcards']) > 0) {
-            foreach ($configArray['activeGiftcards'] as $cards) {
-                foreach ($cards as $card) {
-                    if (array_key_exists('code', $card)) {
-                        $methods[] = $this->getIndividualGiftCard($method, $details, $card['code'], $cards);
+
+        foreach ($this->getActiveGiftcardList($configArray) as $card) {
+            $cardCode = $card['code'] ?? $card['service_code'] ?? null;
+            if (!empty($cardCode)) {
+                $methods[] = $this->getIndividualGiftCard($method, $details, (string) $cardCode, $configArray);
+            }
+        }
+
+        return $methods;
+    }
+
+    /**
+     * Flatten selected default + custom giftcards from admin config.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getActiveGiftcardList(?array $configArray): array
+    {
+        if (!isset($configArray['activeGiftcards']) || !is_array($configArray['activeGiftcards'])) {
+            return [];
+        }
+
+        $active = $configArray['activeGiftcards'];
+        $cards = [];
+
+        foreach (['giftcards', 'customGiftcards'] as $key) {
+            if (!empty($active[$key]) && is_array($active[$key])) {
+                foreach ($active[$key] as $card) {
+                    if (is_array($card)) {
+                        $cards[] = $card;
                     }
                 }
             }
         }
-        return $methods;
+
+        // Legacy / unexpected flat list of cards
+        if (empty($cards)) {
+            foreach ($active as $card) {
+                if (is_array($card) && (isset($card['code']) || isset($card['service_code']))) {
+                    $cards[] = $card;
+                }
+            }
+        }
+
+        return $cards;
     }
 
     private function getIndividualCard($method, $details, $cardCode, $configArray)
@@ -201,22 +235,29 @@ class BuckarooPaymentService
             $title = $this->getBuckarooLabel($method, $details->getLabel());
         }
 
+        $action = $this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]);
+
         if (!empty($details->getTemplate())) {
-            $this->context->smarty->assign('cardCode', $cardCode);
+            $this->context->smarty->assign([
+                'cardCode' => $cardCode,
+                'giftcardFormAction' => $action,
+            ]);
             $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
-        } else {
-            $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
 
+        $inputs = $this->buckarooFeeService->getBuckarooFeeInputs($method);
+        $inputs[] = [
+            'type' => 'hidden',
+            'name' => 'cardCode',
+            'value' => $cardCode,
+        ];
+
         $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]))
-            ->setModuleName($method);
+            ->setAction($action)
+            ->setModuleName($method)
+            ->setInputs($inputs);
 
-        $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
-
-        $logoPath = '/modules/buckaroo3/views/img/buckaroo/' . $this->getGiftCardLogoPath($cardData);
-
-        $newOption->setLogo($logoPath);
+        $newOption->setLogo($this->getGiftCardLogo($cardData, $details));
 
         return $newOption;
     }
@@ -238,13 +279,36 @@ class BuckarooPaymentService
         return "Creditcard issuers/SVG/" . $logo;
     }
 
-    private function getGiftCardLogoPath($cardData)
+    /**
+     * Resolve giftcard logo the same way other methods do: local module SVG for
+     * default brands; absolute/custom URL for merchant-added cards.
+     */
+    private function getGiftCardLogo(?array $cardData, $details): string
     {
-        if ($cardData['is_custom']){
-            return "Giftcards/SVG/BuckarooVoucher.svg";
+        $fallback = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
 
+        if ($cardData === null) {
+            return $fallback;
         }
-        return "Giftcards/SVG/" . $cardData['logo'];
+
+        $logo = (string) ($cardData['logo'] ?? '');
+
+        if (!empty($cardData['is_custom'])) {
+            if ($logo !== '' && preg_match('#^(https?:)?//#i', $logo)) {
+                return $logo;
+            }
+            if ($logo !== '' && strpos($logo, '/') === 0) {
+                return $logo;
+            }
+
+            return '/modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/BuckarooVoucher.svg';
+        }
+
+        if ($logo === '') {
+            return $fallback;
+        }
+
+        return '/modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/' . $logo;
     }
 
     private function getCardData(string $cardCode): ?array
@@ -263,13 +327,31 @@ class BuckarooPaymentService
     private function getGiftCardData(string $cardCode): ?array
     {
         $repo = new RawGiftCardsRepository();
-        foreach ($repo->getGiftCardsFromDB() as $cardData) {
-            if ($cardData['code'] === $cardCode) {
+
+        try {
+            foreach ($repo->getGiftCardsFromDB() as $cardData) {
+                if (($cardData['code'] ?? '') === $cardCode) {
+                    return $cardData;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Unit tests / missing table: fall back to seeded defaults.
+        }
+
+        foreach ($repo->getGiftCardsData() as $cardData) {
+            if (($cardData['code'] ?? '') === $cardCode) {
+                $cardData['is_custom'] = 0;
+
                 return $cardData;
             }
         }
 
-        return null;
+        return [
+            'code' => $cardCode,
+            'name' => $cardCode,
+            'logo' => '',
+            'is_custom' => 1,
+        ];
     }
 
     private function areCardsSeparate($method): bool

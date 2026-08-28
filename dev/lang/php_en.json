@@ -209,5 +209,6 @@
   "payment_methods.wechatpay": "WeChatPay",
   "verification_methods.idin": "iDIN",
   "dashboard.pages.payments.displayInCheckout": "Group brands in checkout",
-  "dashboard.pages.payments.displayInCheckoutDesc": "Option for how to show brands in the checkout. <br/> <b>Separate</b>: Brands are shown separately in the checkout.</br><b>Grouped</b>: Brands are shown within one group."
+  "dashboard.pages.payments.displayInCheckoutDesc": "Option for how to show brands in the checkout. <br/> <b>Separate</b>: Brands are shown separately in the checkout.</br><b>Grouped</b>: Brands are shown within one group.",
+  "dashboard.pages.payments.displayInCheckoutGiftcardDesc": "Option for how to show giftcards in the checkout. <br/> <b>Inline</b>: Each giftcard brand is shown separately in the checkout with card number and PIN fields.</br><b>Grouped</b>: One Giftcards method redirects to the Buckaroo Hosted Payment Page."
 }

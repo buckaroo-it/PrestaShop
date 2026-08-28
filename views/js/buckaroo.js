@@ -21,6 +21,12 @@ class BuckarooFeeManager {
     }
 
     _findTotalsContainer() {
+        if ($('.js-cart-summary-totals').length) {
+            return $('.js-cart-summary-totals').first();
+        }
+        if ($('.cart-summary__total').length) {
+            return $('.cart-summary__total').first();
+        }
         if ($('.card-block.cart-summary-totals').length) {
             return $('.card-block.cart-summary-totals').first();
         }
@@ -209,6 +215,10 @@ class BuckarooFeeManager {
             this.updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes);
         } else {
             this.removePaymentFee();
+        }
+
+        if (window.BuckarooAlreadyPaid && typeof window.BuckarooAlreadyPaid.handleCartUpdate === 'function') {
+            window.BuckarooAlreadyPaid.handleCartUpdate(response);
         }
     }
 

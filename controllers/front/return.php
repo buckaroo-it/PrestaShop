@@ -117,24 +117,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
                 if ($id_order && $response->hasSucceeded()) {
                     $order = new Order($id_order);
-                    $order->setInvoice(false);
-                    $payment = new OrderPayment();
-                    $payment->order_reference = $order->reference;
-                    $payment->id_currency = $order->id_currency;
-                    $payment->transaction_id = $response->transactions;
-                    $payment->amount = urldecode($response->amount);
-                    $payment->payment_method = $response->payment_method;
-                    $order->total_paid_real += $response->amount;
-                    $order->save();
-                    $payment->conversion_rate = 1;
-                    $payment->save();
-                    Db::getInstance()->execute(
-                        '
-                        INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
-                        VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
-                    );
 
-                    // Link group-transaction rows to the order if not already done
                     if ($order->id_cart) {
                         $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
                     }
@@ -143,6 +126,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $message->id_order = $id_order;
                     $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
                     $message->add();
+
+                    if ($this->completeOrderIfFullyPaid((int) $id_order, $response)) {
+                        $this->logger->logInfo('Partial payment complete: order marked as paid', 'Order ID: ' . $id_order);
+                    }
                 }
                 exit;
             }

@@ -31,7 +31,7 @@ class GiftCardCheckout extends Checkout
         parent::setCheckout();
 
         $this->customVars = [
-            'servicesSelectableByClient' => Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'),
+            'servicesSelectableByClient' => $this->getAllowedGiftcardServices(),
             'continueOnIncomplete'       => '1',
         ];
 
@@ -55,6 +55,45 @@ class GiftCardCheckout extends Checkout
     public function isVerifyRequired()
     {
         return false;
+    }
+
+    /**
+     * Prefer the legacy PS config key; fall back to Vue activeGiftcards JSON.
+     */
+    private function getAllowedGiftcardServices(): string
+    {
+        $allowed = (string) Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
+        if ($allowed !== '') {
+            return $allowed;
+        }
+
+        try {
+            $module = \Module::getInstanceByName('buckaroo3');
+            if (!$module || !method_exists($module, 'get')) {
+                return '';
+            }
+            $configService = $module->get('buckaroo.config.api.config.service');
+            if (!$configService || !method_exists($configService, 'getConfigArrayForMethod')) {
+                return '';
+            }
+            $config = $configService->getConfigArrayForMethod('giftcard');
+            $codes = [];
+            foreach (['giftcards', 'customGiftcards'] as $key) {
+                if (empty($config['activeGiftcards'][$key]) || !is_array($config['activeGiftcards'][$key])) {
+                    continue;
+                }
+                foreach ($config['activeGiftcards'][$key] as $card) {
+                    $code = $card['code'] ?? $card['service_code'] ?? null;
+                    if (!empty($code)) {
+                        $codes[] = (string) $code;
+                    }
+                }
+            }
+
+            return implode(',', array_unique($codes));
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     protected function initialize()

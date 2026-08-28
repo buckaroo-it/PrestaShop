@@ -66,7 +66,11 @@ abstract class Response extends BuckarooAbstract
         } else {
             $this->isPush = $this->isPushRequest();
             $this->received = true;
-            $this->logger->logInfo('Response determined to be a push request');
+            $this->logger->logInfo(
+                $this->isPush
+                    ? 'Response determined to be a push/return request'
+                    : 'Response has no brq_statuscode (not a push/return payload)'
+            );
             $this->parsePushRequest();
         }
     }
@@ -206,11 +210,13 @@ abstract class Response extends BuckarooAbstract
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                 try {
-                    $reply_handler = new ReplyHandler($buckaroo->client()->config(), $_POST);
+                    // Customer return may arrive as GET; push is usually POST.
+                    $data = array_merge($_GET, $_POST);
+                    $reply_handler = new ReplyHandler($buckaroo->client()->config(), $data);
                     $reply_handler->validate();
                     $this->validated = $reply_handler->isValid();
                     $this->logger->logInfo('Push request validated successfully');
-                } catch (Exception $e) {
+                } catch (\Throwable $e) {
                     $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
                 }
             } elseif ($this->response) {
@@ -266,14 +272,18 @@ abstract class Response extends BuckarooAbstract
 
     public function getCartIdAndReferenceId($show = false)
     {
-        $e = explode('_', urldecode($this->invoicenumber));
-        if (!empty($e[1])) {
-            list($reference, $cartId) = $e;
+        $invoice = urldecode((string) ($this->invoicenumber ?? ''));
+        $parts = $invoice !== '' ? explode('_', $invoice) : [];
+
+        if (count($parts) >= 2) {
+            $cartId = (int) end($parts);
+            $reference = implode('_', array_slice($parts, 0, -1));
         } else {
             $cartId = 0;
-            $reference = $this->invoicenumber;
+            $reference = $invoice;
         }
-        return $show == 'cartId' ? (int)$cartId : $reference;
+
+        return $show == 'cartId' ? $cartId : $reference;
     }
 
     public function getCartId(): int

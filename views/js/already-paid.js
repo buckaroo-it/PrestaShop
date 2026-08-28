@@ -16,12 +16,12 @@
  * Responsibilities:
  *  1. On page load: fetch giftcard partial-payment state from the server and
  *     inject "Paid with X Giftcard" / "Remaining Amount" lines into the
- *     checkout order summary.
+ *     checkout order summary (and update the visible grand total).
  *  2. After every Ajax cart-totals update (payment method switch): re-render
  *     those lines so they survive the DOM replacement done by BuckarooFeeManager.
  */
 
-/* global $, buckarooAjaxUrl, buckarooAlreadyPaidData */
+/* global $, buckarooAjaxUrl, buckarooAlreadyPaidData, buckarooAlreadyPaidLabels, prestashop */
 
 (function ($) {
     'use strict';
@@ -33,21 +33,52 @@
             alreadyPaid: 0,
             remainingAmount: 0,
             giftcardItems: [],
-            currencySign: ''
+            currencySign: '',
+            cartTotal: 0
         },
 
         init: function () {
-            // If the server already injected initial data via Media::addJsDef, use it.
+            // Prefer server-injected data, then always refresh from Ajax so
+            // cookie/DB state after applygiftcard redirect is never stale.
             if (typeof buckarooAlreadyPaidData !== 'undefined' && buckarooAlreadyPaidData) {
                 this.data = $.extend(this.data, buckarooAlreadyPaidData);
                 this.render();
-            } else {
-                // Otherwise fetch from the same Ajax endpoint used for fee updates.
-                this.fetchAndRender();
             }
 
-            // Patch BuckarooFeeManager so we get giftcard data in every cart update.
-            this.patchFeeManager();
+            this.fetchAndRender();
+            this.bindEvents();
+        },
+
+        handleCartUpdate: function (response) {
+            this.updateFromResponse(response);
+            this.render();
+        },
+
+        bindEvents: function () {
+            var self = this;
+            if (typeof prestashop !== 'undefined' && prestashop.on) {
+                prestashop.on('updatedCart', function () {
+                    self.fetchAndRender();
+                });
+                prestashop.on('updatedDeliveryForm', function () {
+                    self.fetchAndRender();
+                });
+            }
+
+            // Fallback when payment option changes before buckaroo.js finishes loading.
+            $(document).on('change', 'input[name="payment-option"]', function () {
+                setTimeout(function () {
+                    self.fetchAndRender();
+                }, 250);
+            });
+
+            // After returning from applygiftcard, re-fetch once more shortly
+            // after DOM/checkout widgets finish painting.
+            if (window.location.search.indexOf('buckaroo_giftcard_applied') !== -1) {
+                setTimeout(function () {
+                    self.fetchAndRender();
+                }, 400);
+            }
         },
 
         /**
@@ -85,31 +116,9 @@
             if (response.giftcardItems && $.isArray(response.giftcardItems)) {
                 this.data.giftcardItems = response.giftcardItems;
             }
-        },
-
-        /**
-         * Monkey-patch BuckarooFeeManager.handleCartUpdate so we receive the
-         * full Ajax response (including alreadyPaid / remainingAmount) after
-         * every payment-method switch, without modifying buckaroo.js.
-         */
-        patchFeeManager: function () {
-            var self = this;
-            var maxAttempts = 20;
-            var attempts = 0;
-            var timer = setInterval(function () {
-                attempts++;
-                if (typeof BuckarooFeeManager !== 'undefined' && BuckarooFeeManager.handleCartUpdate) {
-                    var original = BuckarooFeeManager.handleCartUpdate.bind(BuckarooFeeManager);
-                    BuckarooFeeManager.handleCartUpdate = function (response) {
-                        original(response);
-                        self.updateFromResponse(response);
-                        self.render();
-                    };
-                    clearInterval(timer);
-                } else if (attempts >= maxAttempts) {
-                    clearInterval(timer);
-                }
-            }, 150);
+            if (response.currencySign) {
+                this.data.currencySign = response.currencySign;
+            }
         },
 
         /**
@@ -135,7 +144,7 @@
                 }
             } else {
                 html += '<div class="cart-summary-line bk-giftcard-line">' +
-                    '<span class="label">' + (buckarooAlreadyPaidLabels ? buckarooAlreadyPaidLabels.paidWith : 'Paid with Giftcard') + '</span>' +
+                    '<span class="label">' + (typeof buckarooAlreadyPaidLabels !== 'undefined' ? buckarooAlreadyPaidLabels.paidWith : 'Paid with Giftcard') + '</span>' +
                     '<span class="value bk-giftcard-deduction">' +
                     '&minus;' + this.data.alreadyPaid.toFixed(2) + '&nbsp;' + sign +
                     '</span>' +
@@ -164,27 +173,137 @@
         render: function () {
             var html = this.buildHtml();
 
-            // Remove any existing block first (handles re-renders after Ajax).
-            $('#buckaroo-already-paid-block').remove();
+            // Keep server-rendered payment-top banner; only refresh summary clones.
+            $('.cart-summary-totals #buckaroo-already-paid-block, #js-checkout-summary #buckaroo-already-paid-block').remove();
+            $('.js-cart-summary-totals #buckaroo-already-paid-block').remove();
+            if (!$('#checkout-payment-step #buckaroo-already-paid-block').length
+                && !$('.payment-options #buckaroo-already-paid-block').length) {
+                $('#buckaroo-already-paid-block').filter(function () {
+                    return $(this).closest('.cart-summary-totals, #js-checkout-summary, .js-cart-summary-totals, .cart-summary__total').length > 0;
+                }).remove();
+            }
 
-            if (!html) {
+            if (html) {
+                var $target = this.findSummaryInjectionTarget();
+                if ($target && $target.length) {
+                    $target.before(html);
+                }
+            }
+
+            this.updateGrandTotalDisplay();
+        },
+
+        /**
+         * Locate where to inject giftcard summary lines (theme-aware).
+         */
+        findSummaryInjectionTarget: function () {
+            var selectors = [
+                '.js-cart-summary-totals .cart-summary__line--bold',
+                '.cart-summary__total .cart-summary__line--bold',
+                '.cart-summary-totals .cart-total',
+                '#js-checkout-summary .cart-summary-totals .cart-summary-line',
+                '.cart-summary-totals .cart-summary-line'
+            ];
+
+            for (var i = 0; i < selectors.length; i++) {
+                var $target = $(selectors[i]).first();
+                if ($target.length) {
+                    return $target;
+                }
+            }
+
+            return $('.card-block.cart-summary-totals, .cart-body.cart-summary-totals, .cart-summary-totals, .js-cart-summary-totals').first();
+        },
+
+        /**
+         * Find grand-total value nodes across Classic and Hummingbird checkout themes.
+         */
+        findGrandTotalValueElements: function () {
+            var $result = $();
+            var $containers = $('.js-cart-summary-totals, .cart-summary__total, .cart-summary-totals, #js-checkout-summary .cart-summary-totals');
+
+            $containers.each(function () {
+                var $container = $(this);
+                var $match = $();
+
+                $container.find('.cart-summary__line--bold, .cart-summary-line.cart-total').each(function () {
+                    var $line = $(this);
+                    var label = $line.find('.cart-summary__label, .label').text().toLowerCase();
+
+                    if (label.indexOf('total') !== -1
+                        && (label.indexOf('incl') !== -1
+                            || label.indexOf('included') !== -1
+                            || label.indexOf('ttc') !== -1)) {
+                        $match = $line.find('.cart-summary__value, .value').first();
+                        return false;
+                    }
+                });
+
+                if (!$match.length) {
+                    $match = $container.find('.cart-summary__line--bold, .cart-summary-line.cart-total').first()
+                        .find('.cart-summary__value, .value').first();
+                }
+
+                if ($match.length) {
+                    $result = $result.add($match);
+                }
+            });
+
+            if (!$result.length) {
+                $result = $('.cart-summary-totals .cart-total .value, .cart-summary-totals .cart-total span.value');
+            }
+
+            return $result;
+        },
+
+        formatRemainingTotal: function (amount, sign) {
+            if (typeof prestashop !== 'undefined'
+                && prestashop.currency
+                && typeof prestashop.formatCurrency === 'function') {
+                try {
+                    return prestashop.formatCurrency(amount, prestashop.currency.iso_code);
+                } catch (e) {
+                    // Fall back to manual formatting below.
+                }
+            }
+
+            return amount.toFixed(2) + '&nbsp;' + this.escapeHtml(sign || '');
+        },
+
+        /**
+         * Replace the visible checkout grand total with the remaining amount
+         * after giftcard deductions (keeps the original amount in a data attr).
+         */
+        updateGrandTotalDisplay: function (retries) {
+            retries = typeof retries === 'number' ? retries : 0;
+
+            var self = this;
+            var $values = this.findGrandTotalValueElements();
+
+            if (!$values.length) {
+                if (retries < 12) {
+                    setTimeout(function () {
+                        self.updateGrandTotalDisplay(retries + 1);
+                    }, 200);
+                }
                 return;
             }
 
-            // Preferred: insert before the grand-total / cart-total line.
-            var $target = $('.cart-summary-totals .cart-total').first();
-            if (!$target.length) {
-                $target = $('.cart-summary-totals .cart-summary-line').last();
-            }
-            if ($target.length) {
-                $target.before(html);
-            } else {
-                // Fallback: append to the whole cart-summary-totals block.
-                var $totals = $('.card-block.cart-summary-totals, .cart-summary-totals').first();
-                if ($totals.length) {
-                    $totals.append(html);
+            $values.each(function () {
+                var $value = $(this);
+
+                if (!$value.attr('data-buckaroo-original-total')) {
+                    $value.attr('data-buckaroo-original-total', $value.html());
                 }
-            }
+
+                if (self.data.alreadyPaid > 0 && self.data.remainingAmount >= 0) {
+                    $value.html(self.formatRemainingTotal(self.data.remainingAmount, self.data.currencySign || ''));
+                    $value.attr('data-buckaroo-remaining', '1');
+                } else {
+                    $value.html($value.attr('data-buckaroo-original-total'));
+                    $value.removeAttr('data-buckaroo-remaining');
+                }
+            });
         },
 
         escapeHtml: function (str) {
@@ -195,6 +314,8 @@
                 .replace(/"/g, '&quot;');
         }
     };
+
+    window.BuckarooAlreadyPaid = BuckarooAlreadyPaid;
 
     $(document).ready(function () {
         // Only run on the checkout page.

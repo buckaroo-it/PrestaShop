@@ -166,9 +166,36 @@ abstract class Checkout
 
         // When a giftcard was partially applied, charge only the outstanding remainder
         // (skip for GiftCardCheckout itself so the full amount reaches Buckaroo first)
-        $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
-        $giftcardGroupTx   = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+        $giftcardRemainder = 0.0;
+        $giftcardGroupTx = '';
         $isGiftcardCheckout = ($this instanceof GiftCardCheckout);
+
+        try {
+            $groupTransactionService = new \Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
+            $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $this->cart->id);
+            if ($alreadyPaid > 0) {
+                $giftcardRemainder = $groupTransactionService->getRemainingAmount(
+                    (int) $this->cart->id,
+                    $cartTotalInclTax
+                );
+                $giftcardGroupTx = $groupTransactionService->getOriginalTransactionKey((int) $this->cart->id);
+
+                // Cookie fallback only when it belongs to this same cart.
+                $cookieCartId = (int) ($this->context->cookie->buckaroo_giftcard_cart_id ?? 0);
+                if ($giftcardGroupTx === ''
+                    && $cookieCartId === (int) $this->cart->id
+                ) {
+                    $giftcardGroupTx = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+                }
+                if ($giftcardRemainder <= 0
+                    && $cookieCartId === (int) $this->cart->id
+                ) {
+                    $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Keep remainder at 0 — never reuse stale cookies from another cart.
+        }
 
         if (!$isGiftcardCheckout && $giftcardRemainder > 0 && !empty($giftcardGroupTx)) {
             $this->payment_request->amountDebit        = $this->roundBuckarooPrice($giftcardRemainder);
