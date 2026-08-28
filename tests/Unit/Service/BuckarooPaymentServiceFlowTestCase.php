@@ -146,9 +146,9 @@ abstract class BuckarooPaymentServiceFlowTestCase extends TestCase
                         return 'FORM:' . $template;
                     }
 
-                    public function assign($key, $value)
+                    public function assign($tplVar, $value = null)
                     {
-                        // no-op for unit tests
+                        // no-op for unit tests; supports assign(['key' => 'val']) and assign('key', 'val')
                     }
                 };
             }
