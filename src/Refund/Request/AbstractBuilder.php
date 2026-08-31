@@ -77,7 +77,7 @@ abstract class AbstractBuilder
      *
      * @return array
      */
-    protected function buildIssuers(\Order $order, \OrderPayment $payment): array
+    protected function buildIssuers(\OrderPayment $payment): array
     {
         if (PaymentMethodHelper::isCreditCardMethod($payment->payment_method)) {
             return [
@@ -87,11 +87,8 @@ abstract class AbstractBuilder
         }
 
         if (PaymentMethodHelper::isGiftCardMethod($payment->payment_method)) {
-            $customer = new \Customer($order->id_customer);
             return [
                 'name' => $payment->payment_method,
-                'email' => $customer->email,
-                'lastname' => $customer->lastname,
             ];
         }
 
