@@ -1,0 +1,41 @@
+name: Build Module Vendor
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  build-vendor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: composer:v2
+          coverage: none
+
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Prepare module package
+        run: |
+          mkdir -p dist
+          rsync -a --delete --exclude='.git' --exclude='.github' ./ dist/buckaroo3/
+
+      - name: Create zip artifact
+        run: |
+          cd dist
+          zip -r buckaroo3.zip buckaroo3
+
+      - name: Upload module artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: buckaroo3-with-vendor-${{ github.ref_name }}
+          path: dist/buckaroo3.zip
