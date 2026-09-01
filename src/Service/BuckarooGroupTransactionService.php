@@ -136,6 +136,26 @@ class BuckarooGroupTransactionService
     }
 
     /**
+     * OriginalTransactionKey required for PayRemainder after a partial giftcard.
+     * Prefer the newest successful group transaction id for this cart.
+     */
+    public function getOriginalTransactionKey(int $cartId): string
+    {
+        if ($cartId <= 0) {
+            return '';
+        }
+
+        $rows = $this->getGroupTransactionItems($cartId);
+        for ($i = count($rows) - 1; $i >= 0; --$i) {
+            if (!empty($rows[$i]['group_transaction_id'])) {
+                return (string) $rows[$i]['group_transaction_id'];
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Build the display-ready rows used by already-paid.tpl and the Ajax endpoint.
      * Each entry has: label, amount (float, positive), card_code, transaction_key.
      *

@@ -99,6 +99,12 @@ class RawPaymentMethodRepository
             case 'idin':
                 $configValue['display_mode'] = 'global';
                 break;
+
+            case 'giftcard':
+                // New installs default to inline (separate brands in checkout).
+                // Existing merchants keep their saved config untouched on upgrade.
+                $configValue['display_in_checkout'] = 'separate';
+                break;
             default:
         }
 

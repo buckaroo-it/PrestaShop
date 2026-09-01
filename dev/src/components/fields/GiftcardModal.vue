@@ -159,10 +159,13 @@ export default {
             if (giftcard.value.name && giftcard.value.service_code) {
                 post(giftcard.value).then(() => {
                     if (data.value.status) {
-                        const giftcard = data.value.custom_giftcard;
-                        giftcard.isCustom = true;
+                        const created = data.value.custom_giftcard;
+                        created.isCustom = true;
+                        created.code = created.service_code || created.code;
+                        created.logo_url = created.logo_url || created.logo;
+                        created.service_code = created.service_code || created.code;
 
-                        emit('appendCustomGiftcard', giftcard);
+                        emit('appendCustomGiftcard', created);
 
                         showModal.value = false;
                     }

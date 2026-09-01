@@ -85,7 +85,38 @@ class BuckarooConfigService
         $configArray = $this->configurationRepository->getConfigArray($paymentMethodId);
         $mergedConfig = array_merge($configArray, $data);
 
+        if ($name === 'giftcard') {
+            $this->syncGiftcardAllowedCards($mergedConfig);
+        }
+
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
+    }
+
+    /**
+     * Keep the legacy HPP config key in sync with the Vue admin selection so
+     * grouped (redirect) giftcard checkout still receives the allowed brands.
+     */
+    private function syncGiftcardAllowedCards(array $config): void
+    {
+        $codes = [];
+        $active = $config['activeGiftcards'] ?? [];
+
+        foreach (['giftcards', 'customGiftcards'] as $key) {
+            if (empty($active[$key]) || !is_array($active[$key])) {
+                continue;
+            }
+            foreach ($active[$key] as $card) {
+                if (!is_array($card)) {
+                    continue;
+                }
+                $code = $card['code'] ?? $card['service_code'] ?? null;
+                if (!empty($code)) {
+                    $codes[] = (string) $code;
+                }
+            }
+        }
+
+        \Configuration::updateValue('BUCKAROO_GIFTCARD_ALLOWED_CARDS', implode(',', array_unique($codes)));
     }
 
     public function updatePaymentMethodMode(string $name, string $mode): bool

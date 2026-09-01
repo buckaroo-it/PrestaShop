@@ -120,6 +120,7 @@ export default {
           giftcard.isCustom = true;
           giftcard.logo_url = giftcard.logo;
           giftcard.service_code = giftcard.code;
+          giftcard.code = giftcard.code;
 
           return giftcard;
         });

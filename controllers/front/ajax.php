@@ -207,6 +207,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 'alreadyPaid'     => $alreadyPaid,
                 'remainingAmount' => $groupTransactionService->getRemainingAmount((int) $cart->id, $cartTotal),
                 'giftcardItems'   => $groupTransactionService->getDisplayItems((int) $cart->id),
+                'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
             ];
 
             $this->ajaxRender(json_encode($responseArray));

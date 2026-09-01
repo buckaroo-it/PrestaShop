@@ -675,17 +675,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         $buckarooConfigService = $this->getBuckarooConfigService();
-
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
-
-        $giftcardApplied   = 0.0;
-        $giftcardRemainder = 0.0;
-        try {
-            $giftcardApplied   = $this->getGiftcardAlreadyPaid($cart);
-            $giftcardRemainder = $this->getGiftcardRemainingAmount($cart);
-        } catch (Exception $e) {
-            $this->logger->logError('Buckaroo3::hookPaymentOptions giftcard amounts - ' . $e->getMessage());
-        }
 
         try {
             $this->context->smarty->assign(
@@ -711,8 +701,6 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
-                    'buckarooGiftcardApplied'    => $giftcardApplied,
-                    'buckarooGiftcardRemainder'  => $giftcardRemainder,
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
@@ -740,11 +728,14 @@ class Buckaroo3 extends PaymentModule
             'remainingAmount' => 0,
             'giftcardItems'   => [],
             'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
+            'cartTotal'       => 0,
         ];
         try {
             $cart = $this->context->cart;
             if ($cart) {
-                $alreadyPaidData['alreadyPaid']     = $this->getGiftcardAlreadyPaid($cart);
+                $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+                $alreadyPaidData['cartTotal']        = $cartTotal;
+                $alreadyPaidData['alreadyPaid']      = $this->getGiftcardAlreadyPaid($cart);
                 $alreadyPaidData['remainingAmount']  = $this->getGiftcardRemainingAmount($cart);
                 $alreadyPaidData['giftcardItems']    = $this->getGiftcardDisplayItems($cart);
             }
@@ -865,11 +856,9 @@ class Buckaroo3 extends PaymentModule
      */
     public function hookDisplayPaymentTop()
     {
-        // Ensure Buckaroo JavaScript is loaded
         $this->ensureBuckarooJsLoaded();
-        
-        // Return empty string (we just need to load the JS)
-        return '';
+
+        return $this->renderGiftcardAlreadyPaidBlock();
     }
 
     /**
@@ -878,6 +867,14 @@ class Buckaroo3 extends PaymentModule
      * total segment rendered by hookDisplayShoppingCartFooter.
      */
     public function hookDisplayShoppingCartFooter($params)
+    {
+        return $this->renderGiftcardAlreadyPaidBlock();
+    }
+
+    /**
+     * Shared giftcard already-paid / remaining-amount markup for checkout.
+     */
+    private function renderGiftcardAlreadyPaidBlock(): string
     {
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {

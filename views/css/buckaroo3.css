@@ -213,3 +213,19 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 }
 
 /* end paybybank, ideal, creditcards */
+
+.bk-already-paid-block .cart-summary-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.bk-already-paid-block .cart-summary-line .label {
+    margin-right: 0.5rem;
+}
+
+.bk-already-paid-block .cart-summary-line .value {
+    margin-left: auto;
+    white-space: nowrap;
+}

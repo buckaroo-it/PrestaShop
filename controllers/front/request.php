@@ -437,7 +437,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         // If a giftcard was applied before this payment, record it on the order now
-        $this->recordAppliedGiftcardPayment((int) $id_order);
+        $this->prepareOrderPaymentsBeforePaidStatus((int) $id_order, $response);
+        $this->clearGiftcardCookies();
 
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
             'id_cart'           => $cartId,

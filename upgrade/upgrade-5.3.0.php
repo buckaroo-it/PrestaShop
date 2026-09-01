@@ -20,13 +20,15 @@ if (!defined('_PS_VERSION_')) {
 }
 
 /**
- * Removes the GoSettle (knaken) payment method from existing installations.
+ * 5.3.0 upgrade:
+ * - Remove the GoSettle (knaken) payment method from existing installations
+ * - Register displayPaymentTop so partial giftcard amounts are visible on checkout
  *
  * @param object $object Module instance
  *
  * @return bool
  */
-function upgrade_module_5_2_1($object)
+function upgrade_module_5_3_0($object)
 {
     $db = Db::getInstance();
 
@@ -70,6 +72,8 @@ function upgrade_module_5_2_1($object)
     }
 
     $db->execute('DELETE FROM `' . _DB_PREFIX_ . 'bk_payment_methods` WHERE name = "knaken"');
+
+    $object->registerHook('displayPaymentTop');
 
     return true;
 }

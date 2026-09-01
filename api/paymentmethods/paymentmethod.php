@@ -63,6 +63,11 @@ abstract class PaymentMethod extends BuckarooAbstract
     public function pay($customVars = [])
     {
         // @codingStandardsIgnoreEnd
+        // After a partial giftcard payment, Buckaroo requires PayRemainder + originalTransactionKey.
+        if (!empty($this->OriginalTransactionKey)) {
+            return $this->payGlobal('payRemainder');
+        }
+
         $this->data['services'][$this->type]['action'] = 'Pay';
         $this->data['services'][$this->type]['version'] = $this->version;
 
@@ -83,6 +88,11 @@ abstract class PaymentMethod extends BuckarooAbstract
     public function payGlobal($customPayAction = null)
     {
         (!$customPayAction) ? $payAction = 'pay' : $payAction = $customPayAction;
+
+        // Partial giftcard flow: OriginalTransactionKey is only valid with PayRemainder.
+        if (!empty($this->OriginalTransactionKey) && $payAction === 'pay') {
+            $payAction = 'payRemainder';
+        }
 
         $basePayload = [
             'currency' => $this->currency,

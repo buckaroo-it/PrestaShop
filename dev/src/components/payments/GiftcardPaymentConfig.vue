@@ -5,7 +5,7 @@
     <div class="p-5 space-y-5">
       <div class="space-y-2">
         <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.displayInCheckout`) }}</h2>
-        <div class="text-gray-400 text-xs" v-html="$t(`dashboard.pages.payments.displayInCheckoutDesc`)"></div>
+        <div class="text-gray-400 text-xs" v-html="$t(`dashboard.pages.payments.displayInCheckoutGiftcardDesc`)"></div>
       </div>
 
       <div class="relative">
@@ -38,7 +38,7 @@ export default {
 
     const displayOptions = [
       { text: t('Grouped'), value: 'grouped' },
-      { text: t('Separate'), value: 'separate' }
+      { text: t('Inline'), value: 'separate' }
     ];
     const config = inject('config')
 
