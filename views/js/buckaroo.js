@@ -451,15 +451,6 @@ function buckaroo() {
             if (invalid) {
                 methodValidator.valid = false;
             }
-        }, billinkTrigger: () => {
-            if ($("#customerbirthdate_d_billing_billink").val()) {
-                let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_billink").val() + $("#customerbirthdate_m_billing_billink").val() + $("#customerbirthdate_y_billing_billink").val());
-                methodValidator.displayMessage($("#customerbirthdate_d_billing_billink"), buckarooMessages.validation.date, !dateInvalid);
-
-                if (dateInvalid === true) {
-                    methodValidator.valid = false;
-                }
-            }
         }, payPerEmailTrigger: () => {
             if ($("#customerbirthdate_d_billing_payperemail").val()) {
                 let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_payperemail").val() + $("#customerbirthdate_m_billing_payperemail").val() + $("#customerbirthdate_y_billing_payperemail").val());
@@ -495,9 +486,6 @@ function buckaroo() {
                     break;
                 case 'afterpay&service=digi':
                     methodValidator.afterpayDigiTrigger();
-                    break;
-                case 'billink':
-                    methodValidator.billinkTrigger();
                     break;
                 case 'payperemail':
                     methodValidator.payPerEmailTrigger();
