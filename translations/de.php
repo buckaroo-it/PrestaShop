@@ -32,31 +32,17 @@ $_MODULE['<{buckaroo3}prestashop>payment_afterpay_f7042b0fa1e4c4a5c96b5e7dd5ce43
 $_MODULE['<{buckaroo3}prestashop>payment_afterpay_b6d9d9454b9542fde21e2cb7f5ba054c'] = 'Ungültige Rechnungsadresse, Hausnummer nicht gefunden.';
 $_MODULE['<{buckaroo3}prestashop>payment_afterpay_9049de8f08e66a01b91fb26e9af52ed3'] = 'Ungültige Lieferadresse, Hausnummer nicht gefunden.';
 
-// --- Billink ---
-// Gender:
+// --- Shared gender labels ---
 $_MODULE['<{buckaroo3}prestashop>payment_caa5b7a48ce4b1c1492c445446433fb5'] = 'Geschlecht:';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_caa5b7a48ce4b1c1492c445446433fb5'] = 'Geschlecht:';
-// He/him
 $_MODULE['<{buckaroo3}prestashop>payment_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Er/ihn';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Er/ihn';
-// She/her
 $_MODULE['<{buckaroo3}prestashop>payment_68b62df49a394689d2779ec0e4534e9b'] = 'Sie/ihr';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_68b62df49a394689d2779ec0e4534e9b'] = 'Sie/ihr';
-// They/Them
 $_MODULE['<{buckaroo3}prestashop>payment_39056d267dad6001a11d789756d26512'] = 'Divers';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_39056d267dad6001a11d789756d26512'] = 'Divers';
-// I prefer not to say
 $_MODULE['<{buckaroo3}prestashop>payment_b8ce55ba025e0b423379182b33ea6773'] = 'Keine Angabe';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_b8ce55ba025e0b423379182b33ea6773'] = 'Keine Angabe';
-// Date of birth (Billink)
-$_MODULE['<{buckaroo3}prestashop>payment_billink_4965e9e891c3381d1ec7379f036131de'] = 'Geburtsdatum:';
 // DD / MM / JJJJ
 $_MODULE['<{buckaroo3}prestashop>payment_350bfcb1e3cfb28ddff48ce525d4f139'] = 'TT';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_350bfcb1e3cfb28ddff48ce525d4f139'] = 'TT';
 $_MODULE['<{buckaroo3}prestashop>payment_ad05f78187c942f9dd521605fa81f1ba'] = 'MM';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_ad05f78187c942f9dd521605fa81f1ba'] = 'MM';
 $_MODULE['<{buckaroo3}prestashop>payment_8df34bb962577b90d574a51ed2ca757f'] = 'JJJJ';
-$_MODULE['<{buckaroo3}prestashop>payment_billink_8df34bb962577b90d574a51ed2ca757f'] = 'JJJJ';
+// --- Billink ---
 // CoC-number (Billink)
 $_MODULE['<{buckaroo3}prestashop>payment_billink_c66a608eb37f73d6474df12b5f15e380'] = 'Handelsregisternummer:';
 // Please select gender (legacy / shared)
