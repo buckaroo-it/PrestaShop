@@ -87,6 +87,15 @@ if (!class_exists('Currency')) {
         /** @var array<int,string> */
         public static $isoById = [];
 
+        /**
+         * ISO code for a currency id. Mirrors PrestaShop's Currency::getIsoCodeById()
+         * so refund request builders can resolve the order currency in unit tests.
+         */
+        public static function getIsoCodeById($id)
+        {
+            return self::$isoById[(int) $id] ?? 'EUR';
+        }
+
         public function __construct($id = null)
         {
             // Allow tests to control the currency per ID while keeping a sane default.
