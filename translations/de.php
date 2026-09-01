@@ -47,6 +47,3 @@ $_MODULE['<{buckaroo3}prestashop>payment_8df34bb962577b90d574a51ed2ca757f'] = 'J
 $_MODULE['<{buckaroo3}prestashop>payment_billink_c66a608eb37f73d6474df12b5f15e380'] = 'Handelsregisternummer:';
 // Please select gender (legacy / shared)
 $_MODULE['<{buckaroo3}prestashop>payment_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Bitte Geschlecht auswählen:';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Bitte Geschlecht auswählen:';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Er/ihn';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_68b62df49a394689d2779ec0e4534e9b'] = 'Sie/ihr';

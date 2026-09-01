@@ -157,9 +157,6 @@ $_MODULE['<{buckaroo3}prestashop>payment_sepadirectdebit_bcd9ace0bd8da6ea91122ab
 $_MODULE['<{buckaroo3}prestashop>payment_sepadirectdebit_350e17d65ded375d643259e7eed26e2a'] = 'IBAN';
 $_MODULE['<{buckaroo3}prestashop>payment_sepadirectdebit_bec758a8de99a38d16087f2196b48103'] = 'BIC';
 $_MODULE['<{buckaroo3}prestashop>payment_sepadirectdebit_bcc254b55c4a1babdf1dcb82c207506b'] = 'Telefoonnummer';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Selecteer a.u.b. een geslacht';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_54588cfd99c9e853c9e7710dbae8d8cd'] = 'Hij/hem';
-$_MODULE['<{buckaroo3}prestashop>payment_klarna_68b62df49a394689d2779ec0e4534e9b'] = 'Zij/haar';
 $_MODULE['<{buckaroo3}prestashop>payment_return_88526efe38fd18179a127024aba8c1d7'] = 'Uw bestelling op %s is afgerond.';
 $_MODULE['<{buckaroo3}prestashop>payment_return_8de637e24570c1edb0357826a2ad5aea'] = 'Er was een probleem met uw bestelling. Als u denkt dat dit niet klopt, kunt u contacnt opnemen met onze ';
 $_MODULE['<{buckaroo3}prestashop>payment_return_64430ad2835be8ad60c59e7d44e4b0b1'] = 'customer service';
