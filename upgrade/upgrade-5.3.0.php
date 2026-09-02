@@ -22,6 +22,7 @@ if (!defined('_PS_VERSION_')) {
 /**
  * 5.3.0 upgrade:
  * - Remove the GoSettle (knaken) payment method from existing installations
+ * - Remove the Payconiq payment method from existing installations
  * - Register displayPaymentTop so partial giftcard amounts are visible on checkout
  *
  * @param object $object Module instance
@@ -32,10 +33,27 @@ function upgrade_module_5_3_0($object)
 {
     $db = Db::getInstance();
 
+    foreach (['knaken', 'payconiq'] as $methodName) {
+        upgrade_module_5_3_0_remove_payment_method($db, $methodName);
+    }
+
+    $object->registerHook('displayPaymentTop');
+
+    return true;
+}
+
+/**
+ * Remove a payment method and its configuration/ordering entries.
+ *
+ * @param Db $db
+ * @param string $methodName
+ */
+function upgrade_module_5_3_0_remove_payment_method($db, $methodName)
+{
     $sql = new DbQuery();
     $sql->select('id');
     $sql->from('bk_payment_methods');
-    $sql->where('name = "knaken"');
+    $sql->where('name = "' . pSQL($methodName) . '"');
 
     $paymentMethodId = (int) $db->getValue($sql);
 
@@ -71,9 +89,7 @@ function upgrade_module_5_3_0($object)
         );
     }
 
-    $db->execute('DELETE FROM `' . _DB_PREFIX_ . 'bk_payment_methods` WHERE name = "knaken"');
-
-    $object->registerHook('displayPaymentTop');
-
-    return true;
+    $db->execute(
+        'DELETE FROM `' . _DB_PREFIX_ . 'bk_payment_methods` WHERE name = "' . pSQL($methodName) . '"'
+    );
 }
