@@ -47,7 +47,6 @@ In 2005 Buckaroo started as a Payment Service Provider in the Netherlands. In 20
 | [Klarna](https://www.buckaroo.eu/solutions/payment-methods/klarna)  |  ![Klarna](Payment%20methods/PNG/Klarna.png) | ![Klarna](Payment%20methods/SVG/Klarna.svg) |
 | [MBWay](https://www.buckaroo.eu/solutions/payment-methods/mbway)  |  ![MBWay](Payment%20methods/PNG/MBWay.png) | ![Multibanco](Payment%20methods/SVG/MBWay.svg) |
 | [Multibanco](https://www.buckaroo.eu/solutions/payment-methods/multibanco)  |  ![Multibanco](Payment%20methods/PNG/Multibanco.png) | ![Multibanco](Payment%20methods/SVG/Multibanco.svg) |
-| [Payconiq](https://www.buckaroo.eu/solutions/payment-methods/payconiq)  |  ![Payconiq](Payment%20methods/PNG/Payconic.png) | ![Payconiq](Payment%20methods/SVG/Payconiq.svg) |
 | [PayPal](https://www.buckaroo.eu/solutions/payment-methods/paypal)  |  ![PayPal](Payment%20methods/PNG/PayPal.png) | ![PayPal](Payment%20methods/SVG/PayPal.svg) |
 | [PayPerEmail](https://www.buckaroo.eu/solutions/payperemail)  |  ![PayPerEmail](Payment%20methods/PNG/PayPerEmail.png) | ![PayPerEmail](Payment%20methods/SVG/PayPerEmail.svg) |
 | [POS (Point Of Sale)](https://www.buckaroo.nl/oplossingen/sepay-by-buckaroo)  |  ![Point Of Sale](Payment%20methods/PNG/POS.png) | ![Point Of Sale](Payment%20methods/SVG/POS.svg) |

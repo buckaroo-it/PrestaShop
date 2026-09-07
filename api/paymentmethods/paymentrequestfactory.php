@@ -41,7 +41,6 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_IN3OLD = 'in3Old';
     public const REQUEST_TYPE_BILLINK = 'billink';
     public const REQUEST_TYPE_EPS = 'eps';
-    public const REQUEST_TYPE_PAYCONIQ = 'payconiq';
     public const REQUEST_TYPE_PAYPEREMAIL = 'payperemail';
     public const REQUEST_TYPE_PRZELEWY24 = 'przelewy24';
     public const REQUEST_TYPE_TRUSTLY = 'trustly';
@@ -76,7 +75,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_IN3OLD => 'In3Old',
         PaymentRequestFactory::REQUEST_TYPE_BILLINK => 'Billink',
         PaymentRequestFactory::REQUEST_TYPE_EPS => 'Eps',
-        PaymentRequestFactory::REQUEST_TYPE_PAYCONIQ => 'Payconiq',
         PaymentRequestFactory::REQUEST_TYPE_PAYPEREMAIL => 'PayPerEmail',
         PaymentRequestFactory::REQUEST_TYPE_PRZELEWY24 => 'Przelewy24',
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',

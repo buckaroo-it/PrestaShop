@@ -49,7 +49,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_IN3Old = 'in3Old';
     public const CHECKOUT_TYPE_BILLINK = 'billink';
     public const CHECKOUT_TYPE_EPS = 'eps';
-    public const CHECKOUT_TYPE_PAYCONIQ = 'payconiq';
     public const CHECKOUT_TYPE_PAYPEREMAIL = 'payperemail';
     public const CHECKOUT_TYPE_PRZELEWY24 = 'przelewy24';
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
@@ -83,7 +82,6 @@ abstract class Checkout
         self::CHECKOUT_TYPE_IN3Old => 'In3Old',
         self::CHECKOUT_TYPE_BILLINK => 'Billink',
         self::CHECKOUT_TYPE_EPS => 'Eps',
-        self::CHECKOUT_TYPE_PAYCONIQ => 'Payconiq',
         self::CHECKOUT_TYPE_PAYPEREMAIL => 'PayPerEmail',
         self::CHECKOUT_TYPE_PRZELEWY24 => 'Przelewy24',
         self::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
