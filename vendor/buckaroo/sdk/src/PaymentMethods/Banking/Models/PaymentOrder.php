@@ -18,11 +18,44 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\In3\Models;
+namespace Buckaroo\PaymentMethods\Banking\Models;
 
-class Company extends \Buckaroo\Models\Person
+use Buckaroo\Models\ServiceParameter;
+
+class PaymentOrder extends ServiceParameter
 {
-    protected string $customerNumber;
-    protected ?string $companyName;
-    protected ?string $chamberOfCommerce;
+    /**
+     * @var string
+     */
+    protected string $accountHolderName;
+
+    /**
+     * @var string
+     */
+    protected string $iban;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $processingDate;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $bic;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $purpose;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $structuredIssuerType;
+
+    /**
+     * @var string|null
+     */
+    protected ?string $structuredReference;
 }

@@ -65,17 +65,17 @@
         },
         {
             "name": "buckaroo/sdk",
-            "version": "1.23.1",
-            "version_normalized": "1.23.1.0",
+            "version": "1.24.3",
+            "version_normalized": "1.24.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/buckaroo-it/BuckarooSDK_PHP.git",
-                "reference": "abb8286e6ff489b2b369e7d0bf2554786cf21d92"
+                "reference": "6ec60cbd99777b5dc8ba0bc2a39ceeee06aec2a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/abb8286e6ff489b2b369e7d0bf2554786cf21d92",
-                "reference": "abb8286e6ff489b2b369e7d0bf2554786cf21d92",
+                "url": "https://api.github.com/repos/buckaroo-it/BuckarooSDK_PHP/zipball/6ec60cbd99777b5dc8ba0bc2a39ceeee06aec2a7",
+                "reference": "6ec60cbd99777b5dc8ba0bc2a39ceeee06aec2a7",
                 "shasum": ""
             },
             "require": {
@@ -96,7 +96,7 @@
                 "symfony/var-dumper": "^5.4.9",
                 "vlucas/phpdotenv": "^5.4"
             },
-            "time": "2026-02-19T17:41:11+00:00",
+            "time": "2026-08-19T12:53:56+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -119,7 +119,7 @@
             "description": "Buckaroo payment SDK",
             "support": {
                 "issues": "https://github.com/buckaroo-it/BuckarooSDK_PHP/issues",
-                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/1.23.1"
+                "source": "https://github.com/buckaroo-it/BuckarooSDK_PHP/tree/1.24.3"
             },
             "install-path": "../buckaroo/sdk"
         },
