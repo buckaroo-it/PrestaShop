@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'buckaroo/sdk' => array(
-            'pretty_version' => '1.23.1',
-            'version' => '1.23.1.0',
-            'reference' => 'abb8286e6ff489b2b369e7d0bf2554786cf21d92',
+            'pretty_version' => '1.24.3',
+            'version' => '1.24.3.0',
+            'reference' => '6ec60cbd99777b5dc8ba0bc2a39ceeee06aec2a7',
             'type' => 'library',
             'install_path' => __DIR__ . '/../buckaroo/sdk',
             'aliases' => array(),

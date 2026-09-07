@@ -18,11 +18,14 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\In3\Models;
+namespace Buckaroo\PaymentMethods\Banking\Models;
 
-class Company extends \Buckaroo\Models\Person
+use Buckaroo\Models\Payload\Payload;
+
+class PaymentOrderPayload extends Payload
 {
-    protected string $customerNumber;
-    protected ?string $companyName;
-    protected ?string $chamberOfCommerce;
+    /**
+     * @var float
+     */
+    protected float $amountCredit;
 }

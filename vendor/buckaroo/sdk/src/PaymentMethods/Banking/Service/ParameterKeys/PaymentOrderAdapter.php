@@ -18,11 +18,19 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\In3\Models;
+namespace Buckaroo\PaymentMethods\Banking\Service\ParameterKeys;
 
-class Company extends \Buckaroo\Models\Person
+use Buckaroo\Models\Adapters\ServiceParametersKeysAdapter;
+
+class PaymentOrderAdapter extends ServiceParametersKeysAdapter
 {
-    protected string $customerNumber;
-    protected ?string $companyName;
-    protected ?string $chamberOfCommerce;
+    protected array $keys = [
+        'accountHolderName' => 'AccountHolderName',
+        'iban' => 'IBAN',
+        'processingDate' => 'ProcessingDate',
+        'bic' => 'BIC',
+        'purpose' => 'Purpose',
+        'structuredIssuerType' => 'StructuredIssuerType',
+        'structuredReference' => 'StructuredReference',
+    ];
 }

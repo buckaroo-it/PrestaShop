@@ -18,11 +18,19 @@
  * @license   https://tldrlegal.com/license/mit-license
  */
 
-namespace Buckaroo\PaymentMethods\In3\Models;
+declare(strict_types=1);
 
-class Company extends \Buckaroo\Models\Person
+namespace Buckaroo\PaymentMethods\ClickToPay\Models;
+
+use Buckaroo\Models\ServiceParameter;
+
+/**
+ * ClickToPay service parameters. Property names map to Buckaroo service
+ * parameter names via ucfirst(): identifier -> Identifier,
+ * transientToken -> TransientToken.
+ */
+class ClickToPayData extends ServiceParameter
 {
-    protected string $customerNumber;
-    protected ?string $companyName;
-    protected ?string $chamberOfCommerce;
+    protected ?string $identifier = null;
+    protected ?string $transientToken = null;
 }
