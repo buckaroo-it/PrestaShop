@@ -7,7 +7,7 @@
       </div>
 
       <button
-          class="border border-blue-500 rounded text-blue-500 text-sm p-1 hover:bg-blue-500 hover:text-white hover:shadow-lg capitalize"
+          class="border border-fifthly rounded text-fifthly text-sm p-1 hover:bg-fifthly hover:text-white hover:shadow-lg capitalize"
           @click="$refs.giftCardModal.add()"
       >
         <i class="fa fa-plus-circle"></i>
@@ -19,12 +19,12 @@
         <input
             id="search-giftcard"
             v-model="query"
-            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
             placeholder=" "
             type="text"
         />
         <label
-            class="bk-no-close absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:top-8 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+            class="bk-no-close absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:top-8 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
             for="search-giftcard "
         >
           {{ $t(`dashboard.pages.payments.search_giftcard`) }}
@@ -36,7 +36,7 @@
             v-for="giftcard in filteredGiftcards"
             class="p-3 flex space-x-2 cursor-pointer justify-between"
             v-bind:class="{
-                        'bg-primary text-white':
+                        'bg-primary text-fifthly':
                             (giftcard.isCustom &&
                                 activatedGiftcards.customGiftcards &&
                                 activatedGiftcards.customGiftcards.find(cG => cG.id === giftcard.id)) ||

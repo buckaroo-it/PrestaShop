@@ -18,9 +18,9 @@
               <div
                   class="rounded border border-gray-300 md:p-5 p-3 text-center space-y-2 cursor-pointer text-gray-700 relative"
                   v-bind:class="{
-                                'border-orange-400 border-2': !settings.is_live
+                                'border-primary border-2': !settings.is_live
                             }" @click="settings.is_live = 0">
-                <i class="fas fa-check-circle text-orange-500 absolute -right-2 -top-2 drop-shadow bg-white rounded-full"
+                <i class="fas fa-check-circle text-primary absolute -right-2 -top-2 drop-shadow bg-white rounded-full"
                    v-if="!settings.is_live"></i>
                 <span class="font-bold md:text-base text-sm">{{ $t('dashboard.pages.settings.no_im_testing') }}</span>
                 <span class="block text-xs">{{ $t('dashboard.pages.settings.when_your_shop_is_not_live_yet') }}</span>
@@ -53,7 +53,7 @@
 
             <div class="flex flex-col items-end space-y-1" v-if="!testCredentialsApi.loading.value">
               <button
-                  class="border border-blue-500 rounded text-blue-500 text-sm p-1 hover:bg-blue-500 hover:text-white hover:shadow-lg"
+                  class="border border-fifthly rounded text-fifthly text-sm p-1 hover:bg-fifthly hover:text-white hover:shadow-lg"
                   v-bind:class="{'opacity-25 cursor-not-allowed': (!settings.website_key || !settings.secret_key) }"
                   @click="testCredentials"><i class="fas fa-plug"></i> {{
                   $t('dashboard.pages.settings.test_connection')
@@ -67,16 +67,16 @@
               </div>
             </div>
 
-            <Loading v-else color="text-blue-500"/>
+            <Loading v-else color="text-fifthly"/>
           </div>
 
           <div class="space-y-5">
             <div class="relative">
               <input :type="(showWebsiteKey)? 'text' : 'password'" id="website_key"
-                     class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+                     class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
                      placeholder=" " v-model="settings.website_key"/>
               <label for="website_key"
-                     class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                     class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
                 {{ $t('dashboard.pages.settings.website_key') }}
               </label>
 
@@ -89,10 +89,10 @@
 
             <div class="relative">
               <input :type="(showSecretKey)? 'text' : 'password'" id="secret_key"
-                     class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+                     class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
                      placeholder=" " v-model="settings.secret_key"/>
               <label for="secret_key"
-                     class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                     class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
                 {{ $t('dashboard.pages.settings.secret_key') }}
               </label>
 
@@ -105,11 +105,11 @@
           </div>
 
           <button v-if="!showAdvanceSettings"
-                  class="text-xs border border-orange-500 rounded text-orange-500 p-1 hover:bg-orange-500 hover:text-white hover:shadow-lg select-none"
+                  class="text-xs border border-fifthly rounded text-fifthly p-1 hover:bg-primary hover:text-fifthly hover:shadow-lg select-none"
                   @click="showAdvanceSettings = true">{{ $t('dashboard.pages.settings.advance_settings') }} <i
               class="fas fa-chevron-down text-[10px]"></i></button>
           <button v-else
-                  class="text-xs border border-orange-500 rounded text-orange-500 p-1 hover:bg-orange-500 hover:text-white hover:shadow-lg select-none"
+                  class="text-xs border border-fifthly rounded text-fifthly p-1 hover:bg-primary hover:text-fifthly hover:shadow-lg select-none"
                   @click="showAdvanceSettings = false">{{ $t('dashboard.pages.settings.hide_advance_settings') }} <i
               class="fas fa-chevron-up text-[10px]"></i></button>
         </div>
@@ -137,10 +137,10 @@
               <div class="space-y-1">
                 <div class="relative">
                   <input type="text" id="transaction_description"
-                         class="!block !px-2.5 !pb-2.5 !pt-4 !w-full !text-sm !text-gray-900 !bg-transparent !rounded-lg !border !border-gray-300 !appearance-none !focus:outline-none !focus:ring-0 !focus:border-primary !peer"
+                         class="!block !px-2.5 !pb-2.5 !pt-4 !w-full !text-sm !text-gray-900 !bg-transparent !rounded-lg !border !border-gray-300 !appearance-none !focus:outline-none !focus:ring-0 !focus:border-fifthly !peer"
                          placeholder=" " v-model="settings.transaction_description"/>
                   <label for="transaction_description"
-                         class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                         class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
                     {{ $t('dashboard.pages.settings.transaction_description') }}
                   </label>
                 </div>
@@ -154,13 +154,13 @@
 
                     <ul class="flex space-x-2">
                       <li>
-                        <button class="p-1 border rounded hover:bg-primary hover:text-white"
+                        <button class="p-1 border rounded hover:bg-primary hover:text-fifthly"
                                 @click="(settings.transaction_description !== null)? settings.transaction_description = settings.transaction_description.concat('', '{order_number}') : settings.transaction_description = '{order_number}'">
                           {{ $t('dashboard.pages.settings.order_number') }}
                         </button>
                       </li>
                       <li>
-                        <button class="p-1 border rounded hover:bg-primary hover:text-white"
+                        <button class="p-1 border rounded hover:bg-primary hover:text-fifthly"
                                 @click="(settings.transaction_description !== null)? settings.transaction_description = settings.transaction_description.concat('', '{shop_name}') : settings.transaction_description = '{shop_name}'">
                           {{ $t('dashboard.pages.settings.shop_name') }}
                         </button>
@@ -251,8 +251,8 @@
                     <span>{{ $t('dashboard.pages.settings.subtotal') }}</span>
                   </button>
                   <button
-                      class="w-1/2 h-12 space-x-1 hover:bg-blue-500 hover:text-white"
-                      :class="{ 'bg-blue-500 text-white': settings.payment_fee_mode === 'subtotal_incl_tax' }"
+                      class="w-1/2 h-12 space-x-1 hover:bg-primary hover:text-fifthly"
+                      :class="{ 'bg-primary text-fifthly': settings.payment_fee_mode === 'subtotal_incl_tax' }"
                       @click="settings.payment_fee_mode = 'subtotal_incl_tax'"
                   >
                     <i v-if="settings.payment_fee_mode === 'subtotal_incl_tax'" class="fas fa-check"></i>
@@ -275,13 +275,13 @@
                   <input
                       type="text"
                       id="payment_fee_frontend_label"
-                      class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary peer"
+                      class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
                       placeholder=" "
                       v-model="settings.payment_fee_frontend_label"
                   />
                   <label
                       for="payment_fee_frontend_label"
-                      class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                      class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
                   >
                     {{ $t('dashboard.pages.settings.payment_fee_frontend_label') }}
                   </label>
@@ -293,7 +293,7 @@
         </Transition>
 
         <div class="py-5 space-y-5 flex justify-end">
-          <button class="bg-secondary font-bold text-white rounded-lg px-8 py-3 hover:shadow-lg"
+          <button class="bg-primary font-bold text-fifthly rounded-lg px-8 py-3 hover:shadow-lg"
                   @click="updateSettings">{{ $t('dashboard.pages.settings.save') }}
           </button>
         </div>
@@ -336,9 +336,9 @@
 
       <p class="text-xs">
         {{ $t('dashboard.pages.settings.if_you_have_any_questions') }}
-        <a href='mailto:support@buckaroo.nl' class='bg-primary inline-block rounded p-1 text-white m-1'>support@buckaroo.nl</a>
+        <a href='mailto:support@buckaroo.nl' class='bg-primary inline-block rounded p-1 text-fifthly m-1'>support@buckaroo.nl</a>
         {{ $t('dashboard.pages.settings.if_you_have_any_questions_link') }}
-        <a href='tel:+31307115020' class='bg-primary inline-block rounded p-1 text-white m-1'>+31 (0) 30 711 50 20</a>.
+        <a href='tel:+31307115020' class='bg-primary inline-block rounded p-1 text-fifthly m-1'>+31 (0) 30 711 50 20</a>.
       </p>
     </div>
   </div>

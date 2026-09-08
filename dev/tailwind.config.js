@@ -14,10 +14,11 @@
  */
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  important: true,
+  important: '#app',
   content: [
     './src/**/*.php',
     './src/**/*.vue',
+    './lang/**/*.json',
   ],
   theme: {
     fontFamily: {
@@ -29,16 +30,14 @@ module.exports = {
     },
     extend: {
       colors: {
-        // primary: '#CDD905',
-        // secondary: '#DAE605',
         background: '#F8FAFC',
-        primary: '#273A8A',
-        secondary: '#4b71fc',
+        primary: '#CDF564',
+        secondary: '#E6FAB2',
         thirdly: '#FBFBFC',
-        fourthly: '#ECB390',
-        fifthly: '#34313F',
-        sixthly: '#2A2833',
-        seventhly: '#44414F',
+        fourthly: '#163255',
+        fifthly: '#163255',
+        sixthly: '#2B4867',
+        seventhly: '#335579',
         eightly: '#d7d6d9'
       },
     },
