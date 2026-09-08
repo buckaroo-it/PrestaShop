@@ -13,7 +13,7 @@ import { ref } from 'vue'
 export default {
     props: ['color'],
     setup(props) {
-        const loadingColor = ref('text-primary')
+        const loadingColor = ref('text-fifthly')
 
         if(props.color) {
             loadingColor.value = props.color

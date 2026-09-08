@@ -13,8 +13,8 @@
             <i v-if="config.display_type === 'radio'" class="fas fa-check"></i>
             <span>{{ $t(`dashboard.pages.payments.display_types.radio`) }}</span>
           </button>
-          <button class="w-1/2 h-12 space-x-1 hover:bg-blue-500 hover:text-white"
-                  v-bind:class="{'bg-blue-500 text-white': config.display_type === 'dropdown' }"
+          <button class="w-1/2 h-12 space-x-1 hover:bg-primary hover:text-fifthly"
+                  v-bind:class="{'bg-primary text-fifthly': config.display_type === 'dropdown' }"
                   @click="config.display_type = 'dropdown'">
             <i v-if="config.display_type === 'dropdown'" class="fas fa-check"></i>
             <span>{{ $t(`dashboard.pages.payments.display_types.dropdown`) }}</span>
