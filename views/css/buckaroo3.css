@@ -229,3 +229,15 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin-left: auto;
     white-space: nowrap;
 }
+
+/* Click to Pay Drop-in UI */
+
+.bk-clicktopay-button,
+.bk-clicktopay-screen {
+    margin: 10px 0;
+}
+
+.bk-clicktopay-message {
+    color: #ff3649;
+    margin-bottom: 15px;
+}

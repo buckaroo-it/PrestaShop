@@ -98,7 +98,7 @@ class BuckarooFeeManager {
                 buckarooKey = moduleName.toLowerCase();
             } else {
                 let idParts = paymentOptionId.split('-');
-                let knownMethods = ['ideal', 'creditcard', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'twint', 'swish', 'bizum', 'wero'];
+                let knownMethods = ['ideal', 'creditcard', 'clicktopay', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'twint', 'swish', 'bizum', 'wero'];
                 for (let method of knownMethods) {
                     if (paymentOptionId.toLowerCase().indexOf(method) !== -1) {
                         buckarooKey = method;
@@ -460,6 +460,13 @@ function buckaroo() {
                     methodValidator.valid = false;
                 }
             }
+        }, clickToPayTrigger: () => {
+            // The Drop-in UI fills this field once the shopper authenticated;
+            // without it Buckaroo rejects the payment.
+            if (!$('#bk_clicktopay_transient_token').val()) {
+                methodValidator.valid = false;
+                $('#booClickToPayErr').show();
+            }
         }, requiredRadioSelection: (element, errorLabel) => {
             if ($(`.${element}:input[type="radio"]:checked`).length === 0) {
                 methodValidator.valid = false;
@@ -503,6 +510,9 @@ function buckaroo() {
                     } else {
                         methodValidator.requiredDropDownSelection('creditcard_banks', '#booCreditCardErr');
                     }
+                    break;
+                case 'clicktopay':
+                    methodValidator.clickToPayTrigger();
                     break;
                 default:
             }

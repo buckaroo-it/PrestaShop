@@ -68,6 +68,12 @@ class RawPaymentMethodRepository
                 $configValue['display_type'] = 'radio';
                 break;
 
+            case 'clicktopay':
+                $configValue['client_id'] = '';
+                $configValue['client_secret'] = '';
+                $configValue['merchant_identifier'] = '';
+                break;
+
             case 'paybybank':
                 $configValue['display_type'] = 'radio';
                 break;
@@ -152,6 +158,7 @@ class RawPaymentMethodRepository
             ['name' => 'swish', 'label' => 'Swish', 'icon' => 'Swish.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'bizum', 'label' => 'Bizum', 'icon' => 'Bizum.svg', 'template' => '', 'is_payment_method' => '1'],
             ['name' => 'wero', 'label' => 'Wero', 'icon' => 'Wero.svg', 'template' => '', 'is_payment_method' => '1'],
+            ['name' => 'clicktopay', 'label' => 'Click to Pay', 'icon' => 'ClickToPay.svg', 'template' => 'payment_clicktopay.tpl', 'is_payment_method' => '1'],
         ];
     }
 

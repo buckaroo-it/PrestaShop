@@ -38,6 +38,7 @@ class Handler
      */
     public function refund(array $body, string $method): TransactionResponse
     {
+        $method = PaymentMethodHelper::resolveMethodCode($method);
         $buckaroo = $this->getClient($method);
         
         // For gift cards, use 'giftcard' as the method name for SDK call
