@@ -17,22 +17,22 @@ require_once __DIR__ . '/RefundTestSupport.php';
  */
 class PaymentMethodHelperTest extends TestCase
 {
-    /**
-     * @dataProvider labelProvider
-     */
-    public function testResolveMethodCodeMapsCheckoutLabels(string $label, string $expected): void
+    public function testResolveMethodCodeMapsCheckoutLabels(): void
     {
-        $this->assertSame($expected, PaymentMethodHelper::resolveMethodCode($label));
-    }
-
-    public static function labelProvider(): array
-    {
-        return [
+        $cases = [
             'Click to Pay label' => ['Click to Pay', 'clicktopay'],
             'Click to Pay code' => ['clicktopay', 'clicktopay'],
             'SEPA label' => ['SEPA Direct Debit', 'sepadirectdebit'],
             'SEPA SDK name' => ['SepaDirectDebit', 'sepadirectdebit'],
             'card brand' => ['visa', 'visa'],
         ];
+
+        foreach ($cases as $case => $pair) {
+            $this->assertSame(
+                $pair[1],
+                PaymentMethodHelper::resolveMethodCode($pair[0]),
+                $case
+            );
+        }
     }
 }
