@@ -102,6 +102,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
+            if (!$this->isValidClickToPayData($payment_method)) {
+                return;
+            }
+
             $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
             $total = $this->applyBuckarooFee($payment_method, $total);
 
@@ -283,6 +287,33 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         // Keep a single POST field so checkout/pay always see the same issuer.
         $_POST['BPE_CreditCard'] = $issuer;
+
+        return true;
+    }
+
+    /**
+     * The Click to Pay Drop-in UI must have authenticated the shopper before an
+     * order is created; without the transient token Buckaroo rejects the Pay
+     * request and we would be left with an orphan order.
+     */
+    private function isValidClickToPayData(string $payment_method): bool
+    {
+        if ($payment_method !== 'clicktopay') {
+            return true;
+        }
+
+        require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/clicktopaycheckout.php';
+
+        $paymentData = ClickToPayCheckout::resolveDropInPaymentData();
+        if ($paymentData['transientToken'] === '' || $paymentData['identifier'] === '') {
+            $this->logger->logError('Click to Pay payment started without a transient token.');
+            $this->redirectToCheckoutStep(
+                3,
+                $this->module->l('Please complete the Click to Pay checkout before continuing with payment.')
+            );
+
+            return false;
+        }
 
         return true;
     }
