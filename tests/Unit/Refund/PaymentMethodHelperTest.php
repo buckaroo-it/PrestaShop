@@ -10,9 +10,10 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/RefundTestSupport.php';
 
 /**
- * OrderPayment stores the checkout label ("Click to Pay"), while the config
- * lookup and the SDK factory need the method code ("clicktopay"). A refund on
- * an unresolved code silently falls back to the test environment.
+ * OrderPayment stores the checkout label ("Click to Pay", "SEPA Direct Debit"),
+ * while the config lookup and the SDK factory need the method code
+ * ("clicktopay", "sepadirectdebit"). A refund on an unresolved code silently
+ * falls back to the test environment.
  */
 class PaymentMethodHelperTest extends TestCase
 {
@@ -29,6 +30,8 @@ class PaymentMethodHelperTest extends TestCase
         return [
             'Click to Pay label' => ['Click to Pay', 'clicktopay'],
             'Click to Pay code' => ['clicktopay', 'clicktopay'],
+            'SEPA label' => ['SEPA Direct Debit', 'sepadirectdebit'],
+            'SEPA SDK name' => ['SepaDirectDebit', 'sepadirectdebit'],
             'card brand' => ['visa', 'visa'],
         ];
     }

@@ -24,8 +24,10 @@ class PaymentMethodHelper
     /**
      * Map OrderPayment.payment_method values to the plugin/SDK method code.
      *
-     * PrestaShop stores the human-readable label (e.g. "Click to Pay") on
-     * OrderPayment. Config lookup and the SDK factory expect "clicktopay".
+     * PrestaShop stores the human-readable label on OrderPayment
+     * (e.g. "Click to Pay", "SEPA Direct Debit"). Buckaroo push/SDK responses
+     * may use a different casing (e.g. "SepaDirectDebit"). Config lookup and
+     * the SDK factory expect the compact method code ("clicktopay", "sepadirectdebit").
      *
      * @param string $method Value stored on the order payment
      *
@@ -43,6 +45,8 @@ class PaymentMethodHelper
 
         $aliases = [
             'clicktopay' => 'clicktopay',
+            'sepa' => 'sepadirectdebit',
+            'sepadirectdebit' => 'sepadirectdebit',
         ];
 
         if (isset($aliases[$compact])) {

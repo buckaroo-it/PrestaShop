@@ -40,14 +40,14 @@ class Handler
     {
         $method = PaymentMethodHelper::resolveMethodCode($method);
         $buckaroo = $this->getClient($method);
-        
+
         // For gift cards, use 'giftcard' as the method name for SDK call
         // The actual service code (e.g., 'boekenbon') should be in the payload's 'name' field
         $sdkMethod = $method;
         if (PaymentMethodHelper::isGiftCardMethod($method)) {
             $sdkMethod = 'giftcard';
         }
-        
+
         return $buckaroo->method($sdkMethod)->refund($body);
     }
 
