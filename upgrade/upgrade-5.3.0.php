@@ -25,6 +25,7 @@ if (!defined('_PS_VERSION_')) {
  * - Remove the Payconiq payment method from existing installations
  * - Register displayPaymentTop so partial giftcard amounts are visible on checkout
  * - Add the Click to Pay payment method to existing installations
+ * - Remove the global test/live setting; per-method mode is the only environment control
  *
  * @param object $object Module instance
  *
@@ -32,6 +33,8 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_5_3_0($object)
 {
+    Configuration::deleteByName('BUCKAROO_TEST');
+
     $db = Db::getInstance();
 
     foreach (['knaken', 'payconiq'] as $methodName) {

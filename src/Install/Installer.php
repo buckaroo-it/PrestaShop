@@ -125,7 +125,6 @@ class Installer implements InstallerInterface
      */
     protected function initConfig()
     {
-        \Configuration::updateValue(Config::BUCKAROO_TEST, 1);
         \Configuration::updateValue(Config::BUCKAROO_MERCHANT_KEY, '');
         \Configuration::updateValue(Config::BUCKAROO_SECRET_KEY, '');
         \Configuration::updateValue(Config::BUCKAROO_TRANSACTION_LABEL, '');

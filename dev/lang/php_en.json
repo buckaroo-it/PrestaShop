@@ -1,4 +1,4 @@
-﻿{
+{
   "buckaroo.response.an_error_occurred_while_processing_the_transaction_unable_to_pay_more_with_giftcards": "An error occurred while processing the transaction: Unable to pay more with giftcards",
   "buckaroo.response.invalid_parameter_originaltransaction": "Invalid parameter originaltransaction.",
   "dashboard.channel_selector.select_channel": "Select Channel",
@@ -134,9 +134,6 @@
   "dashboard.pages.settings.hide_advance_settings": "Hide Advanced Settings",
   "dashboard.pages.settings.if_you_have_any_questions": "If you have any questions about the above, you can contact us by email:",
   "dashboard.pages.settings.if_you_have_any_questions_link": " or phone ",
-  "dashboard.pages.settings.mode": "Mode",
-  "dashboard.pages.settings.mode_label": "Easily change the mode",
-  "dashboard.pages.settings.no_im_testing": "No, I'm Testing",
   "dashboard.pages.settings.order_number": "Order number",
   "dashboard.pages.settings.order_number2": "order_number",
   "dashboard.pages.settings.refund_conf": "Automatic refunds via Buckaroo",
@@ -178,9 +175,6 @@
   "dashboard.pages.settings.transaction_description_label": "Transaction description can be filled with static text and tags like: <span class=\"text-green-600\">{order_number}</span> and <span class=\"text-green-600\">{shop_name}</span>.",
   "dashboard.pages.settings.website_key": "Store key",
   "dashboard.pages.settings.welcome_to_buckaroo": "Welcome to Buckaroo",
-  "dashboard.pages.settings.when_your_shop_is_not_live_yet": "When your shop is not live yet",
-  "dashboard.pages.settings.yes_im_ready_to_receive_payments": "Yes, I'm ready to receive payments",
-  "dashboard.pages.settings.your_shop_is_live_and_ready_to_receive_real_payments": "Your shop is live and ready to receive real payments",
   "payment_methods.afterpay": "Riverty",
   "payment_methods.alipay": "Alipay",
   "payment_methods.applepay": "Apple Pay",

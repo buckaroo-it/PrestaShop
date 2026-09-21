@@ -129,6 +129,33 @@ if (!class_exists('Tools')) {
     }
 }
 
+if (!class_exists('Configuration')) {
+    class Configuration
+    {
+        /** @var array<string,mixed> */
+        public static $values = [];
+
+        public static function get($key)
+        {
+            return self::$values[$key] ?? false;
+        }
+
+        public static function updateValue($key, $value)
+        {
+            self::$values[$key] = $value;
+
+            return true;
+        }
+
+        public static function deleteByName($key)
+        {
+            unset(self::$values[$key]);
+
+            return true;
+        }
+    }
+}
+
 if (!class_exists('Validate')) {
     class Validate
     {

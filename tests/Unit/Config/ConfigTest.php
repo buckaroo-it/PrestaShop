@@ -40,5 +40,42 @@ class ConfigTest extends TestCase
         $this->assertTrue(Config::isPaymentFeeAllowed('ideal'));
         $this->assertTrue(Config::isPaymentFeeAllowed('paypal'));
     }
+
+    /**
+     * @dataProvider paymentModeProvider
+     */
+    public function testIsPaymentModeEnabledUsesPerMethodModeOnly(?string $mode, bool $expected): void
+    {
+        $this->assertSame($expected, Config::isPaymentModeEnabled($mode));
+    }
+
+    public static function paymentModeProvider(): array
+    {
+        return [
+            'live is shown in checkout' => ['live', true],
+            'test is shown in checkout' => ['test', true],
+            'off is hidden from checkout' => ['off', false],
+            'unknown mode is hidden' => ['unknown', false],
+            'missing mode is hidden' => [null, false],
+        ];
+    }
+
+    /**
+     * @dataProvider gatewayModeProvider
+     */
+    public function testToGatewayModeFollowsPerMethodMode(?string $mode, string $expected): void
+    {
+        $this->assertSame($expected, Config::toGatewayMode($mode));
+    }
+
+    public static function gatewayModeProvider(): array
+    {
+        return [
+            'live method uses the live gateway' => ['live', 'live'],
+            'test method uses the test gateway' => ['test', 'test'],
+            'off falls back to the test gateway' => ['off', 'test'],
+            'unknown falls back to the test gateway' => [null, 'test'],
+        ];
+    }
 }
 

@@ -8,43 +8,6 @@
         </div>
 
         <div class="py-5 space-y-5">
-          <div>
-            <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.mode') }}</h2>
-            <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.mode_label') }}</div>
-          </div>
-
-          <div>
-            <div class="flex space-x-5">
-              <div
-                  class="rounded border border-gray-300 md:p-5 p-3 text-center space-y-2 cursor-pointer text-gray-700 relative"
-                  v-bind:class="{
-                                'border-primary border-2': !settings.is_live
-                            }" @click="settings.is_live = 0">
-                <i class="fas fa-check-circle text-primary absolute -right-2 -top-2 drop-shadow bg-white rounded-full"
-                   v-if="!settings.is_live"></i>
-                <span class="font-bold md:text-base text-sm">{{ $t('dashboard.pages.settings.no_im_testing') }}</span>
-                <span class="block text-xs">{{ $t('dashboard.pages.settings.when_your_shop_is_not_live_yet') }}</span>
-              </div>
-
-              <div
-                  class="rounded border border-gray-300 md:p-5 p-3 text-center space-y-2 cursor-pointer text-gray-700 relative"
-                  v-bind:class="{
-                                'border-green-600 border-2': settings.is_live
-                            }" @click="settings.is_live = 1">
-                <i class="fas fa-check-circle text-green-700 absolute -right-2 -top-2 drop-shadow bg-white rounded-full"
-                   v-if="settings.is_live"></i>
-                <span class="font-bold md:text-base text-sm">{{
-                    $t('dashboard.pages.settings.yes_im_ready_to_receive_payments')
-                  }}</span>
-                <span class="block text-xs">{{
-                    $t('dashboard.pages.settings.your_shop_is_live_and_ready_to_receive_real_payments')
-                  }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="py-5 space-y-5">
           <div class="flex justify-between items-center">
             <div>
               <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.credentials') }}</h2>
