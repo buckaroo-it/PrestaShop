@@ -72,7 +72,7 @@ Sign in to your PrestaShop backend, go to **Modules → Module Manager**, find t
 
 You will need your **Store key** and **Secret key**, which you can find under [API credentials in Buckaroo Plaza](https://plaza.buckaroo.nl/Configuration/Merchant/ApiKeys). The Store key is unique per store, the Secret key applies to your whole account.
 
-Set the module to **Test** while you are trying things out, and to **Live** once you are ready to accept real payments.
+Set each payment method to **Test** while you are trying things out, and to **Live** once you are ready to accept real payments. Methods set to **Off** are hidden from checkout.
 
 Step-by-step instructions: [Configuring the PrestaShop module](https://docs.buckaroo.io/docs/prestashop-configuration)
 
