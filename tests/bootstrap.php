@@ -17,6 +17,11 @@ if (!defined('_PS_MODULE_DIR_')) {
     define('_PS_MODULE_DIR_', dirname(__DIR__, 2) . '/');
 }
 
+// Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
+if (!defined('__PS_BASE_URI__')) {
+    define('__PS_BASE_URI__', '/');
+}
+
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
