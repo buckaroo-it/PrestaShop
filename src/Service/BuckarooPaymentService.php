@@ -217,7 +217,7 @@ class BuckarooPaymentService
         ];
         $newOption->setInputs($inputs);
 
-        $logoPath = '/modules/buckaroo3/views/img/buckaroo/' . $this->getCardLogoPath($cardData['icon'] ?? null, $details);
+        $logoPath = __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/' . $this->getCardLogoPath($cardData['icon'] ?? null, $details);
 
         $newOption->setLogo($logoPath);
 
@@ -285,7 +285,7 @@ class BuckarooPaymentService
      */
     private function getGiftCardLogo(?array $cardData, $details): string
     {
-        $fallback = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
+        $fallback = __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/' . $details->getIcon();
 
         if ($cardData === null) {
             return $fallback;
@@ -301,14 +301,14 @@ class BuckarooPaymentService
                 return $logo;
             }
 
-            return '/modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/BuckarooVoucher.svg';
+            return __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/BuckarooVoucher.svg';
         }
 
         if ($logo === '') {
             return $fallback;
         }
 
-        return '/modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/' . $logo;
+        return __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/Giftcards/SVG/' . $logo;
     }
 
     private function getCardData(string $cardCode): ?array
@@ -503,7 +503,7 @@ class BuckarooPaymentService
         } else {
             $newOption->setInputs($this->buckarooFeeService->getBuckarooFeeInputs($method));
         }
-        $logoPath = '/modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
+        $logoPath = __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/Payment methods/SVG/';
         // Custom conditions for specific payment methods
         switch ($method) {
             case 'paybybank':
@@ -514,7 +514,7 @@ class BuckarooPaymentService
                 $logoPath .= $this->capayableIn3->getLogo();
                 break;
             case 'idin':
-                $logoPath = '/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/' . $details->getIcon();
+                $logoPath = __PS_BASE_URI__ . 'modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/' . $details->getIcon();
                 break;
             default:
                 $logoPath .= $details->getIcon();
