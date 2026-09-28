@@ -20,8 +20,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Decorators;
 use Buckaroo\PrestaShop\Src\Refund\Handler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
 use Buckaroo\PrestaShop\Src\Refund\StatusService;
+use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\CommandHandler\IssueStandardRefundHandlerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -40,6 +42,11 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
     protected $refundHandler;
 
     /**
+     * @var SessionInterface
+     */
+    protected $session;
+
+    /**
      * @var StatusService
      */
     private $statusService;
@@ -47,10 +54,12 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
     public function __construct(
         IssueStandardRefundHandlerInterface $handler,
         Handler $refundHandler,
+        SessionInterface $session,
         StatusService $statusService
     ) {
         $this->handler = $handler;
         $this->refundHandler = $refundHandler;
+        $this->session = $session;
         $this->statusService = $statusService;
     }
 
@@ -60,6 +69,8 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
     public function handle(IssueStandardRefundCommand $command): void
     {
         $buckarooRefundEnabled = (bool) \Configuration::get(Settings::LABEL_REFUND_CONF);
+        $orderId = $command->getOrderId()->getValue();
+        $feeSessionKey = 'buckaroo_include_fee_' . $orderId;
 
         if ($buckarooRefundEnabled) {
             $refundSummary = $this->refundHandler->getRefundSummary($command);
@@ -68,9 +79,19 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
         $this->handler->handle($command);
 
         if ($buckarooRefundEnabled) {
-            $this->refundHandler->execute($command, $refundSummary);
+            $feeAmount = 0.0;
+            if ($this->session->has($feeSessionKey)) {
+                $feeAmount = (float) $this->session->get($feeSessionKey);
+            }
+
+            $this->refundHandler->execute($command, $refundSummary, $feeAmount);
+
+            if ($feeAmount > 0.0) {
+                (new RawBuckarooFeeRepository())->markFeeRefunded($orderId);
+                $this->session->remove($feeSessionKey);
+            }
         } else {
-            $order = new \Order($command->getOrderId()->getValue());
+            $order = new \Order($orderId);
             $this->statusService->setRefunded($order);
         }
     }
