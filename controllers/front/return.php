@@ -97,6 +97,21 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
             $this->logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
 
+            if ($response->brq_relatedtransaction_refund != null) {
+                $order = $id_order ? new Order($id_order) : null;
+                $this->handleRefundPush($order, $response);
+                exit;
+            }
+
+            // Everything below changes order/payment state and must never run for a
+            // request that only qualified via the unverified-refund-push allowance above.
+            if (!$response->isValid()) {
+                header('HTTP/1.1 503 Service Unavailable');
+                $this->logger->logError('Payment response not valid', $response);
+                echo 'Payment response not valid';
+                exit;
+            }
+
             if ($response->brq_relatedtransaction_partialpayment != null) {
                 $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
 
@@ -131,12 +146,6 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         $this->logger->logInfo('Partial payment complete: order marked as paid', 'Order ID: ' . $id_order);
                     }
                 }
-                exit;
-            }
-
-            if ($response->brq_relatedtransaction_refund != null) {
-                $order = $id_order ? new Order($id_order) : null;
-                $this->handleRefundPush($order, $response);
                 exit;
             }
 
