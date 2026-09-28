@@ -38,20 +38,28 @@ function upgrade_module_5_3_0($object)
 
     $db = Db::getInstance();
 
-    if (!$db->execute(
-        'ALTER TABLE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
-         ADD COLUMN `fee_refunded_amount` DECIMAL(20,6) NOT NULL DEFAULT 0'
-    )) {
-        return false;
-    }
+    // MySQL has no ADD COLUMN IF NOT EXISTS, so the column is checked up front:
+    // the upgrade is re-run whenever a previous attempt failed halfway.
+    $feeRefundedAmount = $db->executeS(
+        'SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'bk_buckaroo_fee` LIKE \'fee_refunded_amount\''
+    );
 
-    // 5.2.0 only recorded whether the fee was refunded, never how much of it.
-    if (!$db->execute(
-        'UPDATE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
-         SET `fee_refunded_amount` = `buckaroo_fee_tax_incl`
-         WHERE `fee_refunded` = 1'
-    )) {
-        return false;
+    if (empty($feeRefundedAmount)) {
+        if (!$db->execute(
+            'ALTER TABLE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
+             ADD COLUMN `fee_refunded_amount` DECIMAL(20,6) NOT NULL DEFAULT 0'
+        )) {
+            return false;
+        }
+
+        // 5.2.0 only recorded whether the fee was refunded, never how much of it.
+        if (!$db->execute(
+            'UPDATE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
+             SET `fee_refunded_amount` = `buckaroo_fee_tax_incl`
+             WHERE `fee_refunded` = 1'
+        )) {
+            return false;
+        }
     }
 
     foreach (['knaken', 'payconiq'] as $methodName) {
