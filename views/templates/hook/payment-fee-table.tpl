@@ -64,9 +64,31 @@
          * reveals them once the merchant enables partial refund mode. Anchoring on
          * one of those inputs keeps this working across 1.7, 8 and 9, where the
          * surrounding markup differs.
+         *
+         * The amount input is the one to anchor on: quantity comes first in the
+         * row, and the shipping input lives outside the product rows entirely.
          */
         function findAnchor() {
-            return document.querySelector('input[name^="cancel_product"]');
+            var inputs = document.querySelectorAll('input[name^="cancel_product"]');
+            var fallback = null;
+
+            for (var i = 0; i < inputs.length; i++) {
+                var name = (inputs[i].name || '').toLowerCase();
+
+                if (name.indexOf('shipping') !== -1) {
+                    continue;
+                }
+
+                if (name.indexOf('amount') !== -1) {
+                    return inputs[i];
+                }
+
+                if (!fallback) {
+                    fallback = inputs[i];
+                }
+            }
+
+            return fallback;
         }
 
         function isVisible(element) {
@@ -104,29 +126,57 @@
                 return null;
             }
 
-            var columnCount = sampleRow.children.length;
-            var amountIndex = amountCell.cellIndex;
+            var cells = sampleRow.children;
+            var amountIndex = Array.prototype.indexOf.call(cells, amountCell);
             var row = document.createElement('tr');
 
             row.id = ROW_ID;
 
-            for (var i = 0; i < columnCount; i++) {
-                var cell = document.createElement('td');
+            // One cell spanning every column left of the refund input. Counting
+            // colspan matters: the product columns are merged, so a cell per child
+            // would push the input out of the Partial refund column.
+            var leadingSpan = 0;
 
-                if (i === 0) {
-                    cell.textContent = config.label;
-                } else if (i === amountIndex) {
-                    cell.appendChild(buildInputGroup());
+            for (var i = 0; i < amountIndex; i++) {
+                leadingSpan += cells[i].colSpan || 1;
+            }
+
+            if (leadingSpan > 0) {
+                var labelCell = document.createElement('td');
+
+                if (leadingSpan > 1) {
+                    labelCell.colSpan = leadingSpan;
                 }
 
-                row.appendChild(cell);
+                labelCell.textContent = config.label;
+                row.appendChild(labelCell);
+            }
+
+            row.appendChild(buildAmountCell(amountCell));
+
+            for (var j = amountIndex + 1; j < cells.length; j++) {
+                var filler = document.createElement('td');
+                var fillerSpan = cells[j].colSpan || 1;
+
+                if (fillerSpan > 1) {
+                    filler.colSpan = fillerSpan;
+                }
+
+                row.appendChild(filler);
             }
 
             return row;
         }
 
-        function buildInputGroup() {
-            var wrapper = document.createElement('div');
+        /**
+         * Copies the product row's own amount cell so the fee input lines up with
+         * it exactly, then swaps in our input and our own maximum. Ids and js-*
+         * hooks are dropped from the copy, otherwise PrestaShop's refund script
+         * would treat the fee input as one of its product inputs.
+         */
+        function buildAmountCell(source) {
+            var cell = source.cloneNode(true);
+            var native = cell.querySelector('input');
 
             var input = document.createElement('input');
             input.type = 'number';
@@ -138,14 +188,55 @@
             input.max = config.max.toFixed(2);
             input.value = '0.00';
 
+            if (native) {
+                native.parentNode.replaceChild(input, native);
+            } else {
+                cell.appendChild(input);
+            }
+
+            stripHooks(cell, input);
+
+            // Everything following the input group is the native "(Max ...)" note.
+            // Anchor on the input itself when it has no group, so the walk never
+            // escapes the cell and starts removing neighbouring columns.
+            var group = input.parentNode === cell ? input : input.parentNode;
+            var hintClass = 'text-muted d-block';
+            var sibling = group.nextElementSibling;
+
+            while (sibling) {
+                var next = sibling.nextElementSibling;
+                hintClass = sibling.className || hintClass;
+                sibling.parentNode.removeChild(sibling);
+                sibling = next;
+            }
+
             var hint = document.createElement('small');
-            hint.className = 'text-muted d-block';
+            hint.className = hintClass;
             hint.textContent = '(' + config.maxLabel + ' ' + config.currency + config.max.toFixed(2) + ')';
+            cell.appendChild(hint);
 
-            wrapper.appendChild(input);
-            wrapper.appendChild(hint);
+            return cell;
+        }
 
-            return wrapper;
+        function stripHooks(cell, keep) {
+            cell.removeAttribute('id');
+
+            Array.prototype.forEach.call(cell.querySelectorAll('*'), function (element) {
+                if (element === keep) {
+                    return;
+                }
+
+                element.removeAttribute('id');
+                element.removeAttribute('name');
+
+                if (!element.className || typeof element.className !== 'string') {
+                    return;
+                }
+
+                element.className = element.className.split(/\s+/).filter(function (name) {
+                    return name.indexOf('js-') !== 0;
+                }).join(' ');
+            });
         }
 
         function clamp(input) {
