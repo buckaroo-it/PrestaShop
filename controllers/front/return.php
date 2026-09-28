@@ -73,165 +73,173 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             Tools::getIsset('brq_amount_credit')
             && Tools::getIsset('brq_relatedtransaction_refund');
 
-        if ($response->isValid() || $isRefundPush) {
-            if (!$response->isValid() && $isRefundPush) {
+        if (!$response->isValid()) {
+            // Signature validation is known to fail for some Plaza-initiated refund
+            // pushes. Only the refund handler may run on an unverified request; it
+            // must never be able to reach partial-payment or order-status branches.
+            if ($isRefundPush) {
                 $this->logger->logWarn('Refund push detected and processed despite failed validation');
-            }
-            $this->logger->logInfo('Response valid');
-            if (!empty($response->payment_method)
-                && ($response->payment_method == 'paypal')
-                && !empty($response->statuscode)
-                && ($response->statuscode == $response::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
-            ) {
-                $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
-                $response->status = $response::BUCKAROO_CANCELED;
-            }
-
-            $id_order = Order::getIdByCartId($response->getCartId());
-            $orders = Order::getByReference($response->getReferenceId());
-            $references = [];
-            foreach ($orders as $order) {
-                $row = get_object_vars($order);
-                $references[] = $row['reference'];
-            }
-
-            $this->logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
-
-            if ($response->brq_relatedtransaction_partialpayment != null) {
-                $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
-
-                // Confirm the gift card group-transaction row in the DB regardless of whether
-                // the order exists yet (the push may arrive before validateOrder completes).
-                $groupTransactionService = new BuckarooGroupTransactionService();
-                if ($response->hasSucceeded()) {
-                    $groupTransactionService->updateGroupTransactionStatus(
-                        (string) $response->transactions,
-                        190
-                    );
-                } else {
-                    $groupTransactionService->updateGroupTransactionStatus(
-                        (string) $response->transactions,
-                        (int) $response->status
-                    );
-                }
-
-                if ($id_order && $response->hasSucceeded()) {
-                    $order = new Order($id_order);
-
-                    if ($order->id_cart) {
-                        $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
-                    }
-
-                    $message = new Message();
-                    $message->id_order = $id_order;
-                    $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
-                    $message->add();
-
-                    if ($this->completeOrderIfFullyPaid((int) $id_order, $response)) {
-                        $this->logger->logInfo('Partial payment complete: order marked as paid', 'Order ID: ' . $id_order);
-                    }
-                }
-                exit;
-            }
-
-            if ($response->brq_relatedtransaction_refund != null) {
+                $id_order = Order::getIdByCartId($response->getCartId());
                 $order = $id_order ? new Order($id_order) : null;
                 $this->handleRefundPush($order, $response);
                 exit;
             }
 
-            if (!$id_order) {
-                header('HTTP/1.1 503 Service Unavailable');
-                echo 'Order does not exist';
-                $this->logger->logError('PUSH', 'Order does not exist');
-                exit;
-            } else {
-                $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
-
-                $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
-                $order = new Order($id_order);
-
-                if (KlarnaTransactionKey::isCapturePush($response)) {
-                    KlarnaTransactionKey::storeCaptureKey($order, (string) $response->transactions);
-                }
-
-                // Validate that the resolved order state actually exists in this shop.
-                if (!$this->isValidOrderStateId($new_status_code)) {
-                    $this->logger->logError(
-                        sprintf(
-                            'Resolved order state id %d is invalid for order %d; status change skipped',
-                            $new_status_code,
-                            $id_order
-                        )
-                    );
-                    $new_status_code = (int) $order->getCurrentState();
-                }
-
-                if (!in_array($order->reference, $references)) {
-                    header('HTTP/1.1 503 Service Unavailable');
-                    $this->logger->logError('Order not in reference ' . $order->reference);
-                    echo 'Order not in reference: ' . $order->reference;
-                    exit;
-                }
-
-                $this->logger->logInfo(
-                    'Old order status code: ' . $order->getCurrentState() . '; new order status code: ' . $new_status_code
-                );
-
-                $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-                $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
-                $error = Configuration::get('PS_OS_ERROR');
-                $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
-
-                if ($new_status_code != $order->getCurrentState()
-                    && ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState()
-                        || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
-                ) {
-                    $this->logger->logInfo('Update order status');
-                    $history = new OrderHistory();
-                    $history->id_order = $id_order;
-                    $history->date_add = date('Y-m-d H:i:s');
-                    $history->date_upd = date('Y-m-d H:i:s');
-                    $history->changeIdOrderState($new_status_code, $id_order, true);
-                    $history->addWithemail(false);
-
-                    $payments = OrderPayment::getByOrderReference($order->reference);
-                    foreach ($payments as $payment) {
-                        if ($payment->payment_method == 'Group transaction') {
-                            $payment->amount = 0;
-                            $payment->update();
-                        }
-                        if ($payment->amount == $response->amount && $payment->transaction_id == '') {
-                            $payment->transaction_id = $response->transactions;
-                            $payment->update();
-                        }
-                    }
-                } else {
-                    $this->logger->logInfo('Order status not updated');
-                }
-
-                $statusCodeName = $new_status_code;
-                if (!empty($statuses[$new_status_code])) {
-                    $statusCodeName = $statuses[$new_status_code];
-                }
-
-                $message = new Message();
-                $message->id_order = $id_order;
-                $message->message = 'Push message received. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
-                $message->add();
-
-                if ($response->statusmessage) {
-                    $message = new Message();
-                    $message->id_order = $id_order;
-                    $message->message = 'Buckaroo message: ' . $response->statusmessage;
-                    $message->add();
-                }
-            }
-        } else {
             header('HTTP/1.1 503 Service Unavailable');
             $this->logger->logError('Payment response not valid', $response);
             echo 'Payment response not valid';
             exit;
+        }
+
+        $this->logger->logInfo('Response valid');
+        if (!empty($response->payment_method)
+            && ($response->payment_method == 'paypal')
+            && !empty($response->statuscode)
+            && ($response->statuscode == $response::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+        ) {
+            $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+            $response->status = $response::BUCKAROO_CANCELED;
+        }
+
+        $id_order = Order::getIdByCartId($response->getCartId());
+        $orders = Order::getByReference($response->getReferenceId());
+        $references = [];
+        foreach ($orders as $order) {
+            $row = get_object_vars($order);
+            $references[] = $row['reference'];
+        }
+
+        $this->logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
+
+        if ($response->brq_relatedtransaction_partialpayment != null) {
+            $this->logger->logInfo('PUSH', 'Partial payment PUSH received ' . $response->status);
+
+            // Confirm the gift card group-transaction row in the DB regardless of whether
+            // the order exists yet (the push may arrive before validateOrder completes).
+            $groupTransactionService = new BuckarooGroupTransactionService();
+            if ($response->hasSucceeded()) {
+                $groupTransactionService->updateGroupTransactionStatus(
+                    (string) $response->transactions,
+                    190
+                );
+            } else {
+                $groupTransactionService->updateGroupTransactionStatus(
+                    (string) $response->transactions,
+                    (int) $response->status
+                );
+            }
+
+            if ($id_order && $response->hasSucceeded()) {
+                $order = new Order($id_order);
+
+                if ($order->id_cart) {
+                    $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
+                }
+
+                $message = new Message();
+                $message->id_order = $id_order;
+                $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
+                $message->add();
+
+                if ($this->completeOrderIfFullyPaid((int) $id_order, $response)) {
+                    $this->logger->logInfo('Partial payment complete: order marked as paid', 'Order ID: ' . $id_order);
+                }
+            }
+            exit;
+        }
+
+        if ($response->brq_relatedtransaction_refund != null) {
+            $order = $id_order ? new Order($id_order) : null;
+            $this->handleRefundPush($order, $response);
+            exit;
+        }
+
+        if (!$id_order) {
+            header('HTTP/1.1 503 Service Unavailable');
+            echo 'Order does not exist';
+            $this->logger->logError('PUSH', 'Order does not exist');
+            exit;
+        } else {
+            $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+
+            $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
+            $order = new Order($id_order);
+
+            if (KlarnaTransactionKey::isCapturePush($response)) {
+                KlarnaTransactionKey::storeCaptureKey($order, (string) $response->transactions);
+            }
+
+            // Validate that the resolved order state actually exists in this shop.
+            if (!$this->isValidOrderStateId($new_status_code)) {
+                $this->logger->logError(
+                    sprintf(
+                        'Resolved order state id %d is invalid for order %d; status change skipped',
+                        $new_status_code,
+                        $id_order
+                    )
+                );
+                $new_status_code = (int) $order->getCurrentState();
+            }
+
+            if (!in_array($order->reference, $references)) {
+                header('HTTP/1.1 503 Service Unavailable');
+                $this->logger->logError('Order not in reference ' . $order->reference);
+                echo 'Order not in reference: ' . $order->reference;
+                exit;
+            }
+
+            $this->logger->logInfo(
+                'Old order status code: ' . $order->getCurrentState() . '; new order status code: ' . $new_status_code
+            );
+
+            $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+            $canceled = Configuration::get('BUCKAROO_ORDER_STATE_FAILED');
+            $error = Configuration::get('PS_OS_ERROR');
+            $outofstock_unpaid = Configuration::get('PS_OS_OUTOFSTOCK_UNPAID');
+
+            if ($new_status_code != $order->getCurrentState()
+                && ($pending == $order->getCurrentState() || $canceled == $order->getCurrentState()
+                    || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
+            ) {
+                $this->logger->logInfo('Update order status');
+                $history = new OrderHistory();
+                $history->id_order = $id_order;
+                $history->date_add = date('Y-m-d H:i:s');
+                $history->date_upd = date('Y-m-d H:i:s');
+                $history->changeIdOrderState($new_status_code, $id_order, true);
+                $history->addWithemail(false);
+
+                $payments = OrderPayment::getByOrderReference($order->reference);
+                foreach ($payments as $payment) {
+                    if ($payment->payment_method == 'Group transaction') {
+                        $payment->amount = 0;
+                        $payment->update();
+                    }
+                    if ($payment->amount == $response->amount && $payment->transaction_id == '') {
+                        $payment->transaction_id = $response->transactions;
+                        $payment->update();
+                    }
+                }
+            } else {
+                $this->logger->logInfo('Order status not updated');
+            }
+
+            $statusCodeName = $new_status_code;
+            if (!empty($statuses[$new_status_code])) {
+                $statusCodeName = $statuses[$new_status_code];
+            }
+
+            $message = new Message();
+            $message->id_order = $id_order;
+            $message->message = 'Push message received. Buckaroo status: ' . $statusCodeName . '. Transaction key: ' . $response->transactions;
+            $message->add();
+
+            if ($response->statusmessage) {
+                $message = new Message();
+                $message->id_order = $id_order;
+                $message->message = 'Buckaroo message: ' . $response->statusmessage;
+                $message->add();
+            }
         }
 
         $buckarooFee = $this->buckarooFeeRepository->getFeeByOrderId($order->id);
