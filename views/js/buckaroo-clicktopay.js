@@ -34,15 +34,32 @@ class BuckarooClickToPay {
     }
 
     init() {
-        if (!this.config || !this.config.merchantIdentifier || !$(BuckarooClickToPay.BUTTON_SELECTOR).length) {
+        if (!this.config || !this.config.merchantIdentifier) {
             return;
         }
 
         $(document).on('change', 'input[name="payment-option"]', () => this.onPaymentOptionChange());
+
+        // The one-page checkout re-renders the payment list over AJAX, which
+        // destroys the containers the Drop-in UI was mounted into. Drop the
+        // "already initialized" guard so it is mounted again on the new markup.
+        if (typeof prestashop !== 'undefined' && typeof prestashop.on === 'function') {
+            prestashop.on('opcPaymentMethodsUpdated', () => {
+                this.initialized = false;
+                this.onPaymentOptionChange();
+            });
+        }
+
         this.onPaymentOptionChange();
     }
 
     onPaymentOptionChange() {
+        // The container only exists once the payment list has rendered, which in
+        // the one-page checkout happens after the address is complete.
+        if (!$(BuckarooClickToPay.BUTTON_SELECTOR).length) {
+            return;
+        }
+
         if (!this.isSelected() || this.initialized) {
             return;
         }
@@ -186,7 +203,7 @@ class BuckarooClickToPay {
         $('#bk_clicktopay_identifier').val((paymentData && paymentData.identifier) || '');
         $('#bk_clicktopay_transient_token').val((paymentData && paymentData.transientToken) || '');
 
-        const $confirmButton = $('#payment-confirmation button').first();
+        const $confirmButton = BuckarooClickToPay.resolveConfirmButton();
 
         if ($confirmButton.length && !$confirmButton.is(':disabled')) {
             $confirmButton.trigger('click');
@@ -195,6 +212,21 @@ class BuckarooClickToPay {
         }
 
         return Promise.resolve();
+    }
+
+    /**
+     * The button that hands the payment back to PrestaShop's own order
+     * confirmation. The one-page checkout (PrestaShop 9.2) replaces the
+     * multi-step '#payment-confirmation' button with its own pay button.
+     */
+    static resolveConfirmButton() {
+        const $onePageCheckoutButton = $('#opc-pay-button');
+
+        if ($onePageCheckoutButton.length) {
+            return $onePageCheckoutButton.first();
+        }
+
+        return $('#payment-confirmation button').first();
     }
 
     showError(message) {

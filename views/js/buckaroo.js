@@ -305,10 +305,54 @@ function buckaroo() {
         }, 100);
     });
 
-    $('#payment-confirmation button').on('click', (e) => {
+    /**
+     * Validate the selected Buckaroo method before the checkout submits its form.
+     *
+     * The method is resolved at click time rather than relying on the last
+     * 'change' event, because the one-page checkout re-renders the payment list
+     * over AJAX: the cached form pointer would otherwise reference detached DOM.
+     */
+    function validateSelectedMethod(e) {
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if ($selectedOption.length) {
+            methodValidator.setMethod($selectedOption.attr('id'));
+        }
+
         ensureCreditCardIssuerInPaymentForm();
-        methodValidator.init(e);
+
+        return methodValidator.init(e);
+    }
+
+    // Multi-step checkout: the theme's confirmation button submits the selected
+    // payment form, so stopping propagation on it blocks an invalid submit.
+    // Bound directly on the button (not delegated) so that it keeps running
+    // before the theme's own handler, which is delegated on <body>.
+    $('#payment-confirmation button').on('click', (e) => {
+        validateSelectedMethod(e);
     });
+
+    // PrestaShop 9.2 native one-page checkout (ps_onepagecheckout): there is no
+    // '#payment-confirmation' button. Its pay button and its form carry their own
+    // listeners which call stopPropagation() themselves, so a bubbling handler
+    // would never run. Validate in the capture phase instead - that is the only
+    // point at which an invalid Buckaroo form can still stop the submit.
+    document.addEventListener('click', (e) => {
+        if (!e.target || !e.target.closest || !e.target.closest('#opc-pay-button')) {
+            return;
+        }
+        if (!validateSelectedMethod(e)) {
+            e.preventDefault();
+        }
+    }, true);
+
+    document.addEventListener('submit', (e) => {
+        if (!e.target || e.target.id !== 'opc-form') {
+            return;
+        }
+        if (!validateSelectedMethod(e)) {
+            e.preventDefault();
+        }
+    }, true);
 
     /**
      * Copy the selected card brand onto the payment form that will be posted.
@@ -628,7 +672,8 @@ function buckaroo() {
             }
         }
     }
-    new BuckarooCheckout().listen();
+    const buckarooCheckout = new BuckarooCheckout();
+    buckarooCheckout.listen();
 
     class BuckarooPayByBank {
         isMobile = $(window).width() < BuckarooCheckout.MOBILE_WIDTH;
@@ -640,8 +685,10 @@ function buckaroo() {
 
         startListeners() {
             $(window).on('resize', this.toggleInputToShow.bind(this));
-            $('.bk-paybybank-mobile select').on('change', this.syncWithRadioGroup.bind(this));
-            $('.bk-paybybank-not-mobile input').on('change', this.syncWithSelect.bind(this));
+            // Delegated so the handlers keep working after the one-page checkout
+            // replaces the payment list markup over AJAX.
+            $(document).on('change', '.bk-paybybank-mobile select', this.syncWithRadioGroup.bind(this));
+            $(document).on('change', '.bk-paybybank-not-mobile input', this.syncWithSelect.bind(this));
         }
 
         toggleInputToShow() {
@@ -685,7 +732,8 @@ function buckaroo() {
         }
     }
 
-    new BuckarooPayByBank().init();
+    const buckarooPayByBank = new BuckarooPayByBank();
+    buckarooPayByBank.init();
 
     class BuckarooApplePay {
         get isApplePayAvailable() {
@@ -701,7 +749,40 @@ function buckaroo() {
         }
     }
 
-    new BuckarooApplePay().init();
+    const buckarooApplePay = new BuckarooApplePay();
+    buckarooApplePay.init();
+
+    // -----------------------------------------------------------------------
+    // One-page checkout (PrestaShop 9.2 ps_onepagecheckout) re-rendering
+    //
+    // The one-page checkout replaces the whole payment list over AJAX whenever
+    // the address, carrier or cart changes. Everything that was applied to the
+    // payment markup on page load - the Apple Pay availability check, the
+    // PayByBank mobile/desktop switch and the collapsed issuer list - is thrown
+    // away with it, so it has to be applied again to the new markup.
+    // -----------------------------------------------------------------------
+    function reapplyPaymentMethodUi() {
+        buckarooFeeManager.init();
+        buckarooCheckout.initMethod();
+        buckarooPayByBank.showInput();
+        buckarooApplePay.init();
+
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if ($selectedOption.length) {
+            methodValidator.setMethod($selectedOption.attr('id'));
+            buckarooFeeManager.handlePaymentOptionChange($selectedOption);
+        }
+    }
+
+    if (typeof prestashop !== 'undefined' && typeof prestashop.on === 'function') {
+        // opcPaymentMethodsUpdated: the markup changed. opcPaymentMethodsRefreshed:
+        // identical markup was kept, but the selection/fee may still have moved.
+        prestashop.on('opcPaymentMethodsUpdated', reapplyPaymentMethodUi);
+        prestashop.on('opcPaymentMethodsRefreshed', reapplyPaymentMethodUi);
+        // The order summary is re-rendered separately from the payment list and
+        // takes the Buckaroo payment fee row with it.
+        prestashop.on('opcCartSummaryUpdated', reapplyPaymentMethodUi);
+    }
 
     // -----------------------------------------------------------------------
     // BNPL phone field dynamic update

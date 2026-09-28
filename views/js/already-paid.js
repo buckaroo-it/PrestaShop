@@ -63,6 +63,15 @@
                 prestashop.on('updatedDeliveryForm', function () {
                     self.fetchAndRender();
                 });
+                // The PrestaShop 9.2 one-page checkout does not emit the
+                // multi-step events above; it re-renders the summary and the
+                // payment list over AJAX and announces that with its own events.
+                prestashop.on('opcCartSummaryUpdated', function () {
+                    self.fetchAndRender();
+                });
+                prestashop.on('opcPaymentMethodsUpdated', function () {
+                    self.fetchAndRender();
+                });
             }
 
             // Fallback when payment option changes before buckaroo.js finishes loading.
