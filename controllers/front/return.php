@@ -87,6 +87,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $response->status = $response::BUCKAROO_CANCELED;
             }
 
+            $actionCode = Tools::strtolower((string) Tools::getValue('brq_actioncode'));
+            if (in_array($actionCode, ['cancelreservation', 'extendreservation'], true)
+                && $this->handleReservationPush($response, $actionCode)
+            ) {
+                exit;
+            }
+
             $id_order = Order::getIdByCartId($response->getCartId());
             $orders = Order::getByReference($response->getReferenceId());
             $references = [];
@@ -283,6 +290,57 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $state = new OrderState($id_order_state);
 
         return Validate::isLoadedObject($state);
+    }
+
+    /**
+     * Klarna cancel/extend pushes identify the order by the original reserve key.
+     * Returns false when the order cannot be resolved, so the normal push path answers.
+     */
+    private function handleReservationPush($response, string $actionCode): bool
+    {
+        $reservationKey = (string) Tools::getValue('brq_originalreservation_datarequest_key');
+        if ($reservationKey === '') {
+            return false;
+        }
+
+        $payments = new PrestaShopCollection('OrderPayment');
+        $payments->where('transaction_id', '=', $reservationKey);
+        $payment = $payments->getFirst();
+        if (!$payment || !$payment->order_reference) {
+            return false;
+        }
+
+        $order = Order::getByReference($payment->order_reference)->getFirst();
+        if (!$order) {
+            return false;
+        }
+
+        if ($actionCode === 'cancelreservation'
+            && (string) $response->statuscode === BuckarooAbstract::BUCKAROO_STATUSCODE_SUCCESS
+        ) {
+            $canceledState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_CANCELED, (int) $order->id);
+            if ((int) $order->getCurrentState() !== $canceledState) {
+                $history = new OrderHistory();
+                $history->id_order = (int) $order->id;
+                $history->changeIdOrderState($canceledState, (int) $order->id, true);
+                $history->addWithemail(false);
+            }
+
+            if ((float) $payment->amount != 0.0) {
+                $payment->amount = 0;
+                $payment->update();
+                $this->syncOrderTotalPaidReal((int) $order->id);
+            }
+        }
+
+        $message = new Message();
+        $message->id_order = (int) $order->id;
+        $message->message = ($actionCode === 'cancelreservation'
+            ? 'Buckaroo reservation cancelled. '
+            : 'Buckaroo reservation extended. ') . (string) $response->statusmessage;
+        $message->add();
+
+        return true;
     }
 
     private function handleRefundPush(?\Order $order, $response): void
