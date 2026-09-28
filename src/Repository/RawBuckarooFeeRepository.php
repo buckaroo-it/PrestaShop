@@ -66,27 +66,70 @@ class RawBuckarooFeeRepository
     }
 
     /**
-     * Marks the payment fee for an order as refunded.
+     * Returns the part of the payment fee that has not been refunded yet.
+     *
+     * The fee can be refunded in several steps, so this is the fee including tax
+     * minus everything that was already sent to Buckaroo for this order.
      *
      * @param int $orderId
+     * @return float
+     */
+    public function getRefundableFeeAmount(int $orderId): float
+    {
+        $row = $this->getFeeByOrderId($orderId);
+
+        if (!is_array($row)) {
+            return 0.0;
+        }
+
+        $remaining = (float) $row['buckaroo_fee_tax_incl'] - (float) (isset($row['fee_refunded_amount']) ? $row['fee_refunded_amount'] : 0);
+
+        return $remaining > 0 ? round($remaining, 2) : 0.0;
+    }
+
+    /**
+     * Registers an additional refunded part of the payment fee.
+     *
+     * The fee is flagged as fully refunded once nothing refundable is left, so
+     * that the order page can stop offering it.
+     *
+     * @param int $orderId
+     * @param float $amount
      * @return bool
      */
-    public function markFeeRefunded(int $orderId): bool
+    public function addRefundedFeeAmount(int $orderId, float $amount): bool
     {
+        if ($amount <= 0) {
+            return false;
+        }
+
+        $row = $this->getFeeByOrderId($orderId);
+
+        if (!is_array($row)) {
+            return false;
+        }
+
+        $feeTotal = (float) $row['buckaroo_fee_tax_incl'];
+        $alreadyRefunded = (float) (isset($row['fee_refunded_amount']) ? $row['fee_refunded_amount'] : 0);
+        $refunded = min($feeTotal, round($alreadyRefunded + $amount, 2));
+
         try {
             return \Db::getInstance()->update(
                 'bk_buckaroo_fee',
-                ['fee_refunded' => 1],
+                [
+                    'fee_refunded_amount' => $refunded,
+                    'fee_refunded' => ($feeTotal - $refunded) < 0.01 ? 1 : 0,
+                ],
                 'id_order = ' . (int) $orderId
             );
         } catch (\Exception $e) {
-            \PrestaShopLogger::addLog('Failed to mark buckaroo fee as refunded: ' . $e->getMessage(), 3);
+            \PrestaShopLogger::addLog('Failed to register refunded buckaroo fee: ' . $e->getMessage(), 3);
             return false;
         }
     }
 
     /**
-     * Returns whether the payment fee for an order has already been refunded.
+     * Returns whether the payment fee for an order has already been refunded in full.
      *
      * @param int $orderId
      * @return bool
@@ -94,6 +137,7 @@ class RawBuckarooFeeRepository
     public function isFeeRefunded(int $orderId): bool
     {
         $row = $this->getFeeByOrderId($orderId);
-        return !empty($row['fee_refunded']);
+
+        return is_array($row) && !empty($row['fee_refunded']);
     }
 }

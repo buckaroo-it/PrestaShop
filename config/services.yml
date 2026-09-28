@@ -27,7 +27,6 @@ services:
       - "@buckaroo.refund.request.handler"
       - "@buckaroo.refund.request.response.handler"
       - "@buckaroo.refund.order.service"
-      - "@buckaroo.session"
     public: true
 
   buckaroo.refund.request.handler:
@@ -98,6 +97,7 @@ services:
       - "@buckaroo.refund_handler"
       - "@buckaroo.session"
       - "@buckaroo.refund.status.service"
+      - "@request_stack"
     public: false
 
   buckaroo.decorator.issue_standard_refund_handler:

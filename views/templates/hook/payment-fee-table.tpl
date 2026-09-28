@@ -29,41 +29,206 @@
         </table>
 
         {if $buckaroo_fee.buckaroo_fee_tax_incl > 0}
-        <div class="mt-3">
-            {if $buckaroo_fee_refunded}
-                <span class="badge badge-success">{l s='Payment fee has been refunded' mod='buckaroo3'}</span>
-            {else}
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox"
-                           class="custom-control-input"
-                           id="bk-include-fee-refund"
-                           {if $buckaroo_fee_flag_set}checked="checked"{/if}>
-                    <label class="custom-control-label" for="bk-include-fee-refund">
-                        {l s='Include payment fee' mod='buckaroo3'}
-                        ({$buckaroo_fee.buckaroo_fee_tax_incl|number_format:2:'.':','} {$currency->sign})
-                        {l s='in next partial refund' mod='buckaroo3'}
-                    </label>
-                </div>
-                <small class="text-muted d-block mt-1">
-                    {l s='When checked, the payment fee will be added to the amount sent to Buckaroo when you submit a partial refund via PrestaShop.' mod='buckaroo3'}
-                </small>
-            {/if}
-        </div>
-
-        <script>
-            $(function () {
-                $('#bk-include-fee-refund').on('change', function () {
-                    var include = $(this).is(':checked') ? 1 : 0;
-                    $.post(
-                        '{$buckaroo_set_fee_flag_url|escape:'html':'UTF-8'}',
-                        {
-                            orderId: {$orderId|intval},
-                            include: include
-                        }
-                    );
-                });
-            });
-        </script>
+            <div class="mt-3">
+                {if $buckaroo_fee_refunded}
+                    <span class="badge badge-success">{l s='Payment fee has been refunded' mod='buckaroo3'}</span>
+                {else}
+                    <small class="text-muted d-block">
+                        {l s='The payment fee can be refunded from the partial refund form in the Products section above.' mod='buckaroo3'}
+                        {l s='Still refundable:' mod='buckaroo3'}
+                        {$buckaroo_fee_refundable|number_format:2:'.':','} {$currency->sign}
+                    </small>
+                {/if}
+            </div>
         {/if}
     </div>
 </div>
+
+{if $buckaroo_fee_refundable > 0}
+<script>
+    (function () {
+        var config = {
+            fieldName: '{$buckaroo_fee_field_name|escape:'javascript':'UTF-8'}',
+            max: {$buckaroo_fee_refundable|string_format:"%.2f"},
+            label: '{l s='Payment fee' mod='buckaroo3'}',
+            maxLabel: '{l s='Max' mod='buckaroo3'}',
+            currency: '{$currency->sign|escape:'javascript':'UTF-8'}'
+        };
+
+        var ROW_ID = 'bk-fee-refund-row';
+        var INPUT_ID = 'bk-fee-refund-amount';
+        var MIRROR_ID = 'bk-fee-refund-amount-mirror';
+
+        /**
+         * PrestaShop renders the refund inputs inside the products table and only
+         * reveals them once the merchant enables partial refund mode. Anchoring on
+         * one of those inputs keeps this working across 1.7, 8 and 9, where the
+         * surrounding markup differs.
+         */
+        function findAnchor() {
+            return document.querySelector('input[name^="cancel_product"]');
+        }
+
+        function isVisible(element) {
+            return !!element && element.offsetParent !== null;
+        }
+
+        /**
+         * The value must reach the server with the native partial refund POST. The
+         * input normally sits inside that form already; when the table is rendered
+         * outside of it a hidden mirror is appended to the form instead.
+         */
+        function syncMirror(input, form) {
+            if (input.form === form) {
+                return;
+            }
+
+            var mirror = document.getElementById(MIRROR_ID);
+
+            if (!mirror) {
+                mirror = document.createElement('input');
+                mirror.type = 'hidden';
+                mirror.id = MIRROR_ID;
+                mirror.name = config.fieldName;
+                form.appendChild(mirror);
+            }
+
+            mirror.value = input.value;
+        }
+
+        function buildRow(anchor) {
+            var sampleRow = anchor.closest('tr');
+            var amountCell = anchor.closest('td');
+
+            if (!sampleRow || !amountCell) {
+                return null;
+            }
+
+            var columnCount = sampleRow.children.length;
+            var amountIndex = amountCell.cellIndex;
+            var row = document.createElement('tr');
+
+            row.id = ROW_ID;
+
+            for (var i = 0; i < columnCount; i++) {
+                var cell = document.createElement('td');
+
+                if (i === 0) {
+                    cell.textContent = config.label;
+                } else if (i === amountIndex) {
+                    cell.appendChild(buildInputGroup());
+                }
+
+                row.appendChild(cell);
+            }
+
+            return row;
+        }
+
+        function buildInputGroup() {
+            var wrapper = document.createElement('div');
+
+            var input = document.createElement('input');
+            input.type = 'number';
+            input.id = INPUT_ID;
+            input.name = config.fieldName;
+            input.className = 'form-control';
+            input.step = '0.01';
+            input.min = '0';
+            input.max = config.max.toFixed(2);
+            input.value = '0.00';
+
+            var hint = document.createElement('small');
+            hint.className = 'text-muted d-block';
+            hint.textContent = '(' + config.maxLabel + ' ' + config.currency + config.max.toFixed(2) + ')';
+
+            wrapper.appendChild(input);
+            wrapper.appendChild(hint);
+
+            return wrapper;
+        }
+
+        function clamp(input) {
+            var value = parseFloat(input.value.replace(',', '.'));
+
+            if (isNaN(value) || value < 0) {
+                value = 0;
+            }
+
+            if (value > config.max) {
+                value = config.max;
+                input.value = value.toFixed(2);
+            }
+        }
+
+        function ensureRow() {
+            var anchor = findAnchor();
+
+            if (!anchor) {
+                return;
+            }
+
+            var existing = document.getElementById(ROW_ID);
+
+            if (!existing) {
+                var row = buildRow(anchor);
+                var table = anchor.closest('table');
+                var body = table ? table.querySelector('tbody') : null;
+
+                if (!row || !body) {
+                    return;
+                }
+
+                body.appendChild(row);
+                existing = row;
+
+                var input = document.getElementById(INPUT_ID);
+                var form = anchor.form;
+
+                input.addEventListener('input', function () {
+                    clamp(input);
+
+                    if (form) {
+                        syncMirror(input, form);
+                    }
+                });
+
+                if (form) {
+                    form.addEventListener('submit', function () {
+                        clamp(input);
+                        syncMirror(input, form);
+                    });
+                }
+            }
+
+            // Follow the native refund inputs, which stay hidden until the merchant
+            // switches the products table into partial refund mode.
+            existing.style.display = isVisible(anchor.closest('td')) ? '' : 'none';
+        }
+
+        function start() {
+            ensureRow();
+
+            var anchor = findAnchor();
+            var target = document.querySelector('#orderProductsPanel')
+                || (anchor && anchor.closest('.card'))
+                || document.body;
+
+            new MutationObserver(function () {
+                ensureRow();
+            }).observe(target, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'style']
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', start);
+        } else {
+            start();
+        }
+    })();
+</script>
+{/if}

@@ -29,6 +29,12 @@ class Settings
     public const LABEL_REFUND_VOUCHER = 'BUCKAROO_REFUND_VOUCHER';
     public const LABEL_REFUND_CREATE_NEGATIVE_PAYMENT = 'BUCKAROO_REFUND_CREATE_NEGATIVE_PAYMENT';
 
+    /**
+     * Name of the payment fee amount input that the module adds to PrestaShop's
+     * native partial refund form.
+     */
+    public const FIELD_FEE_AMOUNT = 'buckaroo_refund_fee_amount';
+
     public function getFormFields($module): array
     {
         if (!method_exists($module, 'l')) {

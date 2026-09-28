@@ -26,6 +26,7 @@ if (!defined('_PS_VERSION_')) {
  * - Register displayPaymentTop so partial giftcard amounts are visible on checkout
  * - Add the Click to Pay payment method to existing installations
  * - Remove the global test/live setting; per-method mode is the only environment control
+ * - Track how much of the payment fee was refunded, so it can be refunded in parts
  *
  * @param object $object Module instance
  *
@@ -36,6 +37,22 @@ function upgrade_module_5_3_0($object)
     Configuration::deleteByName('BUCKAROO_TEST');
 
     $db = Db::getInstance();
+
+    if (!$db->execute(
+        'ALTER TABLE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
+         ADD COLUMN `fee_refunded_amount` DECIMAL(20,6) NOT NULL DEFAULT 0'
+    )) {
+        return false;
+    }
+
+    // 5.2.0 only recorded whether the fee was refunded, never how much of it.
+    if (!$db->execute(
+        'UPDATE `' . _DB_PREFIX_ . 'bk_buckaroo_fee`
+         SET `fee_refunded_amount` = `buckaroo_fee_tax_incl`
+         WHERE `fee_refunded` = 1'
+    )) {
+        return false;
+    }
 
     foreach (['knaken', 'payconiq'] as $methodName) {
         upgrade_module_5_3_0_remove_payment_method($db, $methodName);
