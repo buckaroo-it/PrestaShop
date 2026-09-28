@@ -12,8 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     </article>
   `;
 
-    const target =
-        document.querySelector('.cart-grid-body');
+    // '.cart-grid-body' is the classic multi-step checkout column;
+    // '.checkout-grid__content' covers both the Hummingbird checkout and the
+    // PrestaShop 9.2 one-page checkout, which do not render '.cart-grid-body'.
+    const target = document.querySelector(
+        '.cart-grid-body, .checkout-grid__content, .one-page-checkout, #content'
+    );
+
+    if (!target) {
+        return;
+    }
 
     target.prepend(wrapper);
 });
