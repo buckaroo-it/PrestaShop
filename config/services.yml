@@ -106,6 +106,7 @@ services:
     arguments:
       - "@buckaroo.decorator.issue_standard_refund_handler.inner"
       - "@buckaroo.refund_handler"
+      - "@buckaroo.session"
       - "@buckaroo.refund.status.service"
     public: false
 
