@@ -137,7 +137,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     );
                 }
 
-                if ($id_order && $response->hasSucceeded()) {
+                if ($id_order && ($response->hasSucceeded() || (int) $response->statuscode === 190)) {
+                    $this->recordPushPayment((int) $id_order, $response);
+                    $this->removeRedundantInvoicePayments((int) $id_order);
+
                     $order = new Order($id_order);
 
                     if ($order->id_cart) {
@@ -217,8 +220,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                             $payment->amount = 0;
                             $payment->update();
                         }
-                        if ($payment->amount == $response->amount && $payment->transaction_id == '') {
+                        if ($payment->amount == $response->amount
+                            && $payment->transaction_id == ''
+                            && !$this->isGroupTransactionResponse($response)
+                        ) {
                             $payment->transaction_id = $response->transactions;
+                            $payment->payment_method = \Tools::strtolower((string) $response->payment_method);
                             $payment->update();
                         }
                     }

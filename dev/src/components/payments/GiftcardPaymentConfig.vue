@@ -2,6 +2,8 @@
   <div>
     <ActiveGiftcards v-model="config.activeGiftcards"/>
 
+    <AllowedRedirectPayments :payments="payments" />
+
     <div class="p-5 space-y-5">
       <div class="space-y-2">
         <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.displayInCheckout`) }}</h2>
@@ -25,13 +27,21 @@
 import {computed, inject} from "vue";
 import ToggleField from '../fields/ToggleField.vue'
 import ActiveGiftcards from '../fields/ActiveGiftcards.vue'
+import AllowedRedirectPayments from '../fields/AllowedRedirectPayments.vue'
 import {useI18n} from "vue-i18n";
 
 export default {
   name: "GiftcardPaymentConfig",
   components: {
     ToggleField,
-    ActiveGiftcards
+    ActiveGiftcards,
+    AllowedRedirectPayments
+  },
+  props: {
+    payments: {
+      type: Array,
+      default: () => []
+    }
   },
   setup(props) {
     const { t } = useI18n();
