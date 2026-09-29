@@ -26,9 +26,11 @@ if (!defined('_PS_VERSION_')) {
 
 class Builder extends AbstractBuilder
 {
-    public function create(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $extraFeeAmount = 0.0)
+    public function create(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $extraFeeAmount = 0.0, ?float $amountOverride = null)
     {
-        $totalAmount = $this->round($refundSummary->getRefundedAmount() + $extraFeeAmount);
+        $totalAmount = $amountOverride !== null
+            ? $this->round($amountOverride)
+            : $this->round($refundSummary->getRefundedAmount() + $extraFeeAmount);
 
         return array_merge(
             $this->buildCommon($order, $payment, $totalAmount),

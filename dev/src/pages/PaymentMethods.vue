@@ -39,7 +39,7 @@
           <PayByBankPaymentConfig v-if="selectedPayment.name === 'paybybank'" />
           <PayPerEmailPaymentConfig v-if="selectedPayment.name === 'payperemail'" :payments="payments" />
           <TransferPaymentConfig v-if="selectedPayment.name === 'transfer'" />
-          <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" />
+          <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" :payments="payments" />
           <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
           <GooglePayPaymentConfig v-if="selectedPayment.name === 'googlepay'" />
           <ClickToPayPaymentConfig v-if="selectedPayment.name === 'clicktopay'" />

@@ -77,26 +77,23 @@ class Handler
     public function execute($command, $refundSummary, float $extraFeeAmount = 0.0)
     {
         $order = $this->getOrder($command);
-        $buckarooPayments = $this->getBuckarooPayments($order);
-        if (count($buckarooPayments)) {
-            foreach ($buckarooPayments as $payment) {
-                $this->refund($order, $payment, $refundSummary, $extraFeeAmount);
-            }
+        $chunks = RefundSplit::chunks(
+            $this->getBuckarooPayments($order),
+            $refundSummary->getRefundedAmount() + $extraFeeAmount
+        );
+
+        foreach ($chunks as $chunk) {
+            $this->refund($order, $chunk['payment'], $refundSummary, $chunk['amount'], $extraFeeAmount);
         }
     }
 
-    private function refund(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $extraFeeAmount = 0.0)
+    private function refund(\Order $order, \OrderPayment $payment, OrderRefundSummary $refundSummary, float $amount, float $extraFeeAmount)
     {
-        if ($payment->amount < 0) {
+        if ($amount < 0.01) {
             return null;
         }
 
-        $totalRefundAmount = $refundSummary->getRefundedAmount() + $extraFeeAmount;
-        if ($totalRefundAmount - $payment->amount >= 0.01) {
-            throw new OrderException('Maximum amount that can be refunded in a single request is ' . $payment->amount);
-        }
-
-        $body = $this->refundBuilder->create($order, $payment, $refundSummary, $extraFeeAmount);
+        $body = $this->refundBuilder->create($order, $payment, $refundSummary, $extraFeeAmount, $amount);
         $this->responseHandler->parse(
             $this->refundHandler->refund(
                 $body,

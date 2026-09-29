@@ -167,7 +167,7 @@ class BuckarooCommonController extends ModuleFrontController
     protected function recordPushPayment(int $orderId, $response): bool
     {
         $transactionKey = (string) ($response->transactions ?? '');
-        if ($transactionKey === '') {
+        if ($transactionKey === '' || $this->isGroupTransactionResponse($response)) {
             return false;
         }
 
@@ -190,7 +190,7 @@ class BuckarooCommonController extends ModuleFrontController
         $payment->id_currency     = $order->id_currency;
         $payment->conversion_rate = 1;
         $payment->amount          = $amount;
-        $payment->payment_method  = (string) ($response->payment_method ?? $order->payment);
+        $payment->payment_method  = \Tools::strtolower((string) ($response->payment_method ?? $order->payment));
         $payment->transaction_id  = $transactionKey;
         $payment->save();
 
@@ -336,12 +336,34 @@ class BuckarooCommonController extends ModuleFrontController
                 continue;
             }
 
-            Db::getInstance()->delete(
-                'order_invoice_payment',
-                'id_order_payment = ' . (int) $payment->id
-            );
-            $payment->delete();
+            $this->deleteOrderPayment($payment);
         }
+    }
+
+    /**
+     * The hosted giftcard flow closes with one group transaction for the full
+     * amount. That key cannot be refunded as Belfius, iDEAL, or a giftcard.
+     */
+    protected function isGroupTransactionResponse($response): bool
+    {
+        if (!is_object($response)) {
+            return false;
+        }
+
+        if ((string) ($response->brq_transaction_type ?? '') === 'I150') {
+            return true;
+        }
+
+        return trim((string) ($response->payment_method ?? '')) === '';
+    }
+
+    private function deleteOrderPayment(\OrderPayment $payment): void
+    {
+        Db::getInstance()->delete(
+            'order_invoice_payment',
+            'id_order_payment = ' . (int) $payment->id
+        );
+        $payment->delete();
     }
 
     protected function finalizeOrderPaymentsAfterStatusChange(int $orderId): void
