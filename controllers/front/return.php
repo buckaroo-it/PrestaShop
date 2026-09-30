@@ -69,14 +69,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $response = ResponseFactory::getResponse();
         $this->logger->logInfo('Parse response', $response);
 
-        $isRefundPush =
-            Tools::getIsset('brq_amount_credit')
-            && Tools::getIsset('brq_relatedtransaction_refund');
-
-        if ($response->isValid() || $isRefundPush) {
-            if (!$response->isValid() && $isRefundPush) {
-                $this->logger->logWarn('Refund push detected and processed despite failed validation');
-            }
+        if ($response->isValid()) {
             $this->logger->logInfo('Response valid');
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -107,15 +100,6 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if ($response->brq_relatedtransaction_refund != null) {
                 $order = $id_order ? new Order($id_order) : null;
                 $this->handleRefundPush($order, $response);
-                exit;
-            }
-
-            // Everything below changes order/payment state and must never run for a
-            // request that only qualified via the unverified-refund-push allowance above.
-            if (!$response->isValid()) {
-                header('HTTP/1.1 503 Service Unavailable');
-                $this->logger->logError('Payment response not valid', $response);
-                echo 'Payment response not valid';
                 exit;
             }
 
