@@ -41,7 +41,7 @@ Card payments run through Hosted Fields, which keeps the card entry inside your 
 
 | Requirement | Supported versions |
 |---|---|
-| PrestaShop | 1.7.x up to 9.1.x |
+| PrestaShop | 1.7.x up to 9.2.x |
 | PHP | 8.0 or higher |
 
 You also need a Buckaroo account. Don't have one yet? [Request an account](https://www.buckaroo.nl/start).
