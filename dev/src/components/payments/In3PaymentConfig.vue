@@ -16,7 +16,7 @@ img {
 
 
 .hidden-radio:checked + label {
-  border: 2px solid #007bff;
+  border: 2px solid #CDF564;
   padding: 5px;
   border-radius: 8px;
 }
@@ -34,8 +34,8 @@ img {
   position: absolute;
   top: 0;
   right: 0;
-  background-color: #007bff;
-  color: white;
+  background-color: #CDF564;
+  color: #163255;
   padding: 2px 6px;
   border-radius: 50%;
 }

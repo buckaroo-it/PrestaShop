@@ -21,6 +21,12 @@ class BuckarooFeeManager {
     }
 
     _findTotalsContainer() {
+        if ($('.js-cart-summary-totals').length) {
+            return $('.js-cart-summary-totals').first();
+        }
+        if ($('.cart-summary__total').length) {
+            return $('.cart-summary__total').first();
+        }
         if ($('.card-block.cart-summary-totals').length) {
             return $('.card-block.cart-summary-totals').first();
         }
@@ -92,7 +98,7 @@ class BuckarooFeeManager {
                 buckarooKey = moduleName.toLowerCase();
             } else {
                 let idParts = paymentOptionId.split('-');
-                let knownMethods = ['ideal', 'creditcard', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'payconiq', 'twint', 'swish', 'bizum', 'wero'];
+                let knownMethods = ['ideal', 'creditcard', 'clicktopay', 'paypal', 'afterpay', 'billink', 'klarna', 'paybybank', 'sepadirectdebit', 'giftcard', 'in3', 'afterpay', 'bancontact', 'belfius', 'eps', 'mbway', 'multibanco', 'twint', 'swish', 'bizum', 'wero'];
                 for (let method of knownMethods) {
                     if (paymentOptionId.toLowerCase().indexOf(method) !== -1) {
                         buckarooKey = method;
@@ -210,6 +216,10 @@ class BuckarooFeeManager {
         } else {
             this.removePaymentFee();
         }
+
+        if (window.BuckarooAlreadyPaid && typeof window.BuckarooAlreadyPaid.handleCartUpdate === 'function') {
+            window.BuckarooAlreadyPaid.handleCartUpdate(response);
+        }
     }
 
     updatePaymentFeeDisplay(paymentFee, paymentFeeTax, includedTaxes) {
@@ -295,8 +305,100 @@ function buckaroo() {
         }, 100);
     });
 
+    /**
+     * Validate the selected Buckaroo method before the checkout submits its form.
+     *
+     * The method is resolved at click time rather than relying on the last
+     * 'change' event, because the one-page checkout re-renders the payment list
+     * over AJAX: the cached form pointer would otherwise reference detached DOM.
+     */
+    function validateSelectedMethod(e) {
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if ($selectedOption.length) {
+            methodValidator.setMethod($selectedOption.attr('id'));
+        }
+
+        ensureCreditCardIssuerInPaymentForm();
+
+        return methodValidator.init(e);
+    }
+
+    // Multi-step checkout: the theme's confirmation button submits the selected
+    // payment form, so stopping propagation on it blocks an invalid submit.
+    // Bound directly on the button (not delegated) so that it keeps running
+    // before the theme's own handler, which is delegated on <body>.
     $('#payment-confirmation button').on('click', (e) => {
-        methodValidator.init(e);
+        validateSelectedMethod(e);
+    });
+
+    // PrestaShop 9.2 native one-page checkout (ps_onepagecheckout): there is no
+    // '#payment-confirmation' button. Its pay button and its form carry their own
+    // listeners which call stopPropagation() themselves, so a bubbling handler
+    // would never run. Validate in the capture phase instead - that is the only
+    // point at which an invalid Buckaroo form can still stop the submit.
+    document.addEventListener('click', (e) => {
+        if (!e.target || !e.target.closest || !e.target.closest('#opc-pay-button')) {
+            return;
+        }
+        if (!validateSelectedMethod(e)) {
+            e.preventDefault();
+        }
+    }, true);
+
+    document.addEventListener('submit', (e) => {
+        if (!e.target || e.target.id !== 'opc-form') {
+            return;
+        }
+        if (!validateSelectedMethod(e)) {
+            e.preventDefault();
+        }
+    }, true);
+
+    /**
+     * Copy the selected card brand onto the payment form that will be posted.
+     * Some checkouts keep issuer controls outside that form.
+     */
+    function ensureCreditCardIssuerInPaymentForm() {
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if (!$selectedOption.length) {
+            return;
+        }
+
+        const optionId = $selectedOption.attr('id');
+        const $paymentFormContainer = $('#pay-with-' + optionId + '-form');
+        const $paymentForm = $paymentFormContainer.find('form').first();
+        if (!$paymentForm.length) {
+            return;
+        }
+
+        let issuer = $paymentForm.find('input[name="BPE_CreditCard"]:checked').val()
+            || $paymentForm.find('select[name="BPE_CreditCard"]').val()
+            || $paymentForm.find('input[name="cardCode"]').val()
+            || '';
+
+        if (!issuer || issuer === '0') {
+            const $info = $('#' + optionId + '-additional-information');
+            issuer = $info.find('input[name="BPE_CreditCard"]:checked').val()
+                || $info.find('select[name="BPE_CreditCard"]').val()
+                || '';
+        }
+
+        if (!issuer || issuer === '0') {
+            return;
+        }
+
+        let $hidden = $paymentForm.find('input[type="hidden"][name="BPE_CreditCard"]');
+        if (!$hidden.length) {
+            $hidden = $('<input>', { type: 'hidden', name: 'BPE_CreditCard' }).appendTo($paymentForm);
+        }
+        $hidden.val(issuer);
+    }
+
+    $(document).on('submit', 'form', function () {
+        const action = ($(this).attr('action') || '').toLowerCase();
+        if (action.indexOf('buckaroo3') !== -1 && action.indexOf('method=creditcard') !== -1) {
+            ensureCreditCardIssuerInPaymentForm();
+        }
     });
 
     const $selectedOption = $('input[name="payment-option"]:checked');
@@ -312,7 +414,14 @@ function buckaroo() {
         valid: true,
         setMethod: (id) => {
             methodValidator.formPointer = $('#pay-with-' + id + '-form form');
-            methodValidator.methodSelector = methodValidator.formPointer.attr('action').split('method=')[1];
+            if (!methodValidator.formPointer.length) {
+                methodValidator.formPointer = $('#pay-with-' + id + '-form');
+            }
+            const action = methodValidator.formPointer.attr('action') || '';
+            const methodMatch = action.match(/[?&]method=([^&]+)/i);
+            methodValidator.methodSelector = methodMatch
+                ? decodeURIComponent(methodMatch[1]).toLowerCase()
+                : null;
         }, requiredAll: () => {
             methodValidator.formPointer.find('label.required').parent().nextAll().find('input').not('.buckaroo-validation-message').each(function () {
                 let invalid = !validateRequired($(this).val());
@@ -386,15 +495,6 @@ function buckaroo() {
             if (invalid) {
                 methodValidator.valid = false;
             }
-        }, billinkTrigger: () => {
-            if ($("#customerbirthdate_d_billing_billink").val()) {
-                let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_billink").val() + $("#customerbirthdate_m_billing_billink").val() + $("#customerbirthdate_y_billing_billink").val());
-                methodValidator.displayMessage($("#customerbirthdate_d_billing_billink"), buckarooMessages.validation.date, !dateInvalid);
-
-                if (dateInvalid === true) {
-                    methodValidator.valid = false;
-                }
-            }
         }, payPerEmailTrigger: () => {
             if ($("#customerbirthdate_d_billing_payperemail").val()) {
                 let dateInvalid = !isValidDate($("#customerbirthdate_d_billing_payperemail").val() + $("#customerbirthdate_m_billing_payperemail").val() + $("#customerbirthdate_y_billing_payperemail").val());
@@ -403,6 +503,13 @@ function buckaroo() {
                 if (dateInvalid === true) {
                     methodValidator.valid = false;
                 }
+            }
+        }, clickToPayTrigger: () => {
+            // The Drop-in UI fills this field once the shopper authenticated;
+            // without it Buckaroo rejects the payment.
+            if (!$('#bk_clicktopay_transient_token').val()) {
+                methodValidator.valid = false;
+                $('#booClickToPayErr').show();
             }
         }, requiredRadioSelection: (element, errorLabel) => {
             if ($(`.${element}:input[type="radio"]:checked`).length === 0) {
@@ -431,9 +538,6 @@ function buckaroo() {
                 case 'afterpay&service=digi':
                     methodValidator.afterpayDigiTrigger();
                     break;
-                case 'billink':
-                    methodValidator.billinkTrigger();
-                    break;
                 case 'payperemail':
                     methodValidator.payPerEmailTrigger();
                     break;
@@ -450,6 +554,9 @@ function buckaroo() {
                     } else {
                         methodValidator.requiredDropDownSelection('creditcard_banks', '#booCreditCardErr');
                     }
+                    break;
+                case 'clicktopay':
+                    methodValidator.clickToPayTrigger();
                     break;
                 default:
             }
@@ -565,7 +672,8 @@ function buckaroo() {
             }
         }
     }
-    new BuckarooCheckout().listen();
+    const buckarooCheckout = new BuckarooCheckout();
+    buckarooCheckout.listen();
 
     class BuckarooPayByBank {
         isMobile = $(window).width() < BuckarooCheckout.MOBILE_WIDTH;
@@ -577,8 +685,10 @@ function buckaroo() {
 
         startListeners() {
             $(window).on('resize', this.toggleInputToShow.bind(this));
-            $('.bk-paybybank-mobile select').on('change', this.syncWithRadioGroup.bind(this));
-            $('.bk-paybybank-not-mobile input').on('change', this.syncWithSelect.bind(this));
+            // Delegated so the handlers keep working after the one-page checkout
+            // replaces the payment list markup over AJAX.
+            $(document).on('change', '.bk-paybybank-mobile select', this.syncWithRadioGroup.bind(this));
+            $(document).on('change', '.bk-paybybank-not-mobile input', this.syncWithSelect.bind(this));
         }
 
         toggleInputToShow() {
@@ -622,7 +732,8 @@ function buckaroo() {
         }
     }
 
-    new BuckarooPayByBank().init();
+    const buckarooPayByBank = new BuckarooPayByBank();
+    buckarooPayByBank.init();
 
     class BuckarooApplePay {
         get isApplePayAvailable() {
@@ -638,7 +749,40 @@ function buckaroo() {
         }
     }
 
-    new BuckarooApplePay().init();
+    const buckarooApplePay = new BuckarooApplePay();
+    buckarooApplePay.init();
+
+    // -----------------------------------------------------------------------
+    // One-page checkout (PrestaShop 9.2 ps_onepagecheckout) re-rendering
+    //
+    // The one-page checkout replaces the whole payment list over AJAX whenever
+    // the address, carrier or cart changes. Everything that was applied to the
+    // payment markup on page load - the Apple Pay availability check, the
+    // PayByBank mobile/desktop switch and the collapsed issuer list - is thrown
+    // away with it, so it has to be applied again to the new markup.
+    // -----------------------------------------------------------------------
+    function reapplyPaymentMethodUi() {
+        buckarooFeeManager.init();
+        buckarooCheckout.initMethod();
+        buckarooPayByBank.showInput();
+        buckarooApplePay.init();
+
+        const $selectedOption = $('input[name="payment-option"]:checked');
+        if ($selectedOption.length) {
+            methodValidator.setMethod($selectedOption.attr('id'));
+            buckarooFeeManager.handlePaymentOptionChange($selectedOption);
+        }
+    }
+
+    if (typeof prestashop !== 'undefined' && typeof prestashop.on === 'function') {
+        // opcPaymentMethodsUpdated: the markup changed. opcPaymentMethodsRefreshed:
+        // identical markup was kept, but the selection/fee may still have moved.
+        prestashop.on('opcPaymentMethodsUpdated', reapplyPaymentMethodUi);
+        prestashop.on('opcPaymentMethodsRefreshed', reapplyPaymentMethodUi);
+        // The order summary is re-rendered separately from the payment list and
+        // takes the Buckaroo payment fee row with it.
+        prestashop.on('opcCartSummaryUpdated', reapplyPaymentMethodUi);
+    }
 
     // -----------------------------------------------------------------------
     // BNPL phone field dynamic update

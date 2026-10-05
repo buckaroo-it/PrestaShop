@@ -22,6 +22,45 @@ use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 class PaymentMethodHelper
 {
     /**
+     * Map OrderPayment.payment_method values to the plugin/SDK method code.
+     *
+     * PrestaShop stores the human-readable label on OrderPayment
+     * (e.g. "Click to Pay", "SEPA Direct Debit"). Buckaroo push/SDK responses
+     * may use a different casing (e.g. "SepaDirectDebit"). Config lookup and
+     * the SDK factory expect the compact method code ("clicktopay", "sepadirectdebit").
+     *
+     * @param string $method Value stored on the order payment
+     *
+     * @return string Canonical method code used for config and SDK calls
+     */
+    public static function resolveMethodCode(string $method): string
+    {
+        $trimmed = trim($method);
+        if ($trimmed === '') {
+            return $method;
+        }
+
+        $lower = strtolower($trimmed);
+        $compact = (string) preg_replace('/[\s\-_]+/', '', $lower);
+
+        $aliases = [
+            'clicktopay' => 'clicktopay',
+            'sepa' => 'sepadirectdebit',
+            'sepadirectdebit' => 'sepadirectdebit',
+        ];
+
+        if (isset($aliases[$compact])) {
+            return $aliases[$compact];
+        }
+
+        if (self::isCreditCardMethod($lower) || self::isGiftCardMethod($lower)) {
+            return $lower;
+        }
+
+        return $lower;
+    }
+
+    /**
      * Check if the payment method is a type of credit card.
      *
      * @param string $method The payment method to check.

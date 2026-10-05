@@ -106,6 +106,7 @@ services:
     arguments:
       - "@buckaroo.decorator.issue_standard_refund_handler.inner"
       - "@buckaroo.refund_handler"
+      - "@buckaroo.session"
       - "@buckaroo.refund.status.service"
     public: false
 
@@ -133,6 +134,16 @@ services:
 
   Buckaroo\PrestaShop\Src\Service\BuckarooConfigService:
     alias: buckaroo.config.api.config.service
+    public: true
+
+  buckaroo.config.api.clicktopay.service:
+    class: Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService
+    arguments:
+      - "@buckaroo.config.api.config.service"
+    public: true
+
+  Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService:
+    alias: buckaroo.config.api.clicktopay.service
     public: true
 
   buckaroo.config.countries.service:

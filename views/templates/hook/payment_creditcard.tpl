@@ -16,22 +16,19 @@
     <input type="hidden" name="buckarooKey" value="creditcard">
     <form id="booCreditCardForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'creditcard'])|escape:'quotes':'UTF-8'}" method="post">
         <div id="booCreditCardErr" class="booBlAnimError">
-            {l s='Please choose your bank.' mod='buckaroo3'}"
+            {l s='Please choose your bank.' mod='buckaroo3'}
         </div>
         <fieldset>
             {if $creditCardDisplayMode === 'dropdown'}
                 <p class="form-row form-row-wide">
-                    <select name="BPE_CreditCard" id="buckaroo-method-issuer" class="form-control creditcard_banks creditcard_dropdown" >
+                    <select name="BPE_CreditCard" id="buckaroo-method-issuer" class="form-control creditcard_banks creditcard_dropdown">
                         <option value="0" style="color: grey !important">
-                            <p> {l s='Select your bank' mod='buckaroo3'}</p>
+                            {l s='Select your bank' mod='buckaroo3'}
                         </option>
                         {foreach $creditcardIssuers as $key => $issuer}
-                            <div>
-                                <option value="{$key|escape:'html':'UTF-8'}"
-                                        id="bankMethod{$key|escape:'html':'UTF-8'}">
-                                    {l s=$issuer['name'] mod='buckaroo3'}
-                                </option>
-                            </div>
+                            <option value="{$key|escape:'html':'UTF-8'}" id="bankMethod{$key|escape:'html':'UTF-8'}">
+                                {l s=$issuer['name'] mod='buckaroo3'}
+                            </option>
                         {/foreach}
                     </select>
                 </p>

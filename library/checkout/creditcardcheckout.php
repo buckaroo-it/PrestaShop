@@ -24,10 +24,48 @@ class CreditCardCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /**
+     * Resolve the selected credit-card brand/issuer from the request.
+     *
+     * Third-party checkouts may omit nested form fields or drop query-string
+     * parameters, so both POST field names used by this module are checked.
+     */
+    public static function resolveIssuer(): string
+    {
+        $candidates = [
+            Tools::getValue('BPE_CreditCard'),
+            Tools::getValue('cardCode'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            $issuer = self::normalizeIssuer($candidate);
+            if ($issuer !== '') {
+                return $issuer;
+            }
+        }
+
+        return '';
+    }
+
+    private static function normalizeIssuer($value): string
+    {
+        if (!is_string($value) && !is_numeric($value)) {
+            return '';
+        }
+
+        $issuer = trim((string) $value);
+
+        if ($issuer === '' || $issuer === '0') {
+            return '';
+        }
+
+        return Tools::strtolower($issuer);
+    }
+
     final public function setCheckout()
     {
         parent::setCheckout();
-        $this->payment_request->issuer = Tools::getValue('BPE_CreditCard', Tools::getValue('cardCode'));
+        $this->payment_request->issuer = self::resolveIssuer();
     }
 
     public function startPayment()

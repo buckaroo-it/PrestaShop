@@ -23,6 +23,10 @@ if (!defined('_PS_VERSION_')) {
 
 class Config
 {
+    /**
+     * Legacy global test/live flag. Per-method mode is the only environment
+     * control; this key is kept so upgrades and uninstall can delete leftovers.
+     */
     public const BUCKAROO_TEST = 'BUCKAROO_TEST';
     public const BUCKAROO_MERCHANT_KEY = 'BUCKAROO_MERCHANT_KEY';
     public const BUCKAROO_SECRET_KEY = 'BUCKAROO_SECRET_KEY';
@@ -37,4 +41,34 @@ class Config
     public const PAYMENT_FEE_FRONTEND_LABEL = 'PAYMENT_FEE_FRONTEND_LABEL';
 
     public const FILE_NAME = 'Installer';
+
+    /**
+     * Payment methods that do not support a configurable payment fee.
+     */
+    private const PAYMENT_FEE_DISABLED_METHODS = [
+        'paybybank',
+    ];
+
+    public static function isPaymentFeeAllowed(string $method): bool
+    {
+        return !in_array(strtolower($method), self::PAYMENT_FEE_DISABLED_METHODS, true);
+    }
+
+    /**
+     * Whether a payment method should appear in checkout.
+     * Live and Test are both active; Off is not.
+     */
+    public static function isPaymentModeEnabled(?string $mode): bool
+    {
+        return in_array($mode, ['live', 'test'], true);
+    }
+
+    /**
+     * Map the per-method mode to a Buckaroo gateway environment.
+     * Off and unknown values fall back to test so live charges cannot happen by accident.
+     */
+    public static function toGatewayMode(?string $mode): string
+    {
+        return $mode === 'live' ? 'live' : 'test';
+    }
 }

@@ -38,7 +38,7 @@ class KlarnaCheckout extends Checkout
         $this->customVars = [
             'operatingCountry' => Tools::strtoupper($country->iso_code),
             'billing' => $this->getBillingAddress(),
-            'articles' => $this->getArticles(),
+            'articles' => $this->prepareKlarnaArticles($this->getArticles()),
             'shipping' => $this->getShippingAddress(),
         ];
     }
@@ -57,12 +57,12 @@ class KlarnaCheckout extends Checkout
         $address_components = $this->getAddressComponents($address['address1']); // phpcs:ignore
         $address = array_merge($address, $address_components);
 
-        return [
+        $phone = !empty($address['phone_mobile']) ? $address['phone_mobile'] : ($address['phone'] ?? '');
+
+        $payload = [
             'recipient' => [
                 'firstName' => $address['firstname'],
                 'lastName' => $address['lastname'],
-                'gender' => Tools::getValue('bpe_klarna_invoice_person_gender') === '1' ? 'male' : 'female',
-                'category' => 'B2C',
             ],
             'address' => [
                 'street' => $address['street'],
@@ -74,6 +74,14 @@ class KlarnaCheckout extends Checkout
             ],
             'email' => $this->customer->email,
         ];
+
+        if (!empty($phone)) {
+            $payload['phone'] = [
+                'mobile' => $phone,
+            ];
+        }
+
+        return $payload;
     }
 
     public function getShippingAddress()
@@ -96,11 +104,43 @@ class KlarnaCheckout extends Checkout
 
     public function startPayment()
     {
-        $this->payment_response = $this->payment_request->pay($this->customVars);
+        $this->payment_response = $this->payment_request->reserve($this->customVars);
     }
 
     protected function initialize()
     {
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_KLARNA);
+    }
+
+    protected function prepareKlarnaArticles(array $articles): array
+    {
+        foreach ($articles as $key => $article) {
+            if (empty($article['type'])) {
+                $articles[$key]['type'] = $this->resolveKlarnaArticleType($article);
+            }
+        }
+
+        return $articles;
+    }
+
+    protected function resolveKlarnaArticleType(array $article): string
+    {
+        $identifier = isset($article['identifier']) ? (string) $article['identifier'] : '';
+        $price = isset($article['price']) ? (float) $article['price'] : 0.0;
+        $description = isset($article['description']) ? Tools::strtolower((string) $article['description']) : '';
+
+        if ($identifier === 'shipping' || $description === 'shipping costs') {
+            return 'shipping_fee';
+        }
+
+        if ($price < 0 || $description === 'discount') {
+            return 'discount';
+        }
+
+        if (in_array($identifier, ['0', 'buckaroo_fee'], true) || in_array($description, ['wrapping', 'buckaroo_fee'], true)) {
+            return 'surcharge';
+        }
+
+        return 'physical';
     }
 }

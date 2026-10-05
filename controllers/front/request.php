@@ -96,6 +96,16 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
+            // Validate credit-card issuer before creating an order. Empty brand/service
+            // names produce Buckaroo "' is not a valid service name" and left orphan orders.
+            if (!$this->isValidCreditCardIssuer($payment_method)) {
+                return;
+            }
+
+            if (!$this->isValidClickToPayData($payment_method)) {
+                return;
+            }
+
             $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
             $total = $this->applyBuckarooFee($payment_method, $total);
 
@@ -256,6 +266,58 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
+    private function isValidCreditCardIssuer(string $payment_method): bool
+    {
+        if ($payment_method !== 'creditcard') {
+            return true;
+        }
+
+        require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/creditcardcheckout.php';
+
+        $issuer = CreditCardCheckout::resolveIssuer();
+        if ($issuer === '') {
+            $this->logger->logError('Credit card payment started without a selected card brand/issuer.');
+            $this->redirectToCheckoutStep(
+                3,
+                $this->module->l('Please select a credit or debit card before continuing with payment.')
+            );
+
+            return false;
+        }
+
+        // Keep a single POST field so checkout/pay always see the same issuer.
+        $_POST['BPE_CreditCard'] = $issuer;
+
+        return true;
+    }
+
+    /**
+     * The Click to Pay Drop-in UI must have authenticated the shopper before an
+     * order is created; without the transient token Buckaroo rejects the Pay
+     * request and we would be left with an orphan order.
+     */
+    private function isValidClickToPayData(string $payment_method): bool
+    {
+        if ($payment_method !== 'clicktopay') {
+            return true;
+        }
+
+        require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/clicktopaycheckout.php';
+
+        $paymentData = ClickToPayCheckout::resolveDropInPaymentData();
+        if ($paymentData['transientToken'] === '' || $paymentData['identifier'] === '') {
+            $this->logger->logError('Click to Pay payment started without a transient token.');
+            $this->redirectToCheckoutStep(
+                3,
+                $this->module->l('Please complete the Click to Pay checkout before continuing with payment.')
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
     private function isValidService()
     {
         if (Tools::getValue('service') && Tools::getValue('service') != 'digi' && Tools::getValue('service') != 'sepa') {
@@ -369,6 +431,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->logger->logInfo('Request succeeded');
 
         if ($this->checkout->isRedirectRequired()) {
+            $this->storeKlarnaDataRequestKey($response);
             $this->setCartCookie($cartId);
             $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
@@ -388,7 +451,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $id_order = $this->module->currentOrder;
 
         $responseData = $response->getResponse();
-        $this->createTransactionMessage($id_order, 'Transaction Key: ' . $responseData->getTransactionKey());
+        $transactionKey = $responseData ? trim((string) $responseData->getTransactionKey()) : '';
+        $this->createTransactionMessage($id_order, 'Transaction Key: ' . $transactionKey);
+
+        $method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
+        if ($transactionKey !== '' && in_array($method, ['sepadirectdebit', 'transfer', 'payperemail'], true)) {
+            $this->storeTransactionKeyOnOrderPayment((int) $id_order, $transactionKey);
+        }
 
         if ($response->payment_method == 'SepaDirectDebit') {
             $this->processSepaDirectDebit($id_order, $responseData);
@@ -399,7 +468,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         // If a giftcard was applied before this payment, record it on the order now
-        $this->recordAppliedGiftcardPayment((int) $id_order);
+        $this->prepareOrderPaymentsBeforePaidStatus((int) $id_order, $response);
+        $this->clearGiftcardCookies();
 
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
             'id_cart'           => $cartId,
@@ -513,12 +583,68 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         Tools::redirect($redirectUrl);
     }
 
+    private function storeKlarnaDataRequestKey($response): void
+    {
+        $method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
+        if ($method !== 'klarna') {
+            return;
+        }
+
+        $responseData = $response->getResponse();
+        $dataRequestKey = $responseData ? trim((string) $responseData->getTransactionKey()) : '';
+        if ($dataRequestKey === '') {
+            return;
+        }
+
+        $id_order = (int) $this->module->currentOrder;
+        $this->createTransactionMessage($id_order, 'Data Request Key: ' . $dataRequestKey);
+        $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey);
+    }
+
     private function createTransactionMessage($orderId, $messageString)
     {
         $message = new Message();
         $message->id_order = $orderId;
         $message->message = $messageString;
         $message->add();
+    }
+
+    private function storeTransactionKeyOnOrderPayment(int $orderId, string $transactionKey): void
+    {
+        if ($orderId <= 0 || $transactionKey === '') {
+            return;
+        }
+
+        $order = new Order($orderId);
+        if (!Validate::isLoadedObject($order)) {
+            return;
+        }
+
+        $payments = OrderPayment::getByOrderReference($order->reference);
+        if (!is_array($payments)) {
+            $payments = [];
+        }
+
+        foreach ($payments as $payment) {
+            if ((string) $payment->transaction_id !== '') {
+                continue;
+            }
+
+            $payment->transaction_id = $transactionKey;
+            $payment->update();
+            return;
+        }
+
+        // Pending states (Awaiting for Remote payment) do not create OrderPayment
+        // during validateOrder. Add one so the key is visible on Order Details.
+        $payment = new OrderPayment();
+        $payment->order_reference = $order->reference;
+        $payment->id_currency = (int) $order->id_currency;
+        $payment->conversion_rate = (float) ($order->conversion_rate ?: 1);
+        $payment->amount = (float) $order->total_paid_tax_incl;
+        $payment->payment_method = $order->payment ?: 'buckaroo3';
+        $payment->transaction_id = $transactionKey;
+        $payment->add();
     }
 
     private function setCartCookie($cartId)

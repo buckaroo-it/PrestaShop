@@ -17,6 +17,11 @@ if (!defined('_PS_MODULE_DIR_')) {
     define('_PS_MODULE_DIR_', dirname(__DIR__, 2) . '/');
 }
 
+// Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
+if (!defined('__PS_BASE_URI__')) {
+    define('__PS_BASE_URI__', '/');
+}
+
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
@@ -87,6 +92,15 @@ if (!class_exists('Currency')) {
         /** @var array<int,string> */
         public static $isoById = [];
 
+        /**
+         * ISO code for a currency id. Mirrors PrestaShop's Currency::getIsoCodeById()
+         * so refund request builders can resolve the order currency in unit tests.
+         */
+        public static function getIsoCodeById($id)
+        {
+            return self::$isoById[(int) $id] ?? 'EUR';
+        }
+
         public function __construct($id = null)
         {
             // Allow tests to control the currency per ID while keeping a sane default.
@@ -116,6 +130,33 @@ if (!class_exists('Tools')) {
         public static function strtoupper($string)
         {
             return strtoupper($string);
+        }
+    }
+}
+
+if (!class_exists('Configuration')) {
+    class Configuration
+    {
+        /** @var array<string,mixed> */
+        public static $values = [];
+
+        public static function get($key)
+        {
+            return self::$values[$key] ?? false;
+        }
+
+        public static function updateValue($key, $value)
+        {
+            self::$values[$key] = $value;
+
+            return true;
+        }
+
+        public static function deleteByName($key)
+        {
+            unset(self::$values[$key]);
+
+            return true;
         }
     }
 }
@@ -210,6 +251,16 @@ if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
         public function getCallToActionText()
         {
             return $this->callToActionText;
+        }
+
+        public function getAction()
+        {
+            return $this->action;
+        }
+
+        public function getForm()
+        {
+            return $this->form;
         }
 
         public function getInputs()

@@ -34,7 +34,7 @@
                 <h2 v-else class="font-bold">All Countries</h2>
               </div>
 
-              <button class="h-full bg-blue-500 text-white px-8 font-bold hover:bg-blue-600" @click="update">Save</button>
+              <button class="h-full bg-primary text-fifthly px-8 font-bold hover:brightness-95" @click="update">Save</button>
             </div>
 
             <div class="overflow-y-auto h-full">
@@ -85,9 +85,9 @@
 
       <p class="text-xs leading-loose">
         {{ $t('dashboard.pages.order_payment_methods.if_you_have_any_questions') }}
-        <a href='mailto:support@buckaroo.nl' class='text-fourthly font-bold'>support@buckaroo.nl</a>
+        <a href='mailto:support@buckaroo.nl' class='text-fifthly font-bold'>support@buckaroo.nl</a>
         {{ $t('dashboard.pages.settings.if_you_have_any_questions_link') }}
-        <a href='tel:+31307115020' class='text-fourthly font-bold'>+31 (0) 30 711 50 20</a>.
+        <a href='tel:+31307115020' class='text-fifthly font-bold'>+31 (0) 30 711 50 20</a>.
       </p>
     </div>
   </div>

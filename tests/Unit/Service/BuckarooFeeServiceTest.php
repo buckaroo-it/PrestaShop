@@ -295,5 +295,39 @@ class BuckarooFeeServiceTest extends TestCase
         $this->assertSame('ideal', $service->getPaymentMethodByLabel('iDEAL | Wero'));
         $this->assertNull($service->getPaymentMethodByLabel('Unknown'));
     }
+
+    public function testPayByBankDoesNotExposeConfiguredPaymentFee(): void
+    {
+        $method = new class {
+            public function getId(): int
+            {
+                return 7;
+            }
+
+            public function getName(): string
+            {
+                return 'paybybank';
+            }
+
+            public function getLabel(): string
+            {
+                return 'PayByBank';
+            }
+        };
+
+        $service = $this->createService(
+            [$method],
+            [
+                7 => ['payment_fee' => 2.50],
+            ]
+        );
+
+        $this->assertNull($service->getBuckarooFeeValue('paybybank'));
+        $this->assertArrayNotHasKey('paybybank', $service->getBuckarooFees());
+
+        $inputs = $service->getBuckarooFeeInputs('paybybank');
+        $this->assertCount(1, $inputs);
+        $this->assertSame('paybybank', $inputs[0]['value']);
+    }
 }
 

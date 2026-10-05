@@ -41,7 +41,6 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_IN3OLD = 'in3Old';
     public const REQUEST_TYPE_BILLINK = 'billink';
     public const REQUEST_TYPE_EPS = 'eps';
-    public const REQUEST_TYPE_PAYCONIQ = 'payconiq';
     public const REQUEST_TYPE_PAYPEREMAIL = 'payperemail';
     public const REQUEST_TYPE_PRZELEWY24 = 'przelewy24';
     public const REQUEST_TYPE_TRUSTLY = 'trustly';
@@ -49,11 +48,11 @@ class PaymentRequestFactory
     public const REQUEST_TYPE_ALIPAY = 'alipay';
     public const REQUEST_TYPE_MULTIBANCO = 'multibanco';
     public const REQUEST_TYPE_MBWAY = 'mbway';
-    public const REQUEST_TYPE_KNAKEN = 'knaken';
     public const REQUEST_TYPE_TWINT = 'twint';
     public const REQUEST_TYPE_SWISH = 'swish';
     public const REQUEST_TYPE_BIZUM = 'bizum';
     public const REQUEST_TYPE_WERO = 'wero';
+    public const REQUEST_TYPE_CLICKTOPAY = 'clicktopay';
 
     // Request types (Payment Methods).
     public static $valid_request_types = [
@@ -77,7 +76,6 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_IN3OLD => 'In3Old',
         PaymentRequestFactory::REQUEST_TYPE_BILLINK => 'Billink',
         PaymentRequestFactory::REQUEST_TYPE_EPS => 'Eps',
-        PaymentRequestFactory::REQUEST_TYPE_PAYCONIQ => 'Payconiq',
         PaymentRequestFactory::REQUEST_TYPE_PAYPEREMAIL => 'PayPerEmail',
         PaymentRequestFactory::REQUEST_TYPE_PRZELEWY24 => 'Przelewy24',
         PaymentRequestFactory::REQUEST_TYPE_TRUSTLY => 'Trustly',
@@ -85,11 +83,11 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_ALIPAY => 'Alipay',
         PaymentRequestFactory::REQUEST_TYPE_MULTIBANCO => 'Multibanco',
         PaymentRequestFactory::REQUEST_TYPE_MBWAY => 'Mbway',
-        PaymentRequestFactory::REQUEST_TYPE_KNAKEN => 'Knaken',
         PaymentRequestFactory::REQUEST_TYPE_TWINT => 'Twint',
         PaymentRequestFactory::REQUEST_TYPE_SWISH => 'Swish',
         PaymentRequestFactory::REQUEST_TYPE_BIZUM => 'Bizum',
         PaymentRequestFactory::REQUEST_TYPE_WERO => 'Wero',
+        PaymentRequestFactory::REQUEST_TYPE_CLICKTOPAY => 'ClickToPay',
     ];
 
     final public static function create($request_type_id, $data = [])

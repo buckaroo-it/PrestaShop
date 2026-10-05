@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Src\Refund\KlarnaTransactionKey;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 
@@ -68,14 +69,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $response = ResponseFactory::getResponse();
         $this->logger->logInfo('Parse response', $response);
 
-        $isRefundPush =
-            Tools::getIsset('brq_amount_credit')
-            && Tools::getIsset('brq_relatedtransaction_refund');
-
-        if ($response->isValid() || $isRefundPush) {
-            if (!$response->isValid() && $isRefundPush) {
-                $this->logger->logWarn('Refund push detected and processed despite failed validation');
-            }
+        if ($response->isValid()) {
             $this->logger->logInfo('Response valid');
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -84,6 +78,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             ) {
                 $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
                 $response->status = $response::BUCKAROO_CANCELED;
+            }
+
+            $actionCode = Tools::strtolower((string) Tools::getValue('brq_actioncode'));
+            if (in_array($actionCode, ['cancelreservation', 'extendreservation'], true)
+                && $this->handleReservationPush($response, $actionCode)
+            ) {
+                exit;
             }
 
             $id_order = Order::getIdByCartId($response->getCartId());
@@ -99,15 +100,6 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if ($response->brq_relatedtransaction_refund != null) {
                 $order = $id_order ? new Order($id_order) : null;
                 $this->handleRefundPush($order, $response);
-                exit;
-            }
-
-            // Everything below changes order/payment state and must never run for a
-            // request that only qualified via the unverified-refund-push allowance above.
-            if (!$response->isValid()) {
-                header('HTTP/1.1 503 Service Unavailable');
-                $this->logger->logError('Payment response not valid', $response);
-                echo 'Payment response not valid';
                 exit;
             }
 
@@ -129,26 +121,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     );
                 }
 
-                if ($id_order && $response->hasSucceeded()) {
-                    $order = new Order($id_order);
-                    $order->setInvoice(false);
-                    $payment = new OrderPayment();
-                    $payment->order_reference = $order->reference;
-                    $payment->id_currency = $order->id_currency;
-                    $payment->transaction_id = $response->transactions;
-                    $payment->amount = urldecode($response->amount);
-                    $payment->payment_method = $response->payment_method;
-                    $order->total_paid_real += $response->amount;
-                    $order->save();
-                    $payment->conversion_rate = 1;
-                    $payment->save();
-                    Db::getInstance()->execute(
-                        '
-                        INSERT INTO `' . _DB_PREFIX_ . 'order_invoice_payment`
-                        VALUES(' . (int)$order->invoice_number . ', ' . (int)$payment->id . ', ' . (int)$order->id . ')'
-                    );
+                if ($id_order && ($response->hasSucceeded() || (int) $response->statuscode === 190)) {
+                    $this->recordPushPayment((int) $id_order, $response);
+                    $this->removeRedundantInvoicePayments((int) $id_order);
 
-                    // Link group-transaction rows to the order if not already done
+                    $order = new Order($id_order);
+
                     if ($order->id_cart) {
                         $groupTransactionService->linkOrderToCart((int) $order->id_cart, (int) $order->id);
                     }
@@ -157,6 +135,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $message->id_order = $id_order;
                     $message->message = 'Buckaroo partial payment message (' . $response->transactions . '): ' . $response->statusmessage;
                     $message->add();
+
+                    if ($this->completeOrderIfFullyPaid((int) $id_order, $response)) {
+                        $this->logger->logInfo('Partial payment complete: order marked as paid', 'Order ID: ' . $id_order);
+                    }
                 }
                 exit;
             }
@@ -171,6 +153,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
                 $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
                 $order = new Order($id_order);
+
+                if (KlarnaTransactionKey::isCapturePush($response)) {
+                    KlarnaTransactionKey::storeCaptureKey($order, (string) $response->transactions);
+                }
 
                 // Validate that the resolved order state actually exists in this shop.
                 if (!$this->isValidOrderStateId($new_status_code)) {
@@ -209,7 +195,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $history->id_order = $id_order;
                     $history->date_add = date('Y-m-d H:i:s');
                     $history->date_upd = date('Y-m-d H:i:s');
-                    $history->changeIdOrderState($new_status_code, $id_order);
+                    $history->changeIdOrderState($new_status_code, $id_order, true);
                     $history->addWithemail(false);
 
                     $payments = OrderPayment::getByOrderReference($order->reference);
@@ -218,8 +204,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                             $payment->amount = 0;
                             $payment->update();
                         }
-                        if ($payment->amount == $response->amount && $payment->transaction_id == '') {
+                        if ($payment->amount == $response->amount
+                            && $payment->transaction_id == ''
+                            && !$this->isGroupTransactionResponse($response)
+                        ) {
                             $payment->transaction_id = $response->transactions;
+                            $payment->payment_method = \Tools::strtolower((string) $response->payment_method);
                             $payment->update();
                         }
                     }
@@ -291,6 +281,57 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $state = new OrderState($id_order_state);
 
         return Validate::isLoadedObject($state);
+    }
+
+    /**
+     * Klarna cancel/extend pushes identify the order by the original reserve key.
+     * Returns false when the order cannot be resolved, so the normal push path answers.
+     */
+    private function handleReservationPush($response, string $actionCode): bool
+    {
+        $reservationKey = (string) Tools::getValue('brq_originalreservation_datarequest_key');
+        if ($reservationKey === '') {
+            return false;
+        }
+
+        $payments = new PrestaShopCollection('OrderPayment');
+        $payments->where('transaction_id', '=', $reservationKey);
+        $payment = $payments->getFirst();
+        if (!$payment || !$payment->order_reference) {
+            return false;
+        }
+
+        $order = Order::getByReference($payment->order_reference)->getFirst();
+        if (!$order) {
+            return false;
+        }
+
+        if ($actionCode === 'cancelreservation'
+            && (string) $response->statuscode === BuckarooAbstract::BUCKAROO_STATUSCODE_SUCCESS
+        ) {
+            $canceledState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_CANCELED, (int) $order->id);
+            if ((int) $order->getCurrentState() !== $canceledState) {
+                $history = new OrderHistory();
+                $history->id_order = (int) $order->id;
+                $history->changeIdOrderState($canceledState, (int) $order->id, true);
+                $history->addWithemail(false);
+            }
+
+            if ((float) $payment->amount != 0.0) {
+                $payment->amount = 0;
+                $payment->update();
+                $this->syncOrderTotalPaidReal((int) $order->id);
+            }
+        }
+
+        $message = new Message();
+        $message->id_order = (int) $order->id;
+        $message->message = ($actionCode === 'cancelreservation'
+            ? 'Buckaroo reservation cancelled. '
+            : 'Buckaroo reservation extended. ') . (string) $response->statusmessage;
+        $message->add();
+
+        return true;
     }
 
     private function handleRefundPush(?\Order $order, $response): void

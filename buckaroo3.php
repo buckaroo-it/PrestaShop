@@ -35,6 +35,7 @@ use Buckaroo\PrestaShop\Src\Install\Uninstaller;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
@@ -43,7 +44,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.2.1';
+    const MODULE_VERSION = '5.3.0';
     
     public $logger;
 
@@ -51,6 +52,11 @@ class Buckaroo3 extends PaymentModule
      * @var ContainerInterface|null
      */
     private $coreServiceContainer = null;
+
+    /**
+     * @var bool Guards against rebuilding the Click to Pay config per hook
+     */
+    private $clickToPayJsLoaded = false;
 
     public function __construct()
     {
@@ -70,9 +76,9 @@ class Buckaroo3 extends PaymentModule
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => '9.2.99'];
         $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x + 9.0.1');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x up to 9.2.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
@@ -675,17 +681,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         $buckarooConfigService = $this->getBuckarooConfigService();
-
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
-
-        $giftcardApplied   = 0.0;
-        $giftcardRemainder = 0.0;
-        try {
-            $giftcardApplied   = $this->getGiftcardAlreadyPaid($cart);
-            $giftcardRemainder = $this->getGiftcardRemainingAmount($cart);
-        } catch (Exception $e) {
-            $this->logger->logError('Buckaroo3::hookPaymentOptions giftcard amounts - ' . $e->getMessage());
-        }
 
         try {
             $this->context->smarty->assign(
@@ -711,11 +707,10 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
-                    'buckarooGiftcardApplied'    => $giftcardApplied,
-                    'buckarooGiftcardRemainder'  => $giftcardRemainder,
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
-                    'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart)
+                    'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart),
+                    'clickToPayConfigured' => $this->getBuckarooClickToPayService()->isConfigured(),
                 ]
             );
         } catch (Exception $e) {
@@ -740,11 +735,14 @@ class Buckaroo3 extends PaymentModule
             'remainingAmount' => 0,
             'giftcardItems'   => [],
             'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
+            'cartTotal'       => 0,
         ];
         try {
             $cart = $this->context->cart;
             if ($cart) {
-                $alreadyPaidData['alreadyPaid']     = $this->getGiftcardAlreadyPaid($cart);
+                $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+                $alreadyPaidData['cartTotal']        = $cartTotal;
+                $alreadyPaidData['alreadyPaid']      = $this->getGiftcardAlreadyPaid($cart);
                 $alreadyPaidData['remainingAmount']  = $this->getGiftcardRemainingAmount($cart);
                 $alreadyPaidData['giftcardItems']    = $this->getGiftcardDisplayItems($cart);
             }
@@ -793,11 +791,76 @@ class Buckaroo3 extends PaymentModule
                         'priority' => 210,
                     ]
                 );
+
+                $this->ensureClickToPayJsLoaded();
             } else {
                 PrestaShopLogger::addLog('Buckaroo: ERROR - No controller available to register script', 3);
             }
         } catch (\Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: ERROR in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 3);
+        }
+    }
+
+    /**
+     * Load the Buckaroo SDK and the Click to Pay Drop-in UI integration, but
+     * only when the method is enabled and fully configured, so shops that do
+     * not offer Click to Pay never pull in the remote SDK.
+     */
+    private function ensureClickToPayJsLoaded()
+    {
+        // Three hooks call ensureBuckarooJsLoaded() on a checkout page, and
+        // building the Drop-in UI config loads the address, currency and cart
+        // tax rate. Only do that once per request.
+        if ($this->clickToPayJsLoaded) {
+            return;
+        }
+
+        try {
+            $cart = $this->context->cart;
+            $clickToPayService = $this->getBuckarooClickToPayService();
+
+            if (!$cart
+                || !$this->isPaymentModeActive(BuckarooClickToPayService::METHOD_NAME)
+                || !$clickToPayService->isConfigured()
+            ) {
+                return;
+            }
+
+            $this->clickToPayJsLoaded = true;
+
+            Media::addJsDef([
+                'buckarooClickToPayConfig' => array_merge(
+                    $clickToPayService->getCheckoutConfig($cart),
+                    [
+                        'tokenUrl' => $this->context->link->getModuleLink($this->name, 'clicktopaytoken'),
+                        'token' => Tools::getToken(false),
+                        'messages' => [
+                            'initError' => $this->l('An error occurred, please try another payment method or try again later.'),
+                            'acceptTerms' => $this->l('Please accept the terms of service to complete your payment.'),
+                        ],
+                    ]
+                ),
+            ]);
+
+            $this->context->controller->registerJavascript(
+                'module-buckaroo3-sdk',
+                $clickToPayService->getSdkScriptUrl(),
+                [
+                    'server' => 'remote',
+                    'position' => 'bottom',
+                    'priority' => 190,
+                ]
+            );
+            $this->context->controller->registerJavascript(
+                'module-buckaroo3-clicktopay',
+                'modules/' . $this->name . '/views/js/buckaroo-clicktopay.js',
+                [
+                    'position' => 'bottom',
+                    'priority' => 220,
+                ]
+            );
+        } catch (\Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: ERROR in ensureClickToPayJsLoaded() - ' . $e->getMessage(), 3);
         }
     }
 
@@ -865,11 +928,9 @@ class Buckaroo3 extends PaymentModule
      */
     public function hookDisplayPaymentTop()
     {
-        // Ensure Buckaroo JavaScript is loaded
         $this->ensureBuckarooJsLoaded();
-        
-        // Return empty string (we just need to load the JS)
-        return '';
+
+        return $this->renderGiftcardAlreadyPaidBlock();
     }
 
     /**
@@ -878,6 +939,14 @@ class Buckaroo3 extends PaymentModule
      * total segment rendered by hookDisplayShoppingCartFooter.
      */
     public function hookDisplayShoppingCartFooter($params)
+    {
+        return $this->renderGiftcardAlreadyPaidBlock();
+    }
+
+    /**
+     * Shared giftcard already-paid / remaining-amount markup for checkout.
+     */
+    private function renderGiftcardAlreadyPaidBlock(): string
     {
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {
@@ -1066,11 +1135,12 @@ class Buckaroo3 extends PaymentModule
     /**
      * Determine whether an order should be treated as a backorder.
      *
-     * The previous implementation only checked for negative stock values,
-     * which could miss partial backorders. The new logic considers:
-     * - global stock management setting
-     * - ordered vs. in‑stock quantities per order line
-     * - advanced stock via StockAvailable when present
+     * Uses stock quantities captured on the order lines at order creation time
+     * (`product_quantity_in_stock` vs `product_quantity`). Current live stock
+     * must not be consulted: PrestaShop already decrements stock during
+     * validateOrder, so comparing live stock to ordered qty falsely marks
+     * normal paid orders as backorders and triggers a second stock mutation
+     * via PS_OS_OUTOFSTOCK_PAID.
      *
      * @param int|null $orderId
      *
@@ -1100,25 +1170,11 @@ class Buckaroo3 extends PaymentModule
 
         foreach ($orderDetails as $detail) {
             $orderedQty = (int) $detail['product_quantity'];
-
-            // Quantity that was in stock when the order was placed
             $inStockAtOrder = (int) $detail['product_quantity_in_stock'];
 
             // If there wasn't enough stock at order time, this line is (at least partly) backordered
             if ($inStockAtOrder < $orderedQty) {
                 return true;
-            }
-
-            // As an additional safety net, check current stock when available
-            if (class_exists('StockAvailable')) {
-                $currentQty = (int) StockAvailable::getQuantityAvailableByProduct(
-                    (int) $detail['product_id'],
-                    (int) $detail['product_attribute_id']
-                );
-
-                if ($currentQty < 0 || $currentQty < $orderedQty) {
-                    return true;
-                }
             }
         }
 
@@ -1296,15 +1352,10 @@ class Buckaroo3 extends PaymentModule
 
     public function isPaymentModeActive($method)
     {
-        $isLive = (int)\Configuration::get(Config::BUCKAROO_TEST);
         $configArray = $this->getBuckarooConfigService()->getConfigArrayForMethod($method);
 
         if (!empty($configArray) && isset($configArray['mode'])) {
-            if ($isLive === 0) {
-                return $configArray['mode'] === 'test';
-            } elseif ($isLive === 1) {
-                return $configArray['mode'] === 'live';
-            }
+            return Config::isPaymentModeEnabled($configArray['mode']);
         }
 
         return false;
@@ -1368,6 +1419,11 @@ class Buckaroo3 extends PaymentModule
     public function getBuckarooFeeService()
     {
         return $this->get('buckaroo.config.api.fee.service');
+    }
+
+    public function getBuckarooClickToPayService()
+    {
+        return $this->get('buckaroo.config.api.clicktopay.service');
     }
 
     public function hookDisplayProductExtraContent($params)

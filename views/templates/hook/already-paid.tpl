@@ -8,10 +8,10 @@
  *
  * @author Buckaroo.nl <plugins@buckaroo.nl>
  * @copyright Copyright (c) Buckaroo B.V.
- * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 {if isset($buckarooAlreadyPaid) && $buckarooAlreadyPaid > 0}
-<div id="buckaroo-already-paid-block" class="bk-already-paid-block">
+<div id="buckaroo-already-paid-block" class="bk-already-paid-block alert alert-info" style="margin-bottom:15px;">
 
     {* One line per gift card that was applied *}
     {if isset($buckarooGiftcardItems) && $buckarooGiftcardItems|@count > 0}

@@ -17,6 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
@@ -49,7 +50,10 @@ class BuckarooConfigService
             return null;
         }
 
-        return $this->configurationRepository->getConfigArray($paymentMethod->getId());
+        $configArray = $this->configurationRepository->getConfigArray($paymentMethod->getId());
+        $configArray['payment_fee_allowed'] = Config::isPaymentFeeAllowed((string) $method);
+
+        return $configArray;
     }
 
     public function getConfigValue($method, $key)
@@ -73,11 +77,46 @@ class BuckarooConfigService
 
         $paymentMethodId = $paymentMethod->getId();
 
+        if (!Config::isPaymentFeeAllowed((string) $name)) {
+            $data['payment_fee'] = '';
+        }
+
         // Existing config
         $configArray = $this->configurationRepository->getConfigArray($paymentMethodId);
         $mergedConfig = array_merge($configArray, $data);
 
+        if ($name === 'giftcard') {
+            $this->syncGiftcardAllowedCards($mergedConfig);
+        }
+
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
+    }
+
+    /**
+     * Keep the legacy HPP config key in sync with the Vue admin selection so
+     * grouped (redirect) giftcard checkout still receives the allowed brands.
+     */
+    private function syncGiftcardAllowedCards(array $config): void
+    {
+        $codes = [];
+        $active = $config['activeGiftcards'] ?? [];
+
+        foreach (['giftcards', 'customGiftcards'] as $key) {
+            if (empty($active[$key]) || !is_array($active[$key])) {
+                continue;
+            }
+            foreach ($active[$key] as $card) {
+                if (!is_array($card)) {
+                    continue;
+                }
+                $code = $card['code'] ?? $card['service_code'] ?? null;
+                if (!empty($code)) {
+                    $codes[] = (string) $code;
+                }
+            }
+        }
+
+        \Configuration::updateValue('BUCKAROO_GIFTCARD_ALLOWED_CARDS', implode(',', array_unique($codes)));
     }
 
     public function updatePaymentMethodMode(string $name, string $mode): bool

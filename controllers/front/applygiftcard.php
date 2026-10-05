@@ -76,13 +76,38 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
         $currency  = $this->context->currency;
         $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+        $groupTransactionService = new BuckarooGroupTransactionService();
+        $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $cart->id);
+        $amountToCharge = $groupTransactionService->getRemainingAmount((int) $cart->id, $cartTotal);
+
+        if ($amountToCharge <= 0) {
+            $this->redirectWithError(
+                $this->module->l('The order is already fully covered by giftcard(s).')
+            );
+            return;
+        }
+
+        // Continue an existing group transaction when applying another giftcard.
+        $existingGroupTx = '';
+        $cookieCartId = (int) ($this->context->cookie->buckaroo_giftcard_cart_id ?? 0);
+        if ($cookieCartId === (int) $cart->id) {
+            $existingGroupTx = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+        }
+        if ($existingGroupTx === '') {
+            foreach ($groupTransactionService->getGroupTransactionItems((int) $cart->id) as $row) {
+                if (!empty($row['group_transaction_id'])) {
+                    $existingGroupTx = (string) $row['group_transaction_id'];
+                    break;
+                }
+            }
+        }
 
         try {
             /** @var \BuckarooGiftCard $giftcardApi */
             $giftcardApi = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_GIFTCARD);
 
             $giftcardApi->currency        = $currency->iso_code;
-            $giftcardApi->amountDebit     = (string) round($cartTotal, 2);
+            $giftcardApi->amountDebit     = (string) round($amountToCharge, 2);
             $giftcardApi->invoiceId       = 'gc_' . $cart->id . '_' . time();
             $giftcardApi->orderId         = 'gc_' . $cart->id;
             $giftcardApi->description     = 'Giftcard';
@@ -93,6 +118,10 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             $giftcardApi->moduleVersion   = $this->module->version;
             $giftcardApi->moduleSupplier  = $this->module->author;
             $giftcardApi->moduleName      = $this->module->name;
+
+            if ($existingGroupTx !== '') {
+                $giftcardApi->OriginalTransactionKey = $existingGroupTx;
+            }
 
             $customVars = [
                 'cardNumber' => $cardNumber,
@@ -125,18 +154,22 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
         $transactionKey   = ($response->getResponse()) ? (string) $response->getResponse()->getTransactionKey() : '';
         $groupTransaction = (string) ($response->getGroupTransaction() ?? '');
+        if ($groupTransaction === '' && $existingGroupTx !== '') {
+            $groupTransaction = $existingGroupTx;
+        }
         $remainingAmount  = (float) $response->getRemainderAmount();
-        $appliedAmount    = round($cartTotal - $remainingAmount, 2);
+        $appliedAmount    = round($amountToCharge - $remainingAmount, 2);
+        $totalApplied     = round($alreadyPaid + $appliedAmount, 2);
 
         $this->logger->logInfo('Giftcard applied', [
             'applied'   => $appliedAmount,
+            'total'     => $totalApplied,
             'remainder' => $remainingAmount,
             'group_tx'  => $groupTransaction,
         ]);
 
         // Persist the partial payment to the DB so the checkout summary can reflect it
         // across page reloads and after Buckaroo push confirmation.
-        $groupTransactionService = new BuckarooGroupTransactionService();
         $groupTransactionService->saveGroupTransaction((int) $cart->id, [
             'transaction_key'      => $transactionKey,
             'group_transaction_id' => $groupTransaction,
@@ -149,13 +182,14 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         // Also store in session cookies as fast-access cache for this page-load
         $this->context->cookie->buckaroo_giftcard_group_tx  = $groupTransaction;
         $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
-        $this->context->cookie->buckaroo_giftcard_applied   = (string) $appliedAmount;
+        $this->context->cookie->buckaroo_giftcard_applied   = (string) $totalApplied;
         $this->context->cookie->buckaroo_giftcard_tx_key    = $transactionKey;
         $this->context->cookie->buckaroo_giftcard_card_code = $cardCode;
+        $this->context->cookie->buckaroo_giftcard_cart_id   = (string) (int) $cart->id;
         $this->context->cookie->write();
 
         if ($remainingAmount <= 0) {
-            $this->completeOrderWithGiftcard($cart, $cartTotal, $transactionKey, $cardCode);
+            $this->completeOrderWithGiftcard($cart, $cartTotal);
         } else {
             $this->redirectWithGiftcardApplied($appliedAmount, $remainingAmount);
         }
@@ -164,16 +198,11 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
     /**
      * Giftcard covers the full cart total: create the order now and mark it paid.
      */
-    private function completeOrderWithGiftcard(
-        Cart $cart,
-        float $total,
-        string $transactionKey,
-        string $cardCode
-    ): void {
+    private function completeOrderWithGiftcard(Cart $cart, float $total): void
+    {
         $customer     = new Customer($cart->id_customer);
         $currency     = $this->context->currency;
         $pendingState = (int) Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
-        $paidState    = (int) Configuration::get('PS_OS_PAYMENT');
 
         try {
             $this->module->validateOrder(
@@ -194,28 +223,12 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         }
 
         $orderId = $this->module->currentOrder;
-        $order   = new Order($orderId);
 
-        // Link all group-transaction rows for this cart to the newly created order
-        $groupTransactionService = new BuckarooGroupTransactionService();
-        $groupTransactionService->linkOrderToCart((int) $cart->id, (int) $orderId);
+        $this->recordGroupTransactionPayments((int) $orderId);
+        $this->syncOrderTotalPaidReal((int) $orderId);
 
-        $payment                  = new OrderPayment();
-        $payment->order_reference = $order->reference;
-        $payment->id_currency     = $order->id_currency;
-        $payment->conversion_rate = 1;
-        $payment->amount          = $total;
-        $payment->payment_method  = $cardCode ?: 'giftcard';
-        $payment->transaction_id  = $transactionKey;
-        $payment->save();
-
-        $order->total_paid_real = $total;
-        $order->save();
-
-        $history           = new OrderHistory();
-        $history->id_order = $orderId;
-        $history->changeIdOrderState($paidState, $orderId);
-        $history->add(true);
+        $paidState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, (int) $orderId);
+        $this->updatePendingOrderStatus((int) $orderId, $paidState, true);
 
         $this->clearGiftcardCookies();
 

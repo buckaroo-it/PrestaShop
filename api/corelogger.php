@@ -49,14 +49,6 @@ class CoreLogger
     private function logEvent($info, $level, $descr = null)
     {
         if (self::LOG && $level >= $this->level) {
-            $file = fopen(
-                dirname(
-                    __FILE__
-                ) . '/../api' . self::LOG_DIR . $this->logtype . '-' . $this->filename . '-log-' . date(
-                    'Y-m-d'
-                ) . '.txt',
-                'a'
-            );
             $prefix = self::$log_level[$level] . ' ' . date('Y-m-d h:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {
@@ -65,17 +57,33 @@ class CoreLogger
                 }
                 $info_str .= "\nDescription:\n" . $descr . "\n";
             }
-            fwrite($file, $prefix . $info_str . "\n");
-            fclose($file);
+            $this->write(
+                $this->logtype . '-' . $this->filename . '-log-' . date('Y-m-d') . '.txt',
+                $prefix . $info_str . "\n"
+            );
         }
     }
 
     private function logUserEvent($info)
     {
-        $file = fopen(dirname(__FILE__) . '/../api' . self::LOG_DIR . 'report_log.txt', 'a');
-        $prefix = date('Y-m-d h:i:s') . '|||';
-        fwrite($file, $prefix . $info . "\n");
-        fclose($file);
+        $this->write('report_log.txt', date('Y-m-d h:i:s') . '|||' . $info . "\n");
+    }
+
+    /**
+     * Append to a log file. Logging must never break the module: PrestaShop 9.1+
+     * rejects a module as invalid if a warning is raised while it is loaded
+     * (e.g. when api/log/ is missing on a fresh install).
+     */
+    private function write($filename, $content)
+    {
+        $dir = dirname(__FILE__) . self::LOG_DIR;
+        if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
+            return;
+        }
+        if (!is_writable($dir)) {
+            return;
+        }
+        @file_put_contents($dir . $filename, $content, FILE_APPEND | LOCK_EX);
     }
 
     public function logDebug($info, $descr = null)

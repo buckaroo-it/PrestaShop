@@ -55,13 +55,13 @@ class RawGiftCardsRepository
     public function getGiftCardsData()
     {
         return [
-            ['logo' => 'Boekenbon.svg','code' => 'boekenbon','name' => 'Boekenbon'],
-            ['logo' => 'FashionGiftcard.svg','code' => 'fashionucadeaukaart','name' => 'Fashion Giftcard'],
-            ['logo' => 'FashionCheque.svg','code' => 'fashioncheque','name' => 'Fashion Cheque'],
-            ['logo' => 'VVVgiftcard.svg','code' => 'vvvgiftcard','name' => 'VVV Giftcard'],
-            ['logo' => 'WebshopGiftcard.svg','code' => 'webshopgiftcard','name' => 'Webshop Giftcard'],
-            ['logo' => 'NationaleBioscoopBon.svg','code' => 'digitalebioscoopbon','name' => 'Nationale Bioscoopbon'],
-            ['logo' => 'YourGift.svg','code' => 'yourgift','name' => 'Yourgift Card',],
+            ['logo' => 'Boekenbon.svg', 'code' => 'boekenbon', 'name' => 'Boekenbon'],
+            ['logo' => 'FashionGiftcard.svg', 'code' => 'fashionucadeaukaart', 'name' => 'Fashion Gift card'],
+            ['logo' => 'FashionCheque.svg', 'code' => 'fashioncheque', 'name' => 'Fashion Cheque'],
+            ['logo' => 'VVVgiftcard.svg', 'code' => 'vvvgiftcard', 'name' => 'VVV Giftcard'],
+            ['logo' => 'WebshopGiftcard.svg', 'code' => 'webshopgiftcard', 'name' => 'Webshop Gift card'],
+            ['logo' => 'NationaleBioscoopBon.svg', 'code' => 'digitalebioscoopbon', 'name' => 'Nationale Bioscoopbon'],
+            ['logo' => 'YourGift.svg', 'code' => 'yourgift', 'name' => 'Your Gift'],
         ];
     }
 

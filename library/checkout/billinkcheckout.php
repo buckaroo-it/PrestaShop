@@ -71,8 +71,6 @@ class BillinkCheckout extends Checkout
 
     public function getBillingAddress()
     {
-        $birthDate = $this->getBirthDate();
-
         $address_components = $this->getAddressComponents($this->invoice_address->address1); // phpcs:ignore
         if (empty($address_components['house_number'])) {
             $address_components['house_number'] = $this->invoice_address->address2;
@@ -85,8 +83,6 @@ class BillinkCheckout extends Checkout
                 'careOf' => $this->invoice_address->firstname . ' ' . $this->invoice_address->lastname,
                 'firstName' => $this->invoice_address->firstname,
                 'lastName' => $this->invoice_address->lastname,
-                'birthDate' => $birthDate,
-                'title' => Tools::getValue('bpe_billink_person_gender'),
                 'initials' => $this->initials($this->invoice_address->firstname . ' ' . $this->invoice_address->lastname),
             ],
             'address' => [
@@ -122,18 +118,6 @@ class BillinkCheckout extends Checkout
         return $category;
     }
 
-    public function getBirthDate()
-    {
-        return date(
-            'd-m-Y',
-            strtotime(
-                Tools::getValue('customerbirthdate_y_billing_billink') . '-' . Tools::getValue(
-                    'customerbirthdate_m_billing_billink'
-                ) . '-' . Tools::getValue('customerbirthdate_d_billing_billink')
-            )
-        );
-    }
-
     public function getShippingAddress()
     {
         if (!empty($this->shipping_address)) {
@@ -147,7 +131,6 @@ class BillinkCheckout extends Checkout
                 $houseNumber = $address_components['house_number'];
             }
             $houseNumberSuffix = $address_components['number_addition'];
-            $birthDate = $this->getBirthDate();
             $zipcode = $this->shipping_address->postcode;
             $city = $this->shipping_address->city;
 
@@ -169,8 +152,6 @@ class BillinkCheckout extends Checkout
                     'careOf' => $this->shipping_address->firstname . ' ' . $this->shipping_address->lastname,
                     'firstName' => $this->shipping_address->firstname,
                     'lastName' => $this->shipping_address->lastname,
-                    'birthDate' => $birthDate,
-                    'title' => Tools::getValue('bpe_billink_person_gender'),
                     'initials' => $this->initials($this->shipping_address->firstname . ' ' . $this->shipping_address->lastname),
                 ],
                 'address' => [

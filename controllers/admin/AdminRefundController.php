@@ -18,11 +18,13 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Refund\OrderService;
+use Buckaroo\PrestaShop\Src\Refund\RefundSplit;
 use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
 use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
 use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use PrestaShop\PrestaShop\Core\Domain\Order\Exception\InvalidCancelProductException;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -99,12 +101,15 @@ class AdminRefundController extends FrameworkBundleAdminController
                 ['error' => false, 'message' => $message]
             );
         } catch (\Throwable $th) {
-            return $this->renderError($th->getMessage());
+            return $this->renderError($this->exceptionMessage($th));
         }
     }
 
     /**
-     * Send refund request to payment engine, return total amount refunded
+     * Refund each Buckaroo transaction for its own amount, then record one
+     * shop credit slip for the total. A slip per transaction marks a single
+     * product unit as fully refunded on the first chunk, so the remainder
+     * method is never refunded.
      *
      * @param \Order $order
      * @param float $maxRefundAmount
@@ -113,53 +118,62 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private function sendRefundRequests(\Order $order, float $maxRefundAmount): float
     {
-        $refundAmount = $maxRefundAmount;
-        $buckarooPayments = $this->getBuckarooPayments($order);
-        if (count($buckarooPayments)) {
-            foreach ($buckarooPayments as $payment) {
-                if ($payment->amount > 0) {
-                    $refundAmount = $this->sentRefundRequest($order, $payment, $refundAmount);
-                }
+        if (!\Configuration::get(Settings::LABEL_REFUND_CONF)) {
+            $this->orderService->refund($order, $maxRefundAmount);
+
+            return $maxRefundAmount;
+        }
+
+        $chunks = RefundSplit::chunks($this->getBuckarooPayments($order), $maxRefundAmount);
+        if ($chunks === []) {
+            throw new \Exception('This order has no remaining Buckaroo amount to refund.');
+        }
+
+        $refunded = 0.0;
+        foreach ($chunks as $chunk) {
+            $this->sendBuckarooRefund($order, $chunk['payment'], $chunk['amount']);
+            $refunded = round($refunded + $chunk['amount'], 2);
+        }
+
+        try {
+            $this->orderService->refund($order, $refunded);
+        } catch (InvalidCancelProductException $exception) {
+            if ((int) $exception->getCode() !== InvalidCancelProductException::NO_REFUNDS) {
+                throw $exception;
             }
         }
 
-        return $maxRefundAmount - $refundAmount;
+        return $refunded;
     }
 
     /**
-     * Refund individual payment with amount, return remaining amount to be refunded
-     *
      * @param \Order $order
      * @param \OrderPayment $payment
-     * @param float $maxRefundAmount
+     * @param float $amount
      *
-     * @return float
+     * @return void
      */
-    private function sentRefundRequest(\Order $order, \OrderPayment $payment, float $maxRefundAmount): float
+    private function sendBuckarooRefund(\Order $order, \OrderPayment $payment, float $amount): void
     {
-        $refundAmount = $maxRefundAmount;
-        if ($maxRefundAmount > $payment->amount) {
-            $refundAmount = $payment->amount;
-        }
-        $maxRefundAmount -= $refundAmount;
-
-        $this->orderService->refund($order, $refundAmount);
-
-        $body = $this->refundBuilder->create($order, $payment, $refundAmount);
-
-
-        if (\Configuration::get(Settings::LABEL_REFUND_CONF)){
-            $this->responseHandler->parse(
-                $this->refundHandler->refund(
-                    $body,
-                    $payment->payment_method
-                ),
+        $body = $this->refundBuilder->create($order, $payment, $amount);
+        $this->responseHandler->parse(
+            $this->refundHandler->refund(
                 $body,
-                $order->id
-            );
+                $payment->payment_method
+            ),
+            $body,
+            (int) $order->id
+        );
+    }
+
+    private function exceptionMessage(\Throwable $th): string
+    {
+        $message = trim($th->getMessage());
+        if ($message !== '') {
+            return $message;
         }
 
-        return $maxRefundAmount;
+        return 'The refund could not be completed. Check Buckaroo Plaza for the transaction details.';
     }
 
     /**

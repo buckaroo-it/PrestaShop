@@ -49,7 +49,6 @@ abstract class Checkout
     public const CHECKOUT_TYPE_IN3Old = 'in3Old';
     public const CHECKOUT_TYPE_BILLINK = 'billink';
     public const CHECKOUT_TYPE_EPS = 'eps';
-    public const CHECKOUT_TYPE_PAYCONIQ = 'payconiq';
     public const CHECKOUT_TYPE_PAYPEREMAIL = 'payperemail';
     public const CHECKOUT_TYPE_PRZELEWY24 = 'przelewy24';
     public const CHECKOUT_TYPE_TRUSTLY = 'trustly';
@@ -57,12 +56,12 @@ abstract class Checkout
     public const CHECKOUT_TYPE_ALIPAY = 'alipay';
     public const CHECKOUT_TYPE_MBWAY = 'mbway';
     public const CHECKOUT_TYPE_MULTIBANCO = 'multibanco';
-    public const CHECKOUT_TYPE_KNAKEN = 'knaken';
     public const CHECKOUT_TYPE_BLIK = 'blik';
     public const CHECKOUT_TYPE_TWINT = 'twint';
     public const CHECKOUT_TYPE_SWISH = 'swish';
     public const CHECKOUT_TYPE_BIZUM = 'bizum';
     public const CHECKOUT_TYPE_WERO = 'wero';
+    public const CHECKOUT_TYPE_CLICKTOPAY = 'clicktopay';
 
     public static $payment_method_type = [
         self::CHECKOUT_TYPE_PAYPAL => 'PayPal',
@@ -84,7 +83,6 @@ abstract class Checkout
         self::CHECKOUT_TYPE_IN3Old => 'In3Old',
         self::CHECKOUT_TYPE_BILLINK => 'Billink',
         self::CHECKOUT_TYPE_EPS => 'Eps',
-        self::CHECKOUT_TYPE_PAYCONIQ => 'Payconiq',
         self::CHECKOUT_TYPE_PAYPEREMAIL => 'PayPerEmail',
         self::CHECKOUT_TYPE_PRZELEWY24 => 'Przelewy24',
         self::CHECKOUT_TYPE_TRUSTLY => 'Trustly',
@@ -92,12 +90,12 @@ abstract class Checkout
         self::CHECKOUT_TYPE_ALIPAY => 'Alipay',
         self::CHECKOUT_TYPE_MBWAY => 'Mbway',
         self::CHECKOUT_TYPE_MULTIBANCO => 'Multibanco',
-        self::CHECKOUT_TYPE_KNAKEN => 'Knaken',
         self::CHECKOUT_TYPE_BLIK => 'Blik',
         self::CHECKOUT_TYPE_TWINT => 'Twint',
         self::CHECKOUT_TYPE_SWISH => 'Swish',
         self::CHECKOUT_TYPE_BIZUM => 'Bizum',
-        self::CHECKOUT_TYPE_WERO => 'Wero'
+        self::CHECKOUT_TYPE_WERO => 'Wero',
+        self::CHECKOUT_TYPE_CLICKTOPAY => 'ClickToPay'
     ];
 
     protected $payment_request;
@@ -168,9 +166,36 @@ abstract class Checkout
 
         // When a giftcard was partially applied, charge only the outstanding remainder
         // (skip for GiftCardCheckout itself so the full amount reaches Buckaroo first)
-        $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
-        $giftcardGroupTx   = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+        $giftcardRemainder = 0.0;
+        $giftcardGroupTx = '';
         $isGiftcardCheckout = ($this instanceof GiftCardCheckout);
+
+        try {
+            $groupTransactionService = new \Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
+            $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $this->cart->id);
+            if ($alreadyPaid > 0) {
+                $giftcardRemainder = $groupTransactionService->getRemainingAmount(
+                    (int) $this->cart->id,
+                    $cartTotalInclTax
+                );
+                $giftcardGroupTx = $groupTransactionService->getOriginalTransactionKey((int) $this->cart->id);
+
+                // Cookie fallback only when it belongs to this same cart.
+                $cookieCartId = (int) ($this->context->cookie->buckaroo_giftcard_cart_id ?? 0);
+                if ($giftcardGroupTx === ''
+                    && $cookieCartId === (int) $this->cart->id
+                ) {
+                    $giftcardGroupTx = (string) ($this->context->cookie->buckaroo_giftcard_group_tx ?? '');
+                }
+                if ($giftcardRemainder <= 0
+                    && $cookieCartId === (int) $this->cart->id
+                ) {
+                    $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Keep remainder at 0 — never reuse stale cookies from another cart.
+        }
 
         if (!$isGiftcardCheckout && $giftcardRemainder > 0 && !empty($giftcardGroupTx)) {
             $this->payment_request->amountDebit        = $this->roundBuckarooPrice($giftcardRemainder);
@@ -418,7 +443,7 @@ abstract class Checkout
     }
 
     /**
-     * Get product image URL if method is "afterpay"
+     * Get product image URL if method is "afterpay" or "klarna"
      *
      * @param array $product
      *
@@ -426,7 +451,7 @@ abstract class Checkout
      */
     private function getProductImgUrl($product)
     {
-        if (Tools::getValue('method') !== "afterpay") {
+        if (!in_array(Tools::getValue('method'), ['afterpay', 'klarna'], true)) {
             return null;
         }
 
