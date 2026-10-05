@@ -2,6 +2,38 @@
 
 All notable changes to the Buckaroo PrestaShop module are documented in this file.
 
+## v5.3.0
+
+### Added
+- BTI-1209 Added support for PrestaShop 9.2.0.
+- BTI-1102 Added Klarna (MoR) as a new payment method.
+- BTI-1519 Implemented Click to Pay as a new payment method.
+- BTI-99 Added the option to display gift cards inline.
+- BTI-1061 The transaction key is now displayed for SEPA, Bank Transfer and PayPerEmail orders before the payment is marked as Paid.
+- BTI-1623 Added allowed payment methods for gift card partial payments.
+
+### Improved
+- BTI-1188 Updated the iDIN logo to the co-branded iDIN | itsme logo.
+- BTI-1438 Updated outdated payment method logos.
+- BTI-1439 Updated the colours and logo to the new Buckaroo branding.
+- BTI-1512 Removed the global test/live setting; the mode configured per payment method is now the single source of truth.
+- BTI-1618 Refund pushes now require a valid signature, and validation in the return controller has been tightened.
+- BTI-1587 Updated the Buckaroo PHP SDK to v1.24.5.
+
+### Removed
+- BTI-1048 Removed the "Payment fee incl. VAT" setting from the PayByBank payment method configuration.
+- BTI-1342 Removed GoSettle as a payment method, as it is deprecated.
+- BTI-1437 Removed the Payconiq payment method.
+- BTI-1436 Removed the optional gender/salutation field for Klarna (MoR).
+- BTI-1434 Removed obsolete Billink fields following the move to Billink One.
+
+### Fixed
+- BTI-1115 Fixed an invalid service name error and double stock mutation for credit card payments on PrestaShop 9.1.4.
+- BTI-908 Fixed refunds for Fashioncheque orders failing due to an unhandled Buckaroo SDK exception.
+- BTI-1199 Fixed payment logos not loading when the shop is installed in a subdirectory (#271).
+- BTI-1502 Fixed an unexpected configuration error when refunding a SEPA Direct Debit order from the Back Office.
+- BTI-885 Fixed payment fees not being refundable via PrestaShop's native refund functionality.
+
 ## v5.2.0
 
 ### Added
