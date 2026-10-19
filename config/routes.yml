@@ -1,3 +1,15 @@
+buckaroo_klarna_cancel_reservation:
+    path: buckaroo3/klarna/cancel-reservation
+    methods: [POST]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController::cancelReservation'
+
+buckaroo_klarna_extend_reservation:
+    path: buckaroo3/klarna/extend-reservation
+    methods: [POST]
+    defaults:
+        _controller: 'Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController::extendReservation'
+
 buckaroo_refund:
     path: buckaroo3/refund
     methods: [POST]

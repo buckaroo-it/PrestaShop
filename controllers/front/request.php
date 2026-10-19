@@ -597,7 +597,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $id_order = (int) $this->module->currentOrder;
-        $this->createTransactionMessage($id_order, 'Data Request Key: ' . $dataRequestKey);
+        $this->createTransactionMessage($id_order, \Buckaroo\PrestaShop\Src\Klarna\ReservationKey::message($dataRequestKey));
         $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey);
     }
 
