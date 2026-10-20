@@ -164,8 +164,22 @@ class Buckaroo3 extends PaymentModule
             'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
         ]);
 
-        // Display both templates
+        $klarnaReservation = '';
+        $klarnaData = $this->get('buckaroo.klarna.reservation')->getAdminData($order);
+        if (is_array($klarnaData)) {
+            $router = $this->get('prestashop.router');
+            $this->context->smarty->assign([
+                'klarnaReservationKey' => $klarnaData['key'],
+                'klarnaCancelSent' => $klarnaData['cancelSent'],
+                'klarnaOrderId' => (int) $order->id,
+                'klarnaCancelUrl' => $router->generate('buckaroo_klarna_cancel_reservation'),
+                'klarnaExtendUrl' => $router->generate('buckaroo_klarna_extend_reservation'),
+            ]);
+            $klarnaReservation = $this->display(__FILE__, 'views/templates/hook/klarna-reservation.tpl');
+        }
+
         return $this->display(__FILE__, 'views/templates/hook/payment-fee-table.tpl').
+            $klarnaReservation.
             $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 

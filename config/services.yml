@@ -90,6 +90,18 @@ services:
       - "@prestashop.router"
     public: true
 
+  buckaroo.klarna.reservation:
+    class: Buckaroo\PrestaShop\Src\Klarna\ReservationService
+    arguments:
+      - "@buckaroo.refund.order.message"
+    public: true
+
+  Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController:
+    class: Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController
+    arguments:
+      - "@buckaroo.klarna.reservation"
+    public: true
+
   buckaroo.decorator.issue_partial_refund_handler:
     class: Buckaroo\PrestaShop\Src\Refund\Decorators\IssuePartialRefundHandler
     decorates: "prestashop.adapter.order.command_handler.issue_partial_refund_handler"
