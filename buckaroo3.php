@@ -38,13 +38,14 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
+use Buckaroo\PrestaShop\Src\Service\DeferredOrderConfirmation;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.3.0';
+    const MODULE_VERSION = '5.3.1';
     
     public $logger;
 
@@ -1280,10 +1281,15 @@ class Buckaroo3 extends PaymentModule
         return 0.0;
     }
 
+    public function hookActionOrderStatusPostUpdate($params)
+    {
+        DeferredOrderConfirmation::release($params, $this->name);
+    }
+
     public function hookActionEmailSendBefore($params)
     {
         if (!isset($params['cart']->id)) {
-            return true;
+            return DeferredOrderConfirmation::hold($params, $this->name, $this->context);
         }
 
         $cart = new Cart($params['cart']->id);
@@ -1291,7 +1297,7 @@ class Buckaroo3 extends PaymentModule
         $order = new Order($orderId);
 
         if (!Validate::isLoadedObject($order) || $order->module !== $this->name) {
-            return true;
+            return DeferredOrderConfirmation::hold($params, $this->name, $this->context);
         }
 
         if ($params['template'] == 'order_conf') {
@@ -1337,7 +1343,7 @@ class Buckaroo3 extends PaymentModule
             }
         }
 
-        return true;
+        return DeferredOrderConfirmation::hold($params, $this->name, $this->context);
     }
 
 

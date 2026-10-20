@@ -31,6 +31,7 @@ class ConfigTest extends TestCase
         );
         $this->assertSame('PAYMENT_FEE_MODE', Config::PAYMENT_FEE_MODE);
         $this->assertSame('PAYMENT_FEE_FRONTEND_LABEL', Config::PAYMENT_FEE_FRONTEND_LABEL);
+        $this->assertSame('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL', Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL);
     }
 
     public function testPaymentFeeIsNotAllowedForPayByBank(): void

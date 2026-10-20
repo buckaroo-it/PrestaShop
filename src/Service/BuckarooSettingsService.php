@@ -39,6 +39,7 @@ class BuckarooSettingsService
             'negativePayment' => (bool) \Configuration::get(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT),
             'payment_fee_mode' => \Configuration::get(Config::PAYMENT_FEE_MODE),
             'payment_fee_frontend_label' => \Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
+            'disable_unpaid_order_email' => (int) \Configuration::get(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL) === 1,
         ];
     }
 
@@ -49,7 +50,8 @@ class BuckarooSettingsService
             'transaction_description',
             'refundconf', 'restock', 'creditSlip',
             'voucher', 'negativePayment',
-            'payment_fee_mode', 'payment_fee_frontend_label'
+            'payment_fee_mode', 'payment_fee_frontend_label',
+            'disable_unpaid_order_email',
         ];
         foreach ($requiredKeys as $key) {
             if (!isset($data[$key])) {
@@ -72,5 +74,9 @@ class BuckarooSettingsService
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, $data['negativePayment']);
         \Configuration::updateValue(Config::PAYMENT_FEE_MODE, $data['payment_fee_mode']);
         \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, $data['payment_fee_frontend_label']);
+        \Configuration::updateValue(
+            Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
+            !empty($data['disable_unpaid_order_email']) ? 1 : 0
+        );
     }
 }

@@ -40,6 +40,8 @@ class Config
     public const PAYMENT_FEE_MODE = 'PAYMENT_FEE_MODE';
     public const PAYMENT_FEE_FRONTEND_LABEL = 'PAYMENT_FEE_FRONTEND_LABEL';
 
+    public const BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL = 'BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL';
+
     public const FILE_NAME = 'Installer';
 
     /**
