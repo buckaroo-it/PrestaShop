@@ -142,6 +142,20 @@
 				INDEX tx_key_idx (transaction_key)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
+            $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_deferred_order_mail` (
+				`id_order`         INT(11) UNSIGNED NOT NULL,
+				`id_lang`          INT(11) UNSIGNED NOT NULL,
+				`template`         VARCHAR(64) NOT NULL,
+				`subject`          VARCHAR(255) NOT NULL,
+				`template_vars`    MEDIUMTEXT NOT NULL,
+				`recipient`        VARCHAR(255) NOT NULL,
+				`recipient_name`   VARCHAR(255) NOT NULL,
+				`template_path`    VARCHAR(255) NOT NULL,
+				`id_shop`          INT(11) UNSIGNED NOT NULL,
+				`created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+				PRIMARY KEY (`id_order`)
+			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
             return $sql;
         }
     }

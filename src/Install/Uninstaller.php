@@ -89,6 +89,7 @@ class Uninstaller
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
+            Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
         ];
 
         $this->deleteConfigurations($configurations);
@@ -120,6 +121,7 @@ class Uninstaller
             'displayAdminOrderMainBottom',
             'displayOrderConfirmation',
             'actionEmailSendBefore',
+            'actionOrderStatusPostUpdate',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
             'displayProductExtraContent',
