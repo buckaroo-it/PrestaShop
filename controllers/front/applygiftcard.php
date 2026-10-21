@@ -20,6 +20,7 @@ include_once __DIR__ . '/../../library/logger.php';
 include_once __DIR__ . '/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -81,6 +82,11 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         $amountToCharge = $groupTransactionService->getRemainingAmount((int) $cart->id, $cartTotal);
 
         if ($amountToCharge <= 0) {
+            // Cards confirmed by push after an earlier pending reply already cover the cart.
+            if ($alreadyPaid > 0 && !Order::getIdByCartId((int) $cart->id)) {
+                $this->completeOrderWithGiftcard($cart, $cartTotal);
+                return;
+            }
             $this->redirectWithError(
                 $this->module->l('The order is already fully covered by giftcard(s).')
             );
@@ -108,7 +114,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
             $giftcardApi->currency        = $currency->iso_code;
             $giftcardApi->amountDebit     = (string) round($amountToCharge, 2);
-            $giftcardApi->invoiceId       = 'gc_' . $cart->id . '_' . time();
+            $giftcardApi->invoiceId       = BuckarooPaymentStatus::giftcardInvoice((int) $cart->id, time());
             $giftcardApi->orderId         = 'gc_' . $cart->id;
             $giftcardApi->description     = 'Giftcard';
             $giftcardApi->returnUrl       = $this->context->link->getModuleLink('buckaroo3', 'userreturn', [], true);
@@ -160,23 +166,52 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         $remainingAmount  = (float) $response->getRemainderAmount();
         $appliedAmount    = round($amountToCharge - $remainingAmount, 2);
         $totalApplied     = round($alreadyPaid + $appliedAmount, 2);
+        $statusCode       = $response->getStatusCodeValue();
+        $outcome          = BuckarooPaymentStatus::giftcardOutcome(
+            $statusCode,
+            $remainingAmount,
+            (float) $amountToCharge,
+            $groupTransaction
+        );
 
-        $this->logger->logInfo('Giftcard applied', [
+        $this->logger->logInfo('Giftcard response', [
+            'status'    => $statusCode,
+            'outcome'   => $outcome,
             'applied'   => $appliedAmount,
             'total'     => $totalApplied,
             'remainder' => $remainingAmount,
             'group_tx'  => $groupTransaction,
         ]);
 
-        // Persist the partial payment to the DB so the checkout summary can reflect it
-        // across page reloads and after Buckaroo push confirmation.
+        if ($outcome !== BuckarooPaymentStatus::GIFTCARD_PAID && $outcome !== BuckarooPaymentStatus::GIFTCARD_PARTIAL) {
+            // Not paid yet: keep the real status so a later push can confirm the row,
+            // but do not count it, create an order or mark anything paid.
+            if ($transactionKey !== '') {
+                $groupTransactionService->saveGroupTransaction((int) $cart->id, [
+                    'transaction_key'      => $transactionKey,
+                    'group_transaction_id' => $groupTransaction,
+                    'amount'               => round($amountToCharge, 2),
+                    'currency'             => $currency->iso_code,
+                    'card_code'            => $cardCode,
+                    'status'               => $statusCode,
+                ]);
+            }
+            $this->redirectWithError(
+                $this->module->l('Your giftcard payment is still being processed. Please try again in a few minutes or choose another payment method.')
+            );
+            return;
+        }
+
+        // Persist the payment to the DB so the checkout summary can reflect it across
+        // page reloads and after Buckaroo push confirmation. A partial card is reported
+        // as pending with a PayRemainder; its own amount was debited, so it counts as 190.
         $groupTransactionService->saveGroupTransaction((int) $cart->id, [
             'transaction_key'      => $transactionKey,
             'group_transaction_id' => $groupTransaction,
             'amount'               => $appliedAmount,
             'currency'             => $currency->iso_code,
             'card_code'            => $cardCode,
-            'status'               => 190,
+            'status'               => BuckarooPaymentStatus::SUCCESS,
         ]);
 
         // Also store in session cookies as fast-access cache for this page-load
@@ -227,8 +262,13 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         $this->recordGroupTransactionPayments((int) $orderId);
         $this->syncOrderTotalPaidReal((int) $orderId);
 
-        $paidState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, (int) $orderId);
-        $this->updatePendingOrderStatus((int) $orderId, $paidState, true);
+        // Only confirmed (190) giftcard rows count; otherwise the push completes the order.
+        if ($this->isOrderFullyPaid(new Order((int) $orderId))) {
+            $paidState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, (int) $orderId);
+            $this->updatePendingOrderStatus((int) $orderId, $paidState, true);
+        } else {
+            $this->logger->logInfo('Giftcard order left pending until confirmed', ['orderId' => $orderId]);
+        }
 
         $this->clearGiftcardCookies();
 
