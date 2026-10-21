@@ -20,6 +20,7 @@ require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\Handlers\Reply\ReplyHandler;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 if (!defined('_PS_VERSION_')) {
@@ -250,6 +251,30 @@ abstract class Response extends BuckarooAbstract
         return false;
     }
 
+    /**
+     * True only for a final 190. hasSucceeded() also accepts pending statuses
+     * and must not be used to mark an order paid or book a payment.
+     */
+    public function isPaid(): bool
+    {
+        try {
+            return $this->isValid() && BuckarooPaymentStatus::isPaid($this->getStatusCodeValue());
+        } catch (Exception $e) {
+            $this->logger->logError('Exception while checking paid status', ['exception' => $e->getMessage()]);
+        }
+
+        return false;
+    }
+
+    public function getStatusCodeValue(): int
+    {
+        if (isset($this->response)) {
+            return (int) $this->response->getStatusCode();
+        }
+
+        return (int) $this->statuscode;
+    }
+
     public function isRedirectRequired(): bool
     {
         return $this->response->hasRedirect();
@@ -273,15 +298,7 @@ abstract class Response extends BuckarooAbstract
     public function getCartIdAndReferenceId($show = false)
     {
         $invoice = urldecode((string) ($this->invoicenumber ?? ''));
-        $parts = $invoice !== '' ? explode('_', $invoice) : [];
-
-        if (count($parts) >= 2) {
-            $cartId = (int) end($parts);
-            $reference = implode('_', array_slice($parts, 0, -1));
-        } else {
-            $cartId = 0;
-            $reference = $invoice;
-        }
+        [$cartId, $reference] = BuckarooPaymentStatus::parseInvoice($invoice);
 
         return $show == 'cartId' ? $cartId : $reference;
     }

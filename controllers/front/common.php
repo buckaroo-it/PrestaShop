@@ -226,8 +226,8 @@ class BuckarooCommonController extends ModuleFrontController
         $this->recordGroupTransactionPayments($orderId);
 
         if ($response !== null
-            && method_exists($response, 'hasSucceeded')
-            && $response->hasSucceeded()
+            && method_exists($response, 'isPaid')
+            && $response->isPaid()
         ) {
             $this->recordPushPayment($orderId, $response);
         }
@@ -422,6 +422,11 @@ class BuckarooCommonController extends ModuleFrontController
 
     protected function markOrderPaidAfterSuccessfulReturn(int $orderId, $response = null): bool
     {
+        // A pending return (790-793) leaves the order pending; the push sets the final state.
+        if ($response === null || !method_exists($response, 'isPaid') || !$response->isPaid()) {
+            return false;
+        }
+
         $this->prepareOrderPaymentsBeforePaidStatus($orderId, $response);
 
         $newStatus = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, $orderId);
