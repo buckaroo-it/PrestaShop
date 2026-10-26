@@ -22,6 +22,12 @@ services:
 
   Buckaroo\PrestaShop\Controllers\admin\AdminRefundController:
     class: Buckaroo\PrestaShop\Controllers\admin\AdminRefundController
+    # autowire adds the @required AbstractController::setContainer() call and
+    # autoconfigure tags the controller as a service subscriber, so Symfony injects
+    # the service locator it needs (flash messages) on PrestaShop 1.7.8, 8 and 9.
+    # The explicit arguments below are kept as-is.
+    autowire: true
+    autoconfigure: true
     arguments:
       - "@buckaroo.refund.request.quantity_based_builder"
       - "@buckaroo.refund.request.handler"
@@ -99,6 +105,8 @@ services:
 
   Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController:
     class: Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController
+    autowire: true
+    autoconfigure: true
     arguments:
       - "@buckaroo.klarna.reservation"
     public: true

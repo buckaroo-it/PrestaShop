@@ -18,7 +18,7 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Klarna\ReservationService;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -26,7 +26,14 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class AdminKlarnaReservationController extends FrameworkBundleAdminController
+/**
+ * Extends Symfony's AbstractController directly: PrestaShop's
+ * FrameworkBundleAdminController is deprecated in 9.x and its replacement
+ * (PrestaShopAdminController) does not exist on 1.7.8/8.x. Everything this
+ * controller needs (dependency injection, flash messages) is provided by
+ * AbstractController on every supported version.
+ */
+class AdminKlarnaReservationController extends AbstractController
 {
     /**
      * @var ReservationService

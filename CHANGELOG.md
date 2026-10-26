@@ -12,6 +12,9 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - BTI-1916 Replaced static Context lookups with the context PrestaShop injects into the module, controllers and services (via the prestashop.adapter.legacy.context service, with a backward compatible fallback to the module instance).
 - BTI-1916 Smarty output is escaped everywhere (PrestaShop Validator "Security" findings): payment fee and gift card amounts are formatted in PHP with the shop locale and order currency, and the Riverty terms link and SEPA phone field are escaped.
 
+### Fixed
+- BTI-1916 The admin controllers (refund, Klarna reservation and the configuration API) no longer extend the deprecated FrameworkBundleAdminController; they extend Symfony's AbstractController, which exists on PrestaShop 1.7.8, 8 and 9. The refund and Klarna controllers are now wired as service subscribers, which fixes flash messages that failed on PrestaShop 1.7.8 and 8, and the container fallback boots FrontKernel on PrestaShop 9 where AppKernel is abstract.
+
 ## v5.3.0
 
 ### Added
