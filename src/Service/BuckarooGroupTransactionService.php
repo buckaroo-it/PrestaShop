@@ -72,10 +72,29 @@ class BuckarooGroupTransactionService
      */
     public function updateGroupTransactionStatus(string $transactionKey, int $status): void
     {
-        \Db::getInstance()->update(
-            self::TABLE,
-            ['status' => (int) $status],
-            '`transaction_key` = \'' . pSQL($transactionKey) . '\''
+        if ($transactionKey === '' || $status <= 0) {
+            return;
+        }
+
+        $where = '`transaction_key` = \'' . pSQL($transactionKey) . '\'';
+        // A late pending push must not undo a confirmed payment.
+        if (BuckarooPaymentStatus::isPending($status)) {
+            $where .= ' AND `status` <> ' . self::STATUS_SUCCESS;
+        }
+
+        \Db::getInstance()->update(self::TABLE, ['status' => (int) $status], $where);
+    }
+
+    public function hasTransaction(int $cartId, string $transactionKey): bool
+    {
+        if ($cartId <= 0 || $transactionKey === '') {
+            return false;
+        }
+
+        return (bool) \Db::getInstance()->getValue(
+            'SELECT 1 FROM `' . _DB_PREFIX_ . pSQL(self::TABLE) . '`
+             WHERE `cart_id` = ' . (int) $cartId . '
+               AND `transaction_key` = \'' . pSQL($transactionKey) . '\''
         );
     }
 
