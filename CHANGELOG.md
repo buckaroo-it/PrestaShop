@@ -7,6 +7,9 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 ### Added
 - Added an option to hold the order confirmation email until the Buckaroo order is paid. The payment status email is still sent. Existing shops keep the current behavior until the option is enabled.
 
+### Improved
+- BTI-1916 The module version is declared as a string literal and the module name is a stable "Buckaroo Payments" (PrestaShop Validator "Requirements" findings, #306). The version is shown on the configuration page instead, and the response-specific payment label no longer overwrites the module name.
+
 ## v5.3.0
 
 ### Added

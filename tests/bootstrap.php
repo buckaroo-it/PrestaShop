@@ -12,9 +12,17 @@ if (!defined('_PS_VERSION_')) {
     define('_PS_VERSION_', '9.0.1.0');
 }
 
-// Point to the modules directory (one level above the module root)
+// The legacy checkout/payment classes include their dependencies through
+// _PS_MODULE_DIR_ . 'buckaroo3/...'. The unit tests replace those dependencies
+// with the lightweight stubs below, so the constant must point to an isolated,
+// empty directory: if it pointed at the real modules directory the real
+// classes would be declared next to the stubs ("Cannot declare class Checkout").
 if (!defined('_PS_MODULE_DIR_')) {
-    define('_PS_MODULE_DIR_', dirname(__DIR__, 2) . '/');
+    $buckarooTestModuleDir = sys_get_temp_dir() . '/buckaroo3-phpunit-modules/';
+    if (!is_dir($buckarooTestModuleDir)) {
+        @mkdir($buckarooTestModuleDir, 0777, true);
+    }
+    define('_PS_MODULE_DIR_', $buckarooTestModuleDir);
 }
 
 // Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
