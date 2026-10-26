@@ -1,0 +1,21 @@
+# Shared PHPStan parameters. tests/phpstan/phpstan.neon (CI, php-dev-tools installed
+# in the module vendor/) and ad-hoc local configurations both include this file.
+parameters:
+  level: 5
+  paths:
+    - ../../buckaroo3.php
+    - ../../api
+    - ../../classes
+    - ../../controllers
+    - ../../library
+    - ../../src
+    - ../../upgrade
+  excludePaths:
+    - ../../vendor
+    - ../../dev
+    - ../../tests
+  bootstrapFiles:
+    # Module autoloader (Buckaroo SDK and module namespaces); php-dev-tools boots the PrestaShop core.
+    - ../../vendor/autoload.php
+  reportUnmatchedIgnoredErrors: false
+  treatPhpDocTypesAsCertain: false

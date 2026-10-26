@@ -19,6 +19,10 @@ namespace Buckaroo\PrestaShop\Src\Refund\Request;
 
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
 class PaymentMethodHelper
 {
     /**

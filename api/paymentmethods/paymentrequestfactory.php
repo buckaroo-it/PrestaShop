@@ -96,7 +96,7 @@ class PaymentRequestFactory
         autoload($class_name); // Try to find class in api directory
 
         if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', '1'); // TODO: ExceptionPayment
+            throw new Exception('Payment method not found', 1); // TODO: ExceptionPayment
         }
 
         return new $class_name($data);

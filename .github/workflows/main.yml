@@ -3,19 +3,41 @@ on:
   release:
     types:
       - created
+
+# The token only needs to attach the ZIP to the release.
+permissions:
+  contents: write
+
 jobs:
   pack_on_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: Pack on release
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          extensions: zip, dom, mbstring
+          coverage: none
+
+      - name: Check that the release tag matches the module version
         run: |
-          mkdir -p ~/tmp/buckaroo3
-          rsync -r --exclude='.git' --exclude='.git' --exclude='.idea' ${{ github.workspace }}/ ~/tmp/buckaroo3/
-          cd ~/tmp
-          zip -r buckaroo3.zip buckaroo3
-          unzip -l buckaroo3.zip
-          mv buckaroo3.zip ${{ github.workspace }}/buckaroo3.zip
+          VERSION=$(sed -n "s/.*const MODULE_VERSION = '\([^']*\)'.*/\1/p" buckaroo3.php)
+          echo "Module version: $VERSION, release tag: ${{ github.event.release.tag_name }}"
+          if [ "v$VERSION" != "${{ github.event.release.tag_name }}" ]; then
+            echo "::error::Release tag ${{ github.event.release.tag_name }} does not match module version $VERSION"
+            exit 1
+          fi
+
+      # git archive honours .gitattributes export-ignore: tests, dev tooling, CI files
+      # and dotfiles are excluded. The ZIP is validated before it is attached.
+      - name: Build and validate release ZIP
+        run: .github/scripts/build-release.sh "${{ github.sha }}" "${{ github.workspace }}/buckaroo3.zip"
+
+      - name: List ZIP contents
+        run: unzip -l "${{ github.workspace }}/buckaroo3.zip"
+
       - name: Upload binaries to release
         uses: svenstaro/upload-release-action@v2
         with:
