@@ -39,14 +39,21 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use Buckaroo\PrestaShop\Src\Service\DeferredOrderConfirmation;
+use Buckaroo\PrestaShop\Src\Service\PaymentLabelResolver;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
+use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
+    /**
+     * Must match the literal assigned to $this->version in initializeModuleInfo(),
+     * config.xml and composer.json. tests/Unit/Module/ModuleMetadataTest.php and
+     * .github/scripts/validate-package.php fail when they drift apart.
+     */
     const MODULE_VERSION = '5.3.1';
-    
+
     public $logger;
 
     /**
@@ -64,7 +71,6 @@ class Buckaroo3 extends PaymentModule
         $this->initializeModuleInfo();
         parent::__construct();
         $this->initializeLogger();
-        $this->initializeDisplayName();
         $this->checkConfiguration();
     }
 
@@ -72,13 +78,14 @@ class Buckaroo3 extends PaymentModule
     {
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
-        $this->version = self::MODULE_VERSION;
+        // PrestaShop's validator and Module Manager read the version as a string literal.
+        $this->version = '5.3.1';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
         $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => '9.2.99'];
-        $this->displayName = $this->l('Buckaroo Payments') . ' (v ' . $this->version . ')';
+        $this->displayName = $this->l('Buckaroo Payments');
         $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x up to 9.2.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
@@ -89,20 +96,23 @@ class Buckaroo3 extends PaymentModule
         $this->logger = new \Logger(CoreLogger::INFO, '');
     }
 
-    private function initializeDisplayName()
+    /**
+     * Human readable label of the payment method behind a push/return response.
+     *
+     * The module display name is intentionally never touched: PrestaShop uses it
+     * for the Module Manager and regenerates config.xml from it. Callers that need
+     * a response-specific label ask for it here instead.
+     *
+     * @param object|null $response Buckaroo response; defaults to the current push/return request
+     */
+    public function getPaymentLabel($response = null): string
     {
-        $response = ResponseFactory::getResponse();
-        if ($response && $response->isValid()) {
-            if ($response->brq_transaction_type == 'I150') {
-                $this->displayName = 'Group transaction';
-            } elseif ($response->hasSucceeded()) {
-                $this->displayName = $response->payment_method;
-            } elseif (isset($response->status) && $response->status > 0) {
-                $this->displayName = (new RawPaymentMethodRepository())->getPaymentMethodsLabel($response->payment_method);
-            } else {
-                $this->displayName = $this->l('Buckaroo Payments (v ' . self::MODULE_VERSION . ')');
-            }
+        if ($response === null) {
+            $response = ResponseFactory::getResponse();
         }
+
+        return (new PaymentLabelResolver(new RawPaymentMethodRepository()))
+            ->resolve($response, $this->l('Buckaroo Payments'));
     }
 
     private function checkConfiguration(): bool
@@ -606,6 +616,7 @@ class Buckaroo3 extends PaymentModule
             'baseUrl' => $this->context->shop->getBaseURL(true),
             'adminUrl' => $adminUrl,
             'token' => $token,
+            'moduleVersion' => $this->version,
         ]);
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
@@ -629,6 +640,13 @@ class Buckaroo3 extends PaymentModule
         return $buckarooClient->confirmCredential();
     }
 
+    /**
+     * Payment options shown in the checkout (PrestaShop 1.7+ payment API).
+     *
+     * @param array $params
+     *
+     * @return PaymentOption[]
+     */
     public function hookPaymentOptions($params)
     {
         if (!$this->isActivated()) {

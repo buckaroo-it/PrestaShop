@@ -19,4 +19,9 @@
             admin-url="{$adminUrl|escape:'htmlall':'UTF-8'}">
     </Dashboard>
 </div>
+{if isset($moduleVersion)}
+<p class="text-muted small buckaroo-module-version">
+    {l s='Buckaroo Payments module version' mod='buckaroo3'} {$moduleVersion|escape:'htmlall':'UTF-8'}
+</p>
+{/if}
 <script type="module" src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
