@@ -36,9 +36,12 @@ class PayByBank extends PaymentMethod
     // @codingStandardsIgnoreStart
     public function pay($customVars = [])
     {
-        Context::getContext()->cookie->__set(self::CACHE_LAST_ISSUER_LABEL, $this->issuer);
+        $context = $this->getContext();
+        if ($context && isset($context->cookie) && is_object($context->cookie)) {
+            $context->cookie->__set(self::CACHE_LAST_ISSUER_LABEL, $this->issuer);
+        }
 
-        if ($this->issuer === 'INGBNL2A' && Context::getContext()->isMobile()) {
+        if ($this->issuer === 'INGBNL2A' && $context && method_exists($context, 'isMobile') && $context->isMobile()) {
             $this->type = 'ideal'; // send ideal request if issuer is ING and is on mobile
         }
         $this->payload['issuer'] = is_string($this->issuer) ? $this->issuer : '';

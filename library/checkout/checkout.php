@@ -131,6 +131,10 @@ abstract class Checkout
     {
         $this->context = $context;
         $this->initialize();
+        if (is_object($this->payment_request) && method_exists($this->payment_request, 'setContext')) {
+            // Hand the controller context down so the request never resolves it statically.
+            $this->payment_request->setContext($context);
+        }
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);

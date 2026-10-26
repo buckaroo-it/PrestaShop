@@ -225,7 +225,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
             $total += $buckarooFeeTaxIncl;
 
-            $computePrecision = Context::getContext()->getComputingPrecision();
+            $computePrecision = $this->context->getComputingPrecision();
             $total = Tools::ps_round($total, $computePrecision);
         }
 

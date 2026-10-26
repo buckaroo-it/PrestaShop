@@ -97,7 +97,8 @@ class BuckarooFeeServiceTest extends TestCase
             }
         };
 
-        return new BuckarooFeeService($entityManager);
+        // Inject the (stubbed) PrestaShop context the way the service container does.
+        return new BuckarooFeeService($entityManager, \Context::getContext());
     }
 
     public function testGetBuckarooFeesPercentageFee(): void

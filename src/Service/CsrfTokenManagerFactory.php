@@ -17,6 +17,7 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -121,11 +122,9 @@ class CsrfTokenManagerFactory
      */
     private static function getContextControllerContainer(): ?ContainerInterface
     {
-        if (!class_exists('\Context')) {
-            return null;
-        }
-
-        $context = \Context::getContext();
+        // The module instance carries the request context PrestaShop initialised,
+        // so no static Context lookup is needed here.
+        $context = ContextResolver::fromModule();
         if (!$context || !isset($context->controller) || !is_object($context->controller)) {
             return null;
         }
