@@ -94,7 +94,14 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     exit;
                 }
 
-                $this->markOrderPaidAfterSuccessfulReturn((int) $id_order, $response);
+                if ($response->isPaid()) {
+                    $this->markOrderPaidAfterSuccessfulReturn((int) $id_order, $response);
+                } else {
+                    $this->logger->logInfo('Pending return; order state left for the push', [
+                        'orderId' => $id_order,
+                        'statuscode' => $response->getStatusCodeValue(),
+                    ]);
+                }
                 $this->clearGiftcardCookies();
 
                 if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {

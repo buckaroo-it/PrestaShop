@@ -598,7 +598,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $id_order = (int) $this->module->currentOrder;
         $this->createTransactionMessage($id_order, \Buckaroo\PrestaShop\Src\Klarna\ReservationKey::message($dataRequestKey));
-        $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey);
+        // Klarna capture and reservation handling expect the key on the booked payment.
+        $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey, true);
     }
 
     private function createTransactionMessage($orderId, $messageString)
@@ -609,7 +610,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $message->add();
     }
 
-    private function storeTransactionKeyOnOrderPayment(int $orderId, string $transactionKey): void
+    private function storeTransactionKeyOnOrderPayment(int $orderId, string $transactionKey, bool $bookOrderTotal = false): void
     {
         if ($orderId <= 0 || $transactionKey === '') {
             return;
@@ -637,11 +638,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         // Pending states (Awaiting for Remote payment) do not create OrderPayment
         // during validateOrder. Add one so the key is visible on Order Details.
+        // Nothing is collected yet, so it books no amount; the paid push does.
         $payment = new OrderPayment();
         $payment->order_reference = $order->reference;
         $payment->id_currency = (int) $order->id_currency;
         $payment->conversion_rate = (float) ($order->conversion_rate ?: 1);
-        $payment->amount = (float) $order->total_paid_tax_incl;
+        $payment->amount = $bookOrderTotal ? (float) $order->total_paid_tax_incl : 0;
         $payment->payment_method = $order->payment ?: 'buckaroo3';
         $payment->transaction_id = $transactionKey;
         $payment->add();

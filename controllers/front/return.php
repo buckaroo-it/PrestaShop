@@ -18,6 +18,7 @@
 use Buckaroo\PrestaShop\Src\Refund\KlarnaTransactionKey;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
 include_once __DIR__ . '/../../library/logger.php';
@@ -109,19 +110,12 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 // Confirm the gift card group-transaction row in the DB regardless of whether
                 // the order exists yet (the push may arrive before validateOrder completes).
                 $groupTransactionService = new BuckarooGroupTransactionService();
-                if ($response->hasSucceeded()) {
-                    $groupTransactionService->updateGroupTransactionStatus(
-                        (string) $response->transactions,
-                        190
-                    );
-                } else {
-                    $groupTransactionService->updateGroupTransactionStatus(
-                        (string) $response->transactions,
-                        (int) $response->status
-                    );
-                }
+                $groupTransactionService->updateGroupTransactionStatus(
+                    (string) $response->transactions,
+                    $response->getStatusCodeValue()
+                );
 
-                if ($id_order && ($response->hasSucceeded() || (int) $response->statuscode === 190)) {
+                if ($id_order && $response->isPaid()) {
                     $this->recordPushPayment((int) $id_order, $response);
                     $this->removeRedundantInvoicePayments((int) $id_order);
 
@@ -170,7 +164,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     $new_status_code = (int) $order->getCurrentState();
                 }
 
-                if (!in_array($order->reference, $references)) {
+                if (!in_array($order->reference, $references) && !$this->isGiftcardPushForOrder($response, $order)) {
                     header('HTTP/1.1 503 Service Unavailable');
                     $this->logger->logError('Order not in reference ' . $order->reference);
                     echo 'Order not in reference: ' . $order->reference;
@@ -191,6 +185,9 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                         || $error == $order->getCurrentState() || $outofstock_unpaid == $order->getCurrentState())
                 ) {
                     $this->logger->logInfo('Update order status');
+                    if ($response->isPaid()) {
+                        $this->bookPendingKeyPayment($order, $response);
+                    }
                     $history = new OrderHistory();
                     $history->id_order = $id_order;
                     $history->date_add = date('Y-m-d H:i:s');
@@ -281,6 +278,49 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         $state = new OrderState($id_order_state);
 
         return Validate::isLoadedObject($state);
+    }
+
+    /**
+     * The request stores the key of a pending payment on a 0.00 OrderPayment.
+     * Book the paid amount on it before the state change links it to the invoice.
+     */
+    private function bookPendingKeyPayment(Order $order, $response): void
+    {
+        $transactionKey = (string) $response->transactions;
+        $amount = (float) urldecode((string) $response->amount);
+        if ($transactionKey === '' || $amount <= 0) {
+            return;
+        }
+
+        $payments = OrderPayment::getByOrderReference($order->reference);
+        if (!is_array($payments)) {
+            return;
+        }
+
+        foreach ($payments as $payment) {
+            if ((string) $payment->transaction_id === $transactionKey && (float) $payment->amount == 0.0) {
+                $payment->amount = $amount;
+                $payment->update();
+
+                return;
+            }
+        }
+    }
+
+    /**
+     * Giftcard invoices (gc_<time>_<cart>) are created before the order exists, so they
+     * never carry the order reference. Accept them only for a transaction stored on that cart.
+     */
+    private function isGiftcardPushForOrder($response, Order $order): bool
+    {
+        if (!BuckarooPaymentStatus::isGiftcardReference((string) $response->getReferenceId())) {
+            return false;
+        }
+
+        return (new BuckarooGroupTransactionService())->hasTransaction(
+            (int) $order->id_cart,
+            (string) $response->transactions
+        );
     }
 
     /**
