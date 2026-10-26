@@ -170,7 +170,7 @@
             </div>
             <div class="col-xs-11">
                 <label class="required" for="bpe_afterpay_accept" style="display: inline">
-                    <a href="{$riverty_tc_url}"
+                    <a href="{$riverty_tc_url|escape:'htmlall':'UTF-8'}"
                             target="_blank"
                             style="text-decoration: underline">
                         {l s='Ik accepteer de algemene voorwaarden van Riverty.' mod='buckaroo3'}

@@ -40,6 +40,7 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use Buckaroo\PrestaShop\Src\Service\DeferredOrderConfirmation;
 use Buckaroo\PrestaShop\Src\Service\PaymentLabelResolver;
+use Buckaroo\PrestaShop\Src\Service\PriceFormatter;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -65,6 +66,11 @@ class Buckaroo3 extends PaymentModule
      * @var bool Guards against rebuilding the Click to Pay config per hook
      */
     private $clickToPayJsLoaded = false;
+
+    /**
+     * @var PriceFormatter|null
+     */
+    private $priceFormatter = null;
 
     public function __construct()
     {
@@ -129,6 +135,18 @@ class Buckaroo3 extends PaymentModule
         return $this->context;
     }
 
+    /**
+     * Shared locale aware price formatter bound to the module context.
+     */
+    public function getPriceFormatter(): PriceFormatter
+    {
+        if ($this->priceFormatter === null) {
+            $this->priceFormatter = new PriceFormatter($this->context);
+        }
+
+        return $this->priceFormatter;
+    }
+
     private function checkConfiguration(): bool
     {
         $requiredConfigs = [
@@ -181,9 +199,19 @@ class Buckaroo3 extends PaymentModule
         $session = $this->get('buckaroo.session');
         $feeSessionKey = 'buckaroo_include_fee_' . $order->id;
 
+        $currency = new Currency($order->id_currency);
+        $priceFormatter = $this->getPriceFormatter();
+        $currencyIsoCode = !empty($currency->iso_code) ? (string) $currency->iso_code : null;
+
         $this->context->smarty->assign([
+            // Numeric values stay available for conditions; display values are formatted here.
             'buckaroo_fee' => $buckarooFeeData,
-            'currency' => new Currency($order->id_currency),
+            'buckaroo_fee_display' => [
+                'tax_excl' => $priceFormatter->format($buckarooFeeData['buckaroo_fee_tax_excl'], $currencyIsoCode),
+                'tax' => $priceFormatter->format($buckarooFeeData['buckaroo_fee_tax'], $currencyIsoCode),
+                'tax_incl' => $priceFormatter->format($buckarooFeeData['buckaroo_fee_tax_incl'], $currencyIsoCode),
+            ],
+            'currency' => $currency,
             'buckaroo_fee_refunded' => !empty($buckarooFeeData['fee_refunded']),
             'buckaroo_fee_flag_set' => $session->has($feeSessionKey),
             'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
@@ -1004,11 +1032,19 @@ class Buckaroo3 extends PaymentModule
         $remainingAmount = $this->getGiftcardRemainingAmount($cart);
         $displayItems    = $this->getGiftcardDisplayItems($cart);
 
+        $priceFormatter = $this->getPriceFormatter();
+        foreach ($displayItems as $index => $item) {
+            $displayItems[$index]['amountFormatted'] = $priceFormatter->format($item['amount'] ?? 0);
+        }
+
         $this->context->smarty->assign([
-            'buckarooAlreadyPaid'     => $alreadyPaid,
-            'buckarooRemainingAmount' => $remainingAmount,
-            'buckarooGiftcardItems'   => $displayItems,
-            'currency'                => $this->context->currency,
+            // Numeric values drive the template conditions; formatted values are what gets rendered.
+            'buckarooAlreadyPaid'              => $alreadyPaid,
+            'buckarooAlreadyPaidFormatted'     => $priceFormatter->format($alreadyPaid),
+            'buckarooRemainingAmount'          => $remainingAmount,
+            'buckarooRemainingAmountFormatted' => $priceFormatter->format($remainingAmount),
+            'buckarooGiftcardItems'            => $displayItems,
+            'currency'                         => $this->context->currency,
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/already-paid.tpl');
@@ -1355,19 +1391,20 @@ class Buckaroo3 extends PaymentModule
 
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
             $currency = new Currency($order->id_currency);
-            $context = $this->context;
+            $priceFormatter = $this->getPriceFormatter();
+            $currencyIsoCode = !empty($currency->iso_code) ? (string) $currency->iso_code : null;
 
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFeeTaxIncl > 0) {
-                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice($buckarooFeeTaxExcl, $currency->iso_code);
-                $params['templateVars']['{payment_fee_tax}'] = $context->getCurrentLocale()->formatPrice($buckarooFee['buckaroo_fee_tax'], $currency->iso_code);
-                $params['templateVars']['{total_paid}'] = $context->getCurrentLocale()->formatPrice($order->total_paid + $buckarooFeeTaxIncl, $currency->iso_code);
+                $params['templateVars']['{payment_fee}'] = $priceFormatter->format($buckarooFeeTaxExcl, $currencyIsoCode);
+                $params['templateVars']['{payment_fee_tax}'] = $priceFormatter->format($buckarooFee['buckaroo_fee_tax'], $currencyIsoCode);
+                $params['templateVars']['{total_paid}'] = $priceFormatter->format($order->total_paid + $buckarooFeeTaxIncl, $currencyIsoCode);
                 // Include the total tax paid, which includes the payment fee tax
                 $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
-                $params['templateVars']['{total_tax_paid}'] = $context->getCurrentLocale()->formatPrice($totalTaxPaid, $currency->iso_code);
+                $params['templateVars']['{total_tax_paid}'] = $priceFormatter->format($totalTaxPaid, $currencyIsoCode);
             } else {
-                $params['templateVars']['{payment_fee}'] = $context->getCurrentLocale()->formatPrice(0, $currency->iso_code);
+                $params['templateVars']['{payment_fee}'] = $priceFormatter->format(0, $currencyIsoCode);
             }
         }
 
@@ -1530,12 +1567,10 @@ class Buckaroo3 extends PaymentModule
     }
 
     /**
-     * @throws LocalizationException
+     * Formats an amount in the context currency with the shop locale.
      */
     private function formatPrice($amount): string
     {
-        $currency = $this->context->currency;
-
-        return \Tools::getContextLocale($this->context)->formatPrice($amount, $currency->iso_code);
+        return $this->getPriceFormatter()->format($amount);
     }
 }

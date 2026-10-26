@@ -28,6 +28,7 @@ services:
       - "@buckaroo.refund.request.response.handler"
       - "@buckaroo.refund.order.service"
       - "@buckaroo.session"
+      - "@?prestashop.adapter.legacy.context"
     public: true
 
   buckaroo.refund.request.handler:
