@@ -58,6 +58,10 @@ class BuckarooPaymentService
     protected $issuersPayByBank;
     protected $capayableIn3;
     protected $countryRepository;
+    /**
+     * @var PriceFormatter|null
+     */
+    protected $priceFormatter;
 
     /**
      * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
@@ -89,6 +93,15 @@ class BuckarooPaymentService
         }
 
         return $this->context;
+    }
+
+    protected function getPriceFormatter(): PriceFormatter
+    {
+        if ($this->priceFormatter === null) {
+            $this->priceFormatter = new PriceFormatter($this->getContext());
+        }
+
+        return $this->priceFormatter;
     }
 
     public function getPaymentOptions($cart)
@@ -596,13 +609,7 @@ class BuckarooPaymentService
 
         $feeAmount = (float) $paymentFee;
         if ($feeAmount > 0) {
-            $context = $this->getContext();
-            $isoCode = ($context && isset($context->currency->iso_code)) ? (string) $context->currency->iso_code : '';
-            if ($context && $isoCode !== '') {
-                return ' + ' . \Tools::getContextLocale($context)->formatPrice($feeAmount, $isoCode);
-            }
-
-            return ' + ' . number_format($feeAmount, 2, '.', '');
+            return ' + ' . $this->getPriceFormatter()->format($feeAmount);
         }
 
         return '';

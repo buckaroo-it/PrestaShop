@@ -1,3 +1,16 @@
+{*
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * @author Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *}
+{* Amounts in $buckaroo_fee_display are already formatted in PHP with the order currency and shop locale. *}
 <div class="card mt-2">
     <div class="card-header">
         <h3 class="card-header-title">
@@ -15,15 +28,15 @@
             <tbody>
             <tr>
                 <td>{l s='Fee (excl. tax)' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax_excl|number_format:2:'.':','} {$currency->sign}</td>
+                <td>{$buckaroo_fee_display.tax_excl|escape:'htmlall':'UTF-8'}</td>
             </tr>
             <tr>
                 <td>{l s='Fee tax' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax|number_format:2:'.':','} {$currency->sign}</td>
+                <td>{$buckaroo_fee_display.tax|escape:'htmlall':'UTF-8'}</td>
             </tr>
             <tr>
                 <td>{l s='Fee (incl. tax)' mod='buckaroo3'}</td>
-                <td>{$buckaroo_fee.buckaroo_fee_tax_incl|number_format:2:'.':','} {$currency->sign}</td>
+                <td>{$buckaroo_fee_display.tax_incl|escape:'htmlall':'UTF-8'}</td>
             </tr>
             </tbody>
         </table>
@@ -40,7 +53,7 @@
                            {if $buckaroo_fee_flag_set}checked="checked"{/if}>
                     <label class="custom-control-label" for="bk-include-fee-refund">
                         {l s='Include payment fee' mod='buckaroo3'}
-                        ({$buckaroo_fee.buckaroo_fee_tax_incl|number_format:2:'.':','} {$currency->sign})
+                        ({$buckaroo_fee_display.tax_incl|escape:'htmlall':'UTF-8'})
                         {l s='in next partial refund' mod='buckaroo3'}
                     </label>
                 </div>

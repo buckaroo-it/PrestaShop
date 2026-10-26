@@ -36,6 +36,11 @@ class BuckarooFeeService
     private $configurationRepository;
 
     /**
+     * @var PriceFormatter|null
+     */
+    private $priceFormatter;
+
+    /**
      * @param EntityManager $entityManager
      * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
      */
@@ -135,9 +140,16 @@ class BuckarooFeeService
      */
     private function formatPrice($amount): string
     {
-        $context = $this->getContext();
+        return $this->getPriceFormatter()->format($amount);
+    }
 
-        return \Tools::getContextLocale($context)->formatPrice($amount, $context->currency->iso_code);
+    private function getPriceFormatter(): PriceFormatter
+    {
+        if ($this->priceFormatter === null) {
+            $this->priceFormatter = new PriceFormatter($this->getContext());
+        }
+
+        return $this->priceFormatter;
     }
 
     /**
