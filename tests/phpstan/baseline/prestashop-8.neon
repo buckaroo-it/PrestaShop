@@ -11,11 +11,6 @@ parameters:
 			path: ../../../api/paymentmethods/ideal/ideal.php
 
 		-
-			message: "#^Parameter \\#2 \\$code of class Exception constructor expects int, string given\\.$#"
-			count: 1
-			path: ../../../api/paymentmethods/paymentrequestfactory.php
-
-		-
 			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
 			count: 1
 			path: ../../../api/paymentmethods/paypal/paypal.php
@@ -527,11 +522,6 @@ parameters:
 
 		-
 			message: "#^Cannot call method getBuckarooFeeService\\(\\) on ModuleCore\\|false\\.$#"
-			count: 1
-			path: ../../../library/checkout/checkout.php
-
-		-
-			message: "#^Parameter \\#2 \\$code of class Exception constructor expects int, string given\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
 

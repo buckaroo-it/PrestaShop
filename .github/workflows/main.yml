@@ -33,7 +33,7 @@ jobs:
       # git archive honours .gitattributes export-ignore: tests, dev tooling, CI files
       # and dotfiles are excluded. The ZIP is validated before it is attached.
       - name: Build and validate release ZIP
-        run: .github/scripts/build-release.sh "${{ github.sha }}" "${{ github.workspace }}/buckaroo3.zip"
+        run: bash .github/scripts/build-release.sh "${{ github.sha }}" "${{ github.workspace }}/buckaroo3.zip"
 
       - name: List ZIP contents
         run: unzip -l "${{ github.workspace }}/buckaroo3.zip"

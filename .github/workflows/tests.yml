@@ -76,7 +76,7 @@ jobs:
         run: php .github/scripts/validate-package.php source
 
       - name: Build and validate release ZIP
-        run: .github/scripts/build-release.sh "${{ github.sha }}" "$RUNNER_TEMP/buckaroo3.zip"
+        run: bash .github/scripts/build-release.sh "${{ github.sha }}" "$RUNNER_TEMP/buckaroo3.zip"
 
       - name: Upload release ZIP as workflow artifact
         uses: actions/upload-artifact@v4
