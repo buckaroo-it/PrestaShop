@@ -20,6 +20,7 @@ require_once dirname(__FILE__) . '/responsefactory.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
 use PrestaShop\Decimal\DecimalNumber;
 
 if (!defined('_PS_VERSION_')) {
@@ -28,6 +29,8 @@ if (!defined('_PS_VERSION_')) {
 
 abstract class PaymentMethod extends BuckarooAbstract
 {
+    use ContextAwareTrait;
+
     protected $type;
     public $currency;
     public $amountDebit;
@@ -194,8 +197,10 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         if (!empty($matches[0])) {
             $order = \Order::getByCartId($cartId);
+            $context = $this->getContext();
+            $shopName = ($context && isset($context->shop) && is_object($context->shop)) ? (string) $context->shop->name : '';
             $patterns = ['/{order_number}/', '/{shop_name}/'];
-            $replacement = [$order->reference, \Context::getContext()->shop->name];
+            $replacement = [$order->reference, $shopName];
 
             foreach ($matches[0] as $match) {
                 if (!in_array("/$match/", $patterns)) {

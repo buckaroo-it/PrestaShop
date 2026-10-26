@@ -17,24 +17,35 @@
 
 namespace Buckaroo\PrestaShop\Classes\Issuers;
 
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 class PayByBank extends Issuers
 {
+    use ContextAwareTrait;
+
     protected const CACHE_LAST_ISSUER_LABEL = 'BUCKAROO_LAST_PAYBYBANK_ISSUER';
     protected const CACHE_ISSUERS_DATE_KEY = 'BUCKAROO_PAYBYBANK_ISSUERS_CACHE_DATE';
     protected const CACHE_ISSUERS_KEY = 'BUCKAROO_PAYBYBANK_ISSUERS_CACHE';
 
-    public function __construct()
+    /**
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct($legacyContext = null)
     {
         parent::__construct('paybybank');
+        $this->setContext($legacyContext);
     }
 
     public function get(): array
     {
-        $savedBankIssuer = \Context::getContext()->cookie->{self::CACHE_LAST_ISSUER_LABEL};
+        $context = $this->getContext();
+        $savedBankIssuer = ($context && isset($context->cookie) && is_object($context->cookie))
+            ? $context->cookie->{self::CACHE_LAST_ISSUER_LABEL}
+            : null;
 
         $issuerArray = array_merge([
             'NTSBDEB1' => [

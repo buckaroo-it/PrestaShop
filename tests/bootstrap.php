@@ -77,6 +77,14 @@ if (!class_exists('Context')) {
     class Context
     {
         public $currency;
+        public $shop;
+        public $language;
+        public $country;
+        public $cookie;
+        public $link;
+        public $cart;
+        public $customer;
+        public $controller;
 
         private static $instance;
 
@@ -88,6 +96,28 @@ if (!class_exists('Context')) {
             }
 
             return self::$instance;
+        }
+    }
+}
+
+// ---- Module registry stub (ContextResolver falls back to the module instance) ----
+if (!class_exists('Module')) {
+    class Module
+    {
+        /** @var array<string, object> */
+        public static $instances = [];
+
+        public $context;
+
+        public static function getInstanceByName($name)
+        {
+            return self::$instances[$name] ?? false;
+        }
+
+        /** Mirrors Buckaroo3::getModuleContext(); Module::$context is protected in the core. */
+        public function getModuleContext()
+        {
+            return $this->context;
         }
     }
 }
@@ -138,6 +168,11 @@ if (!class_exists('Tools')) {
         public static function strtoupper($string)
         {
             return strtoupper($string);
+        }
+
+        public static function strtolower($string)
+        {
+            return strtolower($string);
         }
     }
 }
@@ -197,6 +232,19 @@ if (!class_exists('Country')) {
         public static function getIsoById($id)
         {
             return self::$isoById[(int) $id] ?? null;
+        }
+
+        /** @var array<int, array<string, mixed>> rows returned by getCountries() */
+        public static $countries = [];
+
+        /** @var int|null language id passed to the last getCountries() call */
+        public static $lastLanguageId;
+
+        public static function getCountries($idLang, $active = false, $containStates = false, $listStates = false)
+        {
+            self::$lastLanguageId = (int) $idLang;
+
+            return self::$countries;
         }
     }
 }

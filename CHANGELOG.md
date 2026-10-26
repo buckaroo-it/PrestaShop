@@ -9,6 +9,7 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 
 ### Improved
 - BTI-1916 The module version is declared as a string literal and the module name is a stable "Buckaroo Payments" (PrestaShop Validator "Requirements" findings, #306). The version is shown on the configuration page instead, and the response-specific payment label no longer overwrites the module name.
+- BTI-1916 Replaced static Context lookups with the context PrestaShop injects into the module, controllers and services (via the prestashop.adapter.legacy.context service, with a backward compatible fallback to the module instance).
 
 ## v5.3.0
 

@@ -22,6 +22,7 @@ require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
+use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
@@ -44,18 +45,28 @@ class BuckarooPaymentService
     protected $logger;
     protected $bkOrderingRepository;
     protected $paymentMethodRepository;
+    /**
+     * @var object|null PrestaShop Context, resolved lazily through getContext()
+     */
     protected $context;
+    /**
+     * @var object|null Context object or provider exposing getContext() (prestashop.adapter.legacy.context)
+     */
+    protected $contextSource;
     protected $buckarooConfigService;
     protected $buckarooFeeService;
     protected $issuersPayByBank;
     protected $capayableIn3;
     protected $countryRepository;
 
-    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
+    /**
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository, $legacyContext = null)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->logger = new \Logger(\Logger::INFO, '');
-        $this->context = \Context::getContext();
+        $this->contextSource = $legacyContext;
         $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
         $this->buckarooFeeService = $buckarooFeeService;
@@ -65,13 +76,28 @@ class BuckarooPaymentService
         $this->countryRepository = $countryRepository;
     }
 
+    /**
+     * The context is resolved on first use so the service can be built before
+     * PrestaShop finished initialising the request (shop, language, currency).
+     *
+     * @return object|null PrestaShop Context
+     */
+    protected function getContext()
+    {
+        if ($this->context === null) {
+            $this->context = ContextResolver::resolve($this->contextSource);
+        }
+
+        return $this->context;
+    }
+
     public function getPaymentOptions($cart)
     {
         $payment_options = [];
         libxml_use_internal_errors(true);
         $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $isoCode2 = $this->context->country->iso_code;
+        $isoCode2 = $this->getContext()->country->iso_code;
         $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
 
         $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
@@ -199,7 +225,7 @@ class BuckarooPaymentService
         }
 
         $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
+            ->setAction($this->getContext()->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
             ->setModuleName($method);
 
         // Include cardCode as a POST input so third-party checkouts (e.g. TheCheckout)
@@ -235,14 +261,14 @@ class BuckarooPaymentService
             $title = $this->getBuckarooLabel($method, $details->getLabel());
         }
 
-        $action = $this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]);
+        $action = $this->getContext()->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]);
 
         if (!empty($details->getTemplate())) {
-            $this->context->smarty->assign([
+            $this->getContext()->smarty->assign([
                 'cardCode' => $cardCode,
                 'giftcardFormAction' => $action,
             ]);
-            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+            $newOption->setForm($this->getContext()->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         }
 
         $inputs = $this->buckarooFeeService->getBuckarooFeeInputs($method);
@@ -489,13 +515,13 @@ class BuckarooPaymentService
         $newOption = new PaymentOption();
 
         $newOption->setCallToActionText($this->getBuckarooLabel($method, $details->getLabel()))
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method]))
+            ->setAction($this->getContext()->link->getModuleLink('buckaroo3', 'request', ['method' => $method]))
             ->setModuleName($method);
 
         // If template is set, use setForm, otherwise set inputs
         if (!empty($details->getTemplate())) {
             try {
-                $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+                $newOption->setForm($this->getContext()->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
             } catch (\Exception $e) {
                 $this->logError('Unable to load template: ' . $details->getTemplate() . ' - ' . $e->getMessage());
                 return null;
@@ -570,9 +596,13 @@ class BuckarooPaymentService
 
         $feeAmount = (float) $paymentFee;
         if ($feeAmount > 0) {
-            $locale = \Tools::getContextLocale(\Context::getContext());
-            $currency = \Context::getContext()->currency;
-            return ' + ' . $locale->formatPrice($feeAmount, $currency->iso_code);
+            $context = $this->getContext();
+            $isoCode = ($context && isset($context->currency->iso_code)) ? (string) $context->currency->iso_code : '';
+            if ($context && $isoCode !== '') {
+                return ' + ' . \Tools::getContextLocale($context)->formatPrice($feeAmount, $isoCode);
+            }
+
+            return ' + ' . number_format($feeAmount, 2, '.', '');
         }
 
         return '';

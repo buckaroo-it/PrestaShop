@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
@@ -29,15 +30,20 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooFeeService
 {
+    use ContextAwareTrait;
+
     private $paymentMethodRepository;
     private $configurationRepository;
-    private $locale;
 
-    public function __construct(EntityManager $entityManager)
+    /**
+     * @param EntityManager $entityManager
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct(EntityManager $entityManager, $legacyContext = null)
     {
         $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
-        $this->locale = \Tools::getContextLocale(\Context::getContext());
+        $this->setContext($legacyContext);
     }
 
     public function getPaymentMethodByLabel($label)
@@ -129,9 +135,9 @@ class BuckarooFeeService
      */
     private function formatPrice($amount): string
     {
-        $currency = \Context::getContext()->currency;
+        $context = $this->getContext();
 
-        return $this->locale->formatPrice($amount, $currency->iso_code);
+        return \Tools::getContextLocale($context)->formatPrice($amount, $context->currency->iso_code);
     }
 
     /**

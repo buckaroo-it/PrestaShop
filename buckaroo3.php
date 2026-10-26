@@ -115,6 +115,20 @@ class Buckaroo3 extends PaymentModule
             ->resolve($response, $this->l('Buckaroo Payments'));
     }
 
+    /**
+     * The request context PrestaShop assigned to this module instance.
+     *
+     * Module::$context is protected in the core; services and helpers that are
+     * built without an injected context fall back to this accessor instead of
+     * performing a static Context lookup.
+     *
+     * @return Context|null
+     */
+    public function getModuleContext()
+    {
+        return $this->context;
+    }
+
     private function checkConfiguration(): bool
     {
         $requiredConfigs = [
@@ -444,11 +458,7 @@ class Buckaroo3 extends PaymentModule
      */
     private function getContextControllerContainer()
     {
-        if (!class_exists('\Context')) {
-            return null;
-        }
-
-        $context = \Context::getContext();
+        $context = $this->context;
         if (!$context || !isset($context->controller) || !is_object($context->controller)) {
             return null;
         }
@@ -735,7 +745,7 @@ class Buckaroo3 extends PaymentModule
                     'country' => Country::getIsoById(Tools::getCountry()),
                     'afterpay_show_coc' => $buckarooPaymentService->showAfterpayCoc($cart),
                     'billink_show_coc' => $buckarooPaymentService->showBillinkCoc($cart),
-                    'paybybankIssuers' => (new IssuersPayByBank())->get(),
+                    'paybybankIssuers' => (new IssuersPayByBank($this->context))->get(),
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
@@ -1235,7 +1245,7 @@ class Buckaroo3 extends PaymentModule
                 return null;
             }
 
-            $computePrecision = Context::getContext()->getComputingPrecision();
+            $computePrecision = $this->context->getComputingPrecision();
             $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
             
             $buckarooFee = $roundedBase * ($percentageValue / 100);
@@ -1247,7 +1257,7 @@ class Buckaroo3 extends PaymentModule
             return null;
         }
 
-        $computePrecision = Context::getContext()->getComputingPrecision();
+        $computePrecision = $this->context->getComputingPrecision();
         $buckarooFee = Tools::ps_round($buckarooFee, $computePrecision);
 
         $taxRate = $this->getAverageCartTaxRate();
@@ -1345,7 +1355,7 @@ class Buckaroo3 extends PaymentModule
 
             $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
             $currency = new Currency($order->id_currency);
-            $context = Context::getContext();
+            $context = $this->context;
 
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
@@ -1524,7 +1534,7 @@ class Buckaroo3 extends PaymentModule
      */
     private function formatPrice($amount): string
     {
-        $currency = \Context::getContext()->currency;
+        $currency = $this->context->currency;
 
         return \Tools::getContextLocale($this->context)->formatPrice($amount, $currency->iso_code);
     }
