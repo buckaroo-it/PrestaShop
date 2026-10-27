@@ -1,0 +1,771 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Left side of && is always true\\.$#"
+			count: 1
+			path: ../../../api/corelogger.php
+
+		-
+			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/ideal/ideal.php
+
+		-
+			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/paypal/paypal.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$amount\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$statuscode\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$statusmessage\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Call to an undefined method Logger\\:\\:logInfo\\(\\)\\.$#"
+			count: 3
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Property Response\\:\\:\\$received is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Property Response\\:\\:\\$signature is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Property Response\\:\\:\\$test is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3\\:\\:\\$tpl_folder\\.$#"
+			count: 2
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$HtmlText\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method areHouseNumberValidForCountryDE\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method generate\\(\\) on object\\|false\\.$#"
+			count: 3
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method get\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method getAdminData\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method getMethod\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method getPaymentOptions\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method has\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method showAfterpayCoc\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Cannot call method showBillinkCoc\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Class AdminDashboard not found\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Negated boolean expression is always false\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Parameter \\#1 \\$id of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$invoice \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$logable \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$send_email \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Constructor of class Buckaroo\\\\PrestaShop\\\\Classes\\\\CapayableIn3 has an unused parameter \\$buckarooConfigService\\.$#"
+			count: 1
+			path: ../../../classes/CapayableIn3.php
+
+		-
+			message: "#^Call to static method getFromCart\\(\\) on an unknown class SendcloudServicePoint\\.$#"
+			count: 1
+			path: ../../../classes/CarrierHandler.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Carrier constructor expects int\\|null, string\\|false given\\.$#"
+			count: 1
+			path: ../../../classes/CarrierHandler.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\PrestaShop\\\\Classes\\\\Issuers\\\\Issuers\\:\\:\\$method\\.$#"
+			count: 3
+			path: ../../../classes/Issuers/Issuers.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:issuers\\(\\)\\.$#"
+			count: 1
+			path: ../../../classes/Issuers/Issuers.php
+
+		-
+			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Controllers\\\\admin\\\\Exception is not subtype of Throwable$#"
+			count: 1
+			path: ../../../controllers/admin/PaymentMethods.php
+
+		-
+			message: "#^Method Buckaroo3AjaxModuleFrontController\\:\\:calculatePaymentFee\\(\\) never returns null so it can be removed from the return type\\.$#"
+			count: 1
+			path: ../../../controllers/front/ajax.php
+
+		-
+			message: "#^Property FrontControllerCore\\:\\:\\$cart_presenter \\(object\\) in isset\\(\\) is not nullable\\.$#"
+			count: 6
+			path: ../../../controllers/front/ajax.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between non\\-falsy\\-string and '' will always evaluate to false\\.$#"
+			count: 1
+			path: ../../../controllers/front/ajax.php
+
+		-
+			message: "#^While loop condition is always false\\.$#"
+			count: 3
+			path: ../../../controllers/front/ajax.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_applied\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_card_code\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_cart_id\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_group_tx\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_remainder\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_tx_key\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$OriginalTransactionKey on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$amountDebit on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$currency on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$description on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$invoiceId on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleName on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleSupplier on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleVersion on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$orderId on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$platformName on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$platformVersion on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$pushUrl on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$returnUrl on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Call to method payDirect\\(\\) on an unknown class BuckarooGiftCard\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$giftcardApi contains unknown class BuckarooGiftCard\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Parameter \\#1 \\$status_code of static method Buckaroo3\\:\\:resolveStatusCode\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:getBuckarooConfigService\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/clicktopaytoken.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:isPaymentModeActive\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/clicktopaytoken.php
+
+		-
+			message: "#^Parameter \\#1 \\$status_code of static method Buckaroo3\\:\\:resolveStatusCode\\(\\) expects int, string given\\.$#"
+			count: 2
+			path: ../../../controllers/front/common.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3ErrorModuleFrontController\\:\\:\\$display_column_left\\.$#"
+			count: 1
+			path: ../../../controllers/front/error.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3ErrorModuleFrontController\\:\\:\\$display_column_right\\.$#"
+			count: 1
+			path: ../../../controllers/front/error.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
+			count: 1
+			path: ../../../controllers/front/error.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
+			count: 3
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
+			count: 4
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Call to an undefined method Checkout\\:\\:startVerify\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:getBuckarooFee\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:isPaymentModeActive\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Call to protected method setCheckout\\(\\) of class Checkout\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Cannot call method getSomeError\\(\\) on class\\-string\\|object\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3ReturnModuleFrontController\\:\\:\\$display_column_left\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3ReturnModuleFrontController\\:\\:\\$display_column_right\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$status\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to undefined constant object\\:\\:BUCKAROO_CANCELED\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to undefined constant object\\:\\:BUCKAROO_STATUSCODE_CANCELLED_BY_USER\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to undefined constant object\\:\\:BUCKAROO_STATUSCODE_PENDING_PROCESSING\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Cannot access property \\$amount on ObjectModel\\|true\\.$#"
+			count: 2
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Cannot access property \\$order_reference on ObjectModel\\|true\\.$#"
+			count: 2
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Cannot call method getCurrentState\\(\\) on ObjectModel\\|true\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Parameter \\#1 \\$status_code of static method Buckaroo3\\:\\:resolveStatusCode\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Variable \\$payments might not be defined\\.$#"
+			count: 1
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
+			count: 2
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
+			count: 1
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Access to an undefined property object\\:\\:\\$status\\.$#"
+			count: 1
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Access to undefined constant object\\:\\:BUCKAROO_CANCELED\\.$#"
+			count: 1
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/userreturn.php
+
+		-
+			message: "#^Access to undefined constant PaymentRequestFactory\\:\\:REQUEST_TYPE_CASHTICKET\\.$#"
+			count: 1
+			path: ../../../library/checkout/cashticketcheckout.php
+
+		-
+			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Cannot call method getBuckarooFeeService\\(\\) on ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Parameter \\#2 \\$taxRulesGroupId of method Checkout\\:\\:getTaxRate\\(\\) expects int, string\\|false given\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property Checkout\\:\\:\\$module \\(Buckaroo3\\) does not accept ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_real \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_tax_excl \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_tax_incl \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property Logger\\:\\:\\$logtype is never read, only written\\.$#"
+			count: 1
+			path: ../../../library/logger.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkCreditcards\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkCreditcards.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkGiftcards\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkGiftcards.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$data is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$orderId \\(string\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$orderId is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$payload is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$paymentKey is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^PHPDoc tag @param for parameter \\$productId with type int\\|null is not subtype of native type int\\.$#"
+			count: 1
+			path: ../../../src/Form/Modifier/ProductFormModifier.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
+			path: ../../../src/Form/Modifier/ProductFormModifier.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Form\\\\Type\\\\IdinTabType\\:\\:\\$defaultCurrency is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Form/Type/IdinTabType.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:cancelReserve\\(\\)\\.$#"
+			count: 1
+			path: ../../../src/Klarna/ReservationService.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:extendReserve\\(\\)\\.$#"
+			count: 1
+			path: ../../../src/Klarna/ReservationService.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$order$#"
+			count: 1
+			path: ../../../src/Refund/Handler.php
+
+		-
+			message: "#^Call to method remove\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\.$#"
+			count: 1
+			path: ../../../src/Refund/OrderService.php
+
+		-
+			message: "#^Call to method set\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\.$#"
+			count: 1
+			path: ../../../src/Refund/OrderService.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\OrderService\\:\\:\\$session \\(Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\.$#"
+			count: 1
+			path: ../../../src/Refund/OrderService.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\OrderService\\:\\:\\$session has unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session as its type\\.$#"
+			count: 1
+			path: ../../../src/Refund/OrderService.php
+
+		-
+			message: "#^Method Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Push\\\\Handler\\:\\:getOrder\\(\\) should return Order\\|null but returns OrderCore\\|null\\.$#"
+			count: 1
+			path: ../../../src/Refund/Push/Handler.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$order$#"
+			count: 1
+			path: ../../../src/Refund/Request/AbstractBuilder.php
+
+		-
+			message: "#^Parameter \\#2 \\$status of method Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\StatusService\\:\\:update\\(\\) expects int, string\\|false given\\.$#"
+			count: 2
+			path: ../../../src/Refund/StatusService.php
+
+		-
+			message: "#^Cannot call method getLogo\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\Exception is not subtype of Throwable$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$allMethods of method Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\PaymentMethodRepository\\:\\:fetchPaymentMethods\\(\\) expects int, false given\\.$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$allMethods of method Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\PaymentMethodRepository\\:\\:fetchPaymentMethods\\(\\) expects int, true given\\.$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^Call to an undefined method ModuleCore\\:\\:getBuckarooFee\\(\\)\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooClickToPayService.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooConfigService\\:\\:\\$orderingRepository is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooConfigService.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 2
+			path: ../../../src/Service/BuckarooIdinService.php
+
+		-
+			message: "#^Access to property \\$company on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Access to property \\$id_address_delivery on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 3
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Access to property \\$id_address_invoice on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 4
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Call to method getOrderTotal\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 3
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:getBillingCountryIso\\(\\) should return string\\|null but return statement is missing\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\#1 \\$address of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:companyExists\\(\\) expects Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\|null, Address\\|null given\\.$#"
+			count: 2
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\$address of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:companyExists\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:getBillingCountryIso\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isAfterpayAvailable\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isIn3Available\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isPaymentMethodAvailable\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
+			count: 1
+			path: ../../../src/Service/BuckarooPaymentService.php

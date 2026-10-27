@@ -326,7 +326,7 @@ abstract class Checkout
         checkoutautoload($class_name);
 
         if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', '1');
+            throw new Exception('Payment method not found', 1);
         }
 
         return new $class_name($cart, $context);

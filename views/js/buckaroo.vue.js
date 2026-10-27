@@ -1,3 +1,14 @@
+/*!
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * @author    Buckaroo.nl <plugins@buckaroo.nl>
+ * @copyright Copyright (c) Buckaroo B.V.
+ * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
 import{ab as de,ac as oe,ad as l,ae as x,af as e,r as _,ag as d,ah as ne,a4 as I,ai as q,a2 as $,aj as V,ak as J,al as S,am as o,an as g,U as P,ao as f,ap as K,w as F,t as L,aq as se,ar as ee,as as y,at as re,au as C,av as ae,aw as w,ax as ie,ay as U,az as D,aA as le,aB as ce,aC as pe}from"./vendor-C-MRWgdc.js";import{c as me,u as O}from"./i18n-BaBfTxRs.js";window._=de;window.axios=oe;window.axios.defaults.headers.common["X-Requested-With"]="XMLHttpRequest";const ue={"buckaroo.response.an_error_occurred_while_processing_the_transaction_unable_to_pay_more_with_giftcards":"An error occurred while processing the transaction: Unable to pay more with giftcards","buckaroo.response.invalid_parameter_originaltransaction":"Invalid parameter originaltransaction.","dashboard.channel_selector.select_channel":"Select Channel","dashboard.channel_selector.select_channel_label":"Each channel has its configuration settings.","dashboard.country_select.search_countries":"Search Countries","dashboard.menu.channel":"Channel","dashboard.menu.order_payment_methods":"Order Payments Methods","dashboard.menu.payment_methods":"Payment methods","dashboard.menu.settings":"Settings","dashboard.menu.verification_methods":"Verification methods","dashboard.pages.order_payment_methods.all_countries":"All Countries","dashboard.pages.order_payment_methods.explanation_intro":`You can easily change the order of the payment methods by dragging them into the right place, from top to bottom.
 Even setting a specific payment method order for a specific country is possible.
 This so you can highlight local payment methods for customers across different countries.`,"dashboard.pages.order_payment_methods.how_to_order_payment_method":"How to change the order of the payment methods in the checkout","dashboard.pages.order_payment_methods.if_you_have_any_questions":"If you have any questions about this plugin from Buckaroo, then you can contact us by e-mail:","dashboard.pages.order_payment_methods.order_payment_methods":"Order Payment Methods","dashboard.pages.order_payment_methods.order_payment_methods_label":"Change the order of payment methods.","dashboard.pages.order_payment_methods.payment_method_order_updated_successfully":"Payment method order updated successfully.","dashboard.pages.order_payment_methods.search_country":"Search country","dashboard.pages.order_payment_methods.something_went_wrong":"Something went wrong.","dashboard.pages.order_payment_methods.step_one":`First select the country for which you want to change the display order of the payment methods.

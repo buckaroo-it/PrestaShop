@@ -1,0 +1,12 @@
+# Baseline of pre-existing PHPStan findings, generated per supported PrestaShop
+# major version (the core API differs between them). New findings fail CI;
+# entries are removed as the code is cleaned up.
+#
+# Regenerate one file at a time from the module root, inside the matching
+# PrestaShop container (see .github/workflows/tests.yml for the images):
+#   vendor/bin/phpstan analyse -c tests/phpstan/phpstan.generate.neon \
+#     --generate-baseline=tests/phpstan/baseline/prestashop-9.neon
+includes:
+  - baseline/prestashop-1.7.8.neon
+  - baseline/prestashop-8.neon
+  - baseline/prestashop-9.neon
