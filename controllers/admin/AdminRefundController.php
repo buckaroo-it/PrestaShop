@@ -27,7 +27,7 @@ use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\PriceFormatter;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\InvalidCancelProductException;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -36,7 +36,14 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class AdminRefundController extends FrameworkBundleAdminController
+/**
+ * Extends Symfony's AbstractController directly: PrestaShop's
+ * FrameworkBundleAdminController is deprecated in 9.x and its replacement
+ * (PrestaShopAdminController) does not exist on 1.7.8/8.x. Everything this
+ * controller needs (dependency injection, flash messages) is provided by
+ * AbstractController on every supported version.
+ */
+class AdminRefundController extends AbstractController
 {
     /**
      * @var QuantityBasedBuilder

@@ -72,17 +72,32 @@ trait ContainerAwareTrait
      */
     private function bootLegacyKernel()
     {
-        if (!class_exists(\AppKernel::class)) {
-            $kernelFile = _PS_ROOT_DIR_ . '/app/AppKernel.php';
-            if (!file_exists($kernelFile)) {
-                throw new \RuntimeException('Unable to locate PrestaShop kernel bootstrap file.');
+        // PrestaShop 1.7/8 ship a concrete AppKernel; PrestaShop 9 made it abstract
+        // and boots FrontKernel for the shop front, so pick whichever is instantiable.
+        $kernelClass = null;
+        foreach (['FrontKernel', 'AppKernel'] as $candidate) {
+            if (!class_exists('\\' . $candidate)) {
+                $kernelFile = _PS_ROOT_DIR_ . '/app/' . $candidate . '.php';
+                if (file_exists($kernelFile)) {
+                    require_once $kernelFile;
+                }
             }
-            require_once $kernelFile;
+            if (class_exists('\\' . $candidate)) {
+                $reflection = new \ReflectionClass('\\' . $candidate);
+                if (!$reflection->isAbstract()) {
+                    $kernelClass = $reflection;
+                    break;
+                }
+            }
+        }
+
+        if ($kernelClass === null) {
+            throw new \RuntimeException('Unable to locate an instantiable PrestaShop kernel class.');
         }
 
         static $kernel;
         if (null === $kernel) {
-            $kernel = new \AppKernel('prod', false);
+            $kernel = $kernelClass->newInstance('prod', false);
             $kernel->boot();
         }
 
