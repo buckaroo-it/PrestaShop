@@ -79,4 +79,3 @@ class ConfigTest extends TestCase
         ];
     }
 }
-

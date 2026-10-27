@@ -89,4 +89,3 @@ class BuckarooAfterpayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(0, $options, 'Afterpay should not be available for B2B without NL company');
     }
 }
-

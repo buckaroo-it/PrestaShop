@@ -128,7 +128,7 @@ Still stuck? Contact us and include your PrestaShop version, module version, PHP
 
 We really appreciate it when developers help improve the Buckaroo plugins. Please read our [Contribution Guidelines](https://github.com/buckaroo-it/PrestaShop/blob/master/CONTRIBUTING.md) before opening a pull request, and target the `develop` branch.
 
-Every pull request runs the unit tests, PHPStan against PrestaShop 1.7.8, 8 and 9, and the package checks that mirror the [PrestaShop Validator](https://validator.prestashop.com/). Releases follow the [release checklist](https://github.com/buckaroo-it/PrestaShop/blob/master/RELEASE.md), which requires a clean official validator run on the exact release ZIP.
+Every pull request runs the unit tests, the PrestaShop coding standard, PHPStan against PrestaShop 1.7.8, 8 and 9, and the package checks that mirror the [PrestaShop Validator](https://validator.prestashop.com/). Releases follow the [release checklist](https://github.com/buckaroo-it/PrestaShop/blob/master/RELEASE.md), which requires a clean official validator run on the exact release ZIP.
 
 Found a security issue? Please report it privately to [support@buckaroo.nl](mailto:support@buckaroo.nl) instead of opening a public issue.
 

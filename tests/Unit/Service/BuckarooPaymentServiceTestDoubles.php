@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-/**
+/*
  * Shared test doubles used across BuckarooPaymentService unit tests.
  */
 
@@ -86,7 +86,7 @@ if (!class_exists(BuckarooPaymentServiceFlowTestable::class)) {
             $issuersPayByBank,
             $capayableIn3,
             $context,
-            $module
+            $module,
         ) {
             $this->paymentMethodRepository = $paymentMethodRepository;
             $this->bkOrderingRepository = $orderingRepository;
@@ -148,7 +148,7 @@ if (!class_exists(BuckarooPaymentServiceGetOptionsTestable::class)) {
             $issuersPayByBank,
             $capayableIn3,
             $context,
-            $module
+            $module,
         ) {
             $this->paymentMethodRepository = $paymentMethodRepository;
             $this->bkOrderingRepository = $orderingRepository;
@@ -194,5 +194,3 @@ if (!class_exists(FakeBuckarooConfigService::class)) {
         }
     }
 }
-
-

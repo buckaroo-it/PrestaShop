@@ -84,7 +84,7 @@ class AdminRefundController extends AbstractController
         RefundResponseHandler $responseHandler,
         OrderService $orderService,
         SessionInterface $session,
-        $legacyContext = null
+        $legacyContext = null,
     ) {
         $this->refundHandler = $refundHandler;
         $this->refundBuilder = $refundBuilder;

@@ -27,7 +27,7 @@ class Service
         \Order $order,
         string $transactionId,
         string $paymentMethod,
-        float $amount
+        float $amount,
     ) {
         $payment = new OrderPayment();
         $payment->order_reference = $order->reference;

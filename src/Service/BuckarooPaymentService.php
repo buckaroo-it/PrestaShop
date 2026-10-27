@@ -25,11 +25,11 @@ use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
-use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -167,13 +167,14 @@ class BuckarooPaymentService
         $methods = [];
         if (isset($configArray['activeCreditcards']) && is_array($configArray['activeCreditcards']) && count($configArray['activeCreditcards']) > 0) {
             foreach ($configArray['activeCreditcards'] as $card) {
-                if (array_key_exists('service_code', $card))
+                if (array_key_exists('service_code', $card)) {
                     $methods[] = $this->getIndividualCard($method, $details, $card['service_code'], $configArray);
+                }
             }
         }
+
         return $methods;
     }
-
 
     private function getIndividualGiftCards($method, $details): array
     {
@@ -229,7 +230,7 @@ class BuckarooPaymentService
     private function getIndividualCard($method, $details, $cardCode, $configArray)
     {
         $newOption = new PaymentOption();
-        $cardData  = $this->getCardData($cardCode);
+        $cardData = $this->getCardData($cardCode);
 
         $title = $this->getCardTitle($cardData['name'] ?? null, $configArray);
 
@@ -313,9 +314,10 @@ class BuckarooPaymentService
     private function getCardLogoPath($logo, $details)
     {
         if (!is_string($logo)) {
-            return "Payment methods/SVG/" . $details->getIcon();
+            return 'Payment methods/SVG/' . $details->getIcon();
         }
-        return "Creditcard issuers/SVG/" . $logo;
+
+        return 'Creditcard issuers/SVG/' . $logo;
     }
 
     /**
@@ -396,7 +398,8 @@ class BuckarooPaymentService
     private function areCardsSeparate($method): bool
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
-        return ($configArray['display_in_checkout'] ?? "grouped") === "separate";
+
+        return ($configArray['display_in_checkout'] ?? 'grouped') === 'separate';
     }
 
     public function isCustomerIdinValid($cart)
@@ -537,6 +540,7 @@ class BuckarooPaymentService
                 $newOption->setForm($this->getContext()->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
             } catch (\Exception $e) {
                 $this->logError('Unable to load template: ' . $details->getTemplate() . ' - ' . $e->getMessage());
+
                 return null;
             }
         } else {
@@ -672,19 +676,24 @@ class BuckarooPaymentService
             \BillinkCheckout::CUSTOMER_TYPE_B2C);
     }
 
-    public function areHouseNumberValidForCountryDE($cart) {
+    public function areHouseNumberValidForCountryDE($cart)
+    {
         list($billingAddress, $billingCountry, $shippingAddress, $shippingCountry) = $this->getAddressDetails($cart);
+
         return [
-            "billing" =>$this->isHouseNumberValid($billingAddress) || $billingCountry !== 'DE',
-            "shipping" => $this->isHouseNumberValid($shippingAddress) || $shippingCountry !== 'DE'
+            'billing' => $this->isHouseNumberValid($billingAddress) || $billingCountry !== 'DE',
+            'shipping' => $this->isHouseNumberValid($shippingAddress) || $shippingCountry !== 'DE',
         ];
     }
 
-    private function isHouseNumberValid($address) {
+    private function isHouseNumberValid($address)
+    {
         if (is_string($address->address1)) {
             $address = AddressComponents::getAddressComponents($address->address1);
+
             return is_string($address['house_number']) && !empty(trim($address['house_number']));
         }
+
         return false;
     }
 
@@ -744,8 +753,7 @@ class BuckarooPaymentService
     protected function getAddressById($id)
     {
         if (is_scalar($id)) {
-            return new \Address((int)$id);
+            return new \Address((int) $id);
         }
     }
-
 }

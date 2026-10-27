@@ -35,9 +35,9 @@ class IdinResponse extends Response
 
     protected function parsePostResponseChild()
     {
-        if ($customerId = \Tools::getValue('ADD_cid')) {
-            if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
-                if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
+        if ($customerId = Tools::getValue('ADD_cid')) {
+            if ($consumerbin = Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
+                if ($iseighteenorolder = Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
                     if ($this->buckarooIdinService->checkCustomerIdExists($customerId)) {
                         $this->buckarooIdinService->updateCustomerData($customerId, $consumerbin, $iseighteenorolder);
                     } else {

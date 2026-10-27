@@ -38,7 +38,7 @@ final class ProductFormModifier
      * @param FormBuilderModifier $formBuilderModifier
      */
     public function __construct(
-        FormBuilderModifier $formBuilderModifier
+        FormBuilderModifier $formBuilderModifier,
     ) {
         $this->formBuilderModifier = $formBuilderModifier;
     }
@@ -49,7 +49,7 @@ final class ProductFormModifier
      */
     public function modify(
         int $productId,
-        FormBuilderInterface $productFormBuilder
+        FormBuilderInterface $productFormBuilder,
     ): void {
         $buckarooIdinValue = $this->getBuckarooIdinForProduct($productId);
 

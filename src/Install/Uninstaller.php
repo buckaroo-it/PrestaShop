@@ -47,7 +47,7 @@ class Uninstaller
     public function __construct(
         $module,
         UninstallerInterface $databaseUninstaller,
-        UninstallerInterface $idinColumnsRemover
+        UninstallerInterface $idinColumnsRemover,
     ) {
         $this->module = $module;
         $this->databaseUninstaller = $databaseUninstaller;

@@ -37,4 +37,3 @@ class BuckarooApplepayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('applepay', $options[0]->getModuleName());
     }
 }
-

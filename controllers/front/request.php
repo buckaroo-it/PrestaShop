@@ -58,6 +58,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             if (!$this->context || !$this->context->cart) {
                 $this->logger->logError('Context or cart is not properly initialized.');
                 $this->redirectToCheckoutStep(1, $this->module->l('Your shopping session expired. Please start the checkout again.'));
+
                 return;
             }
 
@@ -83,6 +84,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $currency = $this->context->currency;
             if (!$this->isValidCurrency($currency)) {
                 $this->redirectToCheckoutStep(1, $this->module->l('The selected currency is no longer available. Please refresh the checkout.'));
+
                 return;
             }
 
@@ -93,6 +95,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             if (!$this->isCurrencyAllowedForMethod($payment_method, $currency)) {
                 $this->redirectToCheckoutStep(1, $this->module->l('Twint is only available for Swiss francs (CHF).'));
+
                 return;
             }
 
@@ -106,7 +109,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
-            $total = (float)$cart->getOrderTotal(true, Cart::BOTH);
+            $total = (float) $cart->getOrderTotal(true, Cart::BOTH);
             $total = $this->applyBuckarooFee($payment_method, $total);
 
             if (!$this->isValidService()) {
@@ -133,21 +136,25 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         if (!Validate::isLoadedObject($cart)) {
             $this->handleInvalidCart($cart, 'Cart object could not be loaded.');
+
             return false;
         }
 
         if ($cart->id_customer == 0 || $cart->id_address_delivery == 0 || $cart->id_address_invoice == 0 || !$this->module->active) {
             $this->handleInvalidCart($cart, 'Cart identifiers missing or module inactive.');
+
             return false;
         }
 
         if (!$this->cartHasProducts($cart)) {
             $this->handleInvalidCart($cart, 'Cart is empty.');
+
             return false;
         }
 
         if (!$this->cartAddressesAreValid($cart)) {
             $this->handleInvalidCart($cart, 'Cart addresses are invalid.');
+
             return false;
         }
 
@@ -172,8 +179,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (empty($merchantKey) || empty($secretKey)) {
             $error = $this->module->l('<b>Please contact merchant:</b><br/><br/> Buckaroo Plug-in is not properly configured.');
             Tools::redirect('index.php?fc=module&module=buckaroo3&controller=error&error=' . $error);
+
             return false;
         }
+
         return true;
     }
 
@@ -193,24 +202,28 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (!Validate::isLoadedObject($customer)) {
             $this->logger->logError('Load a customer', 'Failed to load the customer with ID: ' . $cart->id_customer);
             $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
+
             return false;
         }
 
         if ((int) $customer->id !== (int) $cart->id_customer) {
             $this->logger->logError('Customer mismatch detected for cart: ' . $cart->id);
             $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
+
             return false;
         }
 
         if (property_exists($customer, 'active') && !$customer->active) {
             $this->logger->logError('Inactive customer tried to checkout: ' . $customer->id);
             $this->redirectToCheckoutStep(1, $this->module->l('Your account is inactive. Please contact the merchant.'));
+
             return false;
         }
 
         if (property_exists($customer, 'deleted') && $customer->deleted) {
             $this->logger->logError('Deleted customer tried to checkout: ' . $customer->id);
             $this->redirectToCheckoutStep(1, $this->module->l('We could not verify your customer information. Please sign in again.'));
+
             return false;
         }
 
@@ -236,6 +249,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         if (!Validate::isLoadedObject($currency)) {
             $this->logger->logError('Currency is not set in context or invalid.');
+
             return false;
         }
 
@@ -247,6 +261,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (empty($payment_method)) {
             $this->logger->logError('Load a method', 'Failed to load the method');
             $this->redirectToCheckoutStep(3, $this->module->l('Please select a payment method and try again.'));
+
             return false;
         }
 
@@ -254,12 +269,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (!$label) {
             $this->logger->logError('Invalid payment method requested: ' . $payment_method);
             $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is not available.'));
+
             return false;
         }
 
         if (!$this->module->isPaymentModeActive($payment_method)) {
             $this->logger->logError('Inactive payment method requested: ' . $payment_method);
             $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is currently disabled.'));
+
             return false;
         }
 
@@ -323,8 +340,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (Tools::getValue('service') && Tools::getValue('service') != 'digi' && Tools::getValue('service') != 'sepa') {
             $this->logger->logError('Load a method', 'Failed to load the method');
             Tools::redirect('index.php?controller=order&step=1');
+
             return false;
         }
+
         return true;
     }
 
@@ -337,6 +356,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         } catch (Exception $e) {
             $this->logger->logError('Set checkout info: ', $e->getMessage());
             $this->displayError(null, $e->getMessage());
+
             return;
         }
 
@@ -361,6 +381,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 } catch (Exception $e) {
                     $this->logger->logError('Order validation failed: ', $e->getMessage());
                     $this->displayError(null, $e->getMessage());
+
                     return;
                 }
             }
@@ -383,6 +404,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         } catch (Exception $e) {
             $this->logger->logError('Set checkout info: ', $e->getMessage());
             $this->displayError(null, $e->getMessage());
+
             return;
         }
     }
@@ -408,7 +430,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return true;
         }
 
-        $iso = \Tools::strtoupper($currency->iso_code);
+        $iso = Tools::strtoupper($currency->iso_code);
 
         if ($paymentMethod === 'twint') {
             return $iso === 'CHF';
@@ -472,11 +494,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->clearGiftcardCookies();
 
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
-            'id_cart'           => $cartId,
-            'id_module'         => $this->module->id,
-            'id_order'          => $id_order,
-            'key'               => $customer->secure_key,
-            'success'           => 'true',
+            'id_cart' => $cartId,
+            'id_module' => $this->module->id,
+            'id_order' => $id_order,
+            'key' => $customer->secure_key,
+            'success' => 'true',
             'response_received' => $response->payment_method,
         ]));
     }
@@ -507,9 +529,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         );
 
         $redirectUrl = $this->context->link->getPageLink('order', null, null, [
-            'step'               => 3,
+            'step' => 3,
             'buckaroo_error_msg' => urlencode($msg),
-            'buckaroo_error'     => 1
+            'buckaroo_error' => 1,
         ]);
 
         Tools::redirect($redirectUrl);
@@ -575,9 +597,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         // Back to PrestaShop checkout payment step with an error message
         $redirectUrl = $this->context->link->getPageLink('order', null, null, [
-            'step'               => 3,
+            'step' => 3,
             'buckaroo_error_msg' => urlencode($msg),
-            'buckaroo_error'     => 1
+            'buckaroo_error' => 1,
         ]);
 
         Tools::redirect($redirectUrl);
@@ -597,7 +619,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $id_order = (int) $this->module->currentOrder;
-        $this->createTransactionMessage($id_order, \Buckaroo\PrestaShop\Src\Klarna\ReservationKey::message($dataRequestKey));
+        $this->createTransactionMessage($id_order, Buckaroo\PrestaShop\Src\Klarna\ReservationKey::message($dataRequestKey));
         // Klarna capture and reservation handling expect the key on the booked payment.
         $this->storeTransactionKeyOnOrderPayment($id_order, $dataRequestKey, true);
     }
@@ -633,6 +655,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
             $payment->transaction_id = $transactionKey;
             $payment->update();
+
             return;
         }
 
@@ -654,7 +677,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $orderId = Order::getIdByCartId($cartId);
 
         if ($orderId) {
-            $oldCart    = new Cart($cartId);
+            $oldCart = new Cart($cartId);
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
@@ -671,7 +694,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function cartHasProducts(Cart $cart): bool
     {
-        return (int)$cart->nbProducts() > 0;
+        return (int) $cart->nbProducts() > 0;
     }
 
     private function cartAddressesAreValid(Cart $cart): bool
@@ -684,12 +707,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         if (!Validate::isUnsignedId($addressId)) {
             $this->logger->logError(sprintf('Invalid %s address ID supplied: %s', $type, $addressId));
+
             return false;
         }
 
         $address = new Address($addressId);
         if (!Validate::isLoadedObject($address) || (property_exists($address, 'deleted') && $address->deleted)) {
             $this->logger->logError(sprintf('Unable to load %s address with ID %s', $type, $addressId));
+
             return false;
         }
 
@@ -705,10 +730,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->context->cookie->id_cart = $duplication['cart']->id;
             $this->context->cart = $duplication['cart'];
             $this->context->cookie->write();
+
             return true;
         }
 
         $this->handleInvalidCart($cart, 'Failed to duplicate cart for retry.');
+
         return false;
     }
 

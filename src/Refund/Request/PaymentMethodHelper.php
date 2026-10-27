@@ -67,10 +67,12 @@ class PaymentMethodHelper
     /**
      * Check if the payment method is a type of credit card.
      *
-     * @param string $method The payment method to check.
-     * @return bool Returns true if the method is a type of credit card, false otherwise.
+     * @param string $method the payment method to check
+     *
+     * @return bool returns true if the method is a type of credit card, false otherwise
      */
-    public static function isCreditCardMethod(string $method): bool {
+    public static function isCreditCardMethod(string $method): bool
+    {
         $creditCardMethods = [
             'creditcard', 'mastercard', 'visa',
             'amex', 'vpay', 'maestro',
@@ -85,10 +87,12 @@ class PaymentMethodHelper
     /**
      * Check if the payment method is a gift card service code.
      *
-     * @param string $method The payment method to check.
-     * @return bool Returns true if the method is a gift card service code, false otherwise.
+     * @param string $method the payment method to check
+     *
+     * @return bool returns true if the method is a gift card service code, false otherwise
      */
-    public static function isGiftCardMethod(string $method): bool {
+    public static function isGiftCardMethod(string $method): bool
+    {
         // First check if it's the generic giftcard method
         if ($method === 'giftcard') {
             return true;
@@ -98,7 +102,7 @@ class PaymentMethodHelper
         try {
             $giftCardRepository = new RawGiftCardsRepository();
             $giftCards = $giftCardRepository->getGiftCardsFromDB();
-            
+
             foreach ($giftCards as $giftCard) {
                 if (isset($giftCard['code']) && $giftCard['code'] === $method) {
                     return true;

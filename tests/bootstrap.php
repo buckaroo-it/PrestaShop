@@ -33,7 +33,7 @@ if (!defined('__PS_BASE_URI__')) {
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
-/**
+/*
  * Lightweight stubs for legacy module dependencies that rely on a full
  * PrestaShop runtime. For isolated unit tests we only need the symbols
  * to exist so the production code can be loaded safely.
@@ -66,7 +66,7 @@ if (!class_exists('CarrierHandler')) {
 // Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
 
-/**
+/*
  * Lightweight test doubles for common PrestaShop classes used by the module.
  * These keep the unit tests isolated from a real PrestaShop runtime while
  * still exercising the module logic.
@@ -356,5 +356,3 @@ if (!class_exists('\Doctrine\ORM\EntityManager')) {
     }
     ');
 }
-
-

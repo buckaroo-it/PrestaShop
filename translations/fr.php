@@ -29,8 +29,8 @@ $_MODULE['<{buckaroo3}prestashop>payment_afterpay_c66a608eb37f73d6474df12b5f15e3
 // Identification Number (Finland)
 $_MODULE['<{buckaroo3}prestashop>payment_afterpay_f7042b0fa1e4c4a5c96b5e7dd5ce432a'] = "Numéro d'identification :";
 // Address errors
-$_MODULE['<{buckaroo3}prestashop>payment_afterpay_b6d9d9454b9542fde21e2cb7f5ba054c'] = "Adresse de facturation invalide, numéro de maison introuvable.";
-$_MODULE['<{buckaroo3}prestashop>payment_afterpay_9049de8f08e66a01b91fb26e9af52ed3'] = "Adresse de livraison invalide, numéro de maison introuvable.";
+$_MODULE['<{buckaroo3}prestashop>payment_afterpay_b6d9d9454b9542fde21e2cb7f5ba054c'] = 'Adresse de facturation invalide, numéro de maison introuvable.';
+$_MODULE['<{buckaroo3}prestashop>payment_afterpay_9049de8f08e66a01b91fb26e9af52ed3'] = 'Adresse de livraison invalide, numéro de maison introuvable.';
 
 // --- Shared gender labels ---
 $_MODULE['<{buckaroo3}prestashop>payment_caa5b7a48ce4b1c1492c445446433fb5'] = 'Sexe :';

@@ -184,4 +184,3 @@ abstract class BuckarooPaymentServiceFlowTestCase extends TestCase
         );
     }
 }
-

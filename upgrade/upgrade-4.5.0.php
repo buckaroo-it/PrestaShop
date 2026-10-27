@@ -23,6 +23,7 @@ if (!defined('_PS_VERSION_')) {
 
 /**
  * @return mixed
+ *
  * @throws Exception
  */
 function upgrade_module_4_5_0($object)
@@ -35,5 +36,6 @@ function upgrade_module_4_5_0($object)
 
     $orderingRepository = new RawOrderingRepository();
     $orderingRepository->insertCountryOrdering();
+
     return true;
 }

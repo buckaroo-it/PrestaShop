@@ -120,9 +120,8 @@ abstract class Issuers
             );
 
             return $buckaroo->method($this->method)->issuers();
-        } else {
-            throw new \Exception('Buckaroo master settings not found.');
         }
+        throw new \Exception('Buckaroo master settings not found.');
     }
 
     /**

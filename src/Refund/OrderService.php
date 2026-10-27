@@ -44,7 +44,7 @@ class OrderService
      */
     public function __construct(
         CommandBusInterface $commandBus,
-        SessionInterface $session
+        SessionInterface $session,
     ) {
         $this->commandBus = $commandBus;
         $this->session = $session;
@@ -52,27 +52,26 @@ class OrderService
 
     public function refund(\Order $order, float $amount)
     {
+        $refundData = $this->determineRefundData($order, $amount);
 
-            $refundData = $this->determineRefundData($order, $amount);
+        $createCreditSlipValue = \Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
+        if (!is_scalar($createCreditSlipValue)) {
+            $createCreditSlipValue = true;
+        }
 
-            $createCreditSlipValue = \Configuration::get(Settings::LABEL_REFUND_CREDIT_SLIP, null, null, null, true);
-            if (!is_scalar($createCreditSlipValue)) {
-                $createCreditSlipValue = true;
-            }
+        $command = new IssuePartialRefundCommand(
+            $order->id,
+            $refundData['products'],
+            $refundData['shipping_amount'],
+            boolval(\Configuration::get(Settings::LABEL_REFUND_RESTOCK)),
+            (bool) $createCreditSlipValue,
+            boolval(\Configuration::get(Settings::LABEL_REFUND_VOUCHER)),
+            VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
+        );
 
-            $command = new IssuePartialRefundCommand(
-                $order->id,
-                $refundData['products'],
-                $refundData['shipping_amount'],
-                boolval(\Configuration::get(Settings::LABEL_REFUND_RESTOCK)),
-                (bool) $createCreditSlipValue,
-                boolval(\Configuration::get(Settings::LABEL_REFUND_VOUCHER)),
-                VoucherRefundType::PRODUCT_PRICES_EXCLUDING_VOUCHER_REFUND
-            );
-
-            $this->session->set('buckaroo_skip_refund', true);
-            $this->commandBus->handle($command);
-            $this->session->remove('buckaroo_skip_refund');
+        $this->session->set('buckaroo_skip_refund', true);
+        $this->commandBus->handle($command);
+        $this->session->remove('buckaroo_skip_refund');
     }
 
     /**
@@ -129,7 +128,7 @@ class OrderService
      */
     private function determineShippingRefundAmount(
         float $availableShippingAmount,
-        float $remainingRefundAmount
+        float $remainingRefundAmount,
     ): float {
         if ($remainingRefundAmount > $availableShippingAmount) {
             return $availableShippingAmount;
@@ -171,7 +170,7 @@ class OrderService
     private function getProductQuantityForRefund(
         int $quantityAvailable,
         float $unitPrice,
-        float $remainingRefundAmount
+        float $remainingRefundAmount,
     ): array {
         $productMaxRefund = $quantityAvailable * $unitPrice;
         if ($productMaxRefund <= $remainingRefundAmount) {
@@ -179,12 +178,12 @@ class OrderService
                 'amount' => $productMaxRefund,
                 'quantity' => $quantityAvailable,
             ];
-        } else {
-            return [
-                'amount' => $remainingRefundAmount,
-                'quantity' => ceil($remainingRefundAmount / $unitPrice),
-            ];
         }
+
+        return [
+            'amount' => $remainingRefundAmount,
+            'quantity' => ceil($remainingRefundAmount / $unitPrice),
+        ];
     }
 
     /**

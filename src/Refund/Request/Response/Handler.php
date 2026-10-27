@@ -49,7 +49,7 @@ class Handler
     public function __construct(
         EntityManager $entityManager,
         PaymentService $paymentService,
-        StatusService $statusService
+        StatusService $statusService,
     ) {
         $this->entityManager = $entityManager;
         $this->paymentService = $paymentService;

@@ -30,7 +30,7 @@ class IDeal extends PaymentMethod
     {
         $this->type = 'ideal';
         $this->version = 2;
-        $this->issuerIsRequired = \Module::getInstanceByName('buckaroo3')->getBuckarooConfigService()->getConfigValue($this->type, 'show_issuers') ?? true;
+        $this->issuerIsRequired = Module::getInstanceByName('buckaroo3')->getBuckarooConfigService()->getConfigValue($this->type, 'show_issuers') ?? true;
     }
 
     // @codingStandardsIgnoreStart

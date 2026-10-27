@@ -37,4 +37,3 @@ class BuckarooBancontactFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('bancontactmrcash', $options[0]->getModuleName());
     }
 }
-

@@ -30,4 +30,3 @@ class BuckarooClientFactory
         return new BuckarooClient($websiteKey, $secretKey);
     }
 }
-

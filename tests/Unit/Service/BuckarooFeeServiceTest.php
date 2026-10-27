@@ -331,4 +331,3 @@ class BuckarooFeeServiceTest extends TestCase
         $this->assertSame('paybybank', $inputs[0]['value']);
     }
 }
-

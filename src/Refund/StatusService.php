@@ -60,7 +60,7 @@ class StatusService
 
         // Check if order is fully refunded first - this takes priority
         $isFullyRefunded = $this->isReadyToBeRefunded($order);
-        
+
         if ((int) $statusRefunded > 0 && $isFullyRefunded && !$isCurrentlyRefunded) {
             $this->update($order->id, $statusRefunded);
 
