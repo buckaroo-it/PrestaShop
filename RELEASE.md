@@ -43,21 +43,13 @@ The ZIP validation checks the root structure (`buckaroo3/` only, no nested folde
 
 1. Open https://validator.prestashop.com/module/ and upload **the ZIP that will be attached to the release** (the artifact of the `Package checks` job, or `build/buckaroo3.zip` built from the release commit). Never validate a GitHub "Source code" archive: it unpacks to `PrestaShop-x.y.z/` and is not installable.
 2. Review **all** categories: Requirements, Security, Structure, Licenses, Errors, Standards and Compatibility. A report marked *Incomplete* must be re-run until every section is present.
-3. Required outcome: zero findings in Requirements, Security, Structure, Licenses and Errors. The sections below may only contain the accepted findings listed. Any other finding blocks the release. The admin controllers extend Symfony's `AbstractController` on purpose: PrestaShop's `FrameworkBundleAdminController` is deprecated and `PrestaShopAdminController` does not exist before PrestaShop 9, so do not reintroduce either.
-4. Record the validation date, the ZIP checksum (`sha256sum build/buckaroo3.zip`) and the accepted findings in the release notes.
-
-### Accepted findings
-
-| Finding | Files | Reason | Review when |
-|---|---|---|---|
-| Compatibility section: static-analysis style findings (unused properties, `ModuleCore\|false` return types, legacy `Cookie` properties, `Logger` constants resolved from `api/corelogger.php`, etc.) | various | These are pre-existing code-quality findings that do not affect installation or payment processing; they mirror the PHPStan baseline in `tests/phpstan/baseline/`. Entries are removed from the baseline as the code is cleaned up; no new findings may be added. | Continuous; review the Compatibility section on every release and track the count going down. |
-| Standards section: "An error happened during this validation step" | n/a | Failure inside the validator service itself (also present in the merchant's report of 2026-10-24). Re-run the validation; if the section keeps failing, contact the PrestaShop validator team with the report id. | Every release until the section renders. |
-
-Official validator runs for the 5.4.0 release candidate (2026-10-26, when it was still numbered 5.3.1): reports `module/3782553`, `module/3782563` and `module/3782572` (the last one on the ZIP with the admin controllers moved to Symfony's AbstractController). Final result: Requirements, Structure, Licenses, Security, Translations, Optimizations and Errors clean ("Everything looks good in this section!"). Compatibility lists 202 pre-existing static-analysis findings (tracked in the backlog, see above); Standards failed inside the validator in all three runs.
+3. Required outcome: zero findings in Requirements, Security, Structure, Licenses and Errors. Any finding there blocks the release. The admin controllers extend Symfony's `AbstractController` on purpose: PrestaShop's `FrameworkBundleAdminController` is deprecated and `PrestaShopAdminController` does not exist before PrestaShop 9, so do not reintroduce either.
+4. The Compatibility section reports static-analysis findings that mirror the PHPStan baseline in `tests/phpstan/baseline/`. Its count must not grow between releases; entries disappear as the code is cleaned up.
+5. Record the validation date and the ZIP checksum (`sha256sum build/buckaroo3.zip`) in the release notes.
 
 ## 6. Installation smoke tests
 
-Install the release ZIP through **Modules → Module Manager → Upload a module** on each supported major version (the local Docker set-up in the parent repository and the `prestashop/prestashop` images cover this):
+Install the release ZIP through **Modules → Module Manager → Upload a module** on each supported major version (the official `prestashop/prestashop` Docker images cover this):
 
 | PrestaShop | PHP | Checks |
 |---|---|---|
