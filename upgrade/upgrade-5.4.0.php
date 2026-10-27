@@ -27,7 +27,7 @@ if (!defined('_PS_VERSION_')) {
  *
  * @return bool
  */
-function upgrade_module_5_3_1($object)
+function upgrade_module_5_4_0($object)
 {
     if (Configuration::get('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL') === false) {
         Configuration::updateValue('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL', 0);

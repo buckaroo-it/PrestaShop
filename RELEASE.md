@@ -8,10 +8,10 @@ The version is declared in four places and they must be identical (`.github/scri
 
 | Location | Example |
 |---|---|
-| `buckaroo3.php` — `const MODULE_VERSION` | `'5.3.1'` |
-| `buckaroo3.php` — `$this->version` in `initializeModuleInfo()` (must stay a string literal) | `'5.3.1'` |
-| `config.xml` — `<version>` | `5.3.1` |
-| `composer.json` — `version` | `5.3.1` |
+| `buckaroo3.php` — `const MODULE_VERSION` | `'5.4.0'` |
+| `buckaroo3.php` — `$this->version` in `initializeModuleInfo()` (must stay a string literal) | `'5.4.0'` |
+| `config.xml` — `<version>` | `5.4.0` |
+| `composer.json` — `version` | `5.4.0` |
 
 Add a `## vX.Y.Z` section to `CHANGELOG.md`, add an `upgrade/upgrade-X.Y.Z.php` script when the release needs one, and keep `$this->displayName` exactly `$this->l('Buckaroo Payments')`. The module name must never carry the version or change at runtime: PrestaShop uses it in the Module Manager and regenerates `config.xml` from it.
 
@@ -53,7 +53,7 @@ The ZIP validation checks the root structure (`buckaroo3/` only, no nested folde
 | Compatibility section: static-analysis style findings (unused properties, `ModuleCore\|false` return types, legacy `Cookie` properties, `Logger` constants resolved from `api/corelogger.php`, etc.) | various | These are pre-existing code-quality findings that do not affect installation or payment processing; they mirror the PHPStan baseline in `tests/phpstan/baseline/`. Entries are removed from the baseline as the code is cleaned up; no new findings may be added. | Continuous; review the Compatibility section on every release and track the count going down. |
 | Standards section: "An error happened during this validation step" | n/a | Failure inside the validator service itself (also present in the merchant's report of 2026-10-24). Re-run the validation; if the section keeps failing, contact the PrestaShop validator team with the report id. | Every release until the section renders. |
 
-Official validator runs for 5.3.1 (2026-10-26): reports `module/3782553`, `module/3782563` and `module/3782572` (the last one on the ZIP with the admin controllers moved to Symfony's AbstractController). Final result: Requirements, Structure, Licenses, Security, Translations, Optimizations and Errors clean ("Everything looks good in this section!"). Compatibility lists 202 pre-existing static-analysis findings (tracked in the backlog, see above); Standards failed inside the validator in all three runs.
+Official validator runs for the 5.4.0 release candidate (2026-10-26, when it was still numbered 5.3.1): reports `module/3782553`, `module/3782563` and `module/3782572` (the last one on the ZIP with the admin controllers moved to Symfony's AbstractController). Final result: Requirements, Structure, Licenses, Security, Translations, Optimizations and Errors clean ("Everything looks good in this section!"). Compatibility lists 202 pre-existing static-analysis findings (tracked in the backlog, see above); Standards failed inside the validator in all three runs.
 
 ## 6. Installation smoke tests
 
