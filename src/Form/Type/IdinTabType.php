@@ -42,7 +42,7 @@ class IdinTabType extends TranslatorAwareType
     public function __construct(
         $translator,
         array $locales,
-        \Currency $defaultCurrency,
+        \Currency $defaultCurrency
     ) {
         parent::__construct($translator, $locales);
         $this->defaultCurrency = $defaultCurrency;

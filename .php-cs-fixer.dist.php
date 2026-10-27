@@ -17,6 +17,13 @@ $config = new class() extends PrestaShop\CodingStandards\CsFixer\Config {
             // under the open tag (as in PrestaShop itself and header-stamp), so
             // keep that layout.
             'blank_line_after_opening_tag' => false,
+            // Trailing commas in parameter lists need PHP 8.0; the fixer decides by
+            // the PHP it runs on, not by the project minimum (7.4). Same as the
+            // @Symfony configuration without 'parameters'.
+            'trailing_comma_in_multiline' => [
+                'after_heredoc' => true,
+                'elements' => ['array_destructuring', 'arrays', 'match'],
+            ],
         ]);
     }
 };

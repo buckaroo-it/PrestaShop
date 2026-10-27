@@ -44,7 +44,7 @@ class OrderService
      */
     public function __construct(
         CommandBusInterface $commandBus,
-        SessionInterface $session,
+        SessionInterface $session
     ) {
         $this->commandBus = $commandBus;
         $this->session = $session;
@@ -128,7 +128,7 @@ class OrderService
      */
     private function determineShippingRefundAmount(
         float $availableShippingAmount,
-        float $remainingRefundAmount,
+        float $remainingRefundAmount
     ): float {
         if ($remainingRefundAmount > $availableShippingAmount) {
             return $availableShippingAmount;
@@ -170,7 +170,7 @@ class OrderService
     private function getProductQuantityForRefund(
         int $quantityAvailable,
         float $unitPrice,
-        float $remainingRefundAmount,
+        float $remainingRefundAmount
     ): array {
         $productMaxRefund = $quantityAvailable * $unitPrice;
         if ($productMaxRefund <= $remainingRefundAmount) {

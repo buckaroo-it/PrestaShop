@@ -86,7 +86,7 @@ if (!class_exists(BuckarooPaymentServiceFlowTestable::class)) {
             $issuersPayByBank,
             $capayableIn3,
             $context,
-            $module,
+            $module
         ) {
             $this->paymentMethodRepository = $paymentMethodRepository;
             $this->bkOrderingRepository = $orderingRepository;
@@ -148,7 +148,7 @@ if (!class_exists(BuckarooPaymentServiceGetOptionsTestable::class)) {
             $issuersPayByBank,
             $capayableIn3,
             $context,
-            $module,
+            $module
         ) {
             $this->paymentMethodRepository = $paymentMethodRepository;
             $this->bkOrderingRepository = $orderingRepository;

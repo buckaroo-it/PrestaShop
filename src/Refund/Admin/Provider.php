@@ -39,7 +39,7 @@ class Provider
 
     public function __construct(
         EntityManager $entityManager,
-        Router $router,
+        Router $router
     ) {
         $this->entityManager = $entityManager;
         $this->router = $router;

@@ -55,7 +55,7 @@ class IssueStandardRefundHandler implements IssueStandardRefundHandlerInterface
         IssueStandardRefundHandlerInterface $handler,
         Handler $refundHandler,
         SessionInterface $session,
-        StatusService $statusService,
+        StatusService $statusService
     ) {
         $this->handler = $handler;
         $this->refundHandler = $refundHandler;

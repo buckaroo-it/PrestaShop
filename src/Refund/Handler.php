@@ -56,7 +56,7 @@ class Handler
         OrderRefundCalculator $orderRefundCalculator,
         RefundRequestHandler $refundHandler,
         Builder $refundBuilder,
-        RefundResponseHandler $responseHandler,
+        RefundResponseHandler $responseHandler
     ) {
         $this->orderRefundCalculator = $orderRefundCalculator;
         $this->refundHandler = $refundHandler;

@@ -46,7 +46,7 @@ class Installer implements InstallerInterface
 
     public function __construct(
         $module,
-        DatabaseTableInstaller $databaseTableInstaller,
+        DatabaseTableInstaller $databaseTableInstaller
     ) {
         $this->module = $module;
 

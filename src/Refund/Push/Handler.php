@@ -54,7 +54,7 @@ class Handler
     public function __construct(
         EntityManager $entityManager,
         PaymentService $paymentService,
-        StatusService $statusService,
+        StatusService $statusService
     ) {
         $this->request = Request::createFromGlobals();
         $this->entityManager = $entityManager;
