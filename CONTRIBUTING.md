@@ -14,17 +14,16 @@
 Every pull request runs the checks below; run them locally before opening the PR.
 
 ```bash
-composer install                      # adds the dev tools (PHPUnit, PHPStan, php-dev-tools) on top of the shipped vendor/
+composer install                      # installs the pinned dependencies plus the dev tools (PHPUnit, PHPStan, php-dev-tools)
 composer test                         # PHPUnit
 composer validate-source              # local equivalent of the PrestaShop Validator checks
 composer build-release                # builds build/buckaroo3.zip from the working tree and validates it
 _PS_ROOT_DIR_=/path/to/prestashop composer phpstan   # PHPStan, needs a PrestaShop installation
-composer install --no-dev             # restore the production vendor/ before committing
 ```
 
-The shipped `vendor/` directory is committed **without** development packages. Always run `composer install --no-dev` before committing changes under `vendor/`; the package checks fail when development packages leak into it.
+`vendor/` is **not** tracked in git. A fresh clone needs `composer install` (or `composer install --no-dev` for a shop that runs from the clone) before the module works. The versions that ship are pinned in `composer.lock`; to change a dependency, edit `composer.json`, run `composer update <package>` and commit both files. `composer.json` pins `config.platform.php` to 7.4 so updates keep resolving packages that run on PHP 7.4 whatever PHP you run Composer with.
 
-Files that must never ship in the release ZIP (tests, `dev/`, CI configuration, dotfiles) are listed in `.gitattributes` with `export-ignore`. The release ZIP is built with `git archive`, which honours that list.
+Files that must never ship in the release ZIP (tests, `dev/`, CI configuration, dotfiles) are listed in `.gitattributes` with `export-ignore`. The release ZIP is built by `.github/scripts/build-release.sh`: it exports the tree with `git archive`, which honours that list, installs the production dependencies from `composer.lock` into the export and zips the result. Merchants must install that `buckaroo3.zip` release asset; the GitHub "Source code" archives contain no `vendor/` and are not installable.
 
 ### Pull Request:
 - Open the PR to develop branch.

@@ -19,20 +19,30 @@
 #                (handy for a pre-commit validator run).
 #   <output.zip> defaults to build/buckaroo3.zip inside the module directory.
 #
-# `git archive` honours the export-ignore rules in .gitattributes, so tests,
-# dev tooling, CI files and dotfiles never end up in the package.
+# vendor/ is not tracked in git. The script exports the tree with `git archive`
+# (which honours the export-ignore rules in .gitattributes, so tests, dev
+# tooling, CI files and dotfiles never end up in the package), installs the
+# production dependencies pinned in composer.lock into the export with Composer
+# and zips the result. Requires git, php (with the zip extension) and composer.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 REF="${1:-HEAD}"
 OUT="${2:-$ROOT/build/buckaroo3.zip}"
+MODULE=buckaroo3
+
+for tool in git php composer tar; do
+    command -v "$tool" >/dev/null 2>&1 || { echo "error: '$tool' is required to build the release" >&2; exit 1; }
+done
 
 mkdir -p "$(dirname "$OUT")"
 rm -f "$OUT"
 
+WORK="$(mktemp -d)"
+TMP_INDEX="$WORK/index"
+trap 'rm -rf "$WORK"' EXIT
+
 if [ "$REF" = "--worktree" ]; then
-    TMP_INDEX="$(mktemp)"
-    trap 'rm -f "$TMP_INDEX"' EXIT
     cp "$(git -C "$ROOT" rev-parse --git-path index)" "$TMP_INDEX"
     GIT_INDEX_FILE="$TMP_INDEX" git -C "$ROOT" add -A
     TREE="$(GIT_INDEX_FILE="$TMP_INDEX" git -C "$ROOT" write-tree)"
@@ -42,7 +52,55 @@ else
     echo "Packaging $REF (tree $TREE)"
 fi
 
-git -C "$ROOT" archive --format=zip --prefix=buckaroo3/ -o "$OUT" "$TREE"
+EXPORT="$WORK/$MODULE"
+mkdir -p "$EXPORT"
+git -C "$ROOT" archive --format=tar "$TREE" | tar -x -C "$EXPORT"
+
+# composer.lock is export-ignored (it must not ship) but it pins the exact
+# dependency versions, so take it from the same tree and drop it again after
+# the install. A stale vendor/ from an older tree is never reused.
+rm -rf "$EXPORT/vendor"
+git -C "$ROOT" cat-file blob "$TREE:composer.lock" > "$EXPORT/composer.lock"
+
+echo "Installing production dependencies from composer.lock"
+composer install --working-dir="$EXPORT" --no-dev --classmap-authoritative \
+    --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts 2>&1 \
+    | tee "$WORK/composer.log"
+if grep -q "lock file is not up to date" "$WORK/composer.log"; then
+    echo "error: composer.lock is out of date with composer.json; run 'composer update --lock' and commit the result" >&2
+    exit 1
+fi
+rm -f "$EXPORT/composer.lock"
+
+# Zip with PHP so the archive is built the same way on Linux CI and on Windows,
+# where the zip CLI is not always installed. Entries are sorted for reproducibility.
+php -- "$WORK" "$MODULE" "$OUT" <<'PHP'
+<?php
+[$work, $module, $out] = array_slice($argv, 1);
+$base = $work . '/' . $module;
+$zip = new ZipArchive();
+if ($zip->open($out, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+    fwrite(STDERR, "unable to create {$out}\n");
+    exit(1);
+}
+$paths = [];
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator($base, FilesystemIterator::SKIP_DOTS),
+    RecursiveIteratorIterator::SELF_FIRST
+);
+foreach ($iterator as $file) {
+    $paths[] = str_replace(DIRECTORY_SEPARATOR, '/', substr($file->getPathname(), strlen($work) + 1));
+}
+sort($paths);
+foreach ($paths as $path) {
+    if (is_dir($work . '/' . $path)) {
+        $zip->addEmptyDir($path);
+    } else {
+        $zip->addFile($work . '/' . $path, $path);
+    }
+}
+$zip->close();
+PHP
 
 echo "Wrote $OUT ($(wc -c < "$OUT") bytes)"
 echo

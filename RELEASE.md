@@ -13,7 +13,7 @@ The version is declared in four places and they must be identical (`.github/scri
 | `config.xml` — `<version>` | `5.4.0` |
 | `composer.json` — `version` | `5.4.0` |
 
-Add a `## vX.Y.Z` section to `CHANGELOG.md`, add an `upgrade/upgrade-X.Y.Z.php` script when the release needs one, and keep `$this->displayName` exactly `$this->l('Buckaroo Payments')`. The module name must never carry the version or change at runtime: PrestaShop uses it in the Module Manager and regenerates `config.xml` from it.
+After changing the `composer.json` version run `composer update --lock` and commit `composer.lock` as well: the lock file's content hash covers the version, and the release build refuses an out-of-date lock file. Add a `## vX.Y.Z` section to `CHANGELOG.md`, add an `upgrade/upgrade-X.Y.Z.php` script when the release needs one, and keep `$this->displayName` exactly `$this->l('Buckaroo Payments')`. The module name must never carry the version or change at runtime: PrestaShop uses it in the Module Manager and regenerates `config.xml` from it.
 
 ## 2. Rebuild the admin assets (only when `dev/` changed)
 
@@ -26,10 +26,12 @@ cd dev && npm ci && npm run build
 ## 3. Build and validate the ZIP locally
 
 ```bash
-composer install --no-dev             # shipped vendor/ must not contain dev packages
+composer validate                     # composer.lock must be in sync with composer.json
 composer validate-source              # index.php files, _PS_VERSION_ guards, license headers, Smarty escaping, metadata
 composer build-release                # build/buckaroo3.zip from the working tree, then validates the ZIP
 ```
+
+`vendor/` is not tracked in git. `build-release` exports the tree with `git archive`, runs `composer install --no-dev --classmap-authoritative` inside the export using the pinned `composer.lock`, and zips the result, so the ZIP always carries the dependency versions from the lock file regardless of what is installed locally. Building needs git, PHP with the zip extension and Composer. A git clone (or the GitHub "Source code" archive) contains no `vendor/` and is not installable; merchants must use the `buckaroo3.zip` release asset.
 
 The ZIP validation checks the root structure (`buckaroo3/` only, no nested folder), required runtime files, production-only `vendor/`, compiled asset consistency, index files, guards, license headers, version consistency, metadata, static Context calls and Smarty escaping. Fix every failure before continuing.
 
@@ -78,6 +80,6 @@ For every environment verify: the upload installs without errors; the Module Man
 ## 8. Publish
 
 1. Merge to `master`, tag `vX.Y.Z` (the tag must match the module version; the `Pack on release` workflow refuses otherwise).
-2. Create the GitHub release. The workflow builds the ZIP with `git archive`, validates it and attaches `buckaroo3.zip`.
+2. Create the GitHub release. The workflow exports the release commit with `git archive`, installs the production dependencies from `composer.lock`, validates the ZIP and attaches `buckaroo3.zip`.
 3. Download the attached asset and confirm its checksum matches the ZIP that passed the official validator in step 5. If it differs, re-run the validator on the attached asset before announcing the release.
 4. Update the related GitHub issues with the release version, the validator result and the tested PrestaShop/PHP combinations.

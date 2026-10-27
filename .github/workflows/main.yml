@@ -20,6 +20,19 @@ jobs:
           php-version: '8.1'
           extensions: zip, dom, mbstring
           coverage: none
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php8.1-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php8.1-composer-
 
       - name: Check that the release tag matches the module version
         run: |
@@ -30,8 +43,10 @@ jobs:
             exit 1
           fi
 
-      # git archive honours .gitattributes export-ignore: tests, dev tooling, CI files
-      # and dotfiles are excluded. The ZIP is validated before it is attached.
+      # vendor/ is not tracked in git. The script exports the release commit with
+      # git archive (which honours .gitattributes export-ignore: tests, dev tooling,
+      # CI files and dotfiles are excluded), installs the production dependencies
+      # pinned in composer.lock and validates the ZIP before it is attached.
       - name: Build and validate release ZIP
         run: bash .github/scripts/build-release.sh "${{ github.sha }}" "${{ github.workspace }}/buckaroo3.zip"
 
