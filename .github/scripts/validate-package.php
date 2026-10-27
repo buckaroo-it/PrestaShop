@@ -32,6 +32,8 @@ const MODULE_NAME = 'buckaroo3';
 /**
  * Paths (relative to the module root) that must never ship. Prefix matches
  * directories; exact matches cover files. Keep in sync with .gitattributes.
+ * vendor/ is not tracked in git: build-release.sh installs the production
+ * packages from composer.lock, so the dev-package entries below guard the ZIP.
  */
 const FORBIDDEN_PATHS = [
     'tests/', 'dev/', '.github/', '.git/', '.idea/', 'node_modules/', 'build/',
@@ -298,10 +300,14 @@ function checkForbiddenPaths(ModuleFiles $files, Report $report): void
     $report->check('No development-only files', array_slice(array_unique($problems), 0, 50));
 }
 
-function checkRequiredFiles(ModuleFiles $files, Report $report): void
+function checkRequiredFiles(ModuleFiles $files, Report $report, bool $includeVendor): void
 {
     $problems = [];
     foreach (REQUIRED_FILES as $required) {
+        // vendor/ is not tracked in git; build-release.sh installs it from composer.lock.
+        if (!$includeVendor && strpos($required, 'vendor/') === 0) {
+            continue;
+        }
         if (!$files->has($required)) {
             $problems[] = $required;
         }
@@ -562,8 +568,12 @@ if ($mode === 'zip') {
 } elseif ($mode === 'source') {
     $target = $argv[2] ?? dirname(__DIR__, 2);
     $target = realpath($target) ?: $target;
-    echo "Validating module source {$target} (development-only paths are ignored, as git archive would)\n\n";
+    echo "Validating module source {$target} (development-only paths are ignored, as git archive would;\n"
+        . "vendor/ is skipped because build-release.sh installs it from composer.lock at package time)\n\n";
     $shipped = array_filter(listDirectory($target), static function (string $path): bool {
+        if (strpos($path, 'vendor/') === 0) {
+            return false;
+        }
         foreach (FORBIDDEN_PATHS as $forbidden) {
             $isDir = substr($forbidden, -1) === '/';
             if (($isDir && strpos($path, $forbidden) === 0) || (!$isDir && $path === $forbidden)) {
@@ -578,11 +588,11 @@ if ($mode === 'zip') {
     usage();
 }
 
-checkRequiredFiles($files, $report);
+checkRequiredFiles($files, $report, $mode === 'zip');
 if ($mode === 'zip') {
     checkForbiddenPaths($files, $report);
+    checkVendorIsProductionOnly($files, $report);
 }
-checkVendorIsProductionOnly($files, $report);
 checkFrontendChunks($files, $report);
 checkIndexFiles($files, $report);
 checkPhpGuards($files, $report);

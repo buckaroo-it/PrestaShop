@@ -8,12 +8,12 @@ The version is declared in four places and they must be identical (`.github/scri
 
 | Location | Example |
 |---|---|
-| `buckaroo3.php` — `const MODULE_VERSION` | `'5.3.1'` |
-| `buckaroo3.php` — `$this->version` in `initializeModuleInfo()` (must stay a string literal) | `'5.3.1'` |
-| `config.xml` — `<version>` | `5.3.1` |
-| `composer.json` — `version` | `5.3.1` |
+| `buckaroo3.php` — `const MODULE_VERSION` | `'5.4.0'` |
+| `buckaroo3.php` — `$this->version` in `initializeModuleInfo()` (must stay a string literal) | `'5.4.0'` |
+| `config.xml` — `<version>` | `5.4.0` |
+| `composer.json` — `version` | `5.4.0` |
 
-Add a `## vX.Y.Z` section to `CHANGELOG.md`, add an `upgrade/upgrade-X.Y.Z.php` script when the release needs one, and keep `$this->displayName` exactly `$this->l('Buckaroo Payments')`. The module name must never carry the version or change at runtime: PrestaShop uses it in the Module Manager and regenerates `config.xml` from it.
+After changing the `composer.json` version run `composer update --lock` and commit `composer.lock` as well: the lock file's content hash covers the version, and the release build refuses an out-of-date lock file. Add a `## vX.Y.Z` section to `CHANGELOG.md`, add an `upgrade/upgrade-X.Y.Z.php` script when the release needs one, and keep `$this->displayName` exactly `$this->l('Buckaroo Payments')`. The module name must never carry the version or change at runtime: PrestaShop uses it in the Module Manager and regenerates `config.xml` from it.
 
 ## 2. Rebuild the admin assets (only when `dev/` changed)
 
@@ -26,10 +26,12 @@ cd dev && npm ci && npm run build
 ## 3. Build and validate the ZIP locally
 
 ```bash
-composer install --no-dev             # shipped vendor/ must not contain dev packages
+composer validate                     # composer.lock must be in sync with composer.json
 composer validate-source              # index.php files, _PS_VERSION_ guards, license headers, Smarty escaping, metadata
 composer build-release                # build/buckaroo3.zip from the working tree, then validates the ZIP
 ```
+
+`vendor/` is not tracked in git. `build-release` exports the tree with `git archive`, runs `composer install --no-dev --classmap-authoritative` inside the export using the pinned `composer.lock`, and zips the result, so the ZIP always carries the dependency versions from the lock file regardless of what is installed locally. Building needs git, PHP with the zip extension and Composer. A git clone (or the GitHub "Source code" archive) contains no `vendor/` and is not installable; merchants must use the `buckaroo3.zip` release asset.
 
 The ZIP validation checks the root structure (`buckaroo3/` only, no nested folder), required runtime files, production-only `vendor/`, compiled asset consistency, index files, guards, license headers, version consistency, metadata, static Context calls and Smarty escaping. Fix every failure before continuing.
 
@@ -53,7 +55,7 @@ The ZIP validation checks the root structure (`buckaroo3/` only, no nested folde
 | Compatibility section: static-analysis style findings (unused properties, `ModuleCore\|false` return types, legacy `Cookie` properties, `Logger` constants resolved from `api/corelogger.php`, etc.) | various | These are pre-existing code-quality findings that do not affect installation or payment processing; they mirror the PHPStan baseline in `tests/phpstan/baseline/`. Entries are removed from the baseline as the code is cleaned up; no new findings may be added. | Continuous; review the Compatibility section on every release and track the count going down. |
 | Standards section: "An error happened during this validation step" | n/a | Failure inside the validator service itself (also present in the merchant's report of 2026-10-24). Re-run the validation; if the section keeps failing, contact the PrestaShop validator team with the report id. | Every release until the section renders. |
 
-Official validator runs for 5.3.1 (2026-10-26): reports `module/3782553`, `module/3782563` and `module/3782572` (the last one on the ZIP with the admin controllers moved to Symfony's AbstractController). Final result: Requirements, Structure, Licenses, Security, Translations, Optimizations and Errors clean ("Everything looks good in this section!"). Compatibility lists 202 pre-existing static-analysis findings (tracked in the backlog, see above); Standards failed inside the validator in all three runs.
+Official validator runs for the 5.4.0 release candidate (2026-10-26, when it was still numbered 5.3.1): reports `module/3782553`, `module/3782563` and `module/3782572` (the last one on the ZIP with the admin controllers moved to Symfony's AbstractController). Final result: Requirements, Structure, Licenses, Security, Translations, Optimizations and Errors clean ("Everything looks good in this section!"). Compatibility lists 202 pre-existing static-analysis findings (tracked in the backlog, see above); Standards failed inside the validator in all three runs.
 
 ## 6. Installation smoke tests
 
@@ -78,6 +80,6 @@ For every environment verify: the upload installs without errors; the Module Man
 ## 8. Publish
 
 1. Merge to `master`, tag `vX.Y.Z` (the tag must match the module version; the `Pack on release` workflow refuses otherwise).
-2. Create the GitHub release. The workflow builds the ZIP with `git archive`, validates it and attaches `buckaroo3.zip`.
+2. Create the GitHub release. The workflow exports the release commit with `git archive`, installs the production dependencies from `composer.lock`, validates the ZIP and attaches `buckaroo3.zip`.
 3. Download the attached asset and confirm its checksum matches the ZIP that passed the official validator in step 5. If it differs, re-run the validator on the attached asset before announcing the release.
 4. Update the related GitHub issues with the release version, the validator result and the tested PrestaShop/PHP combinations.

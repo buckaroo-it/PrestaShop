@@ -50,10 +50,13 @@ You also need a Buckaroo account. Don't have one yet? [Request an account](https
 
 ## Installation
 
-1. Go to the [releases page](https://github.com/buckaroo-it/PrestaShop/releases) and download the .ZIP file of the latest version.
+1. Go to the [releases page](https://github.com/buckaroo-it/PrestaShop/releases) and download the `buckaroo3.zip` asset of the latest version.
 2. Sign in to your PrestaShop backend and go to **Modules → Module Manager → Upload Module**.
 3. Select the .ZIP file. The installation starts automatically.
 4. Once installed, the module appears in the Payment section of the Module Manager.
+
+> [!IMPORTANT]
+> Install the `buckaroo3.zip` release asset, not the GitHub "Source code" archive. The source archive and a git clone do not contain the `vendor/` directory with the module's dependencies and cannot be installed. If you work from a clone, run `composer install --no-dev` inside the module directory first.
 
 ---
 

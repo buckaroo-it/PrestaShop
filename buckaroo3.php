@@ -53,7 +53,7 @@ class Buckaroo3 extends PaymentModule
      * config.xml and composer.json. tests/Unit/Module/ModuleMetadataTest.php and
      * .github/scripts/validate-package.php fail when they drift apart.
      */
-    const MODULE_VERSION = '5.3.1';
+    const MODULE_VERSION = '5.4.0';
 
     public $logger;
 
@@ -85,7 +85,7 @@ class Buckaroo3 extends PaymentModule
         $this->name = 'buckaroo3';
         $this->tab = 'payments_gateways';
         // PrestaShop's validator and Module Manager read the version as a string literal.
-        $this->version = '5.3.1';
+        $this->version = '5.4.0';
         $this->author = 'Buckaroo';
         $this->need_instance = 1;
         $this->bootstrap = true;

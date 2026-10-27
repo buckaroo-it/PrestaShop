@@ -8,4 +8,4 @@ tools
 dev/node_modules
 .idea
 /build
-/vendor/bin
+/vendor

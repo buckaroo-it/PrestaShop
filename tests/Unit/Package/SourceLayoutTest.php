@@ -123,6 +123,21 @@ final class SourceLayoutTest extends TestCase
         }
     }
 
+    public function testVendorIsBuiltIntoTheReleaseInsteadOfBeingCommitted(): void
+    {
+        self::assertMatchesRegularExpression('#^/vendor\s*$#m', (string) file_get_contents(self::ROOT . '/.gitignore'), 'vendor/ must be git-ignored');
+        self::assertFileExists(self::ROOT . '/composer.lock', 'composer.lock pins the shipped dependency versions');
+
+        $composer = json_decode((string) file_get_contents(self::ROOT . '/composer.json'), true);
+        self::assertSame('7.4', $composer['config']['platform']['php'] ?? null, 'dependencies must resolve for PHP 7.4 regardless of the PHP running Composer');
+
+        $build = (string) file_get_contents(self::ROOT . '/.github/scripts/build-release.sh');
+        self::assertMatchesRegularExpression('/composer install [^\n]*--no-dev/', $build, 'the release build must install production dependencies');
+        self::assertStringContainsString('--classmap-authoritative', $build);
+        self::assertStringContainsString('rm -rf "$EXPORT/vendor"', $build, 'a stale vendor/ in the export must never be reused');
+        self::assertStringContainsString('rm -f "$EXPORT/composer.lock"', $build, 'composer.lock must not ship');
+    }
+
     public function testLogDirectoryIsNotWebAccessible(): void
     {
         self::assertFileExists(self::ROOT . '/api/log/index.php');
