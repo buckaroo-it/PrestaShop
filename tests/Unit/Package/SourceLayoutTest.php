@@ -34,7 +34,7 @@ final class SourceLayoutTest extends TestCase
     private const NOT_SHIPPED = ['vendor', 'dev', 'tests', 'build', '.git', '.github', '.idea', 'node_modules'];
 
     /** Files that are export-ignored (see .gitattributes). */
-    private const NOT_SHIPPED_FILES = ['.php-cs-fixer.dist.php', '.php-cs-fixer.cache', 'phpunit.xml', '.gitattributes', '.gitignore', '.phpunit.result.cache', 'sonar-project.properties', 'README.md', 'RELEASE.md', 'CONTRIBUTING.md', 'composer.lock', 'views/img/buckaroo/README.md'];
+    private const NOT_SHIPPED_FILES = ['.php-cs-fixer.dist.php', '.php-cs-fixer.cache', 'phpunit.xml', '.gitattributes', '.gitignore', '.phpunit.result.cache', 'sonar-project.properties', 'README.md', 'RELEASE.md', 'CONTRIBUTING.md', 'composer.lock', 'scoper.inc.php', 'views/img/buckaroo/README.md'];
 
     public function testEveryShippedDirectoryHasAnIndexFile(): void
     {
@@ -114,7 +114,7 @@ final class SourceLayoutTest extends TestCase
     {
         $attributes = (string) file_get_contents(self::ROOT . '/.gitattributes');
 
-        foreach (['/tests', '/dev', '/.github', '/phpunit.xml', '/.gitignore', '/.gitattributes', '/sonar-project.properties', '/.php-cs-fixer.dist.php', '/.phpunit.result.cache', '/README.md', '/RELEASE.md', '/CONTRIBUTING.md', '/views/img/buckaroo/README.md'] as $path) {
+        foreach (['/tests', '/dev', '/.github', '/phpunit.xml', '/.gitignore', '/.gitattributes', '/sonar-project.properties', '/.php-cs-fixer.dist.php', '/.phpunit.result.cache', '/README.md', '/RELEASE.md', '/CONTRIBUTING.md', '/scoper.inc.php', '/views/img/buckaroo/README.md'] as $path) {
             self::assertMatchesRegularExpression(
                 '#^' . preg_quote($path, '#') . '\s+export-ignore#m',
                 $attributes,
@@ -138,6 +138,21 @@ final class SourceLayoutTest extends TestCase
         self::assertStringContainsString('rm -f "$EXPORT/composer.lock"', $build, 'composer.lock must not ship');
         self::assertMatchesRegularExpression('/find "\$EXPORT\/vendor" [^\n]*-name \'\.\*\' ! -name \'\.htaccess\'/', $build, 'dotfiles shipped by Composer packages must be stripped from vendor/');
         self::assertMatchesRegularExpression('/find "\$EXPORT\/vendor" -type d [^\n]*index\.php/', $build, 'every vendor/ directory must receive the index.php stub');
+    }
+
+    public function testThirdPartyDependenciesArePrefixedInTheRelease(): void
+    {
+        $build = (string) file_get_contents(self::ROOT . '/.github/scripts/build-release.sh');
+        self::assertMatchesRegularExpression('/^PHP_SCOPER_VERSION=\d+\.\d+\.\d+\r?$/m', $build, 'php-scoper must be pinned to a release');
+        self::assertMatchesRegularExpression('/^PHP_SCOPER_SHA256=[0-9a-f]{64}\r?$/m', $build, 'the php-scoper phar must be verified against a pinned checksum');
+        self::assertStringContainsString('add-prefix vendor', $build);
+        self::assertStringContainsString('composer dump-autoload --working-dir="$EXPORT" --no-dev --classmap-authoritative', $build, 'the autoloader must be rebuilt for the prefixed class names');
+
+        $config = require self::ROOT . '/scoper.inc.php';
+        self::assertSame('Buckaroo\\PrestaShop\\Vendor', $config['prefix']);
+        self::assertContains('Buckaroo', $config['exclude-namespaces'], 'the Buckaroo SDK keeps its namespace; the module refers to it directly');
+        self::assertContains('Symfony\\Polyfill', $config['exclude-namespaces']);
+        self::assertFalse($config['expose-global-functions'], 'no scoper-autoload.php aliases: the module loads vendor/autoload.php');
     }
 
     public function testModuleRootDeniesDirectPhpAccessForApache22And24(): void
