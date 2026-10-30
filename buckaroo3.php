@@ -94,7 +94,7 @@ class Buckaroo3 extends PaymentModule
         // 1.7.8 is the first PrestaShop release that runs on PHP 7.4, the module's minimum.
         $this->ps_versions_compliancy = ['min' => '1.7.8.0', 'max' => '9.2.99'];
         $this->displayName = $this->l('Buckaroo Payments');
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x up to 9.2.x');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop 1.7.8 up to 9.2.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
