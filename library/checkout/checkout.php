@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
@@ -329,7 +330,22 @@ abstract class Checkout
             throw new Exception('Payment method not found', 1);
         }
 
-        return new $class_name($cart, $context);
+        $checkout = new $class_name($cart, $context);
+        $checkout->setGatewayMode(Config::getMode($payment_method));
+
+        return $checkout;
+    }
+
+    /**
+     * Gateway mode of the method validated in request.php. The payment request
+     * may switch its SDK service (PayByBank to iDEAL), so it must not look its
+     * mode up again.
+     */
+    public function setGatewayMode(string $mode)
+    {
+        if (is_object($this->payment_request)) {
+            $this->payment_request->mode = $mode;
+        }
     }
 
     /**
