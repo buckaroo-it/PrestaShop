@@ -104,7 +104,8 @@ final class ModuleMetadataTest extends TestCase
         self::assertStringContainsString("\$this->tab = 'payments_gateways';", $source);
         self::assertSame('payments_gateways', (string) $config->tab);
         self::assertMatchesRegularExpression("/\\\$this->module_key = '[a-f0-9]{32}';/", $source);
-        self::assertStringContainsString("\$this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => '9.2.99'];", $source);
+        self::assertStringContainsString("\$this->ps_versions_compliancy = ['min' => '1.7.8.0', 'max' => '9.2.99'];", $source, '1.7.8 is the first PrestaShop release on PHP 7.4, the module minimum');
+        self::assertStringContainsString('Compatible with PrestaShop 1.7.8 up to 9.2.x', (string) $config->description);
         self::assertSame('1', (string) $config->need_instance);
     }
 

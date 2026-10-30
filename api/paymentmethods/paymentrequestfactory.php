@@ -16,6 +16,8 @@
  */
 include_once dirname(__FILE__) . '/functions.php';
 
+use Buckaroo\PrestaShop\Src\Exceptions\PaymentMethodNotFoundException;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -90,13 +92,20 @@ class PaymentRequestFactory
         PaymentRequestFactory::REQUEST_TYPE_CLICKTOPAY => 'ClickToPay',
     ];
 
+    /**
+     * @throws PaymentMethodNotFoundException when no request class exists for the method
+     */
     final public static function create($request_type_id, $data = [])
     {
+        if (!isset(self::$valid_request_types[$request_type_id])) {
+            throw new PaymentMethodNotFoundException((string) $request_type_id);
+        }
+
         $class_name = self::$valid_request_types[$request_type_id];
         autoload($class_name); // Try to find class in api directory
 
         if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', 1); // TODO: ExceptionPayment
+            throw new PaymentMethodNotFoundException((string) $request_type_id);
         }
 
         return new $class_name($data);
