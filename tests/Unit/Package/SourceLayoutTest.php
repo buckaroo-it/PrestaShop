@@ -53,7 +53,7 @@ final class SourceLayoutTest extends TestCase
         $missing = [];
         foreach ($this->shippedFiles(['php']) as $file) {
             $relative = $this->relative($file);
-            if (basename($file) === 'index.php' || preg_match('#^translations/[a-z]{2}\.php$#', $relative)) {
+            if (basename($file) === 'index.php') {
                 continue;
             }
             if (strpos((string) file_get_contents($file), "defined('_PS_VERSION_')") === false) {
@@ -137,6 +137,24 @@ final class SourceLayoutTest extends TestCase
         self::assertStringContainsString('rm -rf "$EXPORT/vendor"', $build, 'a stale vendor/ in the export must never be reused');
         self::assertStringContainsString('rm -f "$EXPORT/composer.lock"', $build, 'composer.lock must not ship');
         self::assertMatchesRegularExpression('/find "\$EXPORT\/vendor" [^\n]*-name \'\.\*\' ! -name \'\.htaccess\'/', $build, 'dotfiles shipped by Composer packages must be stripped from vendor/');
+        self::assertMatchesRegularExpression('/find "\$EXPORT\/vendor" -type d [^\n]*index\.php/', $build, 'every vendor/ directory must receive the index.php stub');
+    }
+
+    public function testModuleRootDeniesDirectPhpAccessForApache22And24(): void
+    {
+        $htaccess = (string) file_get_contents(self::ROOT . '/.htaccess');
+
+        self::assertStringContainsString('Options -Indexes', $htaccess);
+        self::assertMatchesRegularExpression('/<IfModule mod_authz_core\.c>\s*<Files \*\.php>\s*Require all denied/', $htaccess, 'Apache 2.4 rule');
+        self::assertMatchesRegularExpression('/<IfModule !mod_authz_core\.c>\s*<Files \*\.php>\s*Order allow,deny\s*Deny from all/', $htaccess, 'Apache 2.2 rule');
+    }
+
+    public function testApiDirectoryIsNotWebAccessibleOnApache22And24(): void
+    {
+        $htaccess = (string) file_get_contents(self::ROOT . '/api/.htaccess');
+
+        self::assertMatchesRegularExpression('/<IfModule mod_authz_core\.c>\s*Require all denied/', $htaccess, 'Apache 2.4 rule');
+        self::assertMatchesRegularExpression('/<IfModule !mod_authz_core\.c>\s*Order allow,deny\s*Deny from all/', $htaccess, 'Apache 2.2 rule');
     }
 
     public function testNoHiddenFilesShipOtherThanHtaccess(): void
