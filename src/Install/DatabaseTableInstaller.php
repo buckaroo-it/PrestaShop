@@ -156,6 +156,13 @@ final class DatabaseTableInstaller implements InstallerInterface
 				PRIMARY KEY (`id_order`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
+        $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_transaction_mode` (
+				`invoice`          VARCHAR(191) NOT NULL,
+				`mode`             VARCHAR(10) NOT NULL,
+				`created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+				PRIMARY KEY (`invoice`, `mode`)
+			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
         return $sql;
     }
 }

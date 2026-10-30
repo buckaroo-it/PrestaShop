@@ -41,6 +41,9 @@ class PayByBank extends PaymentMethod
             $context->cookie->__set(self::CACHE_LAST_ISSUER_LABEL, $this->issuer);
         }
 
+        // Keep PayByBank's own mode when the request is sent as iDEAL below.
+        $this->mode = $this->getGatewayMode();
+
         if ($this->issuer === 'INGBNL2A' && $context && method_exists($context, 'isMobile') && $context->isMobile()) {
             $this->type = 'ideal'; // send ideal request if issuer is ING and is on mobile
         }

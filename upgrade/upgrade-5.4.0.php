@@ -50,6 +50,18 @@ function upgrade_module_5_4_0($object)
         return false;
     }
 
+    // Gateway environment each invoice was started on; replies from the other one are rejected.
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_transaction_mode` (
+        `invoice`          VARCHAR(191) NOT NULL,
+        `mode`             VARCHAR(10) NOT NULL,
+        `created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (`invoice`, `mode`)
+    ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
+    if (!Db::getInstance()->execute($sql)) {
+        return false;
+    }
+
     // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
     (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
 

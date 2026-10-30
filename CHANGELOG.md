@@ -18,6 +18,8 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - The PHP code is formatted with PHP CS Fixer using the PrestaShop coding standard (the ruleset behind the validator's "Standards" section). The fixer is a dev dependency with `composer cs-check` / `composer cs-fix` scripts, and the check runs on every pull request.
 
 ### Security
+- BTI-1716 Each payment is sent to the gateway (live or test) of the payment method the shopper chose. PayByBank requests that are sent as iDEAL for ING on mobile used iDEAL's mode instead of PayByBank's.
+- BTI-1716 The gateway mode is stored when a payment starts, and pushes, customer returns and direct responses from the other environment (signed `brq_test` / `IsTest`) no longer change the order. Payments started before the upgrade are handled as before.
 - Buckaroo request/response log files under api/log are no longer readable over HTTP.
 - BTI-1926 Updated the shipped HTTP client used by the Buckaroo SDK: guzzlehttp/guzzle 7.10.0 to 7.16.1, guzzlehttp/psr7 2.8.0 to 2.13.2 and guzzlehttp/promises 2.3.0 to 2.6.0, which resolves the published advisories for those versions.
 

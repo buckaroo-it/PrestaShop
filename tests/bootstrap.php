@@ -174,6 +174,21 @@ if (!class_exists('Tools')) {
         {
             return strtolower($string);
         }
+
+        /** Mirrors PrestaShop: POST first, then GET. */
+        public static function getValue($key, $defaultValue = false)
+        {
+            if (isset($_POST[$key])) {
+                return $_POST[$key];
+            }
+
+            return $_GET[$key] ?? $defaultValue;
+        }
+
+        public static function isSubmit($submit)
+        {
+            return isset($_POST[$submit]) || isset($_GET[$submit]);
+        }
     }
 }
 
