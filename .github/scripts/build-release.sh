@@ -72,6 +72,17 @@ if grep -q "lock file is not up to date" "$WORK/composer.log"; then
 fi
 rm -f "$EXPORT/composer.lock"
 
+# Composer packages ship their own dotfiles (.gitignore, .editorconfig,
+# .env.example, …). The Marketplace package may not contain hidden files other
+# than .htaccess, so strip them from the installed vendor/ tree.
+find "$EXPORT/vendor" \( -name '.*' ! -name '.htaccess' \) -prune -exec rm -rf {} +
+
+# Every directory in the package must carry an index.php (PrestaShop directory
+# protection). First-party directories have one in git; the installed vendor/
+# tree gets the module's redirect stub wherever a package does not ship its own.
+STUB="$EXPORT/index.php"
+find "$EXPORT/vendor" -type d -exec sh -c 'for dir; do [ -e "$dir/index.php" ] || cp "$0" "$dir/index.php"; done' "$STUB" {} +
+
 # Zip with PHP so the archive is built the same way on Linux CI and on Windows,
 # where the zip CLI is not always installed. Entries are sorted for reproducibility.
 php -- "$WORK" "$MODULE" "$OUT" <<'PHP'
