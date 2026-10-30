@@ -27,6 +27,7 @@ use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
+use Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
@@ -307,7 +308,8 @@ class Buckaroo3 extends PaymentModule
 
         (new RefundSettings())->install();
         $this->configureOrderStates();
-        Configuration::updateValue('PS_COOKIE_SAMESITE', 'None');
+        // The shop cookie SameSite setting is left as the merchant configured it.
+        (new CookieSameSiteRestorer())->markHandled();
 
         return true;
     }

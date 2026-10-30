@@ -18,14 +18,26 @@ include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
 include_once __DIR__ . '/../../library/logger.php';
 include_once __DIR__ . '/common.php';
 
+use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 {
+    private const STATE_PARAMETER = 'bk_state';
+
     public $ssl = true;
     protected $logger;
+
+    /**
+     * True when the browser did not send the shop session cookie. Buckaroo returns the
+     * customer with a cross-site POST, and browsers leave out SameSite=Lax cookies there.
+     *
+     * @var bool
+     */
+    private $withoutSession = false;
 
     public function __construct()
     {
@@ -33,29 +45,44 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         $this->logger = new Logger(Logger::INFO, 'userreturn');
     }
 
+    public function init()
+    {
+        if (!Tools::getValue(self::STATE_PARAMETER) && !$this->context->cookie->exists()) {
+            // Writing the cookie now would replace the customer's session with an empty one.
+            $this->withoutSession = true;
+            $this->context->cookie->disallowWriting();
+        }
+
+        parent::init();
+    }
+
     /**
      * @see FrontController::initContent()
      */
     public function initContent()
     {
-        $cookie = new Cookie('ps');
         $this->logger->logInfo("\n\n\n\n***************** User return start ***********************");
 
         try {
+            $state = (string) Tools::getValue(self::STATE_PARAMETER);
+            if ($state !== '') {
+                $this->handleSignedState($state);
+
+                return;
+            }
+
             $response = ResponseFactory::getResponse();
-            $this->handleReturn($response, $cookie);
+            $this->handleReturn($response);
         } catch (Throwable $e) {
             $this->logger->logError('User return fatal: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
             ]);
-            $this->redirectToCheckoutError(
-                $this->module->l('Your payment was unsuccessful. Please try again or choose another payment method.')
-            );
+            $this->redirectToCheckoutError($this->defaultErrorMessage());
         }
     }
 
-    private function handleReturn($response, Cookie $cookie): void
+    private function handleReturn($response): void
     {
         if ($response->isValid()) {
             $this->logger->logInfo('Payment request succeeded');
@@ -103,51 +130,131 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                         'statuscode' => $response->getStatusCodeValue(),
                     ]);
                 }
-                $this->clearGiftcardCookies();
 
-                if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
-                    try {
-                        $this->context->cart->delete();
-                    } catch (Throwable $e) {
-                        $this->logger->logError('Cart delete failed: ' . $e->getMessage());
-                    }
-                }
+                $this->finishSuccess($cartId);
 
-                $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
-                    'id_cart' => $cartId,
-                    'id_module' => $this->module->id,
-                    'id_order' => $id_order,
-                    'key' => $customer->secure_key,
-                    'success' => 'true',
-                ]);
-                $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
-                Tools::redirect($redirectUrl);
-                exit;
+                return;
             }
 
-            $this->setCartCookie($cartId);
-
-            $cookie->statusMessage = $response->statusmessage ?: $this->module->l(
-                'Your payment was unsuccessful. Please try again or choose another payment method.'
-            );
-
-            $this->logger->logError('Payment failed', ['statusMessage' => $cookie->statusMessage]);
-            $msg = $response->statusmessage ?: $this->module->l(
-                'Your payment was unsuccessful. Please try again or choose another payment method.'
-            );
-
-            $this->redirectToCheckoutError($msg);
+            $msg = $response->statusmessage ?: $this->defaultErrorMessage();
+            $this->logger->logError('Payment failed', ['statusMessage' => $msg]);
+            $this->finishFailure($cartId, $msg);
 
             return;
         }
 
-        $this->setCartCookie((int) $response->getCartId());
         $this->logger->logError('Payment failed or invalid response');
-        $this->redirectToCheckoutError(
-            $response->statusmessage ?: $this->module->l(
-                'Your payment was unsuccessful. Please try again or choose another payment method.'
-            )
+        $this->finishFailure(
+            (int) $response->getCartId(),
+            $response->statusmessage ?: $this->defaultErrorMessage()
         );
+    }
+
+    /**
+     * Second leg of a return that arrived without the session: a same-site GET that carries the cookie.
+     */
+    private function handleSignedState(string $state): void
+    {
+        $data = $this->getStateSigner()->verify($state);
+
+        if ($data === null) {
+            $this->logger->logError('Invalid or expired return state');
+            $this->redirectToCheckoutError($this->defaultErrorMessage());
+
+            return;
+        }
+
+        if ($data['outcome'] === ReturnStateSigner::OUTCOME_SUCCESS) {
+            $this->finishSuccess($data['cartId']);
+
+            return;
+        }
+
+        $this->finishFailure($data['cartId'], $data['message'] ?: $this->defaultErrorMessage());
+    }
+
+    /**
+     * Session work after a successful return: clear the giftcard state and show the order confirmation.
+     */
+    private function finishSuccess(int $cartId): void
+    {
+        if ($this->withoutSession) {
+            $this->redirectWithState($cartId, ReturnStateSigner::OUTCOME_SUCCESS);
+        }
+
+        $cart = new Cart($cartId);
+        $customer = new Customer((int) $cart->id_customer);
+        $id_order = $cartId > 0 ? (int) Order::getIdByCartId($cartId) : 0;
+
+        if ($id_order <= 0 || !Validate::isLoadedObject($customer)) {
+            $this->logger->logError('Missing cart/order/customer on successful return', [
+                'cartId' => $cartId,
+                'orderId' => $id_order,
+            ]);
+            Tools::redirect('index.php?controller=order&step=1');
+            exit;
+        }
+
+        $this->clearGiftcardCookies();
+
+        if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
+            try {
+                $this->context->cart->delete();
+            } catch (Throwable $e) {
+                $this->logger->logError('Cart delete failed: ' . $e->getMessage());
+            }
+        }
+
+        $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
+            'id_cart' => $cartId,
+            'id_module' => $this->module->id,
+            'id_order' => $id_order,
+            'key' => $customer->secure_key,
+            'success' => 'true',
+        ]);
+        $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
+        Tools::redirect($redirectUrl);
+        exit;
+    }
+
+    /**
+     * Session work after a failed return: give the customer their cart back and show the message.
+     */
+    private function finishFailure(int $cartId, string $msg): void
+    {
+        if ($this->withoutSession) {
+            $this->redirectWithState($cartId, ReturnStateSigner::OUTCOME_FAILURE, $msg);
+        }
+
+        $this->setCartCookie($cartId);
+
+        $cookie = new Cookie('ps');
+        $cookie->statusMessage = $msg;
+
+        $this->redirectToCheckoutError($msg);
+    }
+
+    private function redirectWithState(int $cartId, string $outcome, string $msg = ''): void
+    {
+        $this->logger->logInfo('Return without session cookie; continuing with a signed state', [
+            'cartId' => $cartId,
+            'outcome' => $outcome,
+        ]);
+
+        Tools::redirect($this->context->link->getModuleLink('buckaroo3', 'userreturn', [
+            self::STATE_PARAMETER => $this->getStateSigner()->sign($cartId, $outcome, $msg),
+        ], true));
+        exit;
+    }
+
+    private function getStateSigner(): ReturnStateSigner
+    {
+        return new ReturnStateSigner(_COOKIE_KEY_);
+    }
+
+    private function defaultErrorMessage(): string
+    {
+        return $this->module->l('Your payment was unsuccessful. Please try again or choose another payment method.');
     }
 
     private function redirectToCheckoutError(string $msg): void
@@ -174,10 +281,18 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             return;
         }
 
+        $oldCart = new Cart($cartId);
+        if (!$this->cartBelongsToSession($oldCart)) {
+            $this->logger->logError('Cart does not belong to the current customer; cart not restored', [
+                'cartId' => $cartId,
+            ]);
+
+            return;
+        }
+
         $orderId = Order::getIdByCartId($cartId);
 
         if ($orderId) {
-            $oldCart = new Cart($cartId);
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
@@ -190,5 +305,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $this->context->cookie->id_cart = $cartId;
             $this->context->cookie->write();
         }
+    }
+
+    private function cartBelongsToSession(Cart $cart): bool
+    {
+        $customerId = (int) $cart->id_customer;
+
+        return $customerId > 0 && $customerId === (int) $this->context->customer->id;
     }
 }
