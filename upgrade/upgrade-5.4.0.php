@@ -65,5 +65,13 @@ function upgrade_module_5_4_0($object)
     // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
     (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
 
+    // Logs are written to var/logs/buckaroo3/ from now on; move the files from
+    // modules/buckaroo3/api/log/ (publicly reachable on Nginx) and drop that directory.
+    (new Buckaroo\PrestaShop\Src\Install\LogDirectoryMigrator())->migrate();
+
+    // The payment fee mode and frontend label keys carry the module prefix now;
+    // keep the merchant's values and drop the unprefixed keys.
+    (new Buckaroo\PrestaShop\Src\Install\ConfigurationKeyMigrator())->migrate();
+
     return $object->registerHook('actionOrderStatusPostUpdate');
 }

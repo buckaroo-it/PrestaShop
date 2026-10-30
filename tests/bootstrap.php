@@ -25,6 +25,24 @@ if (!defined('_PS_MODULE_DIR_')) {
     define('_PS_MODULE_DIR_', $buckarooTestModuleDir);
 }
 
+// CoreLogger writes below _PS_ROOT_DIR_ . '/var/logs/buckaroo3/'. Keep the log
+// files the tests produce out of any real tree. The legacy api/ files require
+// the Composer autoloader through _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php',
+// so that path gets a stub pointing at the real autoloader (written on every run,
+// before any test file is loaded).
+if (!defined('_PS_ROOT_DIR_')) {
+    $buckarooTestRootDir = sys_get_temp_dir() . '/buckaroo3-phpunit-root';
+    $buckarooTestVendorStub = $buckarooTestRootDir . '/modules/buckaroo3/vendor';
+    if (!is_dir($buckarooTestVendorStub)) {
+        @mkdir($buckarooTestVendorStub, 0777, true);
+    }
+    file_put_contents(
+        $buckarooTestVendorStub . '/autoload.php',
+        '<?php return require_once ' . var_export(realpath(__DIR__ . '/../vendor/autoload.php'), true) . ';'
+    );
+    define('_PS_ROOT_DIR_', $buckarooTestRootDir);
+}
+
 // Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
 if (!defined('__PS_BASE_URI__')) {
     define('__PS_BASE_URI__', '/');

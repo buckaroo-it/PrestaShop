@@ -91,9 +91,10 @@ class Buckaroo3 extends PaymentModule
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => '9.2.99'];
+        // 1.7.8 is the first PrestaShop release that runs on PHP 7.4, the module's minimum.
+        $this->ps_versions_compliancy = ['min' => '1.7.8.0', 'max' => '9.2.99'];
         $this->displayName = $this->l('Buckaroo Payments');
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x up to 9.2.x');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop 1.7.8 up to 9.2.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
@@ -258,7 +259,7 @@ class Buckaroo3 extends PaymentModule
 
         $buckarooFee = (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
         $taxData = $this->calculateTax($cart, $buckarooFee);
-        $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+        $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL);
 
         // Assign data to Smarty
         $this->context->smarty->assign([
@@ -831,7 +832,7 @@ class Buckaroo3 extends PaymentModule
             Media::addJsDef([
                 'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
                 'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
-                'paymentFeeLabel' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
+                'paymentFeeLabel' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
                 'buckarooMessages' => [
                     'validation' => [
                         'date' => $this->l('Please enter correct birthdate date'),
@@ -1402,7 +1403,7 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeTaxExcl = $buckarooFee['buckaroo_fee_tax_excl'];
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
 
-            $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+            $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL);
             $currency = new Currency($order->id_currency);
             $priceFormatter = $this->getPriceFormatter();
             $currencyIsoCode = !empty($currency->iso_code) ? (string) $currency->iso_code : null;
@@ -1438,7 +1439,7 @@ class Buckaroo3 extends PaymentModule
             $taxData = $this->calculateTax($order, $buckarooFee);
 
             $this->context->smarty->assign([
-                'payment_fee_label' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
+                'payment_fee_label' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
                 'order_buckaroo_fee' => $this->formatPrice($taxData['feeInclTax']),
                 'order_buckaroo_fee_tax' => $this->formatPrice($taxData['taxAmount']),
             ]);
