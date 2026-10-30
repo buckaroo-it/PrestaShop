@@ -15,6 +15,7 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - BTI-1916 The release ZIP is now produced with git archive and validated automatically before it is attached to a release. Development files (tests, dev tooling, CI configuration, dotfiles) are no longer shipped.
 - BTI-1916 Added PHPStan (PrestaShop 1.7.8, 8 and 9), a multi-version PHPUnit run and package checks to the pull request pipeline, plus a release checklist (RELEASE.md) that requires an official validator run.
 - BTI-1931 The Composer vendor directory is no longer committed. The release ZIP is built by installing the dependencies pinned in composer.lock (with `composer install --no-dev --classmap-authoritative`) into the exported tree, so the shipped packages always match the lock file. A git clone now needs `composer install --no-dev` before the module works; merchants must install the buckaroo3.zip release asset, not the GitHub "Source code" archive.
+- BTI-1730 The release ZIP no longer ships README files, the PrestaShop 1.4 `logo.gif` (the order state icon moved to `views/img/order-state.gif`) or dotfiles from Composer packages; the package validator fails on any hidden file other than `.htaccess`.
 - The PHP code is formatted with PHP CS Fixer using the PrestaShop coding standard (the ruleset behind the validator's "Standards" section). The fixer is a dev dependency with `composer cs-check` / `composer cs-fix` scripts, and the check runs on every pull request.
 
 ### Security

@@ -33,8 +33,8 @@ final class SourceLayoutTest extends TestCase
     /** Directories that are not part of the release package. */
     private const NOT_SHIPPED = ['vendor', 'dev', 'tests', 'build', '.git', '.github', '.idea', 'node_modules'];
 
-    /** Root files that are export-ignored (see .gitattributes). */
-    private const NOT_SHIPPED_FILES = ['.php-cs-fixer.dist.php', 'phpunit.xml', '.gitattributes', '.gitignore', '.phpunit.result.cache', 'sonar-project.properties', 'RELEASE.md', 'CONTRIBUTING.md', 'composer.lock'];
+    /** Files that are export-ignored (see .gitattributes). */
+    private const NOT_SHIPPED_FILES = ['.php-cs-fixer.dist.php', '.php-cs-fixer.cache', 'phpunit.xml', '.gitattributes', '.gitignore', '.phpunit.result.cache', 'sonar-project.properties', 'README.md', 'RELEASE.md', 'CONTRIBUTING.md', 'composer.lock', 'views/img/buckaroo/README.md'];
 
     public function testEveryShippedDirectoryHasAnIndexFile(): void
     {
@@ -114,7 +114,7 @@ final class SourceLayoutTest extends TestCase
     {
         $attributes = (string) file_get_contents(self::ROOT . '/.gitattributes');
 
-        foreach (['/tests', '/dev', '/.github', '/phpunit.xml', '/.gitignore', '/.gitattributes', '/sonar-project.properties', '/.php-cs-fixer.dist.php', '/.phpunit.result.cache', '/RELEASE.md', '/CONTRIBUTING.md'] as $path) {
+        foreach (['/tests', '/dev', '/.github', '/phpunit.xml', '/.gitignore', '/.gitattributes', '/sonar-project.properties', '/.php-cs-fixer.dist.php', '/.phpunit.result.cache', '/README.md', '/RELEASE.md', '/CONTRIBUTING.md', '/views/img/buckaroo/README.md'] as $path) {
             self::assertMatchesRegularExpression(
                 '#^' . preg_quote($path, '#') . '\s+export-ignore#m',
                 $attributes,
@@ -136,6 +136,27 @@ final class SourceLayoutTest extends TestCase
         self::assertStringContainsString('--classmap-authoritative', $build);
         self::assertStringContainsString('rm -rf "$EXPORT/vendor"', $build, 'a stale vendor/ in the export must never be reused');
         self::assertStringContainsString('rm -f "$EXPORT/composer.lock"', $build, 'composer.lock must not ship');
+        self::assertMatchesRegularExpression('/find "\$EXPORT\/vendor" [^\n]*-name \'\.\*\' ! -name \'\.htaccess\'/', $build, 'dotfiles shipped by Composer packages must be stripped from vendor/');
+    }
+
+    public function testNoHiddenFilesShipOtherThanHtaccess(): void
+    {
+        $hidden = [];
+        foreach ($this->iterator() as $file) {
+            $name = $file->getFilename();
+            if ($name[0] === '.' && $name !== '.htaccess') {
+                $hidden[] = $this->relative($file->getPathname());
+            }
+        }
+
+        self::assertSame([], $hidden, "Hidden files in the shipped tree:\n" . implode("\n", $hidden));
+    }
+
+    public function testLegacyRootLogoGifIsReplacedByTheOrderStateIcon(): void
+    {
+        self::assertFileDoesNotExist(self::ROOT . '/logo.gif', 'logo.gif is a PrestaShop 1.4 leftover; only logo.png is the module logo');
+        self::assertFileExists(self::ROOT . '/views/img/order-state.gif', 'the icon copied to img/os/ for the Buckaroo order state');
+        self::assertStringContainsString("'/views/img/order-state.gif'", (string) file_get_contents(self::ROOT . '/buckaroo3.php'));
     }
 
     public function testLogDirectoryIsNotWebAccessible(): void

@@ -72,6 +72,11 @@ if grep -q "lock file is not up to date" "$WORK/composer.log"; then
 fi
 rm -f "$EXPORT/composer.lock"
 
+# Composer packages ship their own dotfiles (.gitignore, .editorconfig,
+# .env.example, …). The Marketplace package may not contain hidden files other
+# than .htaccess, so strip them from the installed vendor/ tree.
+find "$EXPORT/vendor" \( -name '.*' ! -name '.htaccess' \) -prune -exec rm -rf {} +
+
 # Zip with PHP so the archive is built the same way on Linux CI and on Windows,
 # where the zip CLI is not always installed. Entries are sorted for reproducibility.
 php -- "$WORK" "$MODULE" "$OUT" <<'PHP'

@@ -374,7 +374,7 @@ class Buckaroo3 extends PaymentModule
 
     private function copyLogo($stateId)
     {
-        $source = dirname(__FILE__) . '/logo.gif';
+        $source = dirname(__FILE__) . '/views/img/order-state.gif';
         $destination = dirname(__FILE__) . '/../../img/os/' . (int) $stateId . '.gif';
         if (!file_exists($destination)) {
             copy($source, $destination);
