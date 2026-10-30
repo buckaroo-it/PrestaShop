@@ -1,3 +1,6 @@
+# Shell scripts run on Linux (CI, containers) as well as in Git Bash: keep them LF on every checkout.
+*.sh text eol=lf
+
 # Files and directories that must never ship in the release ZIP.
 # The release ZIP is produced with `git archive` (see .github/scripts/build-release.sh),
 # which honours these export-ignore rules. Keep this list in sync with
@@ -11,6 +14,7 @@
 /CONTRIBUTING.md    export-ignore
 /README.md          export-ignore
 /RELEASE.md         export-ignore
+/scoper.inc.php     export-ignore
 /views/img/buckaroo/README.md export-ignore
 /dev                export-ignore
 /phpstan.neon.dist  export-ignore

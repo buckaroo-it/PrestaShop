@@ -31,9 +31,24 @@ REF="${1:-HEAD}"
 OUT="${2:-$ROOT/build/buckaroo3.zip}"
 MODULE=buckaroo3
 
-for tool in git php composer tar; do
+for tool in git php composer tar curl sha256sum; do
     command -v "$tool" >/dev/null 2>&1 || { echo "error: '$tool' is required to build the release" >&2; exit 1; }
 done
+
+# php-scoper release used to prefix the third-party namespaces (see scoper.inc.php).
+# The phar is cached in build/ and verified against the checksum published with
+# the GitHub release before it is run. php-scoper itself needs PHP 8.2 or newer;
+# point PHP_SCOPER_PHP at such a binary when the default php is older (the
+# ZIP content stays PHP 7.4 compatible whatever PHP runs the build).
+PHP_SCOPER_VERSION=0.18.20
+PHP_SCOPER_SHA256=5e35e4a89ea53b2c70a19bfa8a856e4f9080aa12eb13a5bce650bb69d08eb122
+PHP_SCOPER="$ROOT/build/php-scoper-$PHP_SCOPER_VERSION.phar"
+PHP_SCOPER_PHP="${PHP_SCOPER_PHP:-php}"
+if ! "$PHP_SCOPER_PHP" -r 'exit(PHP_VERSION_ID >= 80200 ? 0 : 1);'; then
+    echo "error: php-scoper $PHP_SCOPER_VERSION needs PHP 8.2 or newer, found $("$PHP_SCOPER_PHP" -r 'echo PHP_VERSION;')." >&2
+    echo "       Set PHP_SCOPER_PHP to a PHP 8.2+ binary, e.g. PHP_SCOPER_PHP=/usr/bin/php8.3 $0 $*" >&2
+    exit 1
+fi
 
 mkdir -p "$(dirname "$OUT")"
 rm -f "$OUT"
@@ -71,6 +86,35 @@ if grep -q "lock file is not up to date" "$WORK/composer.log"; then
     exit 1
 fi
 rm -f "$EXPORT/composer.lock"
+
+# PrestaShop loads its own Guzzle, Monolog, PSR and Symfony packages before any
+# module, so the copies in vendor/ only run when their namespaces differ from
+# the core's. Prefix every third-party namespace with Buckaroo\PrestaShop\Vendor
+# (the module's own code and the Buckaroo SDK keep their names), then rebuild
+# the Composer autoloader for the prefixed class names.
+if [ ! -f "$PHP_SCOPER" ] || ! echo "$PHP_SCOPER_SHA256  $PHP_SCOPER" | sha256sum -c --status -; then
+    echo "Downloading php-scoper $PHP_SCOPER_VERSION"
+    mkdir -p "$(dirname "$PHP_SCOPER")"
+    curl -fsSL -o "$PHP_SCOPER" "https://github.com/humbug/php-scoper/releases/download/$PHP_SCOPER_VERSION/php-scoper.phar"
+    if ! echo "$PHP_SCOPER_SHA256  $PHP_SCOPER" | sha256sum -c --status -; then
+        rm -f "$PHP_SCOPER"
+        echo "error: php-scoper.phar does not match the pinned checksum" >&2
+        exit 1
+    fi
+fi
+
+echo "Prefixing third-party namespaces with php-scoper $PHP_SCOPER_VERSION"
+SCOPED="$WORK/scoped"
+(cd "$EXPORT" && BUCKAROO_SCOPER_VENDOR_DIR="$EXPORT/vendor" "$PHP_SCOPER_PHP" "$PHP_SCOPER" add-prefix vendor \
+    --config "$ROOT/scoper.inc.php" --output-dir "$SCOPED" --force --stop-on-failure --no-interaction --quiet)
+rm -rf "$EXPORT/vendor"
+if [ -d "$SCOPED/vendor" ]; then
+    mv "$SCOPED/vendor" "$EXPORT/vendor"
+else
+    mv "$SCOPED" "$EXPORT/vendor"
+fi
+composer dump-autoload --working-dir="$EXPORT" --no-dev --classmap-authoritative \
+    --no-interaction --no-plugins --no-scripts --quiet
 
 # Composer packages ship their own dotfiles (.gitignore, .editorconfig,
 # .env.example, …). The Marketplace package may not contain hidden files other
