@@ -33,6 +33,9 @@ final class SourceLayoutTest extends TestCase
     /** Directories that are not part of the release package. */
     private const NOT_SHIPPED = ['vendor', 'dev', 'tests', 'build', '.git', '.github', '.idea', 'node_modules'];
 
+    /** Nested directories that are not shipped either: api/log is the pre-5.4.0 log location, which may still hold local files. */
+    private const NOT_SHIPPED_DIRS = ['api/log'];
+
     /** Root files that are export-ignored (see .gitattributes). */
     private const NOT_SHIPPED_FILES = ['.php-cs-fixer.dist.php', 'phpunit.xml', '.gitattributes', '.gitignore', '.phpunit.result.cache', 'sonar-project.properties', 'RELEASE.md', 'CONTRIBUTING.md', 'composer.lock'];
 
@@ -138,11 +141,18 @@ final class SourceLayoutTest extends TestCase
         self::assertStringContainsString('rm -f "$EXPORT/composer.lock"', $build, 'composer.lock must not ship');
     }
 
-    public function testLogDirectoryIsNotWebAccessible(): void
+    public function testLogsAreWrittenOutsideThePublicModuleDirectory(): void
     {
-        self::assertFileExists(self::ROOT . '/api/log/index.php');
-        self::assertFileExists(self::ROOT . '/api/log/.htaccess');
-        self::assertMatchesRegularExpression('/deny/i', (string) file_get_contents(self::ROOT . '/api/log/.htaccess'));
+        self::assertFileDoesNotExist(self::ROOT . '/api/log/index.php', 'api/log/ is no longer shipped; logs live in var/logs/buckaroo3/');
+        self::assertFileDoesNotExist(self::ROOT . '/api/log/.htaccess');
+
+        if (!defined('_PS_ROOT_DIR_')) {
+            define('_PS_ROOT_DIR_', sys_get_temp_dir() . '/buckaroo3-shop-root');
+        }
+        require_once self::ROOT . '/api/corelogger.php';
+
+        self::assertSame(_PS_ROOT_DIR_ . '/var/logs/buckaroo3/', \CoreLogger::logDirectory());
+        self::assertStringNotContainsString('/modules/', str_replace('\\', '/', \CoreLogger::logDirectory()));
     }
 
     /**
@@ -192,7 +202,8 @@ final class SourceLayoutTest extends TestCase
                         return !in_array($relative, self::NOT_SHIPPED_FILES, true);
                     }
 
-                    return !in_array(explode('/', $relative)[0], self::NOT_SHIPPED, true);
+                    return !in_array(explode('/', $relative)[0], self::NOT_SHIPPED, true)
+                        && !in_array($relative, self::NOT_SHIPPED_DIRS, true);
                 }
             ),
             \RecursiveIteratorIterator::SELF_FIRST

@@ -41,6 +41,8 @@ const FORBIDDEN_PATHS = [
     '.php-cs-fixer.cache', 'phpunit.xml', 'phpunit.xml.dist', 'phpstan.neon', 'phpstan.neon.dist',
     'phpstan-baseline.neon', 'sonar-project.properties', 'CONTRIBUTING.md', 'RELEASE.md',
     'composer.lock', '.DS_Store', 'Thumbs.db', '.env',
+    // pre-5.4.0 log location; logs live in var/logs/buckaroo3/ under the shop root now
+    'api/log/',
     // development-only Composer packages that must not leak into the shipped vendor/
     'vendor/phpunit/', 'vendor/phpstan/', 'vendor/prestashop/php-dev-tools/', 'vendor/bin/',
     'vendor/sebastian/', 'vendor/phpspec/', 'vendor/myclabs/', 'vendor/nikic/php-parser/',
@@ -57,7 +59,7 @@ const REQUIRED_FILES = [
     'src/Install/Installer.php', 'src/Service/BuckarooPaymentService.php', 'src/Service/BuckarooFeeService.php',
     'views/js/buckaroo.vue.js', 'views/css/buckaroo3.vue.css', 'views/templates/admin/app.tpl',
     'views/templates/hook/payment-fee-table.tpl', 'mails/en/order_conf.html', 'mails/en/order_conf.txt',
-    'translations/en.php', 'upgrade/index.php', 'api/log/index.php', 'api/log/.htaccess',
+    'translations/en.php', 'upgrade/index.php',
 ];
 
 /** Directories that are not expected to carry index.php files. */
@@ -293,7 +295,7 @@ function checkForbiddenPaths(ModuleFiles $files, Report $report): void
                 break;
             }
         }
-        if (preg_match('#(^|/)(\.DS_Store|Thumbs\.db)$#', $path) || preg_match('#^api/log/.+\.txt$#', $path)) {
+        if (preg_match('#(^|/)(\.DS_Store|Thumbs\.db)$#', $path)) {
             $problems[] = $path;
         }
     }

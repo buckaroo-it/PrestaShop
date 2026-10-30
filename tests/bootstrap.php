@@ -25,6 +25,12 @@ if (!defined('_PS_MODULE_DIR_')) {
     define('_PS_MODULE_DIR_', $buckarooTestModuleDir);
 }
 
+// CoreLogger writes below _PS_ROOT_DIR_ . '/var/logs/buckaroo3/'. Keep the log
+// files the tests produce out of any real tree.
+if (!defined('_PS_ROOT_DIR_')) {
+    define('_PS_ROOT_DIR_', sys_get_temp_dir() . '/buckaroo3-phpunit-root');
+}
+
 // Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
 if (!defined('__PS_BASE_URI__')) {
     define('__PS_BASE_URI__', '/');

@@ -65,5 +65,9 @@ function upgrade_module_5_4_0($object)
     // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
     (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
 
+    // Logs are written to var/logs/buckaroo3/ from now on; move the files from
+    // modules/buckaroo3/api/log/ (publicly reachable on Nginx) and drop that directory.
+    (new Buckaroo\PrestaShop\Src\Install\LogDirectoryMigrator())->migrate();
+
     return $object->registerHook('actionOrderStatusPostUpdate');
 }
