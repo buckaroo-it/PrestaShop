@@ -28,7 +28,9 @@ class CoreLogger
     public const ERROR = '3';
 
     public const LOG = true;
-    public const LOG_DIR = '/log/';
+
+    /** Log directory below the shop root, outside the public module directory. */
+    public const LOG_DIR = '/var/logs/buckaroo3/';
 
     public static $log_level = [
         self::DEBUG => 'Debug',
@@ -70,13 +72,25 @@ class CoreLogger
     }
 
     /**
+     * Absolute log directory. PrestaShop's var/ is denied over HTTP by the core
+     * var/.htaccess on Apache and by the recommended Nginx configuration, so the
+     * logs are never downloadable, unlike files inside modules/buckaroo3/.
+     */
+    public static function logDirectory(): string
+    {
+        $root = defined('_PS_ROOT_DIR_') ? _PS_ROOT_DIR_ : dirname(__DIR__, 3);
+
+        return rtrim($root, '/\\') . self::LOG_DIR;
+    }
+
+    /**
      * Append to a log file. Logging must never break the module: PrestaShop 9.1+
      * rejects a module as invalid if a warning is raised while it is loaded
-     * (e.g. when api/log/ is missing on a fresh install).
+     * (e.g. when the log directory cannot be created on a fresh install).
      */
     private function write($filename, $content)
     {
-        $dir = dirname(__FILE__) . self::LOG_DIR;
+        $dir = self::logDirectory();
         if (!is_dir($dir) && !@mkdir($dir, 0755, true) && !is_dir($dir)) {
             return;
         }
