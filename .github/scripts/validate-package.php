@@ -60,11 +60,15 @@ const REQUIRED_FILES = [
     'translations/en.php', 'upgrade/index.php', 'api/log/index.php', 'api/log/.htaccess',
 ];
 
-/** Directories that are not expected to carry index.php files. */
-const INDEX_EXEMPT_PREFIXES = ['vendor/'];
+/**
+ * Directories that are not expected to carry index.php files. vendor/ is not
+ * exempt: build-release.sh writes the index.php stub into every directory of
+ * the installed vendor/ tree, so the ZIP check covers it too.
+ */
+const INDEX_EXEMPT_PREFIXES = [];
 
 /** PHP files that legitimately have no _PS_VERSION_ guard. */
-const GUARD_EXEMPT_PATTERNS = ['#(^|/)index\.php$#', '#^translations/[a-z]{2}\.php$#', '#^vendor/#'];
+const GUARD_EXEMPT_PATTERNS = ['#(^|/)index\.php$#', '#^vendor/#'];
 
 /** Files that must carry the Buckaroo license header. */
 const LICENSE_EXTENSIONS = ['php', 'js', 'tpl'];
