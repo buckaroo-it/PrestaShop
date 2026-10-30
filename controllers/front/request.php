@@ -33,6 +33,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public $display_column_right = false;
     protected $logger;
     private RawPaymentMethodRepository $paymentMethodRepository;
+    /** Card brand/issuer validated for a credit card payment, handed to the checkout explicitly. */
+    private string $creditCardIssuer = '';
 
     public function __construct()
     {
@@ -302,8 +304,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return false;
         }
 
-        // Keep a single POST field so checkout/pay always see the same issuer.
-        $_POST['BPE_CreditCard'] = $issuer;
+        // The checkout receives this value explicitly (see initializeCheckout), so
+        // checkout and pay always use the issuer validated here.
+        $this->creditCardIssuer = $issuer;
 
         return true;
     }
@@ -351,6 +354,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         try {
             $this->checkout = Checkout::getInstance($payment_method, $cart, $this->context);
+            if ($this->checkout instanceof CreditCardCheckout) {
+                $this->checkout->setIssuer($this->creditCardIssuer);
+            }
             $this->setCheckoutProperties();
             $this->setCheckoutUrls();
         } catch (Exception $e) {

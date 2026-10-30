@@ -185,6 +185,12 @@ if (!class_exists('Tools')) {
             return $_GET[$key] ?? $defaultValue;
         }
 
+        /** Mirrors PrestaShop: POST wins over GET. */
+        public static function getAllValues()
+        {
+            return $_POST + $_GET;
+        }
+
         public static function isSubmit($submit)
         {
             return isset($_POST[$submit]) || isset($_GET[$submit]);
