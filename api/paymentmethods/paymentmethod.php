@@ -21,6 +21,7 @@ require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
+use Buckaroo\PrestaShop\Src\Repository\RawTransactionModeRepository;
 use PrestaShop\Decimal\DecimalNumber;
 
 if (!defined('_PS_VERSION_')) {
@@ -118,11 +119,39 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $this->payload = array_merge($basePayload, $this->payload);
 
-        $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
+        $mode = $this->getGatewayMode();
+        // Pushes and returns for this invoice must come from the same gateway.
+        $this->recordGatewayMode((string) $this->invoiceId, $mode);
+
+        $buckaroo = $this->getBuckarooClient($mode);
         // Pay
         $response = $buckaroo->method($this->type)->$payAction($this->payload);
 
-        return ResponseFactory::getResponse($response);
+        $result = ResponseFactory::getResponse($response);
+        $result->setGatewayMode($mode);
+
+        return $result;
+    }
+
+    /**
+     * Gateway mode of the method the shopper chose. The checkout sets it from the
+     * method validated in request.php, because the SDK type can differ from it
+     * (PayByBank sends an iDEAL request for ING on mobile).
+     *
+     * @throws Exception
+     */
+    protected function getGatewayMode(): string
+    {
+        if (is_string($this->mode) && $this->mode !== '') {
+            return $this->mode;
+        }
+
+        return Config::getMode($this->type);
+    }
+
+    protected function recordGatewayMode(string $invoice, string $mode): void
+    {
+        (new RawTransactionModeRepository())->record($invoice, $mode);
     }
 
     /**
