@@ -50,5 +50,8 @@ function upgrade_module_5_4_0($object)
         return false;
     }
 
+    // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
+    (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
+
     return $object->registerHook('actionOrderStatusPostUpdate');
 }

@@ -44,14 +44,21 @@ class Uninstaller
      */
     private $module;
 
+    /**
+     * @var CookieSameSiteRestorer
+     */
+    private $cookieSameSiteRestorer;
+
     public function __construct(
         $module,
         UninstallerInterface $databaseUninstaller,
-        UninstallerInterface $idinColumnsRemover
+        UninstallerInterface $idinColumnsRemover,
+        ?CookieSameSiteRestorer $cookieSameSiteRestorer = null
     ) {
         $this->module = $module;
         $this->databaseUninstaller = $databaseUninstaller;
         $this->idinColumnsRemover = $idinColumnsRemover;
+        $this->cookieSameSiteRestorer = $cookieSameSiteRestorer ?: new CookieSameSiteRestorer();
     }
 
     public function uninstall()
@@ -59,6 +66,10 @@ class Uninstaller
         foreach ($this->getHooks() as $hook) {
             $this->module->unregisterHook($hook);
         }
+
+        // Shops that never ran the 5.4.0 upgrade still have the None set by older versions.
+        $this->cookieSameSiteRestorer->restore();
+        $this->cookieSameSiteRestorer->forget();
 
         $this->deleteConfig();
 
