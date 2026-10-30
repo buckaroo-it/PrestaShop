@@ -39,8 +39,8 @@ const FORBIDDEN_PATHS = [
     'tests/', 'dev/', '.github/', '.git/', '.idea/', 'node_modules/', 'build/',
     '.gitignore', '.gitattributes', '.phpunit.result.cache', '.php-cs-fixer.dist.php',
     '.php-cs-fixer.cache', 'phpunit.xml', 'phpunit.xml.dist', 'phpstan.neon', 'phpstan.neon.dist',
-    'phpstan-baseline.neon', 'sonar-project.properties', 'CONTRIBUTING.md', 'RELEASE.md',
-    'composer.lock', '.DS_Store', 'Thumbs.db', '.env',
+    'phpstan-baseline.neon', 'sonar-project.properties', 'CONTRIBUTING.md', 'README.md', 'RELEASE.md',
+    'views/img/buckaroo/README.md', 'composer.lock', '.DS_Store', 'Thumbs.db', '.env',
     // development-only Composer packages that must not leak into the shipped vendor/
     'vendor/phpunit/', 'vendor/phpstan/', 'vendor/prestashop/php-dev-tools/', 'vendor/bin/',
     'vendor/sebastian/', 'vendor/phpspec/', 'vendor/myclabs/', 'vendor/nikic/php-parser/',
@@ -48,7 +48,7 @@ const FORBIDDEN_PATHS = [
 
 /** Files that must exist for the module to install and run. */
 const REQUIRED_FILES = [
-    'buckaroo3.php', 'config.xml', 'index.php', 'logo.png', 'logo.gif', 'composer.json',
+    'buckaroo3.php', 'config.xml', 'index.php', 'logo.png', 'views/img/order-state.gif', 'composer.json',
     'vendor/autoload.php', 'vendor/composer/autoload_real.php', 'vendor/buckaroo/sdk/composer.json',
     'config/services.yml', 'config/front/services.yml', 'config/routes.yml', 'config/admin/routes.yml',
     'controllers/front/request.php', 'controllers/front/return.php', 'controllers/front/userreturn.php',
@@ -60,11 +60,15 @@ const REQUIRED_FILES = [
     'translations/en.php', 'upgrade/index.php', 'api/log/index.php', 'api/log/.htaccess',
 ];
 
-/** Directories that are not expected to carry index.php files. */
-const INDEX_EXEMPT_PREFIXES = ['vendor/'];
+/**
+ * Directories that are not expected to carry index.php files. vendor/ is not
+ * exempt: build-release.sh writes the index.php stub into every directory of
+ * the installed vendor/ tree, so the ZIP check covers it too.
+ */
+const INDEX_EXEMPT_PREFIXES = [];
 
 /** PHP files that legitimately have no _PS_VERSION_ guard. */
-const GUARD_EXEMPT_PATTERNS = ['#(^|/)index\.php$#', '#^translations/[a-z]{2}\.php$#', '#^vendor/#'];
+const GUARD_EXEMPT_PATTERNS = ['#(^|/)index\.php$#', '#^vendor/#'];
 
 /** Files that must carry the Buckaroo license header. */
 const LICENSE_EXTENSIONS = ['php', 'js', 'tpl'];
@@ -298,6 +302,26 @@ function checkForbiddenPaths(ModuleFiles $files, Report $report): void
         }
     }
     $report->check('No development-only files', array_slice(array_unique($problems), 0, 50));
+}
+
+/**
+ * The Marketplace package may not carry hidden files or directories; .htaccess
+ * is the only dotfile with a runtime purpose. Composer packages ship their own
+ * dotfiles (.gitignore, .editorconfig, .env.example, …), which build-release.sh
+ * strips from vendor/ after the install.
+ */
+function checkNoHiddenFiles(ModuleFiles $files, Report $report): void
+{
+    $problems = [];
+    foreach ($files->paths() as $path) {
+        foreach (explode('/', $path) as $segment) {
+            if ($segment !== '' && $segment[0] === '.' && $segment !== '.htaccess') {
+                $problems[] = $path;
+                break;
+            }
+        }
+    }
+    $report->check('No hidden files other than .htaccess', array_slice($problems, 0, 50));
 }
 
 function checkRequiredFiles(ModuleFiles $files, Report $report, bool $includeVendor): void
@@ -593,6 +617,7 @@ if ($mode === 'zip') {
     checkForbiddenPaths($files, $report);
     checkVendorIsProductionOnly($files, $report);
 }
+checkNoHiddenFiles($files, $report);
 checkFrontendChunks($files, $report);
 checkIndexFiles($files, $report);
 checkPhpGuards($files, $report);
