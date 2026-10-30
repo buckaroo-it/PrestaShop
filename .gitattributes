@@ -9,7 +9,9 @@
 /.php-cs-fixer.dist.php export-ignore
 /.phpunit.result.cache export-ignore
 /CONTRIBUTING.md    export-ignore
+/README.md          export-ignore
 /RELEASE.md         export-ignore
+/views/img/buckaroo/README.md export-ignore
 /dev                export-ignore
 /phpstan.neon.dist  export-ignore
 /phpstan-baseline.neon export-ignore
