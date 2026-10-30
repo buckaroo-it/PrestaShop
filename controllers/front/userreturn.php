@@ -311,6 +311,6 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     {
         $customerId = (int) $cart->id_customer;
 
-        return $customerId > 0 && $customerId === (int) $this->context->cookie->id_customer;
+        return $customerId > 0 && $customerId === (int) $this->context->customer->id;
     }
 }
