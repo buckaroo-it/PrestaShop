@@ -95,7 +95,7 @@ abstract class Checkout
         self::CHECKOUT_TYPE_SWISH => 'Swish',
         self::CHECKOUT_TYPE_BIZUM => 'Bizum',
         self::CHECKOUT_TYPE_WERO => 'Wero',
-        self::CHECKOUT_TYPE_CLICKTOPAY => 'ClickToPay'
+        self::CHECKOUT_TYPE_CLICKTOPAY => 'ClickToPay',
     ];
 
     protected $payment_request;
@@ -135,7 +135,7 @@ abstract class Checkout
             // Hand the controller context down so the request never resolves it statically.
             $this->payment_request->setContext($context);
         }
-        $this->module = \Module::getInstanceByName('buckaroo3');
+        $this->module = Module::getInstanceByName('buckaroo3');
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
@@ -172,10 +172,10 @@ abstract class Checkout
         // (skip for GiftCardCheckout itself so the full amount reaches Buckaroo first)
         $giftcardRemainder = 0.0;
         $giftcardGroupTx = '';
-        $isGiftcardCheckout = ($this instanceof GiftCardCheckout);
+        $isGiftcardCheckout = $this instanceof GiftCardCheckout;
 
         try {
-            $groupTransactionService = new \Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
+            $groupTransactionService = new Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
             $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $this->cart->id);
             if ($alreadyPaid > 0) {
                 $giftcardRemainder = $groupTransactionService->getRemainingAmount(
@@ -197,12 +197,12 @@ abstract class Checkout
                     $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Keep remainder at 0 — never reuse stale cookies from another cart.
         }
 
         if (!$isGiftcardCheckout && $giftcardRemainder > 0 && !empty($giftcardGroupTx)) {
-            $this->payment_request->amountDebit        = $this->roundBuckarooPrice($giftcardRemainder);
+            $this->payment_request->amountDebit = $this->roundBuckarooPrice($giftcardRemainder);
             $this->payment_request->OriginalTransactionKey = $giftcardGroupTx;
         } else {
             $this->payment_request->amountDebit = $this->roundBuckarooPrice($cartTotalInclTax);
@@ -250,7 +250,7 @@ abstract class Checkout
         $currency = new Currency((int) $this->cart->id_currency);
         $order_id = Order::getIdByCartId($this->cart->id);
 
-        \PrestaShopLogger::addLog('buckarooFeeTaxExcl: ' . $buckarooFeeTaxExcl . ', buckarooFeeTaxIncl: ' . $buckarooFeeTaxIncl, 1);
+        PrestaShopLogger::addLog('buckarooFeeTaxExcl: ' . $buckarooFeeTaxExcl . ', buckarooFeeTaxIncl: ' . $buckarooFeeTaxIncl, 1);
 
         $this->payment_request->amountDebit = $this->roundBuckarooPrice(
             (float) $this->payment_request->amountDebit + (float) $buckarooFeeTaxIncl
@@ -460,14 +460,14 @@ abstract class Checkout
         }
 
         $cover = Product::getCover($product['id_product']);
-        $imageTypes = ImageType::getImagesTypes("products", true);
+        $imageTypes = ImageType::getImagesTypes('products', true);
 
         foreach ($imageTypes as $imageType) {
-            if (isset($imageType['height'], $imageType['width']) &&
-                $imageType['height'] <= 1280 &&
-                $imageType['height'] >= 100 &&
-                $imageType['width'] <= 1280 &&
-                $imageType['width'] >= 100) {
+            if (isset($imageType['height'], $imageType['width'])
+                && $imageType['height'] <= 1280
+                && $imageType['height'] >= 100
+                && $imageType['width'] <= 1280
+                && $imageType['width'] >= 100) {
                 return $this->context->link->getImageLink($product['link_rewrite'], $cover['id_image'], $imageType['name']);
             }
         }
@@ -553,6 +553,7 @@ abstract class Checkout
         $address = new Address($addressId);
         $taxManager = TaxManagerFactory::getManager($address, $taxRulesGroupId);
         $taxCalculator = $taxManager->getTaxCalculator();
+
         return $taxCalculator->getTotalRate();
     }
 
@@ -581,6 +582,7 @@ abstract class Checkout
         foreach (explode(' ', $str) as $word) {
             $ret .= Tools::strtoupper($word[0]) . '.';
         }
+
         return $ret;
     }
 }

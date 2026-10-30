@@ -189,4 +189,3 @@ class BuckarooSwishFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(0, $optionsEur, 'Swish should not be available for non-SEK carts');
     }
 }
-

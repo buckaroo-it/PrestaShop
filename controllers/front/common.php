@@ -26,6 +26,7 @@ if (!defined('_PS_VERSION_')) {
 class BuckarooCommonController extends ModuleFrontController
 {
     use ContainerAwareTrait;
+
     public function __construct()
     {
         parent::__construct();
@@ -60,7 +61,7 @@ class BuckarooCommonController extends ModuleFrontController
     protected function displayConfirmation($order_id)
     {
         $currency = $this->context->currency;
-        $locale = \Tools::getContextLocale($this->context);
+        $locale = Tools::getContextLocale($this->context);
 
         $this->id_order = $order_id;
         $order = new Order($this->id_order);
@@ -153,13 +154,13 @@ class BuckarooCommonController extends ModuleFrontController
                 continue;
             }
 
-            $payment                  = new OrderPayment();
+            $payment = new OrderPayment();
             $payment->order_reference = $order->reference;
-            $payment->id_currency     = $order->id_currency;
+            $payment->id_currency = $order->id_currency;
             $payment->conversion_rate = 1;
-            $payment->amount          = $amount;
-            $payment->payment_method  = (string) ($row['card_code'] ?: 'giftcard');
-            $payment->transaction_id  = $transactionKey;
+            $payment->amount = $amount;
+            $payment->payment_method = (string) ($row['card_code'] ?: 'giftcard');
+            $payment->transaction_id = $transactionKey;
             $payment->save();
         }
     }
@@ -185,13 +186,13 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
-        $payment                  = new OrderPayment();
+        $payment = new OrderPayment();
         $payment->order_reference = $order->reference;
-        $payment->id_currency     = $order->id_currency;
+        $payment->id_currency = $order->id_currency;
         $payment->conversion_rate = 1;
-        $payment->amount          = $amount;
-        $payment->payment_method  = \Tools::strtolower((string) ($response->payment_method ?? $order->payment));
-        $payment->transaction_id  = $transactionKey;
+        $payment->amount = $amount;
+        $payment->payment_method = Tools::strtolower((string) ($response->payment_method ?? $order->payment));
+        $payment->transaction_id = $transactionKey;
         $payment->save();
 
         return true;
@@ -357,7 +358,7 @@ class BuckarooCommonController extends ModuleFrontController
         return trim((string) ($response->payment_method ?? '')) === '';
     }
 
-    private function deleteOrderPayment(\OrderPayment $payment): void
+    private function deleteOrderPayment(OrderPayment $payment): void
     {
         Db::getInstance()->delete(
             'order_invoice_payment',

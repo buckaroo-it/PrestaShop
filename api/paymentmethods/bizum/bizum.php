@@ -27,5 +27,3 @@ class Bizum extends PaymentMethod
         $this->type = 'bizum';
     }
 }
-
-

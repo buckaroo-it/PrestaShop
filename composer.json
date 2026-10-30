@@ -13,8 +13,9 @@
         "buckaroo/sdk": "1.24.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6",
+        "friendsofphp/php-cs-fixer": "^3.30",
         "phpstan/phpstan": "^1.12",
+        "phpunit/phpunit": "^9.6",
         "prestashop/php-dev-tools": "^5.0"
     },
     "autoload": {
@@ -29,7 +30,9 @@
         "test": "phpunit --configuration phpunit.xml --no-coverage",
         "phpstan": "phpstan analyse --configuration=tests/phpstan/phpstan.neon --no-progress",
         "validate-source": "@php .github/scripts/validate-package.php source",
-        "build-release": "bash .github/scripts/build-release.sh --worktree"
+        "build-release": "bash .github/scripts/build-release.sh --worktree",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --no-interaction --format=txt",
+        "cs-fix": "php-cs-fixer fix --no-interaction --format=txt"
     },
     "scripts-descriptions": {
         "test": "Run the PHPUnit suite.",

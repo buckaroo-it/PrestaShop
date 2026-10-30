@@ -37,4 +37,3 @@ class BuckarooWeroFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('wero', $options[0]->getModuleName());
     }
 }
-

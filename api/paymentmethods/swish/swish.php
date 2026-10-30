@@ -27,5 +27,3 @@ class Swish extends PaymentMethod
         $this->type = 'swish';
     }
 }
-
-

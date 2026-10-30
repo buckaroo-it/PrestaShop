@@ -40,4 +40,3 @@ class BuckarooPayByBankFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertStringEndsWith('issuer.svg', $option->getLogo());
     }
 }
-

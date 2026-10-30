@@ -32,7 +32,7 @@ class GiftCardCheckout extends Checkout
 
         $this->customVars = [
             'servicesSelectableByClient' => $this->getServicesSelectableByClient(),
-            'continueOnIncomplete'       => '1',
+            'continueOnIncomplete' => '1',
         ];
 
         if (!empty($this->customer->email) && Validate::isEmail($this->customer->email)) {
@@ -84,7 +84,7 @@ class GiftCardCheckout extends Checkout
 
         try {
             $config = $this->buckarooConfigService->getConfigArrayForMethod('giftcard');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return [];
         }
 
@@ -148,7 +148,7 @@ class GiftCardCheckout extends Checkout
 
         try {
             $cards = $this->buckarooConfigService->getActiveCreditCards();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return [];
         }
 
@@ -194,7 +194,7 @@ class GiftCardCheckout extends Checkout
         }
 
         try {
-            $module = \Module::getInstanceByName('buckaroo3');
+            $module = Module::getInstanceByName('buckaroo3');
             if (!$module || !method_exists($module, 'get')) {
                 return '';
             }
@@ -217,7 +217,7 @@ class GiftCardCheckout extends Checkout
             }
 
             return implode(',', array_unique($codes));
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return '';
         }
     }

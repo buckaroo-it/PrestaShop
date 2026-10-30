@@ -56,9 +56,9 @@ abstract class Response extends BuckarooAbstract
     protected ?TransactionResponse $response = null;
     protected $logger;
 
-    public function __construct(TransactionResponse $response = null)
+    public function __construct(?TransactionResponse $response = null)
     {
-        $this->logger  = new Logger(Logger::INFO, 'response');
+        $this->logger = new Logger(Logger::INFO, 'response');
         $this->logger->logInfo("\n\n\n\n***************** Response start ***********************");
 
         if ($response) {
@@ -85,6 +85,7 @@ abstract class Response extends BuckarooAbstract
     {
         if (!$this->isPushRequest()) {
             $this->logger->logInfo('Not a push request');
+
             return false;
         }
 
@@ -115,11 +116,11 @@ abstract class Response extends BuckarooAbstract
             'statusmessage' => $this->statusmessage,
             'amount' => $this->amount,
             'currency' => $this->currency,
-            'timestamp' => $this->timestamp
+            'timestamp' => $this->timestamp,
         ]);
 
         if (!empty($this->statuscode)) {
-            $responseArray = $this->responseCodes[(int)$this->statuscode];
+            $responseArray = $this->responseCodes[(int) $this->statuscode];
             $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
@@ -162,7 +163,7 @@ abstract class Response extends BuckarooAbstract
 
     private function isPushRequest(): bool
     {
-        return (bool)Tools::getValue('brq_statuscode');
+        return (bool) Tools::getValue('brq_statuscode');
     }
 
     public function getServiceParameters()
@@ -217,7 +218,7 @@ abstract class Response extends BuckarooAbstract
                     $reply_handler->validate();
                     $this->validated = $reply_handler->isValid();
                     $this->logger->logInfo('Push request validated successfully');
-                } catch (\Throwable $e) {
+                } catch (Throwable $e) {
                     $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
                 }
             } elseif ($this->response) {
@@ -236,6 +237,7 @@ abstract class Response extends BuckarooAbstract
                 if ($this->isValid()) {
                     if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
                         $this->logger->logInfo('Response has succeeded');
+
                         return true;
                     }
                 }
@@ -244,10 +246,12 @@ abstract class Response extends BuckarooAbstract
             }
         } elseif (in_array($this->status, [self::BUCKAROO_PENDING_PAYMENT, self::BUCKAROO_SUCCESS])) {
             $this->logger->logInfo('Response status indicates success');
+
             return true;
         }
 
         $this->logger->logInfo('Response has not succeeded');
+
         return false;
     }
 
@@ -329,18 +333,19 @@ abstract class Response extends BuckarooAbstract
         if (isset($data['RequiredAction']['PayRemainderDetails']['GroupTransaction'])) {
             return $data['RequiredAction']['PayRemainderDetails']['GroupTransaction'];
         }
+
         return null;
     }
 
     public function getRemainderAmount()
     {
         $data = $this->response->data();
-        if (!isset($data['RequiredAction']['PayRemainderDetails']['RemainderAmount']) ||
-            !is_scalar($data['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
+        if (!isset($data['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
+            || !is_scalar($data['RequiredAction']['PayRemainderDetails']['RemainderAmount'])
         ) {
             return 0;
         }
+
         return (float) $data['RequiredAction']['PayRemainderDetails']['RemainderAmount'];
     }
-
 }

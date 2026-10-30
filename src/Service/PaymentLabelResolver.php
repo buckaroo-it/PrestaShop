@@ -35,7 +35,7 @@ final class PaymentLabelResolver
     public const GROUP_TRANSACTION_LABEL = 'Group transaction';
 
     /**
-     * @var object|null Repository exposing getPaymentMethodsLabel(string $name)
+     * @var object|null Repository exposing getPaymentMethodsLabel(string)
      */
     private $paymentMethodRepository;
 

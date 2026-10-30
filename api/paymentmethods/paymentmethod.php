@@ -196,7 +196,7 @@ abstract class PaymentMethod extends BuckarooAbstract
         preg_match_all('/{\w+}/', $description, $matches);
 
         if (!empty($matches[0])) {
-            $order = \Order::getByCartId($cartId);
+            $order = Order::getByCartId($cartId);
             $context = $this->getContext();
             $shopName = ($context && isset($context->shop) && is_object($context->shop)) ? (string) $context->shop->name : '';
             $patterns = ['/{order_number}/', '/{shop_name}/'];

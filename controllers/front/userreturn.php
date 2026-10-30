@@ -44,7 +44,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         try {
             $response = ResponseFactory::getResponse();
             $this->handleReturn($response, $cookie);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->logError('User return fatal: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -82,6 +82,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     $this->redirectToCheckoutError(
                         $this->module->l('Your payment was received, but the order could not be loaded. Please contact the shop.')
                     );
+
                     return;
                 }
 
@@ -107,17 +108,17 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
                     try {
                         $this->context->cart->delete();
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         $this->logger->logError('Cart delete failed: ' . $e->getMessage());
                     }
                 }
 
                 $redirectUrl = $this->context->link->getPageLink('order-confirmation', true, null, [
-                    'id_cart'   => $cartId,
+                    'id_cart' => $cartId,
                     'id_module' => $this->module->id,
-                    'id_order'  => $id_order,
-                    'key'       => $customer->secure_key,
-                    'success'   => 'true',
+                    'id_order' => $id_order,
+                    'key' => $customer->secure_key,
+                    'success' => 'true',
                 ]);
                 $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
                 Tools::redirect($redirectUrl);
@@ -136,6 +137,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             );
 
             $this->redirectToCheckoutError($msg);
+
             return;
         }
 
@@ -153,14 +155,14 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         try {
             $this->context->cookie->__set('buckaroo_error_msg', $msg);
             $this->context->cookie->write();
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Continue with query-string fallback.
         }
 
         Tools::redirect($this->context->link->getPageLink('order', true, null, [
-            'step'               => 3,
+            'step' => 3,
             'buckaroo_error_msg' => urlencode($msg),
-            'buckaroo_error'     => 1,
+            'buckaroo_error' => 1,
         ]));
         exit;
     }
@@ -175,7 +177,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         $orderId = Order::getIdByCartId($cartId);
 
         if ($orderId) {
-            $oldCart    = new Cart($cartId);
+            $oldCart = new Cart($cartId);
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {

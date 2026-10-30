@@ -95,9 +95,7 @@ class ReservationService
 
         if (!$response->isSuccess()) {
             $error = trim($response->getSomeError());
-            throw new \RuntimeException(
-                $error !== '' ? $error : 'Klarna reservation request failed.'
-            );
+            throw new \RuntimeException($error !== '' ? $error : 'Klarna reservation request failed.');
         }
     }
 

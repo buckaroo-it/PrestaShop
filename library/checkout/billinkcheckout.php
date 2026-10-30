@@ -17,9 +17,6 @@
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/classes/CarrierHandler.php';
 
-use Buckaroo\Resources\Constants\RecipientCategory;
-use PrestaShop\Decimal\DecimalNumber;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -51,6 +48,7 @@ class BillinkCheckout extends Checkout
         if (!empty($this->payment_response) && $this->payment_response->isRedirectRequired()) {
             return true;
         }
+
         return false;
     }
 
@@ -111,10 +109,11 @@ class BillinkCheckout extends Checkout
     public function getRecipientCategory()
     {
         $category = self::CUSTOMER_TYPE_B2C;
-        if ($this->customerType == self::CUSTOMER_TYPE_B2B ||
-            ($this->customerType == self::CUSTOMER_TYPE_BOTH && $this->companyExists($this->invoice_address->company))) {
+        if ($this->customerType == self::CUSTOMER_TYPE_B2B
+            || ($this->customerType == self::CUSTOMER_TYPE_BOTH && $this->companyExists($this->invoice_address->company))) {
             $category = self::CUSTOMER_TYPE_B2B;
         }
+
         return $category;
     }
 

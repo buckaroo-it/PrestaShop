@@ -104,4 +104,3 @@ trait ContainerAwareTrait
         return $kernel;
     }
 }
-

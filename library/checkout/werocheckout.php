@@ -55,5 +55,3 @@ class WeroCheckout extends Checkout
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_WERO);
     }
 }
-
-

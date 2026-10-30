@@ -219,4 +219,3 @@ class BuckarooIdinFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(0, $options, 'IDIN should be hidden when customer is already validated');
     }
 }
-

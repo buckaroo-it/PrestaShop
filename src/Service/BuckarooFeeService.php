@@ -54,6 +54,7 @@ class BuckarooFeeService
     public function getPaymentMethodByLabel($label)
     {
         $paymentMethod = $this->paymentMethodRepository->findOneBy(['label' => $label]);
+
         return $paymentMethod ? $paymentMethod->getName() : null;
     }
 
@@ -73,7 +74,7 @@ class BuckarooFeeService
             }
 
             $isPercentage = is_string($buckarooFee) && strpos(trim($buckarooFee), '%') !== false;
-            
+
             if ($isPercentage) {
                 $result[$method->getName()] = [
                     'buckarooFee' => trim($buckarooFee),

@@ -7,7 +7,7 @@
 ### Making changes:
 - Create a branch from the develop branch.
 - The name of the branch should be something like: `feature/GITHUB-ISSUE-ID-slug` (eg: `feature/50-configprovider-update`)
-- Your code changes should follow the PrestaShop coding standard.
+- Your code changes should follow the PrestaShop coding standard (`composer cs-fix` formats them, see below).
 - Including unit tests is encouraged.
 
 ### Quality checks:
@@ -16,6 +16,7 @@ Every pull request runs the checks below; run them locally before opening the PR
 ```bash
 composer install                      # installs the pinned dependencies plus the dev tools (PHPUnit, PHPStan, php-dev-tools)
 composer test                         # PHPUnit
+composer cs-check                     # PHP CS Fixer with the PrestaShop ruleset (the validator's "Standards" section); `composer cs-fix` applies the fixes
 composer validate-source              # local equivalent of the PrestaShop Validator checks
 composer build-release                # builds build/buckaroo3.zip from the working tree and validates it
 _PS_ROOT_DIR_=/path/to/prestashop composer phpstan   # PHPStan, needs a PrestaShop installation

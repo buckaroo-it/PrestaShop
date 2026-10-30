@@ -37,4 +37,3 @@ class BuckarooBelfiusFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('belfius', $options[0]->getModuleName());
     }
 }
-

@@ -53,14 +53,14 @@ class Buckaroo3 extends PaymentModule
      * config.xml and composer.json. tests/Unit/Module/ModuleMetadataTest.php and
      * .github/scripts/validate-package.php fail when they drift apart.
      */
-    const MODULE_VERSION = '5.4.0';
+    public const MODULE_VERSION = '5.4.0';
 
     public $logger;
 
     /**
      * @var ContainerInterface|null
      */
-    private $coreServiceContainer = null;
+    private $coreServiceContainer;
 
     /**
      * @var bool Guards against rebuilding the Click to Pay config per hook
@@ -70,7 +70,7 @@ class Buckaroo3 extends PaymentModule
     /**
      * @var PriceFormatter|null
      */
-    private $priceFormatter = null;
+    private $priceFormatter;
 
     public function __construct()
     {
@@ -99,7 +99,7 @@ class Buckaroo3 extends PaymentModule
 
     private function initializeLogger()
     {
-        $this->logger = new \Logger(CoreLogger::INFO, '');
+        $this->logger = new Logger(CoreLogger::INFO, '');
     }
 
     /**
@@ -154,16 +154,17 @@ class Buckaroo3 extends PaymentModule
             'BUCKAROO_SECRET_KEY',
             'BUCKAROO_ORDER_STATE_DEFAULT',
             'BUCKAROO_ORDER_STATE_SUCCESS',
-            'BUCKAROO_ORDER_STATE_FAILED'
+            'BUCKAROO_ORDER_STATE_FAILED',
         ];
-        
+
         foreach ($requiredConfigs as $config) {
             if (!Configuration::get($config)) {
                 $this->warning = $this->l('Missing required configuration: ') . $config;
+
                 return false;
             }
         }
-        
+
         return true;
     }
 
@@ -190,7 +191,7 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeData = [
                 'buckaroo_fee_tax_excl' => 0,
                 'buckaroo_fee_tax_incl' => 0,
-                'buckaroo_fee_tax' => 0
+                'buckaroo_fee_tax' => 0,
             ];
         } else {
             $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
@@ -231,8 +232,8 @@ class Buckaroo3 extends PaymentModule
             $klarnaReservation = $this->display(__FILE__, 'views/templates/hook/klarna-reservation.tpl');
         }
 
-        return $this->display(__FILE__, 'views/templates/hook/payment-fee-table.tpl').
-            $klarnaReservation.
+        return $this->display(__FILE__, 'views/templates/hook/payment-fee-table.tpl') .
+            $klarnaReservation .
             $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 
@@ -296,6 +297,7 @@ class Buckaroo3 extends PaymentModule
 
         if (!parent::install()) {
             $this->_errors[] = $this->l('Unable to install module');
+
             return false;
         }
 
@@ -317,6 +319,7 @@ class Buckaroo3 extends PaymentModule
 
         if (!$coreInstaller->install()) {
             $this->_errors = array_merge($this->_errors, $coreInstaller->getErrors());
+
             return false;
         }
 
@@ -325,11 +328,11 @@ class Buckaroo3 extends PaymentModule
 
     private function configureOrderStates()
     {
-        $states = OrderState::getOrderStates((int)Configuration::get('PS_LANG_DEFAULT'));
+        $states = OrderState::getOrderStates((int) Configuration::get('PS_LANG_DEFAULT'));
         $currentStates = [];
 
         foreach ($states as $state) {
-            $state = (object)$state;
+            $state = (object) $state;
             $currentStates[$state->id_order_state] = $state->name;
         }
 
@@ -343,11 +346,11 @@ class Buckaroo3 extends PaymentModule
     {
         if (($state_id = array_search($this->l('Awaiting for Remote payment'), $currentStates)) === false) {
             return $this->createDefaultOrderState();
-        } else {
-            $defaultOrderState = new stdClass();
-            $defaultOrderState->id = $state_id;
-            return $defaultOrderState;
         }
+        $defaultOrderState = new stdClass();
+        $defaultOrderState->id = $state_id;
+
+        return $defaultOrderState;
     }
 
     private function createDefaultOrderState()
@@ -372,7 +375,7 @@ class Buckaroo3 extends PaymentModule
     private function copyLogo($stateId)
     {
         $source = dirname(__FILE__) . '/logo.gif';
-        $destination = dirname(__FILE__) . '/../../img/os/' . (int)$stateId . '.gif';
+        $destination = dirname(__FILE__) . '/../../img/os/' . (int) $stateId . '.gif';
         if (!file_exists($destination)) {
             copy($source, $destination);
         }
@@ -389,7 +392,7 @@ class Buckaroo3 extends PaymentModule
             if ($refundSettingsService) {
                 $refundSettingsService->uninstall();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->_errors[] = 'Failed to uninstall buckaroo.refund.settings: ' . $e->getMessage();
         }
 
@@ -404,6 +407,7 @@ class Buckaroo3 extends PaymentModule
 
         if (!$uninstall->uninstall()) {
             $this->_errors[] = $uninstall->getErrors();
+
             return false;
         }
 
@@ -421,7 +425,7 @@ class Buckaroo3 extends PaymentModule
     /**
      * Get the core PrestaShop service container
      *
-     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
+     * @return PrestaShop\PrestaShop\Adapter\SymfonyContainer|ContainerInterface|null
      */
     public function getCoreServiceContainer()
     {
@@ -474,7 +478,7 @@ class Buckaroo3 extends PaymentModule
             if ($container instanceof ContainerInterface) {
                 return $container;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logContainerAccessIssue('Module::getContainer unavailable', $exception);
         }
 
@@ -500,7 +504,7 @@ class Buckaroo3 extends PaymentModule
             if ($container instanceof ContainerInterface) {
                 return $container;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logContainerAccessIssue('Context controller container unavailable', $exception);
         }
 
@@ -520,7 +524,7 @@ class Buckaroo3 extends PaymentModule
                 if ($container instanceof ContainerInterface) {
                     return $container;
                 }
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->logContainerAccessIssue('Kernel::getContainer failed', $exception);
             }
         }
@@ -538,11 +542,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         try {
-            $container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+            $container = PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
             if ($container instanceof ContainerInterface) {
                 return $container;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logContainerAccessIssue('SymfonyContainer::getInstance failed', $exception);
         }
 
@@ -561,7 +565,7 @@ class Buckaroo3 extends PaymentModule
                 if ($this->has($serviceId)) {
                     return $this->get($serviceId);
                 }
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->logContainerAccessIssue(
                     sprintf('Unable to resolve "%s" via module container', $serviceId),
                     $exception
@@ -573,7 +577,7 @@ class Buckaroo3 extends PaymentModule
         if ($coreContainer instanceof ContainerInterface && $coreContainer->has($serviceId)) {
             try {
                 return $coreContainer->get($serviceId);
-            } catch (\Throwable $exception) {
+            } catch (Throwable $exception) {
                 $this->logContainerAccessIssue(
                     sprintf('Unable to resolve "%s" via core container', $serviceId),
                     $exception
@@ -586,9 +590,9 @@ class Buckaroo3 extends PaymentModule
 
     /**
      * @param string $message
-     * @param \Throwable $exception
+     * @param Throwable $exception
      */
-    private function logContainerAccessIssue($message, \Throwable $exception)
+    private function logContainerAccessIssue($message, Throwable $exception)
     {
         if (!defined('_PS_MODE_DEV_') || !_PS_MODE_DEV_) {
             return;
@@ -596,7 +600,7 @@ class Buckaroo3 extends PaymentModule
 
         $logMessage = sprintf('Buckaroo: %s - %s', $message, $exception->getMessage());
         if (class_exists('\PrestaShopLogger')) {
-            \PrestaShopLogger::addLog($logMessage, 2);
+            PrestaShopLogger::addLog($logMessage, 2);
         } else {
             error_log($logMessage);
         }
@@ -628,7 +632,7 @@ class Buckaroo3 extends PaymentModule
             if (!empty($token)) {
                 return $token;
             }
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             $this->logContainerAccessIssue('Unable to generate CSRF token', $exception);
         }
 
@@ -640,15 +644,15 @@ class Buckaroo3 extends PaymentModule
         $token = $this->getCsrfToken();
 
         if (empty($token)) {
-            $token = \Tools::getValue('_token');
+            $token = Tools::getValue('_token');
             if (false === $token || empty($token)) {
-                $token = \Tools::getValue('token', '');
+                $token = Tools::getValue('token', '');
             }
         }
 
         $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
         $adminUrl = rtrim($adminUrl, '/');
-        
+
         $this->context->smarty->assign([
             'pathApp' => $this->_path . 'views/js/buckaroo.vue.js',
             'baseUrl' => $this->context->shop->getBaseURL(true),
@@ -694,8 +698,8 @@ class Buckaroo3 extends PaymentModule
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
-        $cookie_id_lang = (int)$cookie->id_lang;
-        $id_lang = $cookie_id_lang ? $cookie_id_lang : (int)(Configuration::get('PS_LANG_DEFAULT'));
+        $cookie_id_lang = (int) $cookie->id_lang;
+        $id_lang = $cookie_id_lang ? $cookie_id_lang : (int) (Configuration::get('PS_LANG_DEFAULT'));
         $addresses = $customer->getAddresses($id_lang);
         $company = '';
         $vat = '';
@@ -777,7 +781,7 @@ class Buckaroo3 extends PaymentModule
                     'payByBankDisplayMode' => $buckarooConfigService->getConfigValue('paybybank', 'display_type'),
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
-                    'giftCardDisplayMode'        => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
+                    'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
                     'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart),
@@ -792,7 +796,7 @@ class Buckaroo3 extends PaymentModule
 
         return $buckarooPaymentService->getPaymentOptions($cart);
     }
-    
+
     /**
      * Ensure Buckaroo JavaScript is loaded and JS variables are defined
      */
@@ -802,22 +806,22 @@ class Buckaroo3 extends PaymentModule
         // never prevents the core JS variables (buckarooAjaxUrl, buckarooFees)
         // from being registered.
         $alreadyPaidData = [
-            'alreadyPaid'     => 0,
+            'alreadyPaid' => 0,
             'remainingAmount' => 0,
-            'giftcardItems'   => [],
-            'currencySign'    => $this->context->currency ? $this->context->currency->sign : '',
-            'cartTotal'       => 0,
+            'giftcardItems' => [],
+            'currencySign' => $this->context->currency ? $this->context->currency->sign : '',
+            'cartTotal' => 0,
         ];
         try {
             $cart = $this->context->cart;
             if ($cart) {
                 $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
-                $alreadyPaidData['cartTotal']        = $cartTotal;
-                $alreadyPaidData['alreadyPaid']      = $this->getGiftcardAlreadyPaid($cart);
-                $alreadyPaidData['remainingAmount']  = $this->getGiftcardRemainingAmount($cart);
-                $alreadyPaidData['giftcardItems']    = $this->getGiftcardDisplayItems($cart);
+                $alreadyPaidData['cartTotal'] = $cartTotal;
+                $alreadyPaidData['alreadyPaid'] = $this->getGiftcardAlreadyPaid($cart);
+                $alreadyPaidData['remainingAmount'] = $this->getGiftcardRemainingAmount($cart);
+                $alreadyPaidData['giftcardItems'] = $this->getGiftcardDisplayItems($cart);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: giftcard data error in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 2);
         }
 
@@ -836,15 +840,15 @@ class Buckaroo3 extends PaymentModule
                         'age' => $this->l('You must be at least 18 years old'),
                     ],
                 ],
-                'buckarooAlreadyPaidData'   => $alreadyPaidData,
+                'buckarooAlreadyPaidData' => $alreadyPaidData,
                 'buckarooAlreadyPaidLabels' => [
-                    'paidWith'  => $this->l('Paid with Giftcard'),
+                    'paidWith' => $this->l('Paid with Giftcard'),
                     'remaining' => $this->l('Remaining Amount'),
                 ],
             ]);
-            
+
             $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
-            
+
             if ($this->context->controller) {
                 $this->context->controller->registerJavascript(
                     'module-buckaroo3',
@@ -867,7 +871,7 @@ class Buckaroo3 extends PaymentModule
             } else {
                 PrestaShopLogger::addLog('Buckaroo: ERROR - No controller available to register script', 3);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: ERROR in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 3);
         }
     }
@@ -930,7 +934,7 @@ class Buckaroo3 extends PaymentModule
                     'priority' => 220,
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: ERROR in ensureClickToPayJsLoaded() - ' . $e->getMessage(), 3);
         }
     }
@@ -985,7 +989,7 @@ class Buckaroo3 extends PaymentModule
 
             $this->context->controller->registerJavascript(
                 'module-buckaroo-error',
-                'modules/'.$this->name.'/views/js/buckaroo-error.js',
+                'modules/' . $this->name . '/views/js/buckaroo-error.js',
                 ['position' => 'bottom', 'priority' => 150]
             );
         }
@@ -1030,7 +1034,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         $remainingAmount = $this->getGiftcardRemainingAmount($cart);
-        $displayItems    = $this->getGiftcardDisplayItems($cart);
+        $displayItems = $this->getGiftcardDisplayItems($cart);
 
         $priceFormatter = $this->getPriceFormatter();
         foreach ($displayItems as $index => $item) {
@@ -1039,12 +1043,12 @@ class Buckaroo3 extends PaymentModule
 
         $this->context->smarty->assign([
             // Numeric values drive the template conditions; formatted values are what gets rendered.
-            'buckarooAlreadyPaid'              => $alreadyPaid,
-            'buckarooAlreadyPaidFormatted'     => $priceFormatter->format($alreadyPaid),
-            'buckarooRemainingAmount'          => $remainingAmount,
+            'buckarooAlreadyPaid' => $alreadyPaid,
+            'buckarooAlreadyPaidFormatted' => $priceFormatter->format($alreadyPaid),
+            'buckarooRemainingAmount' => $remainingAmount,
             'buckarooRemainingAmountFormatted' => $priceFormatter->format($remainingAmount),
-            'buckarooGiftcardItems'            => $displayItems,
-            'currency'                         => $this->context->currency,
+            'buckarooGiftcardItems' => $displayItems,
+            'currency' => $this->context->currency,
         ]);
 
         return $this->display(__FILE__, 'views/templates/hook/already-paid.tpl');
@@ -1056,20 +1060,22 @@ class Buckaroo3 extends PaymentModule
      * the brief window between applygiftcard redirect and the next page load.
      * Returns 0.0 on any failure so callers never receive an exception.
      *
-     * @param \Cart $cart
+     * @param Cart $cart
+     *
      * @return float
      */
-    private function getGiftcardAlreadyPaid(\Cart $cart): float
+    private function getGiftcardAlreadyPaid(Cart $cart): float
     {
         try {
-            $service  = new BuckarooGroupTransactionService();
+            $service = new BuckarooGroupTransactionService();
             $dbAmount = $service->getAlreadyPaid((int) $cart->id);
             if ($dbAmount > 0) {
                 return $dbAmount;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->logError('getGiftcardAlreadyPaid: ' . $e->getMessage());
         }
+
         return (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
     }
 
@@ -1077,21 +1083,24 @@ class Buckaroo3 extends PaymentModule
      * Get the remaining amount to pay after gift card deductions.
      * Returns the cookie value (or 0) on any failure.
      *
-     * @param \Cart $cart
+     * @param Cart $cart
+     *
      * @return float
      */
-    private function getGiftcardRemainingAmount(\Cart $cart): float
+    private function getGiftcardRemainingAmount(Cart $cart): float
     {
         try {
-            $service  = new BuckarooGroupTransactionService();
+            $service = new BuckarooGroupTransactionService();
             $dbAmount = $service->getAlreadyPaid((int) $cart->id);
             if ($dbAmount > 0) {
                 $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+
                 return $service->getRemainingAmount((int) $cart->id, $cartTotal);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->logError('getGiftcardRemainingAmount: ' . $e->getMessage());
         }
+
         return (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
     }
 
@@ -1099,16 +1108,19 @@ class Buckaroo3 extends PaymentModule
      * Get display-ready gift card rows (label + amount) for the current cart.
      * Returns an empty array on any failure.
      *
-     * @param \Cart $cart
+     * @param Cart $cart
+     *
      * @return array
      */
-    private function getGiftcardDisplayItems(\Cart $cart): array
+    private function getGiftcardDisplayItems(Cart $cart): array
     {
         try {
             $service = new BuckarooGroupTransactionService();
+
             return $service->getDisplayItems((int) $cart->id);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->logError('getGiftcardDisplayItems: ' . $e->getMessage());
+
             return [];
         }
     }
@@ -1121,8 +1133,8 @@ class Buckaroo3 extends PaymentModule
      * - safer fallbacks when configured states are missing or deleted
      * - explicit backorder handling using stock information
      *
-     * @param int      $status_code Buckaroo payment status constant
-     * @param int|null $id_order    Optional order id for stock/backorder checks
+     * @param int $status_code Buckaroo payment status constant
+     * @param int|null $id_order Optional order id for stock/backorder checks
      *
      * @return int Valid PrestaShop order state id
      */
@@ -1181,8 +1193,8 @@ class Buckaroo3 extends PaymentModule
      * This protects against misconfigured or deleted states, which is
      * particularly important on upgraded shops (e.g. PS 9.x).
      *
-     * @param array      $candidateIds List of ids (or scalar config values) to try
-     * @param int|string $fallbackId   Fallback state id when none of the candidates is valid
+     * @param array $candidateIds List of ids (or scalar config values) to try
+     * @param int|string $fallbackId Fallback state id when none of the candidates is valid
      *
      * @return int
      */
@@ -1283,7 +1295,7 @@ class Buckaroo3 extends PaymentModule
 
             $computePrecision = $this->context->getComputingPrecision();
             $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
-            
+
             $buckarooFee = $roundedBase * ($percentageValue / 100);
         } else {
             $buckarooFee = (float) $buckarooFee;
@@ -1299,7 +1311,7 @@ class Buckaroo3 extends PaymentModule
         $taxRate = $this->getAverageCartTaxRate();
         $buckarooFeeTax = $buckarooFee * $taxRate;
         $buckarooFeeTax = Tools::ps_round($buckarooFeeTax, $computePrecision);
-        
+
         $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
         $buckarooFeeTaxIncl = Tools::ps_round($buckarooFeeTaxIncl, $computePrecision);
 
@@ -1374,7 +1386,6 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeService = $this->getBuckarooFeeService();
             $paymentMethodName = $buckarooFeeService->getPaymentMethodByLabel($paymentMethodLabel);
 
-            
             $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
             $buckarooFee = $this->getBuckarooFee($paymentMethodName, $cartTotal);
 
@@ -1410,7 +1421,6 @@ class Buckaroo3 extends PaymentModule
 
         return DeferredOrderConfirmation::hold($params, $this->name, $this->context);
     }
-
 
     public function hookDisplayPDFInvoice($params)
     {
@@ -1538,7 +1548,7 @@ class Buckaroo3 extends PaymentModule
     {
         /** @var ProductFormModifier $productFormModifier */
         $productFormModifier = $this->get(ProductFormModifier::class);
-        $productId = (int)$params['id'];
+        $productId = (int) $params['id'];
 
         $productFormModifier->modify($productId, $params['form_builder']);
     }

@@ -37,4 +37,3 @@ class BuckarooTrustlyFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('trustly', $options[0]->getModuleName());
     }
 }
-

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-/**
+/*
  * Shared test doubles used across BuckarooPaymentService unit tests.
  */
 
@@ -194,5 +194,3 @@ if (!class_exists(FakeBuckarooConfigService::class)) {
         }
     }
 }
-
-

@@ -38,6 +38,7 @@ The ZIP validation checks the root structure (`buckaroo3/` only, no nested folde
 ## 4. Run the automated checks
 
 - Unit tests: `composer test` (CI runs them on PHP 7.4, 8.1 and 8.3).
+- Coding standard: `composer cs-check` must report nothing to fix. It runs PHP CS Fixer with the PrestaShop ruleset, which is what the validator's Standards section checks.
 - Static analysis: `_PS_ROOT_DIR_=/path/to/prestashop composer phpstan` (CI runs it inside the official PrestaShop 1.7.8.x, 8.x and 9.x Docker images).
 - The `Quality checks` workflow must be green on the release branch.
 

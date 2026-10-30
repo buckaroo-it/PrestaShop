@@ -37,4 +37,3 @@ class BuckarooPaypalFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('paypal', $options[0]->getModuleName());
     }
 }
-

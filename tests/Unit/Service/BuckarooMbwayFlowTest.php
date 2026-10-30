@@ -37,4 +37,3 @@ class BuckarooMbwayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('mbway', $options[0]->getModuleName());
     }
 }
-
