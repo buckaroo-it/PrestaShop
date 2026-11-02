@@ -188,6 +188,14 @@ class BuckarooConfigService
      */
     private static function splitCodes(string $codes): array
     {
-        return array_values(array_unique(array_filter(array_map('trim', explode(',', $codes)), 'strlen')));
+        $result = [];
+        foreach (explode(',', $codes) as $code) {
+            $code = trim($code);
+            if ($code !== '') {
+                $result[] = $code;
+            }
+        }
+
+        return array_values(array_unique($result));
     }
 }
