@@ -1,6 +1,3 @@
-/api/log/*
-!/api/log/index.php
-!/api/log/.htaccess
 .php-cs-fixer.cache
 .phpunit.result.cache
 var

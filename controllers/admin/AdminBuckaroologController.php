@@ -29,7 +29,8 @@ class AdminBuckaroologController extends AdminControllerCore
 
     public function renderList()
     {
-        $file = dirname(__FILE__) . '/../../api/log/report_log.txt';
+        require_once dirname(__FILE__) . '/../../api/corelogger.php';
+        $file = CoreLogger::logDirectory() . 'report_log.txt';
         $returndata = [];
         if (file_exists($file)) {
             $data = [];
