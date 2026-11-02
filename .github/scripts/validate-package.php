@@ -42,6 +42,7 @@ const FORBIDDEN_PATHS = [
     'phpstan-baseline.neon', 'sonar-project.properties', 'CONTRIBUTING.md', 'README.md', 'RELEASE.md',
     'views/img/buckaroo/README.md', 'composer.lock', '.DS_Store', 'Thumbs.db', '.env',
     'scoper.inc.php',
+    'api/log/',
     // development-only Composer packages that must not leak into the shipped vendor/
     'vendor/phpunit/', 'vendor/phpstan/', 'vendor/prestashop/php-dev-tools/', 'vendor/bin/',
     'vendor/sebastian/', 'vendor/phpspec/', 'vendor/myclabs/', 'vendor/nikic/php-parser/',
