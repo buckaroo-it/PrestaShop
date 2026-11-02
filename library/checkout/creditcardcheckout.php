@@ -24,6 +24,18 @@ class CreditCardCheckout extends Checkout
 {
     protected $customVars = [];
 
+    /** @var string card brand/issuer set by the request controller after validation */
+    private $issuer = '';
+
+    /**
+     * Use the issuer the request controller validated instead of reading the
+     * request again when the payment is started.
+     */
+    public function setIssuer(string $issuer): void
+    {
+        $this->issuer = $issuer;
+    }
+
     /**
      * Resolve the selected credit-card brand/issuer from the request.
      *
@@ -65,7 +77,7 @@ class CreditCardCheckout extends Checkout
     final public function setCheckout()
     {
         parent::setCheckout();
-        $this->payment_request->issuer = self::resolveIssuer();
+        $this->payment_request->issuer = $this->issuer !== '' ? $this->issuer : self::resolveIssuer();
     }
 
     public function startPayment()

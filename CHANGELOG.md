@@ -18,12 +18,13 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - BTI-1730 The release ZIP no longer ships README files, the PrestaShop 1.4 `logo.gif` (the order state icon moved to `views/img/order-state.gif`) or dotfiles from Composer packages; the package validator fails on any hidden file other than `.htaccess`.
 - BTI-1731 The module root `.htaccess` denies direct requests to any PHP file and `api/.htaccess` denies everything, both in Apache 2.2 and 2.4 syntax (PrestaShop Marketplace guidelines). The translation files carry the PrestaShop execution guard, and the release build writes an `index.php` stub into every directory of the installed `vendor/` tree.
 - BTI-1734 The release build prefixes every third-party namespace in `vendor/` (Guzzle, Monolog, PSR, Ramsey, brick/math, composer/ca-bundle) with `Buckaroo\PrestaShop\Vendor` using php-scoper, so the module always runs the dependency versions it ships instead of the ones PrestaShop loads first. The module's own namespaces and the Buckaroo SDK keep their names; the package validator fails on any unprefixed third-party class.
+- BTI-1732 The push/return reply is read through `Tools::getAllValues()` instead of the raw superglobals, the request controller hands the validated credit card issuer to the checkout instead of writing it back into `$_POST`, and the commented-out legacy bank list was removed from the iDIN template.
 - The PHP code is formatted with PHP CS Fixer using the PrestaShop coding standard (the ruleset behind the validator's "Standards" section). The fixer is a dev dependency with `composer cs-check` / `composer cs-fix` scripts, and the check runs on every pull request.
 
 ### Security
 - BTI-1716 Each payment is sent to the gateway (live or test) of the payment method the shopper chose. PayByBank requests that are sent as iDEAL for ING on mobile used iDEAL's mode instead of PayByBank's.
 - BTI-1716 The gateway mode is stored when a payment starts, and pushes, customer returns and direct responses from the other environment (signed `brq_test` / `IsTest`) no longer change the order. Payments started before the upgrade are handled as before.
-- Buckaroo request/response log files under api/log are no longer readable over HTTP.
+- BTI-1733 Buckaroo log files are written to `var/logs/buckaroo3/` under the shop root instead of `modules/buckaroo3/api/log/`, which was downloadable on Nginx and on Apache without `.htaccess` support. The upgrade moves existing log files to the new directory and removes `api/log/`; the Buckaroo log page in the back office reads from the new location.
 - BTI-1926 Updated the shipped HTTP client used by the Buckaroo SDK: guzzlehttp/guzzle 7.10.0 to 7.16.1, guzzlehttp/psr7 2.8.0 to 2.13.2 and guzzlehttp/promises 2.3.0 to 2.6.0, which resolves the published advisories for those versions.
 
 ### Fixed

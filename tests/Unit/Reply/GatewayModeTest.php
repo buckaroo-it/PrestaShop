@@ -9,22 +9,9 @@ use PHPUnit\Framework\TestCase;
 
 /*
  * The legacy payment classes load the vendor autoloader through
- * _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php'. Point that path at
- * a shim for the module's own autoloader, which the bootstrap already loaded.
+ * _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php'; tests/bootstrap.php
+ * defines _PS_ROOT_DIR_ and writes a shim at that path before any test file loads.
  */
-if (!defined('_PS_ROOT_DIR_')) {
-    $buckarooTestRootDir = sys_get_temp_dir() . '/buckaroo3-phpunit-root';
-    $buckarooTestVendorDir = $buckarooTestRootDir . '/modules/buckaroo3/vendor';
-    if (!is_dir($buckarooTestVendorDir)) {
-        @mkdir($buckarooTestVendorDir, 0777, true);
-    }
-    file_put_contents(
-        $buckarooTestVendorDir . '/autoload.php',
-        '<?php return require_once ' . var_export(realpath(__DIR__ . '/../../../vendor/autoload.php'), true) . ';'
-    );
-    define('_PS_ROOT_DIR_', $buckarooTestRootDir);
-}
-
 require_once __DIR__ . '/../../../api/paymentmethods/paybybank/paybybank.php';
 
 /**

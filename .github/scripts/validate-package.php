@@ -58,7 +58,7 @@ const REQUIRED_FILES = [
     'src/Install/Installer.php', 'src/Service/BuckarooPaymentService.php', 'src/Service/BuckarooFeeService.php',
     'views/js/buckaroo.vue.js', 'views/css/buckaroo3.vue.css', 'views/templates/admin/app.tpl',
     'views/templates/hook/payment-fee-table.tpl', 'mails/en/order_conf.html', 'mails/en/order_conf.txt',
-    'translations/en.php', 'upgrade/index.php', 'api/log/index.php', 'api/log/.htaccess',
+    'translations/en.php', 'upgrade/index.php',
 ];
 
 /**
@@ -307,7 +307,7 @@ function checkForbiddenPaths(ModuleFiles $files, Report $report): void
                 break;
             }
         }
-        if (preg_match('#(^|/)(\.DS_Store|Thumbs\.db)$#', $path) || preg_match('#^api/log/.+\.txt$#', $path)) {
+        if (preg_match('#(^|/)(\.DS_Store|Thumbs\.db)$#', $path)) {
             $problems[] = $path;
         }
     }
