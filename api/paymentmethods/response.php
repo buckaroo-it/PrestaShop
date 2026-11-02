@@ -232,8 +232,8 @@ abstract class Response extends BuckarooAbstract
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                 try {
-                    // Customer return may arrive as GET; push is usually POST.
-                    $data = array_merge($_GET, $_POST);
+                    // Customer return may arrive as GET; push is usually POST. POST wins.
+                    $data = Tools::getAllValues();
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $data);
                     $reply_handler->validate();
                     $this->validated = $reply_handler->isValid() && $this->isPushFromStartedGateway();
