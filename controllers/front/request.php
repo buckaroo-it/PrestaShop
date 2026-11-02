@@ -16,6 +16,7 @@
  */
 
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 include_once __DIR__ . '/../../library/checkout/checkout.php';
@@ -91,19 +92,17 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             }
 
             $payment_method = Tools::strtolower(trim((string) Tools::getValue('method', '')));
-            if (!$this->isValidPaymentMethod($payment_method)) {
-                return;
-            }
-
-            if (!$this->isCurrencyAllowedForMethod($payment_method, $currency)) {
-                $this->redirectToCheckoutStep(1, $this->module->l('Twint is only available for Swiss francs (CHF).'));
-
+            if (!$this->isValidPaymentMethod($payment_method, $cart)) {
                 return;
             }
 
             // Validate credit-card issuer before creating an order. Empty brand/service
             // names produce Buckaroo "' is not a valid service name" and left orphan orders.
             if (!$this->isValidCreditCardIssuer($payment_method)) {
+                return;
+            }
+
+            if (!$this->isValidPayByBankIssuer($payment_method)) {
                 return;
             }
 
@@ -258,7 +257,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
-    private function isValidPaymentMethod($payment_method): bool
+    private function getPaymentService(): BuckarooPaymentService
+    {
+        return $this->getService('buckaroo.config.api.payment.service');
+    }
+
+    private function isValidPaymentMethod($payment_method, Cart $cart): bool
     {
         if (empty($payment_method)) {
             $this->logger->logError('Load a method', 'Failed to load the method');
@@ -278,6 +282,15 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (!$this->module->isPaymentModeActive($payment_method)) {
             $this->logger->logError('Inactive payment method requested: ' . $payment_method);
             $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is currently disabled.'));
+
+            return false;
+        }
+
+        // Same rules as the checkout options (amount, country, conditions, iDIN),
+        // so a direct POST cannot create an order the merchant would not offer.
+        if (!$this->getPaymentService()->isMethodAvailableForCart($cart, $payment_method)) {
+            $this->logger->logError('Payment method not available for cart ' . (int) $cart->id . ': ' . $payment_method);
+            $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is not available for this order.'));
 
             return false;
         }
@@ -304,9 +317,37 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return false;
         }
 
+        // The brand becomes the Buckaroo service name: only the merchant's active cards are accepted.
+        if (!$this->getPaymentService()->isCreditCardBrandAllowed($issuer)) {
+            $this->logger->logError('Credit card brand not enabled by the merchant for cart ' . (int) $this->context->cart->id);
+            $this->redirectToCheckoutStep(
+                3,
+                $this->module->l('The selected card is not available. Please choose another card.')
+            );
+
+            return false;
+        }
+
         // The checkout receives this value explicitly (see initializeCheckout), so
         // checkout and pay always use the issuer validated here.
         $this->creditCardIssuer = $issuer;
+
+        return true;
+    }
+
+    private function isValidPayByBankIssuer(string $payment_method): bool
+    {
+        if ($payment_method !== 'paybybank') {
+            return true;
+        }
+
+        $issuer = Tools::getValue('BPE_Issuer');
+        if (!is_string($issuer) || !$this->getPaymentService()->isPayByBankIssuerAllowed($issuer)) {
+            $this->logger->logError('PayByBank payment started without a valid bank.');
+            $this->redirectToCheckoutStep(3, $this->module->l('Please choose your bank.'));
+
+            return false;
+        }
 
         return true;
     }
@@ -428,29 +469,6 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         $this->checkout->returnUrl = $this->context->link->getModuleLink('buckaroo3', 'userreturn', [], true);
         $this->checkout->pushUrl = $this->context->link->getModuleLink('buckaroo3', 'return', [], true);
-    }
-
-    private function isCurrencyAllowedForMethod($paymentMethod, $currency): bool
-    {
-        if (!isset($currency->iso_code)) {
-            return true;
-        }
-
-        $iso = Tools::strtoupper($currency->iso_code);
-
-        if ($paymentMethod === 'twint') {
-            return $iso === 'CHF';
-        }
-
-        if ($paymentMethod === 'swish') {
-            return $iso === 'SEK';
-        }
-
-        if ($paymentMethod === 'wero') {
-            return $iso === 'EUR';
-        }
-
-        return true;
     }
 
     private function handleSuccessfulRequest($cartId, $customer)

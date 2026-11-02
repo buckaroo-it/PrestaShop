@@ -110,38 +110,25 @@ class BuckarooPaymentService
         libxml_use_internal_errors(true);
         $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $isoCode2 = $this->getContext()->country->iso_code;
-        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+        $positions = $this->getCountryMethodPositions();
+        $idinPending = $this->isIdinVerificationPending($cart);
 
-        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
-        $activeMethodIds = array_column($activePaymentMethods, 'id');
-
-        $positions = $this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds);
-
-        $positions = array_flip($positions);
         foreach ($paymentMethods as $details) {
             $method = $details->getName();
-            $isMethodValid = $this->module->isPaymentModeActive($method)
-                && $this->isPaymentMethodAvailable($cart, $method)
-                && isset($positions[$method])
-                && !$this->isMethodUnavailableBySpecificConditions($cart, $method);
+            if (!$this->isMethodAvailable($cart, $method, $positions, $idinPending)) {
+                continue;
+            }
 
             if ($method == 'in3') {
                 $method = $this->capayableIn3->getMethod();
             }
 
-            if ($method == 'idin' && (!$this->module->isIdinCheckout($cart) || $this->isCustomerIdinValid($cart))) {
-                continue;
-            }
-
-            if ($isMethodValid) {
-                if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
-                    $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
-                } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
-                    $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
-                } else {
-                    $payment_options[] = $this->createPaymentOption($method, $details);
-                }
+            if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
+                $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
+            } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
+                $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
+            } else {
+                $payment_options[] = $this->createPaymentOption($method, $details);
             }
         }
 
@@ -158,6 +145,113 @@ class BuckarooPaymentService
         });
 
         return $payment_options;
+    }
+
+    /**
+     * The merchant's availability rules for one method on this cart: active,
+     * enabled for the shopper's country, order amount, method specific
+     * conditions (in3 NL billing address, Riverty B2B, currency) and iDIN age
+     * verification. Checkout options are built from it and the front
+     * controllers check it again before an order or payment is created.
+     */
+    public function isMethodAvailableForCart($cart, string $method): bool
+    {
+        return $this->isMethodAvailable(
+            $cart,
+            $method,
+            $this->getCountryMethodPositions(),
+            $this->isIdinVerificationPending($cart)
+        );
+    }
+
+    /**
+     * True when a product in the cart requires iDIN age verification and the
+     * customer has not verified yet. Only iDIN may be used until then.
+     */
+    public function isIdinVerificationPending($cart): bool
+    {
+        return $this->module->isIdinCheckout($cart) && !$this->isCustomerIdinValid($cart);
+    }
+
+    /**
+     * @param array<string, int> $positions methods enabled for the shopper's country, keyed by name
+     */
+    private function isMethodAvailable($cart, string $method, array $positions, bool $idinPending): bool
+    {
+        if (!$this->module->isPaymentModeActive($method)
+            || !isset($positions[$method])
+            || !$this->isPaymentMethodAvailable($cart, $method)
+            || $this->isMethodUnavailableBySpecificConditions($cart, $method)
+        ) {
+            return false;
+        }
+
+        if ($method === 'idin') {
+            return $idinPending;
+        }
+
+        return !$idinPending;
+    }
+
+    /**
+     * @return array<string, int> names of the methods enabled for the shopper's country => checkout position
+     */
+    private function getCountryMethodPositions(): array
+    {
+        $isoCode2 = $this->getContext()->country->iso_code;
+        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+        if (!is_array($country) || !isset($country['id'])) {
+            return [];
+        }
+
+        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
+        $activeMethodIds = array_column($activePaymentMethods, 'id');
+
+        return array_flip($this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds));
+    }
+
+    /**
+     * The card brand must be one of the merchant's active credit cards; it is
+     * sent to Buckaroo as the service name.
+     */
+    public function isCreditCardBrandAllowed(string $brand): bool
+    {
+        $brand = strtolower(trim($brand));
+        if ($brand === '') {
+            return false;
+        }
+
+        $cards = $this->buckarooConfigService->getActiveCreditCards();
+
+        return is_array($cards) && array_key_exists($brand, $cards);
+    }
+
+    /**
+     * Returns the merchant's spelling of an allowed giftcard code, or '' when
+     * the code is not one of the giftcards the merchant enabled.
+     */
+    public function resolveAllowedGiftcardCode(string $code): string
+    {
+        $code = strtolower(trim($code));
+        if ($code === '') {
+            return '';
+        }
+
+        foreach ($this->buckarooConfigService->getAllowedGiftcardCodes() as $allowed) {
+            if (strtolower($allowed) === $code) {
+                return $allowed;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * The PayByBank issuer must be one of the banks offered in the checkout.
+     */
+    public function isPayByBankIssuerAllowed(string $issuer): bool
+    {
+        return $issuer !== '' && array_key_exists($issuer, $this->issuersPayByBank->get());
     }
 
     private function getIndividualCards($method, $details): array
@@ -425,6 +519,8 @@ class BuckarooPaymentService
                 return !$this->isCartCurrencyAllowed($cart, ['CHF']);
             case 'swish':
                 return !$this->isCartCurrencyAllowed($cart, ['SEK']);
+            case 'wero':
+                return !$this->isCartCurrencyAllowed($cart, ['EUR']);
             default:
                 return false;
         }

@@ -153,4 +153,41 @@ class BuckarooConfigService
     {
         return $this->configurationRepository->getActiveCreditCards();
     }
+
+    /**
+     * Giftcard service codes the merchant enabled: the legacy PS config key,
+     * falling back to the Vue admin selection.
+     *
+     * @return string[]
+     */
+    public function getAllowedGiftcardCodes(): array
+    {
+        $codes = self::splitCodes((string) \Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS'));
+        if (!empty($codes)) {
+            return $codes;
+        }
+
+        $active = $this->getConfigArrayForMethod('giftcard')['activeGiftcards'] ?? [];
+        foreach (['giftcards', 'customGiftcards'] as $key) {
+            if (empty($active[$key]) || !is_array($active[$key])) {
+                continue;
+            }
+            foreach ($active[$key] as $card) {
+                $code = is_array($card) ? trim((string) ($card['code'] ?? $card['service_code'] ?? '')) : '';
+                if ($code !== '') {
+                    $codes[] = $code;
+                }
+            }
+        }
+
+        return array_values(array_unique($codes));
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function splitCodes(string $codes): array
+    {
+        return array_values(array_unique(array_filter(array_map('trim', explode(',', $codes)), 'strlen')));
+    }
 }

@@ -184,39 +184,16 @@ class GiftCardCheckout extends Checkout
     }
 
     /**
-     * Prefer the legacy PS config key; fall back to Vue activeGiftcards JSON.
+     * Giftcard brands the merchant enabled (see BuckarooConfigService::getAllowedGiftcardCodes()).
      */
     private function getAllowedGiftcardServices(): string
     {
-        $allowed = (string) Configuration::get('BUCKAROO_GIFTCARD_ALLOWED_CARDS');
-        if ($allowed !== '') {
-            return $allowed;
+        if (!$this->buckarooConfigService) {
+            return '';
         }
 
         try {
-            $module = Module::getInstanceByName('buckaroo3');
-            if (!$module || !method_exists($module, 'get')) {
-                return '';
-            }
-            $configService = $module->get('buckaroo.config.api.config.service');
-            if (!$configService || !method_exists($configService, 'getConfigArrayForMethod')) {
-                return '';
-            }
-            $config = $configService->getConfigArrayForMethod('giftcard');
-            $codes = [];
-            foreach (['giftcards', 'customGiftcards'] as $key) {
-                if (empty($config['activeGiftcards'][$key]) || !is_array($config['activeGiftcards'][$key])) {
-                    continue;
-                }
-                foreach ($config['activeGiftcards'][$key] as $card) {
-                    $code = $card['code'] ?? $card['service_code'] ?? null;
-                    if (!empty($code)) {
-                        $codes[] = (string) $code;
-                    }
-                }
-            }
-
-            return implode(',', array_unique($codes));
+            return implode(',', $this->buckarooConfigService->getAllowedGiftcardCodes());
         } catch (Throwable $e) {
             return '';
         }
