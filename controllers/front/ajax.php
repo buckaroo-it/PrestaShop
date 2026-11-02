@@ -445,7 +445,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 return true;
             }, ARRAY_FILTER_USE_BOTH);
 
-            $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL') ?: 'Payment Fee';
+            $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee';
             $paymentFeeLabelWithSuffix = $paymentFeeLabel . ' (inc taxes)';
             $presentedCartArray['subtotals']['paymentFee'] = [
                 'type' => 'paymentFee',
