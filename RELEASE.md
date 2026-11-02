@@ -31,9 +31,9 @@ composer validate-source              # index.php files, _PS_VERSION_ guards, li
 composer build-release                # build/buckaroo3.zip from the working tree, then validates the ZIP
 ```
 
-`vendor/` is not tracked in git. `build-release` exports the tree with `git archive`, runs `composer install --no-dev --classmap-authoritative` inside the export using the pinned `composer.lock`, and zips the result, so the ZIP always carries the dependency versions from the lock file regardless of what is installed locally. Building needs git, PHP with the zip extension and Composer. A git clone (or the GitHub "Source code" archive) contains no `vendor/` and is not installable; merchants must use the `buckaroo3.zip` release asset.
+`vendor/` is not tracked in git. `build-release` exports the tree with `git archive`, runs `composer install --no-dev --classmap-authoritative` inside the export using the pinned `composer.lock`, prefixes the third-party namespaces with php-scoper (`scoper.inc.php`; the phar is downloaded once into `build/` and checked against the pinned checksum), rebuilds the autoloader and zips the result, so the ZIP always carries the dependency versions from the lock file regardless of what is installed locally. Building needs git, PHP with the zip extension, Composer, curl and sha256sum; php-scoper itself needs PHP 8.2 or newer, so set `PHP_SCOPER_PHP=/path/to/php8.3` when the default `php` is older. A git clone (or the GitHub "Source code" archive) contains no `vendor/` and is not installable; merchants must use the `buckaroo3.zip` release asset.
 
-The ZIP validation checks the root structure (`buckaroo3/` only, no nested folder), required runtime files, production-only `vendor/`, compiled asset consistency, index files, guards, license headers, version consistency, metadata, static Context calls and Smarty escaping. Fix every failure before continuing.
+The ZIP validation checks the root structure (`buckaroo3/` only, no nested folder), required runtime files, production-only and prefixed `vendor/`, compiled asset consistency, index files, guards, license headers, version consistency, metadata, static Context calls and Smarty escaping. Fix every failure before continuing.
 
 ## 4. Run the automated checks
 

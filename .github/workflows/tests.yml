@@ -95,10 +95,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # PHP 8.2+: php-scoper (release build) needs it; the ZIP content stays PHP 7.4 compatible.
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.1'
+          php-version: '8.2'
           extensions: zip, dom, mbstring
           coverage: none
           tools: composer:v2
@@ -111,9 +112,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php8.1-composer-${{ hashFiles('composer.lock') }}
+          key: ${{ runner.os }}-php8.2-composer-${{ hashFiles('composer.lock') }}
           restore-keys: |
-            ${{ runner.os }}-php8.1-composer-
+            ${{ runner.os }}-php8.2-composer-
 
       - name: PHP syntax check (all first-party files)
         run: |
