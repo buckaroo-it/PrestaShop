@@ -29,8 +29,10 @@ class ConfigTest extends TestCase
             'BUCKAROO_REFUND_CREATE_NEGATIVE_PAYMENT',
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT
         );
-        $this->assertSame('PAYMENT_FEE_MODE', Config::PAYMENT_FEE_MODE);
-        $this->assertSame('PAYMENT_FEE_FRONTEND_LABEL', Config::PAYMENT_FEE_FRONTEND_LABEL);
+        $this->assertSame('BUCKAROO_PAYMENT_FEE_MODE', Config::PAYMENT_FEE_MODE);
+        $this->assertSame('BUCKAROO_PAYMENT_FEE_FRONTEND_LABEL', Config::PAYMENT_FEE_FRONTEND_LABEL);
+        $this->assertSame('PAYMENT_FEE_MODE', Config::LEGACY_PAYMENT_FEE_MODE);
+        $this->assertSame('PAYMENT_FEE_FRONTEND_LABEL', Config::LEGACY_PAYMENT_FEE_FRONTEND_LABEL);
         $this->assertSame('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL', Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL);
     }
 
