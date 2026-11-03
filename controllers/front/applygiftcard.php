@@ -114,7 +114,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
         // The giftcard method must be active and available for this cart, and the
         // card code (sent to Buckaroo as the service name) must be one the merchant enabled.
-        $paymentService = $this->getService('buckaroo.config.api.payment.service');
+        $paymentService = $this->getBuckarooPaymentService();
         if (!$paymentService->isMethodAvailableForCart($cart, 'giftcard')) {
             $this->logger->logError('Giftcard not available for cart ' . (int) $cart->id);
             $this->redirectWithError(
