@@ -36,6 +36,13 @@ final class ExpressSettings
     /** @var string[] */
     public const PLACEMENTS = [self::PLACEMENT_PRODUCT, self::PLACEMENT_CART, self::PLACEMENT_CHECKOUT];
 
+    /**
+     * Hooks the express button needs: assets (header), product page, cart page, checkout page.
+     *
+     * @var string[]
+     */
+    public const HOOKS = ['displayHeader', 'displayProductAdditionalInfo', 'displayExpressCheckout', 'displayPaymentTop'];
+
     /** @var string[] */
     public const BUTTON_STYLES = ['black', 'white', 'white-outline'];
 
