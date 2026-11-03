@@ -69,7 +69,7 @@ const cleanOldHashedFiles = () => {
 
                 // Clean old i18n and vendor files with hashes
                 const oldFiles = files.filter(file =>
-                    /^(i18n|vendor)-[a-zA-Z0-9]+\.js$/.test(file)
+                    /^(i18n|vendor)-[a-zA-Z0-9_-]+\.js$/.test(file)
                 );
 
                 for (const file of oldFiles) {
@@ -93,7 +93,16 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
         },
     },
-    plugins: [vue(), cleanOldHashedFiles(), licenseBanner()],
+    plugins: [
+        vue({
+            template: {
+                // Apple's Apple Pay JS SDK defines <apple-pay-button> (button preview).
+                compilerOptions: { isCustomElement: (tag) => tag === 'apple-pay-button' },
+            },
+        }),
+        cleanOldHashedFiles(),
+        licenseBanner(),
+    ],
     esbuild: {
         // Keep third-party "legal" comments (e.g. MIT notices) that minification would otherwise drop.
         legalComments: 'inline',

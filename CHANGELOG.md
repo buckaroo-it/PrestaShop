@@ -5,6 +5,7 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 ## v5.4.0
 
 ### Added
+- BTI-1828 Apple Pay express button on the product, cart and checkout pages. The customer pays the selected product and quantity (product page) or the whole cart in the native Apple Pay sheet, chooses the shipping address and carrier there, and the shop calculates the carriers and the total for that address. Guests and logged-in customers are supported: the customer (a guest account for guests), the addresses and the order are created from the Apple Pay data, and the payment is sent to Buckaroo with the Apple Pay token. The authorized amount must match the PrestaShop order total, including shipping, taxes and the payment fee. New Apple Pay settings: "Show the express button on" (product, cart and checkout page; clear all options to hide the button), "List as payment method in checkout", GUID, button style and button type, with a live button preview. The button is shown only when Apple Pay is enabled, the GUID is filled in and the device and browser support Apple Pay. The Apple Pay domain association file is placed in `/.well-known/` on installation, on upgrade and when the Apple Pay settings are saved (an existing file of another provider is never replaced).
 - Added an option to hold the order confirmation email until the Buckaroo order is paid. The payment status email is still sent. Existing shops keep the current behavior until the option is enabled.
 
 ### Improved

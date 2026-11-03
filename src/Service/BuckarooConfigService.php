@@ -17,6 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
@@ -89,6 +91,11 @@ class BuckarooConfigService
             $this->syncGiftcardAllowedCards($mergedConfig);
         }
 
+        if ($name === ExpressSettings::METHOD_NAME) {
+            $mergedConfig = ExpressSettings::sanitize($mergedConfig);
+            $this->installApplePayDomainAssociation();
+        }
+
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
     }
 
@@ -117,6 +124,22 @@ class BuckarooConfigService
         }
 
         \Configuration::updateValue('BUCKAROO_GIFTCARD_ALLOWED_CARDS', implode(',', array_unique($codes)));
+    }
+
+    /**
+     * Apple verifies the shop domain for Apple Pay with Buckaroo's association
+     * file in /.well-known/, so it is placed (when missing) whenever Apple Pay is saved.
+     */
+    private function installApplePayDomainAssociation(): void
+    {
+        $status = DomainAssociation::forModule(_PS_MODULE_DIR_ . 'buckaroo3')->install();
+
+        if ($status === DomainAssociation::STATUS_FAILED || $status === DomainAssociation::STATUS_OTHER_FILE) {
+            \PrestaShopLogger::addLog(
+                'Buckaroo: Apple Pay domain association file not placed in /.well-known/ (' . $status . ')',
+                2
+            );
+        }
     }
 
     public function updatePaymentMethodMode(string $name, string $mode): bool

@@ -25,6 +25,9 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
+use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressCheckoutService;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer;
@@ -39,6 +42,7 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\Service\DeferredOrderConfirmation;
 use Buckaroo\PrestaShop\Src\Service\PaymentLabelResolver;
 use Buckaroo\PrestaShop\Src\Service\PriceFormatter;
@@ -67,6 +71,11 @@ class Buckaroo3 extends PaymentModule
      * @var bool Guards against rebuilding the Click to Pay config per hook
      */
     private $clickToPayJsLoaded = false;
+
+    /**
+     * @var ExpressSettings|null
+     */
+    private $applePayExpressSettings;
 
     /**
      * @var PriceFormatter|null
@@ -251,6 +260,8 @@ class Buckaroo3 extends PaymentModule
             return '';
         }
 
+        $this->restoreCartAfterApplePayExpress($order);
+
         $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
         if (!$buckarooFeeData) {
@@ -309,6 +320,7 @@ class Buckaroo3 extends PaymentModule
 
         (new RefundSettings())->install();
         $this->configureOrderStates();
+        $this->installApplePayDomainAssociation();
         // The shop cookie SameSite setting is left as the merchant configured it.
         (new CookieSameSiteRestorer())->markHandled();
 
@@ -998,6 +1010,11 @@ class Buckaroo3 extends PaymentModule
         }
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
+
+        $placement = $this->getApplePayExpressPlacementForPage();
+        if ($placement !== null && $this->canShowApplePayExpress($placement)) {
+            $this->registerApplePayExpressAssets();
+        }
     }
 
     /**
@@ -1008,7 +1025,209 @@ class Buckaroo3 extends PaymentModule
     {
         $this->ensureBuckarooJsLoaded();
 
-        return $this->renderGiftcardAlreadyPaidBlock();
+        $applePayExpress = $this->canShowApplePayExpress(ExpressSettings::PLACEMENT_CHECKOUT)
+            ? $this->renderApplePayExpress(ExpressSettings::PLACEMENT_CHECKOUT)
+            : '';
+
+        return $applePayExpress . $this->renderGiftcardAlreadyPaidBlock();
+    }
+
+    /**
+     * Apple Pay express button on the product page, for the selected product,
+     * combination and quantity.
+     */
+    public function hookDisplayProductAdditionalInfo($params)
+    {
+        $product = $params['product'] ?? null;
+        if ($product === null
+            || empty($product['add_to_cart_url'])
+            || !$this->canShowApplePayExpress(ExpressSettings::PLACEMENT_PRODUCT)
+        ) {
+            return '';
+        }
+
+        return $this->renderApplePayExpress(ExpressSettings::PLACEMENT_PRODUCT, (int) $product['id_product']);
+    }
+
+    /**
+     * Apple Pay express button on the cart page, below the checkout button.
+     */
+    public function hookDisplayExpressCheckout($params)
+    {
+        if (!$this->canShowApplePayExpress(ExpressSettings::PLACEMENT_CART)) {
+            return '';
+        }
+
+        return $this->renderApplePayExpress(ExpressSettings::PLACEMENT_CART);
+    }
+
+    public function getApplePayExpressSettings(): ExpressSettings
+    {
+        if ($this->applePayExpressSettings === null) {
+            $this->applePayExpressSettings = new ExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(ExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->applePayExpressSettings;
+    }
+
+    /**
+     * Whether the Apple Pay express button may be shown on a page. Device and
+     * browser support is checked in the browser; the express endpoints check
+     * the payment method rules again for the express cart.
+     */
+    private function canShowApplePayExpress(string $placement): bool
+    {
+        try {
+            // Only the presence of the keys: isActivated() verifies them with a
+            // request to Buckaroo, which is too slow for every product page view.
+            if (!$this->active
+                || empty(Configuration::get('BUCKAROO_MERCHANT_KEY'))
+                || empty(Configuration::get('BUCKAROO_SECRET_KEY'))
+                || !$this->isPaymentModeActive(ExpressSettings::METHOD_NAME)
+            ) {
+                return false;
+            }
+
+            $settings = $this->getApplePayExpressSettings();
+            if (!$settings->isConfigured() || !$settings->showsOn($placement)) {
+                return false;
+            }
+
+            $customer = $this->context->customer;
+            $loggedIn = $customer instanceof Customer && (int) $customer->id > 0 && $customer->isLogged();
+            if (!$loggedIn && !Configuration::get('PS_GUEST_CHECKOUT_ENABLED')) {
+                return false;
+            }
+
+            if ($placement === ExpressSettings::PLACEMENT_PRODUCT) {
+                return true;
+            }
+
+            $cart = $this->context->cart;
+            if (!$cart instanceof Cart
+                || !Validate::isLoadedObject($cart)
+                || (int) $cart->nbProducts() <= 0
+                || $this->getGiftcardAlreadyPaid($cart) > 0
+            ) {
+                return false;
+            }
+
+            $minimumPurchase = (float) Tools::convertPrice((float) Configuration::get('PS_PURCHASE_MINIMUM'), $this->context->currency);
+            if ($minimumPurchase > 0 && (float) $cart->getOrderTotal(false, Cart::ONLY_PRODUCTS) < $minimumPurchase) {
+                return false;
+            }
+
+            $paymentService = $this->get('buckaroo.config.api.payment.service');
+
+            return $paymentService instanceof BuckarooPaymentService
+                && $paymentService->isMethodAvailableForCart($cart, ExpressSettings::METHOD_NAME);
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: Apple Pay express availability - ' . $e->getMessage(), 2);
+
+            return false;
+        }
+    }
+
+    private function getApplePayExpressPlacementForPage(): ?string
+    {
+        $controller = $this->context->controller;
+        $page = $controller && isset($controller->php_self) ? (string) $controller->php_self : '';
+
+        switch ($page) {
+            case 'product':
+                return ExpressSettings::PLACEMENT_PRODUCT;
+            case 'cart':
+                return ExpressSettings::PLACEMENT_CART;
+            case 'order':
+            case 'order-opc':
+                return ExpressSettings::PLACEMENT_CHECKOUT;
+            default:
+                return null;
+        }
+    }
+
+    private function renderApplePayExpress(string $placement, int $idProduct = 0): string
+    {
+        $this->context->smarty->assign([
+            'buckarooApplePayPlacement' => $placement,
+            'buckarooApplePayProductId' => $idProduct,
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/hook/applepay_express.tpl');
+    }
+
+    /**
+     * The Buckaroo SDK validates the Apple Pay merchant session for the GUID
+     * and loads Apple's Apple Pay JS SDK; the express script drives the sheet.
+     */
+    private function registerApplePayExpressAssets(): void
+    {
+        $settings = $this->getApplePayExpressSettings();
+        $language = $this->context->language;
+        $locale = !empty($language->locale) ? (string) $language->locale : (string) $language->language_code;
+
+        Media::addJsDef([
+            'buckarooApplePayExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'applepayexpress', [], true),
+                'token' => Tools::getToken(false),
+                'merchantGuid' => $settings->getMerchantGuid(),
+                'buttonStyle' => $settings->getButtonStyle(),
+                'buttonType' => $settings->getButtonType(),
+                'storeName' => (string) Configuration::get('PS_SHOP_NAME'),
+                'countryCode' => (string) Country::getIsoById((int) Configuration::get('PS_COUNTRY_DEFAULT')),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'cultureCode' => $locale,
+                'messages' => [
+                    'error' => $this->l('Apple Pay is not available at the moment. Please try again or choose another payment method.'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-sdk',
+            $this->getBuckarooClickToPayService()->getSdkScriptUrl(),
+            ['server' => 'remote', 'position' => 'bottom', 'priority' => 190]
+        );
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-applepay-express',
+            'modules/' . $this->name . '/views/js/buckaroo-applepay-express.js',
+            ['position' => 'bottom', 'priority' => 230]
+        );
+    }
+
+    private function restoreCartAfterApplePayExpress(Order $order): void
+    {
+        if (empty($this->context->cookie->__get(ExpressCheckoutService::COOKIE_CART))) {
+            return;
+        }
+
+        try {
+            $paymentService = $this->get('buckaroo.config.api.payment.service');
+            if ($paymentService instanceof BuckarooPaymentService) {
+                (new ExpressCheckoutService($this, $this->context, $paymentService))->restoreShopperCart($order);
+            }
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: Apple Pay express cart restore - ' . $e->getMessage(), 2);
+        }
+    }
+
+    /**
+     * Place Buckaroo's Apple Pay domain association file in /.well-known/.
+     */
+    public function installApplePayDomainAssociation(): string
+    {
+        $status = DomainAssociation::forModule(_PS_MODULE_DIR_ . $this->name)->install();
+
+        if ($status === DomainAssociation::STATUS_FAILED || $status === DomainAssociation::STATUS_OTHER_FILE) {
+            PrestaShopLogger::addLog(
+                'Buckaroo: Apple Pay domain association file not placed in /.well-known/ (' . $status . ')',
+                2
+            );
+        }
+
+        return $status;
     }
 
     /**

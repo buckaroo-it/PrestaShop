@@ -73,5 +73,12 @@ function upgrade_module_5_4_0($object)
     // keep the merchant's values and drop the unprefixed keys.
     (new Buckaroo\PrestaShop\Src\Install\ConfigurationKeyMigrator())->migrate();
 
-    return $object->registerHook('actionOrderStatusPostUpdate');
+    // Apple Pay express button on the product and cart pages, and Apple's domain verification file.
+    if (method_exists($object, 'installApplePayDomainAssociation')) {
+        $object->installApplePayDomainAssociation();
+    }
+
+    return $object->registerHook('actionOrderStatusPostUpdate')
+        && $object->registerHook('displayProductAdditionalInfo')
+        && $object->registerHook('displayExpressCheckout');
 }

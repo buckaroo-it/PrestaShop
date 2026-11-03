@@ -241,3 +241,44 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     color: #ff3649;
     margin-bottom: 15px;
 }
+
+/* Apple Pay express button */
+.buckaroo-applepay-express {
+    margin: 10px 0;
+}
+
+.buckaroo-applepay-express--checkout {
+    margin: 0 0 20px;
+}
+
+.buckaroo-applepay-express__button apple-pay-button {
+    display: block;
+    --apple-pay-button-width: 100%;
+    --apple-pay-button-height: 44px;
+    --apple-pay-button-border-radius: 4px;
+    --apple-pay-button-padding: 0;
+    --apple-pay-button-box-sizing: border-box;
+}
+
+/* Safari fallback when Apple's web component could not be loaded */
+.buckaroo-applepay-express__button.apple-pay-button:not(.apple-pay-sdk-host) {
+    display: block;
+    width: 100%;
+    height: 44px;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: plain;
+}
+
+.buckaroo-applepay-express__button.apple-pay-button-black { -apple-pay-button-style: black; }
+.buckaroo-applepay-express__button.apple-pay-button-white { -apple-pay-button-style: white; }
+.buckaroo-applepay-express__button.apple-pay-button-white-with-line { -apple-pay-button-style: white-outline; }
+.buckaroo-applepay-express__button.apple-pay-button-type-buy { -apple-pay-button-type: buy; }
+.buckaroo-applepay-express__button.apple-pay-button-type-check-out { -apple-pay-button-type: check-out; }
+.buckaroo-applepay-express__button.apple-pay-button-type-book { -apple-pay-button-type: book; }
+.buckaroo-applepay-express__button.apple-pay-button-type-subscribe { -apple-pay-button-type: subscribe; }
+
+.buckaroo-applepay-express__message {
+    margin-top: 10px;
+}
