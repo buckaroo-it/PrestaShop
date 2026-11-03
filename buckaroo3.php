@@ -1496,8 +1496,11 @@ class Buckaroo3 extends PaymentModule
 
         switch ($this->getBuckarooConfigService()->getConfigValue('idin', 'display_mode')) {
             case 'product':
+                // Verification is required as soon as any product in the cart requires it.
                 foreach ($cart->getProducts(true) as $value) {
-                    return $this->isProductBuckarooIdinEnabled($value['id_product']);
+                    if ($this->isProductBuckarooIdinEnabled((int) $value['id_product'])) {
+                        return true;
+                    }
                 }
                 break;
             case 'global':

@@ -112,6 +112,28 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             }
         }
 
+        // The giftcard method must be active and available for this cart, and the
+        // card code (sent to Buckaroo as the service name) must be one the merchant enabled.
+        $paymentService = $this->getService('buckaroo.config.api.payment.service');
+        if (!$paymentService->isMethodAvailableForCart($cart, 'giftcard')) {
+            $this->logger->logError('Giftcard not available for cart ' . (int) $cart->id);
+            $this->redirectWithError(
+                $this->module->l('Giftcards are not available for this order.')
+            );
+
+            return;
+        }
+
+        $cardCode = $paymentService->resolveAllowedGiftcardCode($cardCode);
+        if ($cardCode === '') {
+            $this->logger->logError('Giftcard code not enabled by the merchant for cart ' . (int) $cart->id);
+            $this->redirectWithError(
+                $this->module->l('The selected giftcard is not accepted. Please choose another giftcard.')
+            );
+
+            return;
+        }
+
         try {
             /** @var BuckarooGiftCard $giftcardApi */
             $giftcardApi = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_GIFTCARD);
@@ -136,10 +158,8 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             $customVars = [
                 'cardNumber' => $cardNumber,
                 'pin' => $securityCode,
+                'name' => $cardCode,
             ];
-            if (!empty($cardCode)) {
-                $customVars['name'] = $cardCode;
-            }
 
             $response = $giftcardApi->payDirect($customVars);
         } catch (Exception $e) {
