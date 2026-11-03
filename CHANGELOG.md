@@ -31,6 +31,7 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - BTI-1926 Updated the shipped HTTP client used by the Buckaroo SDK: guzzlehttp/guzzle 7.10.0 to 7.16.1, guzzlehttp/psr7 2.8.0 to 2.13.2 and guzzlehttp/promises 2.3.0 to 2.6.0, which resolves the published advisories for those versions.
 
 ### Fixed
+- BTI-1717 Starting a payment or applying a gift card failed on PrestaShop 1.7.8 and 8 ("non-existent service buckaroo.config.api.payment.service"): the front controllers now resolve the payment service from the module container.
 - BTI-1916 The admin controllers (refund, Klarna reservation and the configuration API) no longer extend the deprecated FrameworkBundleAdminController; they extend Symfony's AbstractController, which exists on PrestaShop 1.7.8, 8 and 9. The refund and Klarna controllers are now wired as service subscribers, which fixes flash messages that failed on PrestaShop 1.7.8 and 8, and the container fallback boots FrontKernel on PrestaShop 9 where AppKernel is abstract.
 
 ## v5.3.0

@@ -259,7 +259,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function getPaymentService(): BuckarooPaymentService
     {
-        return $this->getService('buckaroo.config.api.payment.service');
+        return $this->getBuckarooPaymentService();
     }
 
     private function isValidPaymentMethod($payment_method, Cart $cart): bool

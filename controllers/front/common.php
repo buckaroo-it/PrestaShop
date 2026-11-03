@@ -17,6 +17,7 @@
 
 use Buckaroo\PrestaShop\Src\Container\ContainerAwareTrait;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -30,6 +31,25 @@ class BuckarooCommonController extends ModuleFrontController
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * The payment service is defined for the shop front (config/front/services.yml),
+     * which the module container resolves. The Symfony container of a PrestaShop
+     * 1.7.8 or 8 front request only holds the back office services.
+     */
+    protected function getBuckarooPaymentService(): BuckarooPaymentService
+    {
+        try {
+            $service = $this->module->get('buckaroo.config.api.payment.service');
+            if ($service instanceof BuckarooPaymentService) {
+                return $service;
+            }
+        } catch (Throwable $e) {
+            // fall back to the PrestaShop container below
+        }
+
+        return $this->getService('buckaroo.config.api.payment.service');
     }
     private $id_order;
 
