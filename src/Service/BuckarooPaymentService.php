@@ -22,6 +22,7 @@ require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
 use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
@@ -116,6 +117,13 @@ class BuckarooPaymentService
         foreach ($paymentMethods as $details) {
             $method = $details->getName();
             if (!$this->isMethodAvailable($cart, $method, $positions, $idinPending)) {
+                continue;
+            }
+
+            // Apple Pay can be offered as express button only.
+            if ($method === ExpressSettings::METHOD_NAME
+                && !(new ExpressSettings($this->buckarooConfigService->getConfigArrayForMethod($method)))->isListedInCheckout()
+            ) {
                 continue;
             }
 
