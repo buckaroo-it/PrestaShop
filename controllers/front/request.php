@@ -402,7 +402,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->checkout->setCheckout();
             if ($this->checkout->isVerifyRequired()) {
                 $this->logger->logInfo('Start verify process');
-                $this->checkout->startVerify(['cid' => $cart->id_customer]);
+                $this->checkout->startVerify(['cid' => (int) $cart->id_customer, 'cart' => (int) $cart->id]);
             } else {
                 $this->logger->logInfo('Start the payment process');
                 $this->checkout->startPayment();

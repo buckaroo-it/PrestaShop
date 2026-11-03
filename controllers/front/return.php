@@ -72,6 +72,14 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         if ($response->isValid()) {
             $this->logger->logInfo('Response valid');
+
+            // An iDIN verification has no order; store the result and stop here.
+            if ($response instanceof IdinResponse) {
+                $stored = $response->storeCustomerVerification();
+                $this->logger->logInfo('iDIN push handled', ['stored' => $stored]);
+                echo $stored ? 'OK' : 'iDIN result not stored';
+                exit;
+            }
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
                 && !empty($response->statuscode)
