@@ -36,6 +36,12 @@ class CoreLogger
         self::WARN => 'Warning',
         self::ERROR => 'Error',
     ];
+    /**
+     * Context keys that may be forwarded to Buckaroo error reporting.
+     * Anything else in a log description stays local.
+     */
+    public const REPORTABLE_CONTEXT_KEYS = ['payment_method', 'action', 'order_id', 'cart_id'];
+
     private $level = self::DEBUG;
     private $filename = 'logger';
     private $logtype = 'api';
@@ -52,6 +58,7 @@ class CoreLogger
             $prefix = self::$log_level[$level] . ' ' . date('Y-m-d h:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {
+                $descr = $this->normalizeDescription($descr);
                 if (is_object($descr) || is_array($descr)) {
                     $descr = print_r($descr, true);
                 }
@@ -91,9 +98,15 @@ class CoreLogger
         $this->logEvent($info, self::DEBUG, $descr);
     }
 
+    /**
+     * @param string $info
+     * @param mixed $descr a \Throwable, or an array with an 'exception' key, is
+     *                     also forwarded to Buckaroo error reporting (opt-in)
+     */
     public function logError($info, $descr = null)
     {
         $this->logEvent($info, self::ERROR, $descr);
+        $this->reportException('error', $info, $descr);
     }
 
     public function logForUser($info)
@@ -104,6 +117,72 @@ class CoreLogger
     public function logWarn($info, $descr = null)
     {
         $this->logEvent($info, self::WARN, $descr);
+        $this->reportException('warning', $info, $descr);
+    }
+
+    /**
+     * Render exceptions as a short string so log files do not get a print_r()
+     * dump of the whole exception object.
+     */
+    private function normalizeDescription($descr)
+    {
+        if ($descr instanceof \Throwable) {
+            return $this->describeThrowable($descr);
+        }
+
+        if (is_array($descr)) {
+            foreach ($descr as $key => $value) {
+                if ($value instanceof \Throwable) {
+                    $descr[$key] = $this->describeThrowable($value);
+                }
+            }
+        }
+
+        return $descr;
+    }
+
+    private function describeThrowable(\Throwable $throwable)
+    {
+        return get_class($throwable) . ': ' . $throwable->getMessage()
+            . ' in ' . $throwable->getFile() . ':' . $throwable->getLine();
+    }
+
+    /**
+     * Forward an exception logged by the plugin to the Buckaroo error reporter.
+     * The reporter itself checks the merchant's consent and never throws.
+     */
+    private function reportException($level, $info, $descr)
+    {
+        try {
+            $exception = null;
+            $context = [];
+
+            if ($descr instanceof \Throwable) {
+                $exception = $descr;
+            } elseif (is_array($descr)) {
+                if (isset($descr['exception']) && $descr['exception'] instanceof \Throwable) {
+                    $exception = $descr['exception'];
+                }
+                foreach (self::REPORTABLE_CONTEXT_KEYS as $key) {
+                    if (isset($descr[$key]) && is_scalar($descr[$key])) {
+                        $context[$key] = (string) $descr[$key];
+                    }
+                }
+            }
+
+            $reporterClass = 'Buckaroo\\PrestaShop\\Src\\ErrorReporting\\ErrorReporter';
+            if ($exception === null || !class_exists($reporterClass)) {
+                return;
+            }
+
+            if ($this->filename !== '' && !isset($context['action'])) {
+                $context['action'] = (string) $this->filename;
+            }
+
+            $reporterClass::captureException($exception, $level, is_string($info) ? $info : '', $context);
+        } catch (\Throwable $e) {
+            // Error reporting must never break the shop.
+        }
     }
 
     public function logInfo($info, $descr = null)

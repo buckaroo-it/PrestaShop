@@ -133,7 +133,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
 
             $response = $giftcardApi->payDirect($customVars);
         } catch (Exception $e) {
-            $this->logger->logError('Giftcard API error: ' . $e->getMessage());
+            $this->logger->logError('Giftcard API error: ' . $e->getMessage(), ['exception' => $e, 'payment_method' => 'giftcard']);
             $this->redirectWithError(
                 $this->module->l('The giftcard could not be applied. Please try again.')
             );
@@ -217,7 +217,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
                 $customer->secure_key
             );
         } catch (Exception $e) {
-            $this->logger->logError('validateOrder failed: ' . $e->getMessage());
+            $this->logger->logError('validateOrder failed: ' . $e->getMessage(), ['exception' => $e, 'payment_method' => 'giftcard']);
             $this->redirectWithError($e->getMessage());
             return;
         }

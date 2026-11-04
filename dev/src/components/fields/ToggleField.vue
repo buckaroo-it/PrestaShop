@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="space-y-2">
-            <div class="flex justify-between">
+            <div class="flex justify-between items-center gap-4">
                 <slot></slot>
                 <div class="grid items-center">
                     <label :for="id" class="inline-flex relative items-center cursor-pointer">

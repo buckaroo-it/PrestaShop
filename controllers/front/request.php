@@ -124,7 +124,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->handleFailedRequest($cart->id);
             }
         } catch (Exception $exception) {
-            $this->logger->logError('Unexpected checkout exception: ' . $exception->getMessage());
+            $this->logger->logError('Unexpected checkout exception: ' . $exception->getMessage(), [
+                'exception' => $exception,
+                'payment_method' => Tools::strtolower(trim((string) Tools::getValue('method', ''))),
+            ]);
             $this->displayError(null, $this->module->l('We were unable to start your payment. Please try again or contact the merchant.'));
         }
     }
@@ -335,7 +338,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->setCheckoutProperties();
             $this->setCheckoutUrls();
         } catch (Exception $e) {
-            $this->logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', [
+                'exception' => $e,
+                'payment_method' => (string) $payment_method,
+            ]);
             $this->displayError(null, $e->getMessage());
             return;
         }
@@ -359,7 +365,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $customer->secure_key
                     );
                 } catch (Exception $e) {
-                    $this->logger->logError('Order validation failed: ', $e->getMessage());
+                    $this->logger->logError('Order validation failed: ', [
+                        'exception' => $e,
+                        'payment_method' => (string) $payment_method,
+                        'cart_id' => (string) $cart->id,
+                    ]);
                     $this->displayError(null, $e->getMessage());
                     return;
                 }
@@ -381,7 +391,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->checkout->startPayment();
             }
         } catch (Exception $e) {
-            $this->logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', [
+                'exception' => $e,
+                'payment_method' => (string) $payment_method,
+            ]);
             $this->displayError(null, $e->getMessage());
             return;
         }

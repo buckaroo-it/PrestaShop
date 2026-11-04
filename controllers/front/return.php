@@ -425,7 +425,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $message->add();
             }
         } catch (\Throwable $th) {
-            $this->logger->logInfo('PUSH', (string) $th);
+            $this->logger->logError('PUSH refund fallback failed', ['exception' => $th, 'action' => 'push']);
         }
     }
 }

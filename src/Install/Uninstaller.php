@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReportingConsent;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -89,6 +90,7 @@ class Uninstaller
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
+            ErrorReportingConsent::CONFIG_KEY,
         ];
 
         $this->deleteConfigurations($configurations);

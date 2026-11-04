@@ -10,3 +10,114 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ------------------------------------------------------------------
+   Floating input labels
+   PrestaShop's admin CSS makes every label bold, so the labels inside
+   empty inputs looked like typed values. Keep them light like a placeholder;
+   the peer-focus colour from the markup still wins while focused.
+   ------------------------------------------------------------------ */
+#app .peer ~ label {
+    font-weight: 400;
+}
+
+#app .peer:placeholder-shown ~ label {
+    color: #9ca3af; /* gray-400 */
+}
+/* ------------------------------------------------------------------
+   Payment-method specific settings (the "… settings" box)
+   The per-method components were built as stand-alone blocks; this keeps
+   them in line with the rest of the payment method page.
+   ------------------------------------------------------------------ */
+#app .method-settings .p-5 {
+    padding: 0.75rem 1rem;
+}
+
+#app .method-settings h2 {
+    margin: 0;
+}
+
+#app .method-settings select {
+    height: 39px;
+    padding: 0 0.625rem;
+    font-size: 0.875rem;
+    color: #111827;
+    background-color: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    box-shadow: none;
+}
+
+#app .method-settings select:focus {
+    outline: none;
+    border-color: #163255;
+}
+
+@media (min-width: 768px) {
+    #app .method-settings select {
+        max-width: 20rem;
+    }
+}
+
+/* The heading above each dropdown already names it; drop the repeated floating label. */
+#app .method-settings select ~ label {
+    display: none;
+}
+
+/* ------------------------------------------------------------------
+   Toast notifications (toastr). The container is added to <body>, outside
+   #app, so these rules are not scoped. White cards with a coloured accent,
+   in line with the rest of the settings app.
+   ------------------------------------------------------------------ */
+#toast-container > div.toast {
+    width: 320px;
+    padding: 12px 16px 12px 44px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    border-left-width: 4px;
+    background-color: #fff;
+    background-position: 16px center;
+    background-size: 18px 18px;
+    background-repeat: no-repeat;
+    color: #163255;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+    opacity: 1;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+}
+
+#toast-container > div.toast:hover {
+    box-shadow: 0 14px 30px -6px rgba(0, 0, 0, 0.16), 0 4px 8px -4px rgba(0, 0, 0, 0.08);
+    opacity: 1;
+    cursor: default;
+}
+
+#toast-container > div.toast-success {
+    border-left-color: #22c55e;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27 fill=%27%2322c55e%27%3E%3Cpath fill-rule=%27evenodd%27 d=%27M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z%27 clip-rule=%27evenodd%27/%3E%3C/svg%3E") !important;
+}
+
+#toast-container > div.toast-error {
+    border-left-color: #ef4444;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27 fill=%27%23ef4444%27%3E%3Cpath fill-rule=%27evenodd%27 d=%27M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z%27 clip-rule=%27evenodd%27/%3E%3C/svg%3E") !important;
+}
+
+#toast-container > div.toast-info {
+    border-left-color: #163255;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27 fill=%27%23163255%27%3E%3Cpath fill-rule=%27evenodd%27 d=%27M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z%27 clip-rule=%27evenodd%27/%3E%3C/svg%3E") !important;
+}
+
+#toast-container > div.toast-warning {
+    border-left-color: #eab308;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 20 20%27 fill=%27%23eab308%27%3E%3Cpath fill-rule=%27evenodd%27 d=%27M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z%27 clip-rule=%27evenodd%27/%3E%3C/svg%3E") !important;
+}
+
+#toast-container.toast-bottom-right {
+    right: 16px;
+    bottom: 16px;
+}
+
+#toast-container > div.toast + div.toast {
+    margin-top: 8px;
+}

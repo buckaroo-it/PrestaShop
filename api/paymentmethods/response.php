@@ -217,7 +217,7 @@ abstract class Response extends BuckarooAbstract
                     $this->validated = $reply_handler->isValid();
                     $this->logger->logInfo('Push request validated successfully');
                 } catch (\Throwable $e) {
-                    $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
+                    $this->logger->logError('Push request validation failed', ['exception' => $e]);
                 }
             } elseif ($this->response) {
                 $this->validated = !$this->response->isValidationFailure();
@@ -239,7 +239,7 @@ abstract class Response extends BuckarooAbstract
                     }
                 }
             } catch (Exception $e) {
-                $this->logger->logError('Exception while checking success', ['exception' => $e->getMessage()]);
+                $this->logger->logError('Exception while checking success', ['exception' => $e]);
             }
         } elseif (in_array($this->status, [self::BUCKAROO_PENDING_PAYMENT, self::BUCKAROO_SUCCESS])) {
             $this->logger->logInfo('Response status indicates success');

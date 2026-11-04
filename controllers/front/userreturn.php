@@ -48,6 +48,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $this->logger->logError('User return fatal: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'exception' => $e,
             ]);
             $this->redirectToCheckoutError(
                 $this->module->l('Your payment was unsuccessful. Please try again or choose another payment method.')
@@ -101,7 +102,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                     try {
                         $this->context->cart->delete();
                     } catch (\Throwable $e) {
-                        $this->logger->logError('Cart delete failed: ' . $e->getMessage());
+                        $this->logger->logError('Cart delete failed: ' . $e->getMessage(), $e);
                     }
                 }
 

@@ -26,6 +26,8 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReporter;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReportingConsent;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
@@ -44,7 +46,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 
 class Buckaroo3 extends PaymentModule
 {
-    const MODULE_VERSION = '5.3.0';
+    const MODULE_VERSION = '5.4.0';
     
     public $logger;
 
@@ -574,6 +576,8 @@ class Buckaroo3 extends PaymentModule
 
     public function getContent()
     {
+        $this->processErrorReportingConsent();
+
         $token = $this->getCsrfToken();
 
         if (empty($token)) {
@@ -591,9 +595,32 @@ class Buckaroo3 extends PaymentModule
             'baseUrl' => $this->context->shop->getBaseURL(true),
             'adminUrl' => $adminUrl,
             'token' => $token,
+            'errorReportingPrompt' => ErrorReportingConsent::needsPrompt(),
         ]);
 
         return $this->context->smarty->fetch('module:buckaroo3/views/templates/admin/app.tpl');
+    }
+
+    /**
+     * Store the answer of the "share error reports with Buckaroo" prompt.
+     * The configuration page URL carries the AdminModules token, which the
+     * back office validates before getContent() runs.
+     */
+    private function processErrorReportingConsent()
+    {
+        if (!Tools::isSubmit('submitBuckarooErrorReporting')
+            || !isset($_SERVER['REQUEST_METHOD'])
+            || strtoupper($_SERVER['REQUEST_METHOD']) !== 'POST'
+        ) {
+            return;
+        }
+
+        $answer = (string) Tools::getValue('buckaroo_error_reporting');
+        if ($answer !== ErrorReportingConsent::YES && $answer !== ErrorReportingConsent::NO) {
+            return;
+        }
+
+        ErrorReportingConsent::setConsent($answer === ErrorReportingConsent::YES);
     }
 
     private function isActivated()
@@ -714,7 +741,7 @@ class Buckaroo3 extends PaymentModule
                 ]
             );
         } catch (Exception $e) {
-            $this->logger->logError('Buckaroo3::hookPaymentOptions - ' . $e->getMessage());
+            $this->logger->logError('Buckaroo3::hookPaymentOptions - ' . $e->getMessage(), $e);
         }
 
         $this->ensureBuckarooJsLoaded();
@@ -798,6 +825,7 @@ class Buckaroo3 extends PaymentModule
             }
         } catch (\Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: ERROR in ensureBuckarooJsLoaded() - ' . $e->getMessage(), 3);
+            ErrorReporter::captureException($e, 'error', 'Buckaroo: ERROR in ensureBuckarooJsLoaded()');
         }
     }
 
@@ -861,6 +889,7 @@ class Buckaroo3 extends PaymentModule
             );
         } catch (\Exception $e) {
             PrestaShopLogger::addLog('Buckaroo: ERROR in ensureClickToPayJsLoaded() - ' . $e->getMessage(), 3);
+            ErrorReporter::captureException($e, 'error', 'Buckaroo: ERROR in ensureClickToPayJsLoaded()');
         }
     }
 
@@ -989,7 +1018,7 @@ class Buckaroo3 extends PaymentModule
                 return $dbAmount;
             }
         } catch (\Exception $e) {
-            $this->logger->logError('getGiftcardAlreadyPaid: ' . $e->getMessage());
+            $this->logger->logError('getGiftcardAlreadyPaid: ' . $e->getMessage(), $e);
         }
         return (float) ($this->context->cookie->buckaroo_giftcard_applied ?? 0);
     }
@@ -1011,7 +1040,7 @@ class Buckaroo3 extends PaymentModule
                 return $service->getRemainingAmount((int) $cart->id, $cartTotal);
             }
         } catch (\Exception $e) {
-            $this->logger->logError('getGiftcardRemainingAmount: ' . $e->getMessage());
+            $this->logger->logError('getGiftcardRemainingAmount: ' . $e->getMessage(), $e);
         }
         return (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
     }
@@ -1029,7 +1058,7 @@ class Buckaroo3 extends PaymentModule
             $service = new BuckarooGroupTransactionService();
             return $service->getDisplayItems((int) $cart->id);
         } catch (\Exception $e) {
-            $this->logger->logError('getGiftcardDisplayItems: ' . $e->getMessage());
+            $this->logger->logError('getGiftcardDisplayItems: ' . $e->getMessage(), $e);
             return [];
         }
     }
@@ -1477,7 +1506,7 @@ class Buckaroo3 extends PaymentModule
                 $buckarooIdinService->insertProductData($productId, $buckarooIdin);
             }
         } catch (Exception $e) {
-            $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage());
+            $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage(), $e);
         }
     }
 

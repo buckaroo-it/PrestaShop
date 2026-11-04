@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReportingConsent;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -39,6 +40,8 @@ class BuckarooSettingsService
             'negativePayment' => (bool) \Configuration::get(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT),
             'payment_fee_mode' => \Configuration::get(Config::PAYMENT_FEE_MODE),
             'payment_fee_frontend_label' => \Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
+            'error_reporting' => ErrorReportingConsent::isGranted(),
+            'error_reporting_decided' => ErrorReportingConsent::isDecided(),
         ];
     }
 
@@ -72,5 +75,11 @@ class BuckarooSettingsService
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, $data['negativePayment']);
         \Configuration::updateValue(Config::PAYMENT_FEE_MODE, $data['payment_fee_mode']);
         \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, $data['payment_fee_frontend_label']);
+
+        // Optional: older admin builds do not send it, and the admin app omits it
+        // while the merchant has not decided yet, so "not asked" is preserved.
+        if (array_key_exists('error_reporting', $data) && $data['error_reporting'] !== null) {
+            ErrorReportingConsent::setConsent(filter_var($data['error_reporting'], FILTER_VALIDATE_BOOLEAN));
+        }
     }
 }

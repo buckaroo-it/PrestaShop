@@ -12,6 +12,19 @@
  * @copyright Copyright (c) Buckaroo B.V.
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
+{if isset($errorReportingPrompt) && $errorReportingPrompt}
+    {include file='module:buckaroo3/views/templates/admin/error_reporting_prompt.tpl'}
+{/if}
+<style>
+    /*
+     * On phones PrestaShop's fixed toolbar is taller than the space it reserves:
+     * the subtitle overlaps the buttons and the buttons spill over the app.
+     */
+    @media (max-width: 767px) {
+        .page-head .page-subtitle { display: none; }
+        #app { margin-top: 2.5rem; }
+    }
+</style>
 <div id="app">
     <Dashboard
             token="{$token|escape:'htmlall':'UTF-8'}"

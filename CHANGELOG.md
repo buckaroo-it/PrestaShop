@@ -2,6 +2,27 @@
 
 All notable changes to the Buckaroo PrestaShop module are documented in this file.
 
+## v5.4.0
+
+### Added
+- Opt-in error reporting: merchants are asked once whether plugin errors may be shared with Buckaroo, and can change this under Settings > Advanced settings > Privacy. Nothing is sent without consent.
+- Search and Live/Test/Off filters on the Payment methods overview.
+- Unsaved-changes bar with Save/Discard on Settings, payment method, iDIN and payment method order pages, with a warning before leaving unsaved changes.
+- Keyboard reordering (move up/down buttons) on the payment method order page.
+- The open tab and payment method are kept in the page URL, so a refresh reopens the same page.
+
+### Improved
+- Redesigned configuration pages: grouped sections, consistent headers, cards, switches and notifications, and layouts for phones, tablets and wide screens.
+- Payment fee and order amount fields only accept numbers and show clear validation messages.
+- Clearer refund settings wording and grouping.
+- Country picker: no duplicate countries, selected count, and correct country names and flags.
+- Collapsible help panels.
+- Fixed typos and the German and French translations of "Order payment methods".
+
+### Fixed
+- Riverty and Billink: the B2B order amount fields were never shown for "B2B" and edited the general order amounts; the duplicate fields have been removed.
+- Toggle labels in Settings now switch their own toggle.
+
 ## v5.3.0
 
 ### Added

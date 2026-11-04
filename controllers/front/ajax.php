@@ -16,6 +16,7 @@
  */
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReporter;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
@@ -75,6 +76,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 \PrestaShopLogger::addLog('Buckaroo3 Ajax Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine(), 3);
             }
+            ErrorReporter::captureException($e, 'error', 'Buckaroo3 Ajax Error', ['action' => 'ajax']);
             while (@ob_get_level()) {
                 @ob_end_clean();
             }
@@ -92,6 +94,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 \PrestaShopLogger::addLog('Buckaroo3 Ajax Fatal Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine() . ' Trace: ' . $e->getTraceAsString(), 3);
             }
+            ErrorReporter::captureException($e, 'critical', 'Buckaroo3 Ajax Fatal Error', ['action' => 'ajax']);
             while (@ob_get_level()) {
                 @ob_end_clean();
             }
@@ -215,6 +218,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 \PrestaShopLogger::addLog('Buckaroo3 Render Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine() . ' Trace: ' . $e->getTraceAsString(), 3);
             }
+            ErrorReporter::captureException($e, 'error', 'Buckaroo3 Render Error', ['action' => 'ajax']);
             $errorMessage = 'Error rendering cart summary';
             if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) {
                 $errorMessage .= ': ' . $e->getMessage();

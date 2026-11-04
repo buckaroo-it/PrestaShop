@@ -31,7 +31,7 @@ const cleanOldHashedFiles = () => {
                 
                 // Clean old i18n and vendor files with hashes
                 const oldFiles = files.filter(file => 
-                    /^(i18n|vendor)-[a-zA-Z0-9]+\.js$/.test(file)
+                    /^(i18n|vendor)-[a-zA-Z0-9_-]+\.js$/.test(file)
                 );
                 
                 for (const file of oldFiles) {

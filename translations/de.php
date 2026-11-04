@@ -47,3 +47,11 @@ $_MODULE['<{buckaroo3}prestashop>payment_8df34bb962577b90d574a51ed2ca757f'] = 'J
 $_MODULE['<{buckaroo3}prestashop>payment_billink_c66a608eb37f73d6474df12b5f15e380'] = 'Handelsregisternummer:';
 // Please select gender (legacy / shared)
 $_MODULE['<{buckaroo3}prestashop>payment_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Bitte Geschlecht auswählen:';
+// --- Error reporting consent prompt ---
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_d0cc41aca33e543ac56f79e65b3c8639'] = 'Fehlerberichte mit Buckaroo teilen?';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_1423689e09bcdcf645356b12c20b7566'] = 'Helfen Sie uns, das Buckaroo-Plugin zu verbessern, indem automatisch ein Bericht an Buckaroo gesendet wird, wenn im Plugin ein Fehler auftritt.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_31eb1276848f179a0a28f947794240a8'] = 'Es werden nur Plugin-Exceptions gesendet: Exception-Klasse, Meldung, Datei und Zeile, Stacktrace (ohne Argumente), Plugin-, PrestaShop- und PHP-Versionen, Ihre Shop-URL, Ihr Buckaroo Website Key und der Test-/Live-Modus.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_7ba287d9209220189f3be135fae5a1b2'] = 'Es werden keine personenbezogenen Kundendaten oder Kartendaten gesendet.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_654e9ea4a05bfc996093bb0dab66b56e'] = 'Sie können diese Wahl jederzeit unter Einstellungen > Erweiterte Einstellungen ändern.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_cf02a8b812bfa6f79a55fdce93422e44'] = 'Ja, Fehlerberichte teilen';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_a0248bd77b4646e6a1f903f6ea16a4d1'] = 'Nein, danke';
