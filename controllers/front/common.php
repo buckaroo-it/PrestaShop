@@ -17,6 +17,7 @@
 
 use Buckaroo\PrestaShop\Src\Container\ContainerAwareTrait;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -26,9 +27,29 @@ if (!defined('_PS_VERSION_')) {
 class BuckarooCommonController extends ModuleFrontController
 {
     use ContainerAwareTrait;
+
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * The payment service is defined for the shop front (config/front/services.yml),
+     * which the module container resolves. The Symfony container of a PrestaShop
+     * 1.7.8 or 8 front request only holds the back office services.
+     */
+    protected function getBuckarooPaymentService(): BuckarooPaymentService
+    {
+        try {
+            $service = $this->module->get('buckaroo.config.api.payment.service');
+            if ($service instanceof BuckarooPaymentService) {
+                return $service;
+            }
+        } catch (Throwable $e) {
+            // fall back to the PrestaShop container below
+        }
+
+        return $this->getService('buckaroo.config.api.payment.service');
     }
     private $id_order;
 
@@ -60,7 +81,7 @@ class BuckarooCommonController extends ModuleFrontController
     protected function displayConfirmation($order_id)
     {
         $currency = $this->context->currency;
-        $locale = \Tools::getContextLocale($this->context);
+        $locale = Tools::getContextLocale($this->context);
 
         $this->id_order = $order_id;
         $order = new Order($this->id_order);
@@ -153,13 +174,13 @@ class BuckarooCommonController extends ModuleFrontController
                 continue;
             }
 
-            $payment                  = new OrderPayment();
+            $payment = new OrderPayment();
             $payment->order_reference = $order->reference;
-            $payment->id_currency     = $order->id_currency;
+            $payment->id_currency = $order->id_currency;
             $payment->conversion_rate = 1;
-            $payment->amount          = $amount;
-            $payment->payment_method  = (string) ($row['card_code'] ?: 'giftcard');
-            $payment->transaction_id  = $transactionKey;
+            $payment->amount = $amount;
+            $payment->payment_method = (string) ($row['card_code'] ?: 'giftcard');
+            $payment->transaction_id = $transactionKey;
             $payment->save();
         }
     }
@@ -185,13 +206,13 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
-        $payment                  = new OrderPayment();
+        $payment = new OrderPayment();
         $payment->order_reference = $order->reference;
-        $payment->id_currency     = $order->id_currency;
+        $payment->id_currency = $order->id_currency;
         $payment->conversion_rate = 1;
-        $payment->amount          = $amount;
-        $payment->payment_method  = \Tools::strtolower((string) ($response->payment_method ?? $order->payment));
-        $payment->transaction_id  = $transactionKey;
+        $payment->amount = $amount;
+        $payment->payment_method = Tools::strtolower((string) ($response->payment_method ?? $order->payment));
+        $payment->transaction_id = $transactionKey;
         $payment->save();
 
         return true;
@@ -226,8 +247,8 @@ class BuckarooCommonController extends ModuleFrontController
         $this->recordGroupTransactionPayments($orderId);
 
         if ($response !== null
-            && method_exists($response, 'hasSucceeded')
-            && $response->hasSucceeded()
+            && method_exists($response, 'isPaid')
+            && $response->isPaid()
         ) {
             $this->recordPushPayment($orderId, $response);
         }
@@ -357,7 +378,7 @@ class BuckarooCommonController extends ModuleFrontController
         return trim((string) ($response->payment_method ?? '')) === '';
     }
 
-    private function deleteOrderPayment(\OrderPayment $payment): void
+    private function deleteOrderPayment(OrderPayment $payment): void
     {
         Db::getInstance()->delete(
             'order_invoice_payment',
@@ -422,6 +443,11 @@ class BuckarooCommonController extends ModuleFrontController
 
     protected function markOrderPaidAfterSuccessfulReturn(int $orderId, $response = null): bool
     {
+        // A pending return (790-793) leaves the order pending; the push sets the final state.
+        if ($response === null || !method_exists($response, 'isPaid') || !$response->isPaid()) {
+            return false;
+        }
+
         $this->prepareOrderPaymentsBeforePaidStatus($orderId, $response);
 
         $newStatus = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, $orderId);

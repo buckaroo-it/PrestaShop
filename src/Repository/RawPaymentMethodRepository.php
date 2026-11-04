@@ -209,9 +209,8 @@ class RawPaymentMethodRepository
         // Fetch and return the mode from the configuration
         if (isset($configArray['mode'])) {
             return $configArray['mode'];
-        } else {
-            throw new \Exception('Mode not set for payment id ' . $paymentId);
         }
+        throw new \Exception('Mode not set for payment id ' . $paymentId);
     }
 
     public function getPaymentMethodsLabel($name)

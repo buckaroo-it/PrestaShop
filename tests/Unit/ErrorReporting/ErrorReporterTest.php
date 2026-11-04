@@ -13,13 +13,13 @@ class ErrorReporterTest extends TestCase
 {
     protected function setUp(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
         ErrorReporter::setInstance(null);
     }
 
     protected function tearDown(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
         ErrorReporter::setInstance(null);
     }
 
@@ -40,12 +40,12 @@ class ErrorReporterTest extends TestCase
     public function testNothingIsSentWithoutExplicitConsent($state): void
     {
         if ($state !== null) {
-            \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = $state;
+            Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = $state;
         }
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
-        $reporter->report(new \RuntimeException('boom'));
+        $reporter->report(new RuntimeException('boom'));
         $reporter->flush();
 
         $this->assertSame([], $reporter->getBufferedReports());
@@ -64,12 +64,12 @@ class ErrorReporterTest extends TestCase
 
     public function testConsentIsRecheckedBeforeSending(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
-        $reporter->report(new \RuntimeException('boom'));
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '0';
+        $reporter->report(new RuntimeException('boom'));
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '0';
         $reporter->flush();
 
         $this->assertSame([], $transport->requests);
@@ -77,14 +77,14 @@ class ErrorReporterTest extends TestCase
 
     public function testPayloadMatchesCollectorContract(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $metadata = new FixedMetadataProvider();
         $reporter = $this->makeReporter($transport, null, $metadata);
 
-        $previous = new \InvalidArgumentException('inner', 5);
+        $previous = new InvalidArgumentException('inner', 5);
         $reporter->report(
-            new \RuntimeException('outer', 42, $previous),
+            new RuntimeException('outer', 42, $previous),
             'critical',
             'Unexpected checkout exception',
             ['payment_method' => 'ideal', 'action' => 'request', 'order_id' => 100000123]
@@ -134,13 +134,13 @@ class ErrorReporterTest extends TestCase
 
     public function testTraceArgumentsAreNeverSent(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
         try {
             $this->throwWithSecretArgument('4111111111111111', 'john@example.com');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $reporter->report($e);
         }
         $reporter->flush();
@@ -153,19 +153,19 @@ class ErrorReporterTest extends TestCase
 
     private function throwWithSecretArgument(string $card, string $email): void
     {
-        throw new \RuntimeException('Payment failed');
+        throw new RuntimeException('Payment failed');
     }
 
     public function testIdenticalExceptionsAreDedupedWithinOneRequest(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
-        $exception = new \RuntimeException('same');
+        $exception = new RuntimeException('same');
         $reporter->report($exception);
         $reporter->report($exception);
-        $reporter->report(new \RuntimeException('other'));
+        $reporter->report(new RuntimeException('other'));
         $reporter->flush();
 
         $this->assertCount(1, $transport->requests);
@@ -174,12 +174,12 @@ class ErrorReporterTest extends TestCase
 
     public function testAtMostTwentyReportsPerRequest(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
         for ($i = 0; $i < 30; ++$i) {
-            $reporter->report(new \RuntimeException('error ' . $i));
+            $reporter->report(new RuntimeException('error ' . $i));
         }
         $reporter->flush();
 
@@ -189,11 +189,11 @@ class ErrorReporterTest extends TestCase
 
     public function testFlushClearsBufferAndSendsOnlyOnce(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
 
-        $reporter->report(new \RuntimeException('boom'));
+        $reporter->report(new RuntimeException('boom'));
         $reporter->flush();
         $reporter->flush();
 
@@ -203,11 +203,11 @@ class ErrorReporterTest extends TestCase
 
     public function testTransportFailuresAreSwallowed(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new FailingTransport();
         $reporter = $this->makeReporter($transport);
 
-        $reporter->report(new \RuntimeException('boom'));
+        $reporter->report(new RuntimeException('boom'));
         $reporter->flush();
 
         $this->assertSame(1, $transport->calls);
@@ -215,11 +215,11 @@ class ErrorReporterTest extends TestCase
 
     public function testMetadataFailuresAreSwallowed(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport, null, new ThrowingMetadataProvider());
 
-        $reporter->report(new \RuntimeException('boom'));
+        $reporter->report(new RuntimeException('boom'));
         $reporter->flush();
 
         $this->assertSame([], $transport->requests);
@@ -229,10 +229,10 @@ class ErrorReporterTest extends TestCase
     {
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport, function () {
-            throw new \RuntimeException('Configuration unavailable');
+            throw new RuntimeException('Configuration unavailable');
         });
 
-        $reporter->report(new \RuntimeException('boom'));
+        $reporter->report(new RuntimeException('boom'));
         $reporter->flush();
 
         $this->assertSame([], $reporter->getBufferedReports());
@@ -241,12 +241,12 @@ class ErrorReporterTest extends TestCase
 
     public function testStaticCaptureUsesSharedInstance(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $transport = new RecordingTransport();
         $reporter = $this->makeReporter($transport);
         ErrorReporter::setInstance($reporter);
 
-        ErrorReporter::captureException(new \RuntimeException('boom'), 'warning');
+        ErrorReporter::captureException(new RuntimeException('boom'), 'warning');
 
         $this->assertCount(1, $reporter->getBufferedReports());
         $this->assertSame('warning', $reporter->getBufferedReports()[0]['level']);
@@ -254,10 +254,10 @@ class ErrorReporterTest extends TestCase
 
     public function testUnknownLevelFallsBackToError(): void
     {
-        \Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
+        Configuration::$values[ErrorReportingConsent::CONFIG_KEY] = '1';
         $reporter = $this->makeReporter(new RecordingTransport());
 
-        $reporter->report(new \RuntimeException('boom'), 'debug');
+        $reporter->report(new RuntimeException('boom'), 'debug');
 
         $this->assertSame('error', $reporter->getBufferedReports()[0]['level']);
     }

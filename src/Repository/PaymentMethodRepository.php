@@ -39,9 +39,10 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
         $qb = $this->_em->createQueryBuilder();
         $qb->select('pm.id, pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
             ->from(BkPaymentMethods::class, 'pm');
-        if (!$allMethods)
+        if (!$allMethods) {
             $qb->where('pm.is_payment_method = :isPaymentMethod')
                 ->setParameter('isPaymentMethod', $isPaymentMethod);
+        }
         $qb->leftJoin(BkConfiguration::class, 'config', 'WITH', 'pm.id = config.configurable_id');
 
         return $qb->getQuery()->getArrayResult();
@@ -144,6 +145,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
                     return true;
                 }
             }
+
             return false;
         }
 

@@ -31,6 +31,7 @@ class RawBuckarooFeeRepository
      * @param float $feeExcl
      * @param float $feeIncl
      * @param string $currency
+     *
      * @return bool
      */
     public function insertFee($reference, $cartId, $orderId, $feeExcl, $feeIncl, $currency)
@@ -49,6 +50,7 @@ class RawBuckarooFeeRepository
             return \Db::getInstance()->insert('bk_buckaroo_fee', $data);
         } catch (\Exception $e) {
             \PrestaShopLogger::addLog('Failed to insert buckaroo fee: ' . $e->getMessage(), 3);
+
             return false;
         }
     }
@@ -57,11 +59,13 @@ class RawBuckarooFeeRepository
      * Retrieves a fee record by order ID.
      *
      * @param int $orderId
+     *
      * @return array|false
      */
     public function getFeeByOrderId($orderId)
     {
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_buckaroo_fee WHERE id_order = ' . (int)$orderId;
+        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_buckaroo_fee WHERE id_order = ' . (int) $orderId;
+
         return \Db::getInstance()->getRow($sql);
     }
 
@@ -69,6 +73,7 @@ class RawBuckarooFeeRepository
      * Marks the payment fee for an order as refunded.
      *
      * @param int $orderId
+     *
      * @return bool
      */
     public function markFeeRefunded(int $orderId): bool
@@ -81,6 +86,7 @@ class RawBuckarooFeeRepository
             );
         } catch (\Exception $e) {
             \PrestaShopLogger::addLog('Failed to mark buckaroo fee as refunded: ' . $e->getMessage(), 3);
+
             return false;
         }
     }
@@ -89,11 +95,13 @@ class RawBuckarooFeeRepository
      * Returns whether the payment fee for an order has already been refunded.
      *
      * @param int $orderId
+     *
      * @return bool
      */
     public function isFeeRefunded(int $orderId): bool
     {
         $row = $this->getFeeByOrderId($orderId);
+
         return !empty($row['fee_refunded']);
     }
 }

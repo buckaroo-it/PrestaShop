@@ -17,6 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Src\ErrorReporting;
 
+use Buckaroo\PrestaShop\Src\Context\ContextResolver;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -101,8 +103,8 @@ class ShopMetadataProvider
     public function getShopUrl(): string
     {
         try {
-            if (class_exists('Context')) {
-                $context = \Context::getContext();
+            $context = ContextResolver::resolve();
+            if (is_object($context)) {
                 if (isset($context->shop) && is_object($context->shop) && method_exists($context->shop, 'getBaseURL')) {
                     $url = (string) $context->shop->getBaseURL(true);
                     if ($url !== '') {

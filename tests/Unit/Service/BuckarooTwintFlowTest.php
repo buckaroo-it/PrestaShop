@@ -192,4 +192,3 @@ class BuckarooTwintFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(0, $optionsEur, 'TWINT should not be available for non-CHF carts');
     }
 }
-

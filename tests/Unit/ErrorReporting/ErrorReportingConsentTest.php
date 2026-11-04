@@ -10,12 +10,12 @@ class ErrorReportingConsentTest extends TestCase
 {
     protected function setUp(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
     }
 
     protected function tearDown(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
     }
 
     public function testDefaultIsNotAskedAndNotGranted(): void
@@ -28,12 +28,12 @@ class ErrorReportingConsentTest extends TestCase
     public function testAnsweringHidesThePrompt(): void
     {
         ErrorReportingConsent::setConsent(false);
-        $this->assertSame('0', \Configuration::$values['BUCKAROO_ERROR_REPORTING']);
+        $this->assertSame('0', Configuration::$values['BUCKAROO_ERROR_REPORTING']);
         $this->assertFalse(ErrorReportingConsent::isGranted());
         $this->assertFalse(ErrorReportingConsent::needsPrompt());
 
         ErrorReportingConsent::setConsent(true);
-        $this->assertSame('1', \Configuration::$values['BUCKAROO_ERROR_REPORTING']);
+        $this->assertSame('1', Configuration::$values['BUCKAROO_ERROR_REPORTING']);
         $this->assertTrue(ErrorReportingConsent::isGranted());
     }
 

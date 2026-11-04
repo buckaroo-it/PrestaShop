@@ -34,7 +34,7 @@ class FailingTransport implements TransportInterface
     public function send(string $url, array $headers, string $body): void
     {
         ++$this->calls;
-        throw new \RuntimeException('Connection timed out');
+        throw new RuntimeException('Connection timed out');
     }
 }
 
@@ -67,7 +67,7 @@ class ThrowingMetadataProvider extends ShopMetadataProvider
 {
     public function getMetadata(?string $paymentMethod = null): array
     {
-        throw new \LogicException('Db not available');
+        throw new LogicException('Db not available');
     }
 
     public function getPluginVersion(): string
@@ -76,7 +76,7 @@ class ThrowingMetadataProvider extends ShopMetadataProvider
     }
 }
 
-class InMemorySuppressionStore implements \Buckaroo\PrestaShop\Src\ErrorReporting\SuppressionStoreInterface
+class InMemorySuppressionStore implements Buckaroo\PrestaShop\Src\ErrorReporting\SuppressionStoreInterface
 {
     /** @var array<string,int> */
     public $entries = [];

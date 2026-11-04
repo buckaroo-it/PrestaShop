@@ -24,9 +24,10 @@ use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
 use Buckaroo\PrestaShop\Src\Refund\Request\Response\Handler as RefundResponseHandler;
 use Buckaroo\PrestaShop\Src\Refund\Settings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Service\PriceFormatter;
 use PrestaShop\PrestaShop\Core\Domain\Order\Exception\InvalidCancelProductException;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
-use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -35,7 +36,14 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class AdminRefundController extends FrameworkBundleAdminController
+/**
+ * Extends Symfony's AbstractController directly: PrestaShop's
+ * FrameworkBundleAdminController is deprecated in 9.x and its replacement
+ * (PrestaShopAdminController) does not exist on 1.7.8/8.x. Everything this
+ * controller needs (dependency injection, flash messages) is provided by
+ * AbstractController on every supported version.
+ */
+class AdminRefundController extends AbstractController
 {
     /**
      * @var QuantityBasedBuilder
@@ -62,18 +70,28 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private $session;
 
+    /**
+     * @var PriceFormatter
+     */
+    private $priceFormatter;
+
+    /**
+     * @param object|null $legacyContext prestashop.adapter.legacy.context service (optional for backward compatibility)
+     */
     public function __construct(
         QuantityBasedBuilder $refundBuilder,
         RefundRequestHandler $refundHandler,
         RefundResponseHandler $responseHandler,
         OrderService $orderService,
-        SessionInterface $session
+        SessionInterface $session,
+        $legacyContext = null
     ) {
         $this->refundHandler = $refundHandler;
         $this->refundBuilder = $refundBuilder;
         $this->responseHandler = $responseHandler;
         $this->orderService = $orderService;
         $this->session = $session;
+        $this->priceFormatter = new PriceFormatter($legacyContext);
     }
 
     public function refund(Request $request)
@@ -255,8 +273,6 @@ class AdminRefundController extends FrameworkBundleAdminController
      */
     private function formatPrice(\Order $order, float $price): string
     {
-        return \Tools::getContextLocale(\Context::getContext())->formatPrice(
-            $price, \Currency::getIsoCodeById((int) $order->id_currency)
-        );
+        return $this->priceFormatter->formatForCurrencyId($price, (int) $order->id_currency);
     }
 }

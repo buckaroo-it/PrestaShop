@@ -1,0 +1,28 @@
+# Shell scripts run on Linux (CI, containers) as well as in Git Bash: keep them LF on every checkout.
+*.sh text eol=lf
+
+# Files and directories that must never ship in the release ZIP.
+# The release ZIP is produced with `git archive` (see .github/scripts/build-release.sh),
+# which honours these export-ignore rules. Keep this list in sync with
+# .github/scripts/validate-package.php, which fails the build if any of them leak.
+/.github            export-ignore
+/.gitattributes     export-ignore
+/.gitignore         export-ignore
+/.idea              export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/.phpunit.result.cache export-ignore
+/CONTRIBUTING.md    export-ignore
+/README.md          export-ignore
+/RELEASE.md         export-ignore
+/scoper.inc.php     export-ignore
+/views/img/buckaroo/README.md export-ignore
+/dev                export-ignore
+/phpstan.neon.dist  export-ignore
+/phpstan-baseline.neon export-ignore
+/phpunit.xml        export-ignore
+/sonar-project.properties export-ignore
+/tests              export-ignore
+/composer.lock      export-ignore
+
+# Apple Pay domain association: Apple compares the served bytes, never convert line endings.
+/views/apple/apple-developer-merchantid-domain-association -text

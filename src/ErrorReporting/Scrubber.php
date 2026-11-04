@@ -118,6 +118,7 @@ class Scrubber
      * so order ids and timestamps are not masked as cards
      *
      * @param string $number
+     *
      * @return bool
      */
     private static function passesLuhn(string $number): bool
@@ -126,7 +127,7 @@ class Scrubber
         $sum = 0;
         $double = false;
 
-        for ($i = strlen($digits) - 1; $i >= 0; $i--) {
+        for ($i = strlen($digits) - 1; $i >= 0; --$i) {
             $digit = (int) $digits[$i];
             if ($double) {
                 $digit *= 2;

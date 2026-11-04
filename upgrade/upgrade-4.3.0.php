@@ -23,6 +23,7 @@ if (!defined('_PS_VERSION_')) {
 
 /**
  * @return mixed
+ *
  * @throws Exception
  */
 function upgrade_module_4_3_0($object)
@@ -65,8 +66,8 @@ function upgrade_module_4_3_0($object)
 
     Db::getInstance()->execute('DELETE FROM ' . _DB_PREFIX_ . 'bk_payment_methods WHERE name = "tinka"');
 
-    \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
-    \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
+    Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
+    Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
 
     return true;
 }

@@ -26,25 +26,72 @@ class IdinResponse extends Response
 {
     protected $buckarooIdinService;
 
-    public function __construct($transactionResponse = null)
+    public function __construct($transactionResponse = null, ?BuckarooIdinService $buckarooIdinService = null)
     {
-        $this->buckarooIdinService = new BuckarooIdinService();
-        $this->parsePostResponseChild();
+        $this->buckarooIdinService = $buckarooIdinService ?? new BuckarooIdinService();
         parent::__construct($transactionResponse);
     }
 
-    protected function parsePostResponseChild()
+    /**
+     * Stores the iDIN result for the customer the verify request was started for.
+     *
+     * Building the response stores nothing. The result counts only when the reply
+     * signature is valid, the verification succeeded, and the signed customer id
+     * owns the signed cart id (both are additional parameters of the verify request).
+     */
+    public function storeCustomerVerification(): bool
     {
-        if ($customerId = \Tools::getValue('ADD_cid')) {
-            if ($consumerbin = \Tools::getValue('brq_SERVICE_idin_ConsumerBIN')) {
-                if ($iseighteenorolder = \Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder')) {
-                    if ($this->buckarooIdinService->checkCustomerIdExists($customerId)) {
-                        $this->buckarooIdinService->updateCustomerData($customerId, $consumerbin, $iseighteenorolder);
-                    } else {
-                        $this->buckarooIdinService->insertCustomerData($customerId, $consumerbin, $iseighteenorolder);
-                    }
-                }
-            }
+        if (!$this->isPaid()) {
+            $this->logger->logInfo('iDIN reply not stored: not a valid, successful reply');
+
+            return false;
         }
+
+        $customerId = $this->toPositiveInt(Tools::getValue('ADD_cid'));
+        $cartId = $this->toPositiveInt(Tools::getValue('ADD_cart'));
+        $consumerBin = (string) Tools::getValue('brq_SERVICE_idin_ConsumerBIN');
+        $isEighteenOrOlder = (string) Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder');
+
+        if ($customerId === 0 || $cartId === 0 || $consumerBin === '' || $isEighteenOrOlder === '') {
+            $this->logger->logError('iDIN reply not stored: customer, cart or result missing');
+
+            return false;
+        }
+
+        if ($this->getCartCustomerId($cartId) !== $customerId) {
+            $this->logger->logError('iDIN reply not stored: customer does not own the cart', [
+                'customer' => $customerId,
+                'cart' => $cartId,
+            ]);
+
+            return false;
+        }
+
+        if ($this->buckarooIdinService->checkCustomerIdExists($customerId)) {
+            $this->buckarooIdinService->updateCustomerData($customerId, $consumerBin, $isEighteenOrOlder);
+        } else {
+            $this->buckarooIdinService->insertCustomerData($customerId, $consumerBin, $isEighteenOrOlder);
+        }
+
+        return true;
+    }
+
+    protected function getCartCustomerId(int $cartId): int
+    {
+        $cart = new Cart($cartId);
+
+        return Validate::isLoadedObject($cart) ? (int) $cart->id_customer : 0;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function toPositiveInt($value): int
+    {
+        if (is_int($value)) {
+            return max($value, 0);
+        }
+
+        return is_string($value) && ctype_digit($value) ? (int) $value : 0;
     }
 }

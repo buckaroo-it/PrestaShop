@@ -37,4 +37,3 @@ class BuckarooKlarnaFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('klarna', $options[0]->getModuleName());
     }
 }
-

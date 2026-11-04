@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Doctrine\ORM\EntityManager;
@@ -29,20 +30,31 @@ if (!defined('_PS_VERSION_')) {
 
 class BuckarooFeeService
 {
+    use ContextAwareTrait;
+
     private $paymentMethodRepository;
     private $configurationRepository;
-    private $locale;
 
-    public function __construct(EntityManager $entityManager)
+    /**
+     * @var PriceFormatter|null
+     */
+    private $priceFormatter;
+
+    /**
+     * @param EntityManager $entityManager
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct(EntityManager $entityManager, $legacyContext = null)
     {
         $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
-        $this->locale = \Tools::getContextLocale(\Context::getContext());
+        $this->setContext($legacyContext);
     }
 
     public function getPaymentMethodByLabel($label)
     {
         $paymentMethod = $this->paymentMethodRepository->findOneBy(['label' => $label]);
+
         return $paymentMethod ? $paymentMethod->getName() : null;
     }
 
@@ -62,7 +74,7 @@ class BuckarooFeeService
             }
 
             $isPercentage = is_string($buckarooFee) && strpos(trim($buckarooFee), '%') !== false;
-            
+
             if ($isPercentage) {
                 $result[$method->getName()] = [
                     'buckarooFee' => trim($buckarooFee),
@@ -129,9 +141,16 @@ class BuckarooFeeService
      */
     private function formatPrice($amount): string
     {
-        $currency = \Context::getContext()->currency;
+        return $this->getPriceFormatter()->format($amount);
+    }
 
-        return $this->locale->formatPrice($amount, $currency->iso_code);
+    private function getPriceFormatter(): PriceFormatter
+    {
+        if ($this->priceFormatter === null) {
+            $this->priceFormatter = new PriceFormatter($this->getContext());
+        }
+
+        return $this->priceFormatter;
     }
 
     /**

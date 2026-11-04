@@ -36,5 +36,33 @@ class BuckarooApplepayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(1, $options);
         $this->assertSame('applepay', $options[0]->getModuleName());
     }
-}
 
+    public function testApplepayOfferedOnlyAsExpressButtonIsNotAPaymentOption(): void
+    {
+        $config = [
+            'applepay' => [
+                'min_order_amount' => 0,
+                'max_order_amount' => 0,
+                'frontend_label' => 'Apple Pay',
+                'checkout_method' => '0',
+            ],
+        ];
+
+        $service = $this->createFlowServiceForMethod('applepay', $config);
+
+        $cart = new class {
+            public $id_address_delivery = 1;
+            public $id_address_invoice = 1;
+            public $id_currency = 1;
+
+            public function getOrderTotal($withTaxes, $type)
+            {
+                return 30.0;
+            }
+        };
+
+        $this->assertSame([], $service->getPaymentOptions($cart));
+        // The express button still passes the method's availability rules.
+        $this->assertTrue($service->isMethodAvailableForCart($cart, 'applepay'));
+    }
+}

@@ -37,4 +37,3 @@ class BuckarooEpsFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('eps', $options[0]->getModuleName());
     }
 }
-

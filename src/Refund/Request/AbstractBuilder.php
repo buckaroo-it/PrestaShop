@@ -66,6 +66,7 @@ abstract class AbstractBuilder
     private function getPushUrl(): string
     {
         $link = new \Link();
+
         return $link->getModuleLink('buckaroo3', 'userreturn', [], true);
     }
 

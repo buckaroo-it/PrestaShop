@@ -37,4 +37,3 @@ class BuckarooBillinkFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('billink', $options[0]->getModuleName());
     }
 }
-

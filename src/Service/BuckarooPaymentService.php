@@ -22,13 +22,15 @@ require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
+use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Doctrine\ORM\EntityManager;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 use PrestaShop\PrestaShop\Core\Payment\PaymentOption;
-use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -44,18 +46,32 @@ class BuckarooPaymentService
     protected $logger;
     protected $bkOrderingRepository;
     protected $paymentMethodRepository;
+    /**
+     * @var object|null PrestaShop Context, resolved lazily through getContext()
+     */
     protected $context;
+    /**
+     * @var object|null Context object or provider exposing getContext() (prestashop.adapter.legacy.context)
+     */
+    protected $contextSource;
     protected $buckarooConfigService;
     protected $buckarooFeeService;
     protected $issuersPayByBank;
     protected $capayableIn3;
     protected $countryRepository;
+    /**
+     * @var PriceFormatter|null
+     */
+    protected $priceFormatter;
 
-    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository)
+    /**
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository, $legacyContext = null)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
         $this->logger = new \Logger(\Logger::INFO, '');
-        $this->context = \Context::getContext();
+        $this->contextSource = $legacyContext;
         $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
         $this->buckarooFeeService = $buckarooFeeService;
@@ -65,44 +81,62 @@ class BuckarooPaymentService
         $this->countryRepository = $countryRepository;
     }
 
+    /**
+     * The context is resolved on first use so the service can be built before
+     * PrestaShop finished initialising the request (shop, language, currency).
+     *
+     * @return object|null PrestaShop Context
+     */
+    protected function getContext()
+    {
+        if ($this->context === null) {
+            $this->context = ContextResolver::resolve($this->contextSource);
+        }
+
+        return $this->context;
+    }
+
+    protected function getPriceFormatter(): PriceFormatter
+    {
+        if ($this->priceFormatter === null) {
+            $this->priceFormatter = new PriceFormatter($this->getContext());
+        }
+
+        return $this->priceFormatter;
+    }
+
     public function getPaymentOptions($cart)
     {
         $payment_options = [];
         libxml_use_internal_errors(true);
         $paymentMethods = $this->paymentMethodRepository->findAll();
 
-        $isoCode2 = $this->context->country->iso_code;
-        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+        $positions = $this->getCountryMethodPositions();
+        $idinPending = $this->isIdinVerificationPending($cart);
 
-        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
-        $activeMethodIds = array_column($activePaymentMethods, 'id');
-
-        $positions = $this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds);
-
-        $positions = array_flip($positions);
         foreach ($paymentMethods as $details) {
             $method = $details->getName();
-            $isMethodValid = $this->module->isPaymentModeActive($method)
-                && $this->isPaymentMethodAvailable($cart, $method)
-                && isset($positions[$method])
-                && !$this->isMethodUnavailableBySpecificConditions($cart, $method);
+            if (!$this->isMethodAvailable($cart, $method, $positions, $idinPending)) {
+                continue;
+            }
+
+            // Apple Pay can be offered as express button only.
+            if ($method === ExpressSettings::METHOD_NAME
+                && !(new ExpressSettings($this->buckarooConfigService->getConfigArrayForMethod($method)))->isListedInCheckout()
+            ) {
+                continue;
+            }
 
             if ($method == 'in3') {
                 $method = $this->capayableIn3->getMethod();
             }
 
-            if ($method == 'idin' && (!$this->module->isIdinCheckout($cart) || $this->isCustomerIdinValid($cart))) {
-                continue;
-            }
-
-            if ($isMethodValid) {
-                if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
-                    $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
-                } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
-                    $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
-                } else {
-                    $payment_options[] = $this->createPaymentOption($method, $details);
-                }
+            if ($method === 'creditcard' && $this->areCardsSeparate('creditcard')) {
+                $payment_options = array_merge($payment_options, $this->getIndividualCards($method, $details));
+            } elseif ($method === 'giftcard' && $this->areCardsSeparate('giftcard')) {
+                $payment_options = array_merge($payment_options, $this->getIndividualGiftCards($method, $details));
+            } else {
+                $payment_options[] = $this->createPaymentOption($method, $details);
             }
         }
 
@@ -121,6 +155,113 @@ class BuckarooPaymentService
         return $payment_options;
     }
 
+    /**
+     * The merchant's availability rules for one method on this cart: active,
+     * enabled for the shopper's country, order amount, method specific
+     * conditions (in3 NL billing address, Riverty B2B, currency) and iDIN age
+     * verification. Checkout options are built from it and the front
+     * controllers check it again before an order or payment is created.
+     */
+    public function isMethodAvailableForCart($cart, string $method): bool
+    {
+        return $this->isMethodAvailable(
+            $cart,
+            $method,
+            $this->getCountryMethodPositions(),
+            $this->isIdinVerificationPending($cart)
+        );
+    }
+
+    /**
+     * True when a product in the cart requires iDIN age verification and the
+     * customer has not verified yet. Only iDIN may be used until then.
+     */
+    public function isIdinVerificationPending($cart): bool
+    {
+        return $this->module->isIdinCheckout($cart) && !$this->isCustomerIdinValid($cart);
+    }
+
+    /**
+     * @param array<string, int> $positions methods enabled for the shopper's country, keyed by name
+     */
+    private function isMethodAvailable($cart, string $method, array $positions, bool $idinPending): bool
+    {
+        if (!$this->module->isPaymentModeActive($method)
+            || !isset($positions[$method])
+            || !$this->isPaymentMethodAvailable($cart, $method)
+            || $this->isMethodUnavailableBySpecificConditions($cart, $method)
+        ) {
+            return false;
+        }
+
+        if ($method === 'idin') {
+            return $idinPending;
+        }
+
+        return !$idinPending;
+    }
+
+    /**
+     * @return array<string, int> names of the methods enabled for the shopper's country => checkout position
+     */
+    private function getCountryMethodPositions(): array
+    {
+        $isoCode2 = $this->getContext()->country->iso_code;
+        $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
+        if (!is_array($country) || !isset($country['id'])) {
+            return [];
+        }
+
+        $activePaymentMethods = $this->paymentMethodRepository->getActivePaymentMethods($country['id']);
+        $activeMethodIds = array_column($activePaymentMethods, 'id');
+
+        return array_flip($this->bkOrderingRepository->fetchPositions($country['id'], $activeMethodIds));
+    }
+
+    /**
+     * The card brand must be one of the merchant's active credit cards; it is
+     * sent to Buckaroo as the service name.
+     */
+    public function isCreditCardBrandAllowed(string $brand): bool
+    {
+        $brand = strtolower(trim($brand));
+        if ($brand === '') {
+            return false;
+        }
+
+        $cards = $this->buckarooConfigService->getActiveCreditCards();
+
+        return is_array($cards) && array_key_exists($brand, $cards);
+    }
+
+    /**
+     * Returns the merchant's spelling of an allowed giftcard code, or '' when
+     * the code is not one of the giftcards the merchant enabled.
+     */
+    public function resolveAllowedGiftcardCode(string $code): string
+    {
+        $code = strtolower(trim($code));
+        if ($code === '') {
+            return '';
+        }
+
+        foreach ($this->buckarooConfigService->getAllowedGiftcardCodes() as $allowed) {
+            if (strtolower($allowed) === $code) {
+                return $allowed;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * The PayByBank issuer must be one of the banks offered in the checkout.
+     */
+    public function isPayByBankIssuerAllowed(string $issuer): bool
+    {
+        return $issuer !== '' && array_key_exists($issuer, $this->issuersPayByBank->get());
+    }
+
     private function getIndividualCards($method, $details): array
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod('creditcard');
@@ -128,13 +269,14 @@ class BuckarooPaymentService
         $methods = [];
         if (isset($configArray['activeCreditcards']) && is_array($configArray['activeCreditcards']) && count($configArray['activeCreditcards']) > 0) {
             foreach ($configArray['activeCreditcards'] as $card) {
-                if (array_key_exists('service_code', $card))
+                if (array_key_exists('service_code', $card)) {
                     $methods[] = $this->getIndividualCard($method, $details, $card['service_code'], $configArray);
+                }
             }
         }
+
         return $methods;
     }
-
 
     private function getIndividualGiftCards($method, $details): array
     {
@@ -190,7 +332,7 @@ class BuckarooPaymentService
     private function getIndividualCard($method, $details, $cardCode, $configArray)
     {
         $newOption = new PaymentOption();
-        $cardData  = $this->getCardData($cardCode);
+        $cardData = $this->getCardData($cardCode);
 
         $title = $this->getCardTitle($cardData['name'] ?? null, $configArray);
 
@@ -199,7 +341,7 @@ class BuckarooPaymentService
         }
 
         $newOption->setCallToActionText($title)
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
+            ->setAction($this->getContext()->link->getModuleLink('buckaroo3', 'request', ['method' => $method, 'cardCode' => $cardCode]))
             ->setModuleName($method);
 
         // Include cardCode as a POST input so third-party checkouts (e.g. TheCheckout)
@@ -235,14 +377,14 @@ class BuckarooPaymentService
             $title = $this->getBuckarooLabel($method, $details->getLabel());
         }
 
-        $action = $this->context->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]);
+        $action = $this->getContext()->link->getModuleLink('buckaroo3', 'applygiftcard', ['cardCode' => $cardCode]);
 
         if (!empty($details->getTemplate())) {
-            $this->context->smarty->assign([
+            $this->getContext()->smarty->assign([
                 'cardCode' => $cardCode,
                 'giftcardFormAction' => $action,
             ]);
-            $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+            $newOption->setForm($this->getContext()->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
         }
 
         $inputs = $this->buckarooFeeService->getBuckarooFeeInputs($method);
@@ -274,9 +416,10 @@ class BuckarooPaymentService
     private function getCardLogoPath($logo, $details)
     {
         if (!is_string($logo)) {
-            return "Payment methods/SVG/" . $details->getIcon();
+            return 'Payment methods/SVG/' . $details->getIcon();
         }
-        return "Creditcard issuers/SVG/" . $logo;
+
+        return 'Creditcard issuers/SVG/' . $logo;
     }
 
     /**
@@ -357,7 +500,8 @@ class BuckarooPaymentService
     private function areCardsSeparate($method): bool
     {
         $configArray = $this->buckarooConfigService->getConfigArrayForMethod($method);
-        return ($configArray['display_in_checkout'] ?? "grouped") === "separate";
+
+        return ($configArray['display_in_checkout'] ?? 'grouped') === 'separate';
     }
 
     public function isCustomerIdinValid($cart)
@@ -383,6 +527,8 @@ class BuckarooPaymentService
                 return !$this->isCartCurrencyAllowed($cart, ['CHF']);
             case 'swish':
                 return !$this->isCartCurrencyAllowed($cart, ['SEK']);
+            case 'wero':
+                return !$this->isCartCurrencyAllowed($cart, ['EUR']);
             default:
                 return false;
         }
@@ -489,15 +635,16 @@ class BuckarooPaymentService
         $newOption = new PaymentOption();
 
         $newOption->setCallToActionText($this->getBuckarooLabel($method, $details->getLabel()))
-            ->setAction($this->context->link->getModuleLink('buckaroo3', 'request', ['method' => $method]))
+            ->setAction($this->getContext()->link->getModuleLink('buckaroo3', 'request', ['method' => $method]))
             ->setModuleName($method);
 
         // If template is set, use setForm, otherwise set inputs
         if (!empty($details->getTemplate())) {
             try {
-                $newOption->setForm($this->context->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
+                $newOption->setForm($this->getContext()->smarty->fetch('module:buckaroo3/views/templates/hook/' . $details->getTemplate()));
             } catch (\Exception $e) {
                 $this->logError('Unable to load template: ' . $details->getTemplate() . ' - ' . $e->getMessage());
+
                 return null;
             }
         } else {
@@ -570,9 +717,7 @@ class BuckarooPaymentService
 
         $feeAmount = (float) $paymentFee;
         if ($feeAmount > 0) {
-            $locale = \Tools::getContextLocale(\Context::getContext());
-            $currency = \Context::getContext()->currency;
-            return ' + ' . $locale->formatPrice($feeAmount, $currency->iso_code);
+            return ' + ' . $this->getPriceFormatter()->format($feeAmount);
         }
 
         return '';
@@ -635,19 +780,24 @@ class BuckarooPaymentService
             \BillinkCheckout::CUSTOMER_TYPE_B2C);
     }
 
-    public function areHouseNumberValidForCountryDE($cart) {
+    public function areHouseNumberValidForCountryDE($cart)
+    {
         list($billingAddress, $billingCountry, $shippingAddress, $shippingCountry) = $this->getAddressDetails($cart);
+
         return [
-            "billing" =>$this->isHouseNumberValid($billingAddress) || $billingCountry !== 'DE',
-            "shipping" => $this->isHouseNumberValid($shippingAddress) || $shippingCountry !== 'DE'
+            'billing' => $this->isHouseNumberValid($billingAddress) || $billingCountry !== 'DE',
+            'shipping' => $this->isHouseNumberValid($shippingAddress) || $shippingCountry !== 'DE',
         ];
     }
 
-    private function isHouseNumberValid($address) {
+    private function isHouseNumberValid($address)
+    {
         if (is_string($address->address1)) {
             $address = AddressComponents::getAddressComponents($address->address1);
+
             return is_string($address['house_number']) && !empty(trim($address['house_number']));
         }
+
         return false;
     }
 
@@ -707,8 +857,7 @@ class BuckarooPaymentService
     protected function getAddressById($id)
     {
         if (is_scalar($id)) {
-            return new \Address((int)$id);
+            return new \Address((int) $id);
         }
     }
-
 }

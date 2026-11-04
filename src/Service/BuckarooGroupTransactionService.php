@@ -53,15 +53,15 @@ class BuckarooGroupTransactionService
         \Db::getInstance()->insert(
             self::TABLE,
             [
-                'cart_id'               => (int) $cartId,
-                'order_id'              => null,
-                'transaction_key'       => pSQL((string) ($data['transaction_key'] ?? '')),
-                'group_transaction_id'  => pSQL((string) ($data['group_transaction_id'] ?? '')),
-                'amount'                => (float) ($data['amount'] ?? 0),
-                'refunded_amount'       => 0,
-                'currency'              => pSQL((string) ($data['currency'] ?? '')),
-                'card_code'             => pSQL((string) ($data['card_code'] ?? '')),
-                'status'                => (int) ($data['status'] ?? self::STATUS_SUCCESS),
+                'cart_id' => (int) $cartId,
+                'order_id' => null,
+                'transaction_key' => pSQL((string) ($data['transaction_key'] ?? '')),
+                'group_transaction_id' => pSQL((string) ($data['group_transaction_id'] ?? '')),
+                'amount' => (float) ($data['amount'] ?? 0),
+                'refunded_amount' => 0,
+                'currency' => pSQL((string) ($data['currency'] ?? '')),
+                'card_code' => pSQL((string) ($data['card_code'] ?? '')),
+                'status' => (int) ($data['status'] ?? self::STATUS_SUCCESS),
             ]
         );
     }
@@ -72,10 +72,29 @@ class BuckarooGroupTransactionService
      */
     public function updateGroupTransactionStatus(string $transactionKey, int $status): void
     {
-        \Db::getInstance()->update(
-            self::TABLE,
-            ['status' => (int) $status],
-            '`transaction_key` = \'' . pSQL($transactionKey) . '\''
+        if ($transactionKey === '' || $status <= 0) {
+            return;
+        }
+
+        $where = '`transaction_key` = \'' . pSQL($transactionKey) . '\'';
+        // A late pending push must not undo a confirmed payment.
+        if (BuckarooPaymentStatus::isPending($status)) {
+            $where .= ' AND `status` <> ' . self::STATUS_SUCCESS;
+        }
+
+        \Db::getInstance()->update(self::TABLE, ['status' => (int) $status], $where);
+    }
+
+    public function hasTransaction(int $cartId, string $transactionKey): bool
+    {
+        if ($cartId <= 0 || $transactionKey === '') {
+            return false;
+        }
+
+        return (bool) \Db::getInstance()->getValue(
+            'SELECT 1 FROM `' . _DB_PREFIX_ . pSQL(self::TABLE) . '`
+             WHERE `cart_id` = ' . (int) $cartId . '
+               AND `transaction_key` = \'' . pSQL($transactionKey) . '\''
         );
     }
 
@@ -123,6 +142,7 @@ class BuckarooGroupTransactionService
         foreach ($this->getGroupTransactionItems($cartId) as $row) {
             $total += (float) $row['amount'] - (float) $row['refunded_amount'];
         }
+
         return round($total, 2);
     }
 
@@ -172,12 +192,13 @@ class BuckarooGroupTransactionService
             $cardCode = (string) $row['card_code'];
             $label = $this->buildLabel($cardCode);
             $items[] = [
-                'label'           => $label,
-                'amount'          => round($net, 2),
-                'card_code'       => $cardCode,
+                'label' => $label,
+                'amount' => round($net, 2),
+                'card_code' => $cardCode,
                 'transaction_key' => (string) $row['transaction_key'],
             ];
         }
+
         return $items;
     }
 

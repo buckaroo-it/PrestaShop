@@ -23,7 +23,6 @@ class BuckarooPaymentServiceTest extends TestCase
         return new BuckarooPaymentServiceTestable($configService);
     }
 
-
     public function testIsAvailableByAmountReturnsFalseWhenNoConfig(): void
     {
         $service = $this->createService([
@@ -75,7 +74,6 @@ class BuckarooPaymentServiceTest extends TestCase
         $this->assertTrue($service->isAvailableByAmount(0.0, 'AFTERPAY'));
         $this->assertTrue($service->isAvailableByAmount(9999.99, 'AFTERPAY'));
     }
-
 
     public function testGetPaymentOptionsReturnsConfiguredMethod(): void
     {
@@ -301,4 +299,3 @@ class BuckarooPaymentServiceTest extends TestCase
         $this->assertTrue($service->isAvailableByAmount(100.0, 'twint'));
     }
 }
-

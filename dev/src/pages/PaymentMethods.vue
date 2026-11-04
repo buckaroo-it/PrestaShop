@@ -68,6 +68,7 @@
           <GiftcardPaymentConfig v-if="selectedPayment.name === 'giftcard'" :payments="payments" />
           <KlarnaPaymentConfig v-if="selectedPayment.name === 'klarna'" />
           <GooglePayPaymentConfig v-if="selectedPayment.name === 'googlepay'" />
+          <ApplePayPaymentConfig v-if="selectedPayment.name === 'applepay'" />
           <ClickToPayPaymentConfig v-if="selectedPayment.name === 'clicktopay'" />
         </DefaultPaymentConfig>
       </div>
@@ -98,6 +99,7 @@ import PayPalPaymentConfig from "../components/payments/PayPalPaymentConfig.vue"
 import GiftcardPaymentConfig  from "../components/payments/GiftcardPaymentConfig.vue";
 import KlarnaPaymentConfig from "../components/payments/KlarnaPaymentConfig.vue";
 import GooglePayPaymentConfig from "../components/payments/GooglePayPaymentConfig.vue";
+import ApplePayPaymentConfig from "../components/payments/ApplePayPaymentConfig.vue";
 import ClickToPayPaymentConfig from "../components/payments/ClickToPayPaymentConfig.vue";
 
 export default {
@@ -120,6 +122,7 @@ export default {
     GiftcardPaymentConfig,
     KlarnaPaymentConfig,
     GooglePayPaymentConfig,
+    ApplePayPaymentConfig,
     ClickToPayPaymentConfig
   },
   setup() {

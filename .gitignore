@@ -1,8 +1,8 @@
-/api/log
-composer.lock
 .php-cs-fixer.cache
+.phpunit.result.cache
 var
 tools
 dev/node_modules
-dev/package-lock.json
 .idea
+/build
+/vendor

@@ -38,6 +38,11 @@ class Idin extends PaymentMethod
             $this->payload['additionalParameters']['cid'] = $customVars['cid'];
         }
 
+        // Signed back as ADD_cart; the push only stores the result when this cart belongs to cid.
+        if (isset($customVars['cart'])) {
+            $this->payload['additionalParameters']['cart'] = $customVars['cart'];
+        }
+
         return parent::verify();
     }
 

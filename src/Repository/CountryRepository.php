@@ -17,12 +17,24 @@
 
 namespace Buckaroo\PrestaShop\Src\Repository;
 
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 class CountryRepository
 {
+    use ContextAwareTrait;
+
+    /**
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct($legacyContext = null)
+    {
+        $this->setContext($legacyContext);
+    }
+
     private function processCountries($countries)
     {
         $result = [];
@@ -43,10 +55,23 @@ class CountryRepository
 
     public function getCountries(): array
     {
-        $langId = \Context::getContext()->language->id;
-        $rawCountries = \Country::getCountries($langId, true);
+        $rawCountries = \Country::getCountries($this->getLanguageId(), true);
 
         return $this->processCountries($rawCountries);
+    }
+
+    /**
+     * Language of the current context; falls back to the shop default language
+     * when the repository is used before the context language is initialised.
+     */
+    public function getLanguageId(): int
+    {
+        $context = $this->getContext();
+        if ($context && isset($context->language) && is_object($context->language) && !empty($context->language->id)) {
+            return (int) $context->language->id;
+        }
+
+        return (int) \Configuration::get('PS_LANG_DEFAULT');
     }
 
     public function getCountryByIsoCode2($isoCode2)

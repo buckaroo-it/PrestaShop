@@ -77,10 +77,10 @@ class PayPalCheckout extends Checkout
         }
 
         $address = [
-            'street'  => $address_components['street'] ?? '',
+            'street' => $address_components['street'] ?? '',
             'street2' => $address_components['house_number'] ?? '',
             'zipcode' => $this->invoice_address->postcode,
-            'city'    => $this->invoice_address->city,
+            'city' => $this->invoice_address->city,
             'country' => Tools::strtoupper(
                 (new Country($this->invoice_address->id_country))->iso_code
             ),

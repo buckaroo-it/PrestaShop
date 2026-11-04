@@ -27,4 +27,3 @@ class Twint extends PaymentMethod
         $this->type = 'twint';
     }
 }
-

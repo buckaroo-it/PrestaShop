@@ -25,7 +25,6 @@ use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundCalculator;
 use PrestaShop\PrestaShop\Adapter\Order\Refund\OrderRefundSummary;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssuePartialRefundCommand;
 use PrestaShop\PrestaShop\Core\Domain\Order\Command\IssueStandardRefundCommand;
-use PrestaShop\PrestaShop\Core\Domain\Order\Exception\OrderException;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -70,7 +69,7 @@ class Handler
      *
      * @param IssueStandardRefundCommand|IssuePartialRefundCommand $command
      * @param OrderRefundSummary $refundSummary
-     * @param float $extraFeeAmount Optional payment fee to add on top of the product/shipping refund amount.
+     * @param float $extraFeeAmount optional payment fee to add on top of the product/shipping refund amount
      *
      * @return void
      */

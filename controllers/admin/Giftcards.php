@@ -50,7 +50,6 @@ class Giftcards extends BaseApiController
             case 'POST':
                 return $this->handlePost();
         }
-
     }
 
     private function handleGet()

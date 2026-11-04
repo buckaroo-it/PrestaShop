@@ -14,16 +14,17 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 /**
- * 5.4.0 upgrade:
- * - Introduce opt-in error reporting to Buckaroo. Existing installations start
- *   as "not asked yet" so the merchant is prompted on the configuration page.
- *   An existing decision is never overwritten.
+ * Hold the order confirmation until the Buckaroo order is paid.
+ * Shops that do not enable the option keep the current email behaviour.
+ *
+ * Introduce opt-in error reporting to Buckaroo. Existing installations start
+ * as "not asked yet" so the merchant is prompted on the configuration page.
+ * An existing decision is never overwritten.
  *
  * @param object $object Module instance
  *
@@ -31,11 +32,63 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_5_4_0($object)
 {
-    $value = Configuration::get('BUCKAROO_ERROR_REPORTING');
+    if (Configuration::get('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL') === false) {
+        Configuration::updateValue('BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL', 0);
+    }
 
-    if ($value !== '1' && $value !== '0') {
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_deferred_order_mail` (
+        `id_order`         INT(11) UNSIGNED NOT NULL,
+        `id_lang`          INT(11) UNSIGNED NOT NULL,
+        `template`         VARCHAR(64) NOT NULL,
+        `subject`          VARCHAR(255) NOT NULL,
+        `template_vars`    MEDIUMTEXT NOT NULL,
+        `recipient`        VARCHAR(255) NOT NULL,
+        `recipient_name`   VARCHAR(255) NOT NULL,
+        `template_path`    VARCHAR(255) NOT NULL,
+        `id_shop`          INT(11) UNSIGNED NOT NULL,
+        `created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (`id_order`)
+    ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
+    if (!Db::getInstance()->execute($sql)) {
+        return false;
+    }
+
+    // Gateway environment each invoice was started on; replies from the other one are rejected.
+    $sql = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'bk_transaction_mode` (
+        `invoice`          VARCHAR(191) NOT NULL,
+        `mode`             VARCHAR(10) NOT NULL,
+        `created_at`       TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (`invoice`, `mode`)
+    ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
+
+    if (!Db::getInstance()->execute($sql)) {
+        return false;
+    }
+
+    // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
+    (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
+
+    // Logs are written to var/logs/buckaroo3/ from now on; move the files from
+    // modules/buckaroo3/api/log/ (publicly reachable on Nginx) and drop that directory.
+    (new Buckaroo\PrestaShop\Src\Install\LogDirectoryMigrator())->migrate();
+
+    // The payment fee mode and frontend label keys carry the module prefix now;
+    // keep the merchant's values and drop the unprefixed keys.
+    (new Buckaroo\PrestaShop\Src\Install\ConfigurationKeyMigrator())->migrate();
+
+    // Apple Pay express button on the product and cart pages, and Apple's domain verification file.
+    if (method_exists($object, 'installApplePayDomainAssociation')) {
+        $object->installApplePayDomainAssociation();
+    }
+
+    // Opt-in error reporting: ask existing shops once, never overwrite a decision.
+    $errorReporting = Configuration::get('BUCKAROO_ERROR_REPORTING');
+    if ($errorReporting !== '1' && $errorReporting !== '0') {
         Configuration::updateValue('BUCKAROO_ERROR_REPORTING', '');
     }
 
-    return true;
+    return $object->registerHook('actionOrderStatusPostUpdate')
+        && $object->registerHook('displayProductAdditionalInfo')
+        && $object->registerHook('displayExpressCheckout');
 }

@@ -22,7 +22,7 @@ class LoggerErrorReportingTest extends TestCase
 
     protected function setUp(): void
     {
-        \Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
+        Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
         $this->transport = new RecordingTransport();
         $this->reporter = new ErrorReporter(null, new FixedMetadataProvider(), $this->transport, ErrorReporter::ENDPOINT, false);
         ErrorReporter::setInstance($this->reporter);
@@ -30,21 +30,21 @@ class LoggerErrorReportingTest extends TestCase
 
     protected function tearDown(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
         ErrorReporter::setInstance(null);
     }
 
     /**
      * A level above ERROR keeps the logger from writing log files during tests.
      */
-    private function logger(): \Logger
+    private function logger(): Logger
     {
-        return new \Logger('9', 'request');
+        return new Logger('9', 'request');
     }
 
     public function testExceptionAsDescriptionIsReported(): void
     {
-        $this->logger()->logError('Cart delete failed', new \RuntimeException('boom'));
+        $this->logger()->logError('Cart delete failed', new RuntimeException('boom'));
 
         $reports = $this->reporter->getBufferedReports();
         $this->assertCount(1, $reports);
@@ -57,7 +57,7 @@ class LoggerErrorReportingTest extends TestCase
     public function testExceptionKeyInArrayIsReportedWithWhitelistedContextOnly(): void
     {
         $this->logger()->logError('Order validation failed: ', [
-            'exception' => new \LogicException('invalid'),
+            'exception' => new LogicException('invalid'),
             'payment_method' => 'ideal',
             'cart_id' => 12,
             'customer_email' => 'john@example.com',
@@ -69,7 +69,7 @@ class LoggerErrorReportingTest extends TestCase
 
     public function testWarningsAreReportedAsWarning(): void
     {
-        $this->logger()->logWarn('Fallback used', new \RuntimeException('warn'));
+        $this->logger()->logWarn('Fallback used', new RuntimeException('warn'));
 
         $this->assertSame('warning', $this->reporter->getBufferedReports()[0]['level']);
     }
@@ -79,16 +79,16 @@ class LoggerErrorReportingTest extends TestCase
         $logger = $this->logger();
         $logger->logError('Payment failed', ['statusMessage' => 'Declined']);
         $logger->logError('Set checkout info: ', 'some string');
-        $logger->logInfo('info', new \RuntimeException('info level is never reported'));
+        $logger->logInfo('info', new RuntimeException('info level is never reported'));
 
         $this->assertSame([], $this->reporter->getBufferedReports());
     }
 
     public function testNothingIsReportedWithoutConsent(): void
     {
-        \Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => ''];
+        Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => ''];
 
-        $this->logger()->logError('boom', new \RuntimeException('boom'));
+        $this->logger()->logError('boom', new RuntimeException('boom'));
         $this->reporter->flush();
 
         $this->assertSame([], $this->transport->requests);

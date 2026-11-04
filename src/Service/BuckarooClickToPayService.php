@@ -17,6 +17,8 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -27,6 +29,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class BuckarooClickToPayService
 {
+    use ContextAwareTrait;
+
     public const METHOD_NAME = 'clicktopay';
 
     private const AUTH_ENDPOINT = 'https://auth.buckaroo.io/oauth/token';
@@ -54,9 +58,13 @@ class BuckarooClickToPayService
     /** @var BuckarooConfigService */
     private $buckarooConfigService;
 
-    public function __construct(BuckarooConfigService $buckarooConfigService)
+    /**
+     * @param object|null $legacyContext PrestaShop context, or the prestashop.adapter.legacy.context service
+     */
+    public function __construct(BuckarooConfigService $buckarooConfigService, $legacyContext = null)
     {
         $this->buckarooConfigService = $buckarooConfigService;
+        $this->setContext($legacyContext);
     }
 
     public function getSdkScriptUrl(): string
@@ -243,7 +251,8 @@ class BuckarooClickToPayService
      */
     private function getShopOrigin(): string
     {
-        $baseUrl = \Context::getContext()->shop->getBaseURL(true);
+        $context = $this->getContext();
+        $baseUrl = ($context && isset($context->shop) && is_object($context->shop)) ? $context->shop->getBaseURL(true) : '';
         $parts = parse_url((string) $baseUrl);
 
         if (!is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
@@ -274,7 +283,8 @@ class BuckarooClickToPayService
             }
         }
 
-        $contextCountry = \Context::getContext()->country;
+        $context = $this->getContext();
+        $contextCountry = ($context && isset($context->country)) ? $context->country : null;
 
         return $contextCountry ? \Tools::strtoupper((string) $contextCountry->iso_code) : 'NL';
     }
@@ -285,7 +295,8 @@ class BuckarooClickToPayService
      */
     private function getLocale(): string
     {
-        $language = \Context::getContext()->language;
+        $context = $this->getContext();
+        $language = ($context && isset($context->language)) ? $context->language : null;
 
         if ($language && !empty($language->locale)) {
             return str_replace('-', '_', (string) $language->locale);

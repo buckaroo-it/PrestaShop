@@ -70,13 +70,13 @@ class ScrubberTest extends TestCase
 
     public function testReportsAreScrubbedBeforeSending(): void
     {
-        \Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
+        Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
         $transport = new RecordingTransport();
         $reporter = new ErrorReporter(null, new FixedMetadataProvider(), $transport, ErrorReporter::ENDPOINT, false);
 
-        $previous = new \RuntimeException('IBAN NL91ABNA0417164300 rejected');
+        $previous = new RuntimeException('IBAN NL91ABNA0417164300 rejected');
         $reporter->report(
-            new \RuntimeException('Card 4111111111111111 of jane@example.com failed', 0, $previous),
+            new RuntimeException('Card 4111111111111111 of jane@example.com failed', 0, $previous),
             'error',
             'Checkout failed for jane@example.com with password=hunter2',
             ['payment_method' => 'creditcard', 'secret_key' => 'abc', 'note' => 'jane@example.com', 'nested' => ['x']]
@@ -92,6 +92,6 @@ class ScrubberTest extends TestCase
         $this->assertSame(Scrubber::MASK, $report['context']['secret_key']);
         $this->assertSame(Scrubber::MASK_EMAIL, $report['context']['note']);
         $this->assertArrayNotHasKey('nested', $report['context']);
-        \Configuration::$values = [];
+        Configuration::$values = [];
     }
 }

@@ -1,0 +1,5 @@
+# Same analysis as phpstan.neon but without the baselines: use this configuration
+# with --generate-baseline so already ignored findings are written to the new file.
+includes:
+  - ../../vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
+  - common.neon

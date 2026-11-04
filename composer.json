@@ -12,6 +12,12 @@
         "php": ">=7.4",
         "buckaroo/sdk": "1.24.5"
     },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.30",
+        "phpstan/phpstan": "^1.12",
+        "phpunit/phpunit": "^9.6",
+        "prestashop/php-dev-tools": "^5.0"
+    },
     "autoload": {
         "psr-4": {
             "Buckaroo\\PrestaShop\\Src\\": "src",
@@ -20,12 +26,27 @@
             "Buckaroo\\PrestaShop\\Library\\": "library"
         }
       },
+    "scripts": {
+        "test": "phpunit --configuration phpunit.xml --no-coverage",
+        "phpstan": "phpstan analyse --configuration=tests/phpstan/phpstan.neon --no-progress",
+        "validate-source": "@php .github/scripts/validate-package.php source",
+        "build-release": "bash .github/scripts/build-release.sh --worktree",
+        "cs-check": "php-cs-fixer fix --dry-run --diff --no-interaction --format=txt",
+        "cs-fix": "php-cs-fixer fix --no-interaction --format=txt"
+    },
+    "scripts-descriptions": {
+        "test": "Run the PHPUnit suite.",
+        "phpstan": "Run PHPStan (requires _PS_ROOT_DIR_ pointing to a PrestaShop installation).",
+        "validate-source": "Run the local validator checks against the working tree.",
+        "build-release": "Build and validate a release ZIP from the working tree."
+    },
     "config": {
         "platform": {
             "php": "7.4"
         },
         "preferred-install": "dist",
-        "prepend-autoloader": false
+        "prepend-autoloader": false,
+        "sort-packages": true
     },
     "type": "prestashop-module",
     "author": "Buckaroo B.V.",

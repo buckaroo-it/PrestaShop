@@ -1,4 +1,7 @@
 <?php
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 global $_MODULE;
 $_MODULE = [];
@@ -189,3 +192,37 @@ $_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_7ba287d9209220189f3be135
 $_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_654e9ea4a05bfc996093bb0dab66b56e'] = 'U kunt deze keuze altijd wijzigen onder Instellingen > Geavanceerde instellingen.';
 $_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_cf02a8b812bfa6f79a55fdce93422e44'] = 'Ja, foutrapporten delen';
 $_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_a0248bd77b4646e6a1f903f6ea16a4d1'] = 'Nee, bedankt';
+
+// Apple Pay express button
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_a5ab7d8806c91c3c058255fddca2ba06'] = 'Uw Apple Pay-betaling kon niet worden gestart. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_17ffb24862c7db18f577ee8328688a9d'] = 'De gekozen betaalmethode is niet beschikbaar.';
+$_MODULE['<{buckaroo3}prestashop>applepayexpress_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
+$_MODULE['<{buckaroo3}prestashop>applepayexpress_395a6203037d74e78e4473a56fba7612'] = 'Uw Apple Pay-sessie is verlopen. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>applepayexpress_478b602c0dbff0663d136682a74bcab8'] = 'Apple Pay is niet beschikbaar voor deze bestelling. Kies een andere betaalmethode.';
+$_MODULE['<{buckaroo3}prestashop>applepayexpress_bd4d7b4f4b3a53570b677dd6a31f26f6'] = 'Het totaalbedrag van de bestelling is gewijzigd. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_5cdfa1df00601931e222cb6382d7e0da'] = 'Dit product kan niet met Apple Pay worden gekocht.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_b31c9745e443d5d5325d5654ecec3f81'] = 'Kies minimaal het minimale aantal voor dit product.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_2cb44aa56605e05e0b912131875edcb7'] = 'Er zijn niet genoeg producten op voorraad.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_879f6b8877752685a966564d072f498f'] = 'Uw winkelwagen is leeg.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_1e89432e47a87bea7a07ea326bda7347'] = 'Uw winkelwagen kon niet worden voorbereid voor Apple Pay. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_2d3a357afaabc2209bdaaac83c776019'] = 'Wij leveren niet op dit adres. Kies een ander adres.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_3db1f3472fc989f357b856a1d3a3154c'] = 'De gekozen verzendmethode is niet beschikbaar voor dit adres.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_2b4d238f91479d8ea9369233d43609bf'] = 'Apple Pay heeft geen factuuradres doorgegeven. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_040ab967bd054299a41b143eb4719966'] = 'Apple Pay heeft geen verzendadres doorgegeven. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_478b602c0dbff0663d136682a74bcab8'] = 'Apple Pay is niet beschikbaar voor deze bestelling. Kies een andere betaalmethode.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_bd4d7b4f4b3a53570b677dd6a31f26f6'] = 'Het totaalbedrag van de bestelling is gewijzigd. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_578410aa770f955b694795be351fa34a'] = 'Wij konden de verzendkosten niet berekenen. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_ea9cf7e47ff33b2be14e6dd07cbcefc6'] = 'Verzending';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_104d9898c04874d0fbac36e125fa1369'] = 'Korting';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_484f5a79672cebe198ebdde45a1d672f'] = 'Cadeauverpakking';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_020c2091aec3019d02193cef080bcf97'] = 'Betaalkosten';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_12dbd3ce741c680b57975bd34313a4ee'] = 'Log in om met Apple Pay te betalen.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_22c6b3c60efa647658199ff050cf9c91'] = 'Vul in Apple Pay een geldig e-mailadres in.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_dc6ad90e43c36e0e60699162cee13661'] = 'Wij konden uw klantaccount niet aanmaken. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_80ee04aa268b1a1ecaaf8908228ed9a7'] = 'Vul in Apple Pay een geldige voor- en achternaam in.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_f315359c29753c1d98c4967d4993b76d'] = 'Vul in Apple Pay een geldig adres in.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_5c06411de545445fa80bd3631379da33'] = 'Vul in Apple Pay een geldige plaats in.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_3fe300358b5bc01cb0413f4351737b1b'] = 'Vul in Apple Pay een geldige postcode in.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_f171d1706ffa1f5ed63afb027f729c27'] = 'Wij konden uw adres niet opslaan. Probeer het opnieuw.';
+$_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_f04f000f8861cdb34519bdc6d1e93108'] = 'Wij leveren niet in dit land. Kies een ander adres.';

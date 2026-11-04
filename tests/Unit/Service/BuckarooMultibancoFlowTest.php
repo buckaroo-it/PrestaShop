@@ -37,4 +37,3 @@ class BuckarooMultibancoFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('multibanco', $options[0]->getModuleName());
     }
 }
-

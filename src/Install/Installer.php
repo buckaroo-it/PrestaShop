@@ -111,6 +111,7 @@ class Installer implements InstallerInterface
             'displayAdminOrderMainBottom',
             'displayOrderConfirmation',
             'actionEmailSendBefore',
+            'actionOrderStatusPostUpdate',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
             'displayProductExtraContent',
@@ -118,6 +119,8 @@ class Installer implements InstallerInterface
             'actionAfterUpdateProductFormHandler',
             'displayShoppingCartFooter',
             'displayPaymentTop',
+            'displayProductAdditionalInfo',
+            'displayExpressCheckout',
         ];
     }
 
@@ -141,6 +144,7 @@ class Installer implements InstallerInterface
 
         // Not asked yet: the merchant is prompted on the configuration page (opt-in).
         \Configuration::updateValue(ErrorReportingConsent::CONFIG_KEY, ErrorReportingConsent::NOT_ASKED);
+        \Configuration::updateValue(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL, 0);
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

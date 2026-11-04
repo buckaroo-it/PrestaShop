@@ -3,6 +3,7 @@ services:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooFeeService
     arguments:
       - "@doctrine.orm.entity_manager"
+      - "@?prestashop.adapter.legacy.context"
     public: true
   buckaroo.config.api.config.service:
     class:  Buckaroo\PrestaShop\Src\Service\BuckarooConfigService
@@ -13,6 +14,7 @@ services:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService
     arguments:
       - "@buckaroo.config.api.config.service"
+      - "@?prestashop.adapter.legacy.context"
     public: true
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
@@ -21,9 +23,13 @@ services:
     public: true
   buckaroo.classes.issuers.payByBank:
     class: Buckaroo\PrestaShop\Classes\Issuers\PayByBank
+    arguments:
+      - "@?prestashop.adapter.legacy.context"
     public: true
   buckaroo.repository.country.repository:
     class: Buckaroo\PrestaShop\Src\Repository\CountryRepository
+    arguments:
+      - "@?prestashop.adapter.legacy.context"
     public: true
   buckaroo.config.api.payment.service:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService
@@ -34,6 +40,7 @@ services:
       - "@buckaroo.classes.issuers.payByBank"
       - "@buckaroo.classes.issuers.capayableIn3"
       - "@buckaroo.repository.country.repository"
+      - "@?prestashop.adapter.legacy.context"
     public: true
 
   buckaroo.repository.raw_payment_method:

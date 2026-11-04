@@ -135,6 +135,22 @@
                 </div>
               </div>
 
+              <!-- Order emails -->
+              <section class="py-3 space-y-3">
+                <div>
+                  <h2 class="m-0 font-semibold text-sm">{{ $t('dashboard.pages.settings.order_emails') }}</h2>
+                </div>
+
+                <div class="rounded-xl border border-gray-200">
+                  <ToggleField id="disable_unpaid_order_email" class="px-4 py-3" v-model="settings.disable_unpaid_order_email">
+                    <div class="pr-6">
+                      <label for="disable_unpaid_order_email" class="m-0 font-semibold text-sm cursor-pointer">{{ $t('dashboard.pages.settings.disable_unpaid_order_email') }}</label>
+                      <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.disable_unpaid_order_email_label') }}</div>
+                    </div>
+                  </ToggleField>
+                </div>
+              </section>
+
               <!-- Refunds -->
               <section class="py-3 space-y-3">
                 <div>

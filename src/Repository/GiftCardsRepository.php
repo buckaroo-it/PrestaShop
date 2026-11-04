@@ -21,8 +21,6 @@ use Buckaroo\PrestaShop\Src\Entity\BkGiftcards;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Context;
-
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -30,7 +28,6 @@ if (!defined('_PS_VERSION_')) {
 
 class GiftCardsRepository extends EntityRepository
 {
-
     public function __construct(EntityManagerInterface $em, ClassMetadata $class)
     {
         parent::__construct($em, $class);
@@ -89,7 +86,6 @@ class GiftCardsRepository extends EntityRepository
         }
 
         return $formattedGiftCards;
-
     }
 
     public function removeGiftCard($id)
@@ -107,6 +103,4 @@ class GiftCardsRepository extends EntityRepository
             'status' => true,
         ];
     }
-
-
 }

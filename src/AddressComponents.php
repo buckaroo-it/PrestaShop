@@ -17,6 +17,9 @@
 
 namespace Buckaroo\PrestaShop\Src;
 
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
 
 class AddressComponents
 {

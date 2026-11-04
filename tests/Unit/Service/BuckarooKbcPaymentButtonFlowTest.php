@@ -37,4 +37,3 @@ class BuckarooKbcPaymentButtonFlowTest extends BuckarooPaymentServiceFlowTestCas
         $this->assertSame('kbcpaymentbutton', $options[0]->getModuleName());
     }
 }
-

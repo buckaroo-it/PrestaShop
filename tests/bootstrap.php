@@ -12,9 +12,35 @@ if (!defined('_PS_VERSION_')) {
     define('_PS_VERSION_', '9.0.1.0');
 }
 
-// Point to the modules directory (one level above the module root)
+// The legacy checkout/payment classes include their dependencies through
+// _PS_MODULE_DIR_ . 'buckaroo3/...'. The unit tests replace those dependencies
+// with the lightweight stubs below, so the constant must point to an isolated,
+// empty directory: if it pointed at the real modules directory the real
+// classes would be declared next to the stubs ("Cannot declare class Checkout").
 if (!defined('_PS_MODULE_DIR_')) {
-    define('_PS_MODULE_DIR_', dirname(__DIR__, 2) . '/');
+    $buckarooTestModuleDir = sys_get_temp_dir() . '/buckaroo3-phpunit-modules/';
+    if (!is_dir($buckarooTestModuleDir)) {
+        @mkdir($buckarooTestModuleDir, 0777, true);
+    }
+    define('_PS_MODULE_DIR_', $buckarooTestModuleDir);
+}
+
+// CoreLogger writes below _PS_ROOT_DIR_ . '/var/logs/buckaroo3/'. Keep the log
+// files the tests produce out of any real tree. The legacy api/ files require
+// the Composer autoloader through _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php',
+// so that path gets a stub pointing at the real autoloader (written on every run,
+// before any test file is loaded).
+if (!defined('_PS_ROOT_DIR_')) {
+    $buckarooTestRootDir = sys_get_temp_dir() . '/buckaroo3-phpunit-root';
+    $buckarooTestVendorStub = $buckarooTestRootDir . '/modules/buckaroo3/vendor';
+    if (!is_dir($buckarooTestVendorStub)) {
+        @mkdir($buckarooTestVendorStub, 0777, true);
+    }
+    file_put_contents(
+        $buckarooTestVendorStub . '/autoload.php',
+        '<?php return require_once ' . var_export(realpath(__DIR__ . '/../vendor/autoload.php'), true) . ';'
+    );
+    define('_PS_ROOT_DIR_', $buckarooTestRootDir);
 }
 
 // Shop base URI (root installation in tests; '/shop/' when installed in a subdirectory)
@@ -25,7 +51,7 @@ if (!defined('__PS_BASE_URI__')) {
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
-/**
+/*
  * Lightweight stubs for legacy module dependencies that rely on a full
  * PrestaShop runtime. For isolated unit tests we only need the symbols
  * to exist so the production code can be loaded safely.
@@ -58,7 +84,7 @@ if (!class_exists('CarrierHandler')) {
 // Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
 
-/**
+/*
  * Lightweight test doubles for common PrestaShop classes used by the module.
  * These keep the unit tests isolated from a real PrestaShop runtime while
  * still exercising the module logic.
@@ -69,6 +95,14 @@ if (!class_exists('Context')) {
     class Context
     {
         public $currency;
+        public $shop;
+        public $language;
+        public $country;
+        public $cookie;
+        public $link;
+        public $cart;
+        public $customer;
+        public $controller;
 
         private static $instance;
 
@@ -80,6 +114,28 @@ if (!class_exists('Context')) {
             }
 
             return self::$instance;
+        }
+    }
+}
+
+// ---- Module registry stub (ContextResolver falls back to the module instance) ----
+if (!class_exists('Module')) {
+    class Module
+    {
+        /** @var array<string, object> */
+        public static $instances = [];
+
+        public $context;
+
+        public static function getInstanceByName($name)
+        {
+            return self::$instances[$name] ?? false;
+        }
+
+        /** Mirrors Buckaroo3::getModuleContext(); Module::$context is protected in the core. */
+        public function getModuleContext()
+        {
+            return $this->context;
         }
     }
 }
@@ -130,6 +186,32 @@ if (!class_exists('Tools')) {
         public static function strtoupper($string)
         {
             return strtoupper($string);
+        }
+
+        public static function strtolower($string)
+        {
+            return strtolower($string);
+        }
+
+        /** Mirrors PrestaShop: POST first, then GET. */
+        public static function getValue($key, $defaultValue = false)
+        {
+            if (isset($_POST[$key])) {
+                return $_POST[$key];
+            }
+
+            return $_GET[$key] ?? $defaultValue;
+        }
+
+        /** Mirrors PrestaShop: POST wins over GET. */
+        public static function getAllValues()
+        {
+            return $_POST + $_GET;
+        }
+
+        public static function isSubmit($submit)
+        {
+            return isset($_POST[$submit]) || isset($_GET[$submit]);
         }
     }
 }
@@ -189,6 +271,19 @@ if (!class_exists('Country')) {
         public static function getIsoById($id)
         {
             return self::$isoById[(int) $id] ?? null;
+        }
+
+        /** @var array<int, array<string, mixed>> rows returned by getCountries() */
+        public static $countries = [];
+
+        /** @var int|null language id passed to the last getCountries() call */
+        public static $lastLanguageId;
+
+        public static function getCountries($idLang, $active = false, $containStates = false, $listStates = false)
+        {
+            self::$lastLanguageId = (int) $idLang;
+
+            return self::$countries;
         }
     }
 }
@@ -300,5 +395,3 @@ if (!class_exists('\Doctrine\ORM\EntityManager')) {
     }
     ');
 }
-
-

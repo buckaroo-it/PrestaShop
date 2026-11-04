@@ -118,6 +118,7 @@ class BkGiftcards
     {
         $this->is_custom = $is_custom;
     }
+
     public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
@@ -131,10 +132,10 @@ class BkGiftcards
     public function getAll()
     {
         return [
-            "id" => $this->getId(),
-            "name" => $this->getName(),
-            "service_code" => $this->getCode(),
-            "is_custom" => $this->getIsCustom(),
-            "logo_url" => $this->getLogo()];
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'service_code' => $this->getCode(),
+            'is_custom' => $this->getIsCustom(),
+            'logo_url' => $this->getLogo()];
     }
 }

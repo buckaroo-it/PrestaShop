@@ -27,7 +27,7 @@ class ErrorReporterSuppressionTest extends TestCase
 
     protected function setUp(): void
     {
-        \Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
+        Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '1'];
         $this->transport = new RecordingTransport();
         $this->clock = new FakeClock();
         $this->tmpDir = sys_get_temp_dir() . '/bk_suppression_' . uniqid('', true);
@@ -35,7 +35,7 @@ class ErrorReporterSuppressionTest extends TestCase
 
     protected function tearDown(): void
     {
-        \Configuration::$values = [];
+        Configuration::$values = [];
         if (is_dir($this->tmpDir)) {
             @chmod($this->tmpDir, 0755);
             foreach ((array) glob($this->tmpDir . '/*') as $file) {
@@ -53,12 +53,12 @@ class ErrorReporterSuppressionTest extends TestCase
     /**
      * Exceptions created on one line share class, code, file and line.
      */
-    private function exceptionFromSameLine(string $message): \RuntimeException
+    private function exceptionFromSameLine(string $message): RuntimeException
     {
-        return new \RuntimeException($message);
+        return new RuntimeException($message);
     }
 
-    private function sendInNewRequest(SuppressionStoreInterface $store, \Throwable $exception): void
+    private function sendInNewRequest(SuppressionStoreInterface $store, Throwable $exception): void
     {
         $reporter = $this->request($store);
         $reporter->report($exception);
@@ -96,8 +96,8 @@ class ErrorReporterSuppressionTest extends TestCase
     {
         $store = new InMemorySuppressionStore();
 
-        $this->sendInNewRequest($store, new \RuntimeException('boom'));
-        $this->sendInNewRequest($store, new \RuntimeException('boom'));
+        $this->sendInNewRequest($store, new RuntimeException('boom'));
+        $this->sendInNewRequest($store, new RuntimeException('boom'));
 
         $this->assertCount(2, $this->transport->requests);
     }
@@ -115,7 +115,7 @@ class ErrorReporterSuppressionTest extends TestCase
     public function testNothingIsRecordedWithoutConsent(): void
     {
         $store = new InMemorySuppressionStore();
-        \Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '0'];
+        Configuration::$values = [ErrorReportingConsent::CONFIG_KEY => '0'];
 
         $this->sendInNewRequest($store, $this->exceptionFromSameLine('boom'));
 
@@ -197,12 +197,12 @@ class ErrorReporterSuppressionTest extends TestCase
         $store = new class implements SuppressionStoreInterface {
             public function wasSentSince(string $fingerprint, int $notBefore): bool
             {
-                throw new \RuntimeException('disk error');
+                throw new RuntimeException('disk error');
             }
 
             public function recordSent(array $fingerprints, int $now, int $notBefore): void
             {
-                throw new \RuntimeException('disk error');
+                throw new RuntimeException('disk error');
             }
         };
 
