@@ -121,11 +121,12 @@ class BillinkCheckout extends Checkout
     {
         if (!empty($this->shipping_address)) {
             $country = new Country($this->shipping_address->id_country);
+            $countryIso = Tools::strtoupper($country->iso_code);
 
             $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
             $street = $address_components['street'];
             if (empty($address_components['house_number'])) {
-                $houseNumber = $this->invoice_address->address2;
+                $houseNumber = $this->shipping_address->address2;
             } else {
                 $houseNumber = $address_components['house_number'];
             }
@@ -142,7 +143,9 @@ class BillinkCheckout extends Checkout
                 $houseNumberSuffix = $sendCloudData['houseNumberSuffix'];
                 $zipcode = $sendCloudData['zipcode'];
                 $city = $sendCloudData['city'];
-                $country = $sendCloudData['country'];
+                if (!empty($sendCloudData['country'])) {
+                    $countryIso = $sendCloudData['country'];
+                }
             }
 
             $payload = [
@@ -159,7 +162,7 @@ class BillinkCheckout extends Checkout
                     'houseNumberAdditional' => $houseNumberSuffix,
                     'zipcode' => $zipcode,
                     'city' => $city,
-                    'country' => Tools::strtoupper($country->iso_code),
+                    'country' => $countryIso,
                 ],
             ];
 

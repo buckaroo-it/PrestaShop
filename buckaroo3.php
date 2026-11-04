@@ -392,9 +392,20 @@ class Buckaroo3 extends PaymentModule
     private function copyLogo($stateId)
     {
         $source = dirname(__FILE__) . '/views/img/order-state.gif';
-        $destination = dirname(__FILE__) . '/../../img/os/' . (int) $stateId . '.gif';
-        if (!file_exists($destination)) {
-            copy($source, $destination);
+        $targetDir = dirname(__FILE__) . '/../../img/os';
+        $destination = $targetDir . '/' . (int) $stateId . '.gif';
+        if (file_exists($destination)) {
+            return;
+        }
+
+        if (!is_file($source) || !is_dir($targetDir) || !is_writable($targetDir)) {
+            $this->logger->logWarn('Buckaroo3::copyLogo - order state logo not copied, ' . $targetDir . ' is missing or not writable');
+
+            return;
+        }
+
+        if (!@copy($source, $destination)) {
+            $this->logger->logWarn('Buckaroo3::copyLogo - could not copy the order state logo to ' . $destination);
         }
     }
 
@@ -418,17 +429,23 @@ class Buckaroo3 extends PaymentModule
 
     private function runUninstallers()
     {
-        $databaseTableUninstaller = new DatabaseTableUninstaller();
-        $databaseIdinColumnsRemover = new IdinColumnsRemover();
-        $uninstall = new Uninstaller($this, $databaseTableUninstaller, $databaseIdinColumnsRemover);
+        $uninstall = $this->createUninstaller();
 
         if (!$uninstall->uninstall()) {
-            $this->_errors[] = $uninstall->getErrors();
+            $this->_errors = array_merge($this->_errors, $uninstall->getErrors());
 
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * @return Uninstaller
+     */
+    protected function createUninstaller()
+    {
+        return new Uninstaller($this, new DatabaseTableUninstaller(), new IdinColumnsRemover());
     }
 
     public function hookDisplayBackOfficeHeader()
@@ -1023,7 +1040,11 @@ class Buckaroo3 extends PaymentModule
     public function hookDisplayHeader()
     {
         $controller = $this->context->controller;
-        if ($controller && in_array($controller->php_self, ['order', 'order-opc'])) {
+        if (!$controller) {
+            return;
+        }
+
+        if (in_array($controller->php_self, ['order', 'order-opc'])) {
             $this->ensureBuckarooJsLoaded();
         }
 
@@ -1826,7 +1847,7 @@ class Buckaroo3 extends PaymentModule
                 $buckarooIdinService->insertProductData($productId, $buckarooIdin);
             }
         } catch (Exception $e) {
-            $this->logger->logError('Buckaroo3::updateCustomerReviewStatus - ' . $e->getMessage(), $e);
+            $this->logger->logError('Buckaroo3::updateProductFormHandler - ' . $e->getMessage(), $e);
         }
     }
 

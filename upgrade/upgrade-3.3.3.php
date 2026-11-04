@@ -23,7 +23,11 @@ if (!defined('_PS_VERSION_')) {
  */
 function upgrade_module_3_3_3($object)
 {
-    return $object->registerHook('displayOrderConfirmation')
-        && $object->registerHook('actionEmailSendBefore')
-        && $object->registerHook('displayPDFInvoice');
+    // Register every hook, even when one fails, and report the combined result.
+    $success = true;
+    foreach (['displayOrderConfirmation', 'actionEmailSendBefore', 'displayPDFInvoice'] as $hook) {
+        $success = $object->registerHook($hook) && $success;
+    }
+
+    return $success;
 }

@@ -144,6 +144,10 @@ class Uninstaller
             'displayProductExtraContent',
             'actionProductFormBuilderModifier',
             'actionAfterUpdateProductFormHandler',
+            'displayShoppingCartFooter',
+            'displayPaymentTop',
+            'displayProductAdditionalInfo',
+            'displayExpressCheckout',
         ];
     }
 }

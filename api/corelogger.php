@@ -46,7 +46,8 @@ class CoreLogger
 
     private $level = self::DEBUG;
     private $filename = 'logger';
-    private $logtype = 'api';
+    /** Log file prefix; subclasses override it (library/logger.php uses 'plugin'). */
+    protected $logtype = 'api';
 
     public function __construct($level, $filename = 'logger')
     {
@@ -57,7 +58,7 @@ class CoreLogger
     private function logEvent($info, $level, $descr = null)
     {
         if (self::LOG && $level >= $this->level) {
-            $prefix = self::$log_level[$level] . ' ' . date('Y-m-d h:i:s') . ' ';
+            $prefix = self::$log_level[$level] . ' ' . date('Y-m-d H:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {
                 $descr = $this->normalizeDescription($descr);
@@ -75,7 +76,7 @@ class CoreLogger
 
     private function logUserEvent($info)
     {
-        $this->write('report_log.txt', date('Y-m-d h:i:s') . '|||' . $info . "\n");
+        $this->write('report_log.txt', date('Y-m-d H:i:s') . '|||' . $info . "\n");
     }
 
     /**

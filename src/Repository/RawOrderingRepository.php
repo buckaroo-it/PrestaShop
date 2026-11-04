@@ -75,7 +75,7 @@ class RawOrderingRepository
     {
         $sql = 'DELETE FROM ' . _DB_PREFIX_ . 'bk_ordering';
         if (!\Db::getInstance()->execute($sql)) {
-            throw new \Exception('Database error: Could not clear payment methods table');
+            throw new \Exception('Database error: Could not clear ordering table');
         }
     }
 }

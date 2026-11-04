@@ -204,12 +204,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $history->addWithemail(false);
 
                 $payments = OrderPayment::getByOrderReference($order->reference);
+                $pushAmount = $this->pushAmount($response);
                 foreach ($payments as $payment) {
                     if ($payment->payment_method == 'Group transaction') {
                         $payment->amount = 0;
                         $payment->update();
                     }
-                    if ($payment->amount == $response->amount
+                    if (round((float) $payment->amount, 2) === $pushAmount
                         && $payment->transaction_id == ''
                         && !$this->isGroupTransactionResponse($response)
                     ) {
@@ -247,22 +248,77 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         $buckarooFee = $this->buckarooFeeRepository->getFeeByOrderId($order->id);
 
-        if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
-            $jj = 0;
-            foreach ($payments as $payment) {
-                if ($jj > 0) {
-                    continue;
-                }
-                if ($payment->amount != $response->amount && $payment->transaction_id == '') {
-                    $payment->amount = $response->amount;
-                    $payment->transaction_id = $response->transactions;
-                    $payment->update();
-                    ++$jj;
-                }
-            }
+        // $payments is only set when the push changed the order state.
+        if ($buckarooFee && isset($payments) && is_array($payments)) {
+            $this->correctPaymentFeeAmount($payments, $response);
         }
 
         exit;
+    }
+
+    /**
+     * Amount of the push rounded to cents (Buckaroo sends e.g. "10.00").
+     */
+    private function pushAmount($response): float
+    {
+        return round((float) urldecode((string) $response->amount), 2);
+    }
+
+    /**
+     * The order payment PrestaShop created can miss the Buckaroo payment fee:
+     * book the paid push amount on the row that belongs to this push. That is the
+     * row carrying the push transaction key, or else the single row without a key
+     * that is not a group-transaction row. Rows of gift cards (they carry their
+     * own key) and group transactions are never changed, and when several rows
+     * could be meant nothing is changed.
+     */
+    private function correctPaymentFeeAmount(array $payments, $response): void
+    {
+        $transactionKey = (string) $response->transactions;
+        $pushAmount = $this->pushAmount($response);
+        if ($transactionKey === ''
+            || $pushAmount <= 0
+            || !$response->isPaid()
+            || $this->isGroupTransactionResponse($response)
+        ) {
+            return;
+        }
+
+        $target = null;
+        $unlinked = [];
+        foreach ($payments as $payment) {
+            if ($payment->payment_method == 'Group transaction') {
+                continue;
+            }
+            if ((string) $payment->transaction_id === $transactionKey) {
+                $target = $payment;
+                break;
+            }
+            if ((string) $payment->transaction_id === '') {
+                $unlinked[] = $payment;
+            }
+        }
+
+        if ($target === null) {
+            if (count($unlinked) !== 1) {
+                if (count($unlinked) > 1) {
+                    $this->logger->logInfo('Payment fee correction skipped: several unlinked payments', [
+                        'transaction' => $transactionKey,
+                    ]);
+                }
+
+                return;
+            }
+            $target = $unlinked[0];
+        }
+
+        if (round((float) $target->amount, 2) === $pushAmount && (string) $target->transaction_id === $transactionKey) {
+            return;
+        }
+
+        $target->amount = $pushAmount;
+        $target->transaction_id = $transactionKey;
+        $target->update();
     }
 
     /**

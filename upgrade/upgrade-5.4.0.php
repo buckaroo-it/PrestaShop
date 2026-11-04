@@ -88,7 +88,11 @@ function upgrade_module_5_4_0($object)
         Configuration::updateValue('BUCKAROO_ERROR_REPORTING', '');
     }
 
-    return $object->registerHook('actionOrderStatusPostUpdate')
-        && $object->registerHook('displayProductAdditionalInfo')
-        && $object->registerHook('displayExpressCheckout');
+    // Register every hook, even when one fails, and report the combined result.
+    $success = true;
+    foreach (['actionOrderStatusPostUpdate', 'displayProductAdditionalInfo', 'displayExpressCheckout'] as $hook) {
+        $success = $object->registerHook($hook) && $success;
+    }
+
+    return $success;
 }

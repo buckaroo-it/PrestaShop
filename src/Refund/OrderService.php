@@ -70,8 +70,11 @@ class OrderService
         );
 
         $this->session->set('buckaroo_skip_refund', true);
-        $this->commandBus->handle($command);
-        $this->session->remove('buckaroo_skip_refund');
+        try {
+            $this->commandBus->handle($command);
+        } finally {
+            $this->session->remove('buckaroo_skip_refund');
+        }
     }
 
     /**

@@ -133,7 +133,7 @@ class Builder extends AbstractBuilder
         }
 
         // Checking for rounding errors
-        $errors = $this->round($refundSummary->getRefundedAmount() + $extraFeeAmount) - $total;
+        $errors = $this->round($this->round($refundSummary->getRefundedAmount() + $extraFeeAmount) - $total);
         if (abs($errors) >= 0.01) {
             $articles[] = [
                 'refundType' => 'Return',

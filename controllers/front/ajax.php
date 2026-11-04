@@ -173,7 +173,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     {
         try {
             if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                $this->get('prestashop.core.cart.cart_presenter');
+                $this->cart_presenter = $this->get('prestashop.core.cart.cart_presenter');
             }
 
             if (!isset($this->cart_presenter) || !$this->cart_presenter) {

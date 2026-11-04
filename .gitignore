@@ -1,7 +1,7 @@
 .php-cs-fixer.cache
 .phpunit.result.cache
 var
-tools
+/tools
 dev/node_modules
 .idea
 /build

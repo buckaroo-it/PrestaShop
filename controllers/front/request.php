@@ -125,7 +125,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
             $this->logger->logInfo('Checkout info', $debug);
 
-            $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
+            if (!$this->initializeCheckout($cart, $payment_method, $currency, $total, $customer)) {
+                // The checkout could not be created (e.g. no configuration for the
+                // payment method); the error page is already set up.
+                return;
+            }
 
             if ($this->checkout->isRequestSucceeded()) {
                 $this->handleSuccessfulRequest($cart->id, $customer);
@@ -439,6 +443,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
+    /**
+     * @return bool false when no checkout could be created for the payment method
+     *              (the error page is set up and postProcess must stop), true otherwise
+     */
     private function initializeCheckout($cart, $payment_method, $currency, $total, $customer)
     {
         try {
@@ -455,7 +463,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             ]);
             $this->displayError(null, $e->getMessage());
 
-            return;
+            return false;
         }
 
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
@@ -484,7 +492,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                     ]);
                     $this->displayError(null, $e->getMessage());
 
-                    return;
+                    return true;
                 }
             }
         } else {
@@ -509,9 +517,9 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 'payment_method' => (string) $payment_method,
             ]);
             $this->displayError(null, $e->getMessage());
-
-            return;
         }
+
+        return true;
     }
 
     private function setCheckoutProperties()

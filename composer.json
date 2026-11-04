@@ -16,6 +16,7 @@
         "friendsofphp/php-cs-fixer": "^3.30",
         "phpstan/phpstan": "^1.12",
         "phpunit/phpunit": "^9.6",
+        "prestashop/decimal": "^1.5",
         "prestashop/php-dev-tools": "^5.0"
     },
     "autoload": {
@@ -28,6 +29,10 @@
       },
     "scripts": {
         "test": "phpunit --configuration phpunit.xml --no-coverage",
+        "test-coverage": [
+            "@php -d pcov.directory=. vendor/bin/phpunit --configuration phpunit.xml --coverage-clover build/coverage/clover.xml",
+            "@php tests/tools/coverage-report.php build/coverage/clover.xml --min=90"
+        ],
         "phpstan": "phpstan analyse --configuration=tests/phpstan/phpstan.neon --no-progress",
         "validate-source": "@php .github/scripts/validate-package.php source",
         "build-release": "bash .github/scripts/build-release.sh --worktree",
@@ -36,6 +41,7 @@
     },
     "scripts-descriptions": {
         "test": "Run the PHPUnit suite.",
+        "test-coverage": "Run the PHPUnit suite with PCOV and fail below 90% line coverage (what CI enforces).",
         "phpstan": "Run PHPStan (requires _PS_ROOT_DIR_ pointing to a PrestaShop installation).",
         "validate-source": "Run the local validator checks against the working tree.",
         "build-release": "Build and validate a release ZIP from the working tree."

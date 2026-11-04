@@ -123,7 +123,12 @@ abstract class Response extends BuckarooAbstract
         ]);
 
         if (!empty($this->statuscode)) {
-            $responseArray = $this->responseCodes[(int) $this->statuscode];
+            $responseArray = $this->responseCodes[(int) $this->statuscode] ?? null;
+            if ($responseArray === null) {
+                $this->logger->logWarn('Unknown push status code', ['statuscode' => $this->statuscode]);
+
+                return;
+            }
             $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
@@ -174,19 +179,55 @@ abstract class Response extends BuckarooAbstract
         return $this->response->getServiceParameters();
     }
 
-    public function getStatuscode()
+    /**
+     * Buckaroo status code (e.g. 190) of the direct response or the push.
+     */
+    public function getStatuscode(): ?int
     {
-        return $this->response->statuscode;
+        if ($this->response) {
+            return $this->response->getStatusCode();
+        }
+
+        return is_numeric($this->statuscode) ? (int) $this->statuscode : null;
     }
 
-    public function getStatusmessage()
+    /**
+     * Status description of the direct response (falling back to the sub code
+     * description) or brq_statusmessage of the push.
+     */
+    public function getStatusmessage(): ?string
     {
-        return $this->response->statusmessage;
+        if ($this->response) {
+            $data = $this->response->data();
+            $description = $data['Status']['Code']['Description'] ?? null;
+            if (is_scalar($description) && (string) $description !== '') {
+                return (string) $description;
+            }
+
+            $subCodeMessage = $this->response->getSubCodeMessage();
+
+            return $subCodeMessage !== '' ? $subCodeMessage : null;
+        }
+
+        return is_string($this->statusmessage) && $this->statusmessage !== '' ? $this->statusmessage : null;
     }
 
-    public function getAmount()
+    /**
+     * Transaction amount: AmountDebit (AmountCredit for a refund) of the direct
+     * response, or brq_amount of the push.
+     */
+    public function getAmount(): ?float
     {
-        return $this->response->amount;
+        if ($this->response) {
+            $amount = $this->response->get('AmountDebit');
+            if (!is_numeric($amount)) {
+                $amount = $this->response->get('AmountCredit');
+            }
+        } else {
+            $amount = $this->amount;
+        }
+
+        return is_numeric($amount) ? (float) $amount : null;
     }
 
     public function getBrqRelatedtransactionPartialpayment()
@@ -230,8 +271,10 @@ abstract class Response extends BuckarooAbstract
     {
         if (!$this->validated) {
             if ($this->isPush) {
-                $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                 try {
+                    // Inside the try: a missing merchant/secret key makes the
+                    // SDK throw, which must mean "not valid", not a crash.
+                    $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                     // Customer return may arrive as GET; push is usually POST. POST wins.
                     $data = Tools::getAllValues();
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $data);
@@ -333,7 +376,7 @@ abstract class Response extends BuckarooAbstract
     {
         try {
             return $this->isValid() && BuckarooPaymentStatus::isPaid($this->getStatusCodeValue());
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->logger->logError('Exception while checking paid status', ['exception' => $e->getMessage()]);
         }
 

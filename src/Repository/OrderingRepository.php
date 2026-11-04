@@ -104,12 +104,14 @@ class OrderingRepository extends EntityRepository
     public function getOrdering(?string $isoCode2)
     {
         $country = $this->countryRepository->getCountryByIsoCode2($isoCode2);
-        $ordering = $this->findOneByCountry($country);
+        // An unknown (or missing) ISO code falls back to the global ordering.
+        $countryId = is_array($country) && isset($country['id']) ? $country['id'] : null;
+        $ordering = $this->findOneByCountry($countryId);
 
         $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
 
         $result = [
-            'country_id' => empty($ordering) ? $country['id'] : $ordering->getCountryId(),
+            'country_id' => empty($ordering) ? $countryId : $ordering->getCountryId(),
             'value' => [],
             'status' => true,
         ];
@@ -123,6 +125,9 @@ class OrderingRepository extends EntityRepository
             $paymentMethodIds = is_string($ordering->getValue())
                 ? json_decode($ordering->getValue(), true)
                 : $ordering->getValue();
+            if (!is_array($paymentMethodIds)) {
+                $paymentMethodIds = [];
+            }
         }
 
         foreach ($paymentMethodIds as $id) {
@@ -149,7 +154,16 @@ class OrderingRepository extends EntityRepository
             $ordering = $this->findOneByCountry(null);
         }
 
-        $positionsArray = json_decode($ordering->getValue(), true);
+        // Neither a country nor a global ordering: no positions to apply.
+        if (empty($ordering)) {
+            return [];
+        }
+
+        $positionsArray = json_decode((string) $ordering->getValue(), true);
+        if (!is_array($positionsArray)) {
+            return [];
+        }
+
         $output = [];
         $paymentMethodRepo = $this->_em->getRepository(BkPaymentMethods::class);
 

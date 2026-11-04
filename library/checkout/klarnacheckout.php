@@ -59,6 +59,13 @@ class KlarnaCheckout extends Checkout
 
         $phone = !empty($address['phone_mobile']) ? $address['phone_mobile'] : ($address['phone'] ?? '');
 
+        // address2 holds the house number when address1 has none, otherwise it may hold the addition ("12" + "A").
+        $houseNumber = !empty($address['house_number']) ? $address['house_number'] : ($address['address2'] ?? '');
+        $numberAddition = $address['number_addition'];
+        if (empty($numberAddition) && !empty($address['house_number'])) {
+            $numberAddition = trim((string) ($address['address2'] ?? ''));
+        }
+
         $payload = [
             'recipient' => [
                 'firstName' => $address['firstname'],
@@ -66,8 +73,8 @@ class KlarnaCheckout extends Checkout
             ],
             'address' => [
                 'street' => $address['street'],
-                'houseNumber' => $address['house_number'],
-                'houseNumberAdditional' => $address['address2'],
+                'houseNumber' => $houseNumber,
+                'houseNumberAdditional' => $numberAddition,
                 'zipcode' => $address['zipcode'] ?? $address['postcode'],
                 'city' => $address['city'],
                 'country' => Tools::strtoupper((new Country($address['id_country']))->iso_code),
@@ -137,7 +144,8 @@ class KlarnaCheckout extends Checkout
             return 'discount';
         }
 
-        if (in_array($identifier, ['0', 'buckaroo_fee'], true) || in_array($description, ['wrapping', 'buckaroo_fee'], true)) {
+        // A positive rounding adjustment is a surcharge (a negative one is a discount, see above).
+        if (in_array($identifier, ['0', 'buckaroo_fee', 'adjustment'], true) || in_array($description, ['wrapping', 'buckaroo_fee', 'adjustment'], true)) {
             return 'surcharge';
         }
 

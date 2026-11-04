@@ -76,6 +76,10 @@ abstract class BuckarooAbstract extends ResponseStatus
             'message' => 'Payment on hold',
             'status' => self::BUCKAROO_PENDING_PAYMENT,
         ],
+        self::BUCKAROO_STATUSCODE_PENDING_APPROVAL => [
+            'message' => 'Pending approval',
+            'status' => self::BUCKAROO_PENDING_PAYMENT,
+        ],
         self::BUCKAROO_STATUSCODE_CANCELLED_BY_USER => [
             'message' => 'Cancelled by consumer',
             'status' => self::BUCKAROO_CANCELED,

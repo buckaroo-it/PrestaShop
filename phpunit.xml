@@ -4,5 +4,19 @@
             <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+            <directory suffix=".php">classes</directory>
+            <directory suffix=".php">controllers</directory>
+            <directory suffix=".php">library</directory>
+            <directory suffix=".php">api</directory>
+            <directory suffix=".php">upgrade</directory>
+            <file>buckaroo3.php</file>
+        </include>
+        <exclude>
+            <!-- Directory-listing guards (header() + exit), not module code. -->
+            <directory suffix="index.php">.</directory>
+        </exclude>
+    </coverage>
 </phpunit>
-

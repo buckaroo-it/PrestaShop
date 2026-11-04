@@ -162,7 +162,9 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             ];
 
             $response = $giftcardApi->payDirect($customVars);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
+            // Throwable, not Exception: a missing merchant key makes the SDK
+            // client throw an Error, which must still end in the friendly redirect.
             $this->logger->logError('Giftcard API error: ' . $e->getMessage(), ['exception' => $e, 'payment_method' => 'giftcard']);
             $this->redirectWithError(
                 $this->module->l('The giftcard could not be applied. Please try again.')

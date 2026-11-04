@@ -194,7 +194,12 @@ class Handler
      */
     private function updateRefundRequest(BkRefundRequest $refundRequest)
     {
-        $refundRequest->setData(['pushes' => [$this->request->request->all()]]);
+        $data = $refundRequest->getData();
+        if (!isset($data['pushes']) || !is_array($data['pushes'])) {
+            $data['pushes'] = [];
+        }
+        $data['pushes'][] = $this->request->request->all();
+        $refundRequest->setData($data);
         $refundRequest->setStatus(
             $this->refundIsSuccessful() ? BkRefundRequest::STATUS_SUCCESS : BkRefundRequest::STATUS_FAILED
         );

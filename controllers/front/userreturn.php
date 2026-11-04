@@ -144,11 +144,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             return;
         }
 
-        $this->logger->logError('Payment failed or invalid response');
-        $this->finishFailure(
-            (int) $response->getCartId(),
-            $response->statusmessage ?: $this->defaultErrorMessage()
-        );
+        // The signature did not verify: brq_statusmessage is attacker-controlled
+        // and must not be shown to the shopper (cookie / checkout error URL).
+        $this->logger->logError('Payment failed or invalid response', [
+            'statusMessage' => (string) $response->statusmessage,
+        ]);
+        $this->finishFailure((int) $response->getCartId(), $this->defaultErrorMessage());
     }
 
     /**

@@ -22,5 +22,5 @@ if (!defined('_PS_VERSION_')) {
 
 class Logger extends CoreLogger
 {
-    private $logtype = 'plugin';
+    protected $logtype = 'plugin';
 }

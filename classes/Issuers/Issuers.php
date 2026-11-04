@@ -45,6 +45,9 @@ abstract class Issuers
         'NTSBDEB1' => 'N26.svg',
     ];
 
+    /** @var string Buckaroo payment method code */
+    protected $method;
+
     public function __construct($method)
     {
         $this->method = $method;
@@ -136,8 +139,8 @@ abstract class Issuers
         if (!is_array($issuers)) {
             return;
         }
-        \Configuration::updateValue($this::CACHE_ISSUERS_KEY, json_encode($issuers));
-        \Configuration::updateValue($this::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
+        \Configuration::updateValue(static::CACHE_ISSUERS_KEY, json_encode($issuers));
+        \Configuration::updateValue(static::CACHE_ISSUERS_DATE_KEY, (new \DateTime())->format('Y-m-d'));
     }
 
     /**
@@ -147,7 +150,7 @@ abstract class Issuers
      */
     private function getCacheIssuers()
     {
-        $issuersString = \Configuration::get(self::CACHE_ISSUERS_KEY);
+        $issuersString = \Configuration::get(static::CACHE_ISSUERS_KEY);
         if (!is_string($issuersString)) {
             return null;
         }
@@ -162,6 +165,6 @@ abstract class Issuers
      */
     private function getCacheDate()
     {
-        return \Configuration::get(self::CACHE_ISSUERS_DATE_KEY);
+        return \Configuration::get(static::CACHE_ISSUERS_DATE_KEY);
     }
 }

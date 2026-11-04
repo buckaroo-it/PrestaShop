@@ -21,6 +21,7 @@ use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeService;
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\Decimal\Operation\Rounding;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/paymentrequestfactory.php';
 
@@ -270,10 +271,10 @@ abstract class Checkout
         $totalPriceIncl = $originalAmountIncl->plus(new DecimalNumber((string) $buckarooFeeTaxIncl));
 
         $order = new Order($order_id);
-        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
-        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);
-        $order->total_paid = $totalPriceIncl->toPrecision(2);
-        $order->total_paid_real = $totalPriceIncl->toPrecision(2);
+        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2, Rounding::ROUND_HALF_UP);
+        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2, Rounding::ROUND_HALF_UP);
+        $order->total_paid = $totalPriceIncl->toPrecision(2, Rounding::ROUND_HALF_UP);
+        $order->total_paid_real = $totalPriceIncl->toPrecision(2, Rounding::ROUND_HALF_UP);
         $order->update();
     }
 
@@ -323,6 +324,10 @@ abstract class Checkout
      */
     final public static function getInstance($payment_method, $cart, $context)
     {
+        if (!isset(self::$payment_method_type[$payment_method])) {
+            throw new Exception('Payment method not found', 1);
+        }
+
         $class_name = self::$payment_method_type[$payment_method] . 'Checkout';
         checkoutautoload($class_name);
 
@@ -521,7 +526,7 @@ abstract class Checkout
 
         $amountDebit = new DecimalNumber((string) $this->payment_request->amountDebit);
         $difference = $amountDebit->minus($sum);
-        $differencePrecise = $difference->toPrecision(2);
+        $differencePrecise = $difference->toPrecision(2, Rounding::ROUND_HALF_UP);
 
         if (abs((float) $differencePrecise) >= 0.01) {
             $products[] = [
@@ -574,14 +579,14 @@ abstract class Checkout
     }
 
     /**
-     * Round amounts using the shop price precision and rounding configuration.
+     * Round amounts (half up) to the shop price precision.
      */
     protected function roundBuckarooPrice($amount)
     {
         $precision = $this->getPricePrecision();
         $decimal = new DecimalNumber((string) $amount);
 
-        return $decimal->toPrecision($precision);
+        return $decimal->toPrecision($precision, Rounding::ROUND_HALF_UP);
     }
 
     /**

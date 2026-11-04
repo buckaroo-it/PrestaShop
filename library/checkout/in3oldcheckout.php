@@ -16,6 +16,7 @@
  */
 
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\Decimal\Operation\Rounding;
 
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
 
@@ -163,7 +164,7 @@ class In3OldCheckout extends Checkout
         $products = [];
         foreach ($this->products as $item) {
             $itemPrice = new DecimalNumber((string) $item['price_wt']);
-            $itemPricePrecise = $itemPrice->toPrecision(2);
+            $itemPricePrecise = $itemPrice->toPrecision(2, Rounding::ROUND_HALF_UP);
 
             $products[] = [
                 'description' => $item['name'],
@@ -172,13 +173,14 @@ class In3OldCheckout extends Checkout
                 'price' => $itemPricePrecise,
             ];
 
-            $itemTotal = $itemPrice->times(new DecimalNumber((string) $item['quantity']));
+            // Sum the rounded prices so the 'Other fee/discount' line balances the articles.
+            $itemTotal = (new DecimalNumber($itemPricePrecise))->times(new DecimalNumber((string) $item['quantity']));
             $total = $total->plus($itemTotal);
         }
 
         $wrapping = $this->cart->getOrderTotal(true, CartCore::ONLY_WRAPPING);
         if ($wrapping > 0) {
-            $wrappingPrice = new DecimalNumber((string) $wrapping);
+            $wrappingPrice = new DecimalNumber((new DecimalNumber((string) $wrapping))->toPrecision(2, Rounding::ROUND_HALF_UP));
             $products[] = [
                 'description' => 'Wrapping',
                 'identifier' => 'WRAP',
@@ -190,7 +192,7 @@ class In3OldCheckout extends Checkout
 
         $discounts = $this->cart->getOrderTotal(true, CartCore::ONLY_DISCOUNTS);
         if ($discounts > 0) {
-            $discountsPrice = new DecimalNumber((string) $discounts);
+            $discountsPrice = new DecimalNumber((new DecimalNumber((string) $discounts))->toPrecision(2, Rounding::ROUND_HALF_UP));
             $products[] = [
                 'description' => 'Discounts',
                 'identifier' => 'DISC',
@@ -202,7 +204,7 @@ class In3OldCheckout extends Checkout
 
         $shipping = $this->cart->getOrderTotal(true, CartCore::ONLY_SHIPPING);
         if ($shipping > 0) {
-            $shippingPrice = new DecimalNumber((string) $shipping);
+            $shippingPrice = new DecimalNumber((new DecimalNumber((string) $shipping))->toPrecision(2, Rounding::ROUND_HALF_UP));
             $products[] = [
                 'description' => 'Shipping',
                 'identifier' => 'SHIP',
@@ -214,7 +216,7 @@ class In3OldCheckout extends Checkout
 
         $amountDebit = new DecimalNumber((string) $this->payment_request->amountDebit);
         $difference = $amountDebit->minus($total);
-        $differencePrecise = $difference->toPrecision(2);
+        $differencePrecise = $difference->toPrecision(2, Rounding::ROUND_HALF_UP);
 
         if (abs((float) $differencePrecise) >= 0.01) {
             $products[] = [

@@ -50,7 +50,23 @@ class CarrierHandler
             'houseNumberSuffix' => '',
             'zipcode' => $point->postal_code,
             'city' => $point->city,
-            'country' => $point->country,
+            'country' => $this->getCountryIsoCode($point->country),
         ];
+    }
+
+    /**
+     * The Sendcloud module provides the country either as a Country object or as an ISO code.
+     *
+     * @param Country|string|null $country
+     *
+     * @return string
+     */
+    private function getCountryIsoCode($country)
+    {
+        if (is_object($country)) {
+            $country = isset($country->iso_code) ? $country->iso_code : '';
+        }
+
+        return Tools::strtoupper((string) $country);
     }
 }
