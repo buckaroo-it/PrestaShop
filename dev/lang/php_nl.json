@@ -88,6 +88,7 @@
   "dashboard.pages.payments.save": "Opslaan",
   "dashboard.pages.payments.search_country": "Zoek Land",
   "dashboard.pages.payments.search_creditcard": "Zoek Credit- of debitcard",
+  "dashboard.pages.payments.no_creditcards_selected": "Nog geen cards geselecteerd. Klik op het veld hieronder om de cards te kiezen die in de checkout worden getoond.",
   "dashboard.pages.payments.search_giftcard": "Zoek Cadeaukaart",
   "dashboard.pages.payments.seller_protection": "Verkopersbescherming",
   "dashboard.pages.payments.seller_protection_disabled": "Nee",

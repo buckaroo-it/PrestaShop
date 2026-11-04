@@ -88,6 +88,7 @@
   "dashboard.pages.payments.save": "Sauvegarder",
   "dashboard.pages.payments.search_country": "Rechercher un pays",
   "dashboard.pages.payments.search_creditcard": "Rechercher une carte de crédit ou de débit",
+  "dashboard.pages.payments.no_creditcards_selected": "Aucune carte sélectionnée. Cliquez sur le champ ci-dessous pour choisir les cartes affichées lors du paiement.",
   "dashboard.pages.payments.search_giftcard": "Rechercher une carte cadeau",
   "dashboard.pages.payments.seller_protection": "Protection du vendeur",
   "dashboard.pages.payments.seller_protection_disabled": "Non",

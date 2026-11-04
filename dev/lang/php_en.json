@@ -88,6 +88,7 @@
   "dashboard.pages.payments.save": "Save",
   "dashboard.pages.payments.search_country": "Search Country",
   "dashboard.pages.payments.search_creditcard": "Search Credit- or debitcard",
+  "dashboard.pages.payments.no_creditcards_selected": "No cards selected yet. Click the field below to choose the cards shown in the checkout.",
   "dashboard.pages.payments.search_giftcard": "Search Giftcard",
   "dashboard.pages.payments.seller_protection": "Seller protection",
   "dashboard.pages.payments.seller_protection_disabled": "No",
