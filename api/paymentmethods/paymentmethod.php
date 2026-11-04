@@ -23,6 +23,7 @@ use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
 use Buckaroo\PrestaShop\Src\Repository\RawTransactionModeRepository;
 use PrestaShop\Decimal\DecimalNumber;
+use PrestaShop\Decimal\Operation\Rounding;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -167,7 +168,7 @@ abstract class PaymentMethod extends BuckarooAbstract
                 'identifier' => 1,
                 'description' => 'Refund',
                 'quantity' => 1,
-                'price' => $refundAmountDecimal->toPrecision(2),
+                'price' => $refundAmountDecimal->toPrecision(2, Rounding::ROUND_HALF_UP),
                 'vatPercentage' => 0,
             ]];
         }

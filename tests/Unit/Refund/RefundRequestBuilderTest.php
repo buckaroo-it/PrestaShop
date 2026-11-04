@@ -25,6 +25,14 @@ class RefundRequestBuilderTest extends TestCase
         parent::setUp();
         // AbstractBuilder::getIp() reads the client IP from the request globals.
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        \BuckarooTest\Stubs::reset();
+        buckaroo_refund_fixtures();
+    }
+
+    protected function tearDown(): void
+    {
+        \BuckarooTest\Stubs::reset();
+        parent::tearDown();
     }
 
     private function makeOrder(): \Order
@@ -34,11 +42,7 @@ class RefundRequestBuilderTest extends TestCase
 
     private function makePayment(string $method, float $amount = 28.80): \OrderPayment
     {
-        $payment = new \OrderPayment();
-        $payment->payment_method = $method;
-        $payment->amount = $amount;
-
-        return $payment;
+        return buckaroo_refund_payment($method, $amount);
     }
 
     public function testFashionchequeFullRefundBodyHasNoEmailOrLastname(): void

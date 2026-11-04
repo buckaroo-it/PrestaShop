@@ -14,12 +14,11 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
-use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+require_once __DIR__ . '/ordering_helper.php';
 
 /**
  * @return mixed
@@ -59,8 +58,6 @@ function upgrade_module_4_2_0($object)
 
     Db::getInstance()->execute($configInsertQuery);
 
-    $orderingRepository = new RawOrderingRepository();
-    $orderingRepository->insertCountryOrdering();
-
-    return true;
+    // Append to the existing (per-country) orderings instead of rebuilding them.
+    return buckaroo_upgrade_update_orderings(Db::getInstance(), [$paymentMethodId]);
 }

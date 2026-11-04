@@ -154,6 +154,11 @@ class BkRefundRequest
         return $this;
     }
 
+    public function getData(): array
+    {
+        return is_array($this->data) ? $this->data : [];
+    }
+
     public function setCreatedAt(\DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;

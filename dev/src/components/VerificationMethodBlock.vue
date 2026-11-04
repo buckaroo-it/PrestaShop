@@ -1,37 +1,36 @@
 <template>
-    <div class="bg-gray-50 p-3 rounded">
-        <div class="text-center space-y-2">
-            <div class="flex justify-center">
-                <img :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" alt="icon" class="w-12">
-            </div>
+    <div class="flex flex-col items-center gap-3 h-full rounded-xl border border-gray-200 bg-white p-4 text-center transition hover:border-gray-300 hover:shadow-md">
+        <button type="button" class="flex flex-col items-center gap-2 w-full rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-fifthly" @click="$emit('selectPayment')">
+            <span class="flex items-center justify-center h-10">
+                <img :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" alt=""
+                     class="max-h-10 w-12 object-contain transition"
+                     :class="{ 'opacity-60': payment.mode !== 'live' && payment.mode !== 'test' }">
+            </span>
+            <span class="text-sm font-semibold text-fifthly leading-tight min-h-[2.5rem] flex items-center">{{ $t(`verification_methods.${ payment.name }`) }}</span>
+        </button>
 
-            <h3 class="font-bold text-lg modal-title">{{ $t(`verification_methods.${ payment.name }`) }}</h3>
-
-            <div>
-                <div class="rounded-lg border border-gray-300 inline-block text-xs shadow text-center overflow-hidden p-1">
-                    <div class="flex space-x-1">
-                        <button class="h-6 flex justify-center items-center rounded hover:bg-green-500 hover:text-white px-1 uppercase" v-bind:class="{ 'shadow-xl bg-green-500 text-white' : payment.mode === 'live', 'shadow bg-gray-200 text-gray-400': payment.mode !== 'live' }" @click="payment.mode = 'live'">
-                            {{ $t(`dashboard.pages.payments.modes_settings.live`) }}
-                        </button>
-                        <button class="h-6 flex justify-center items-center rounded hover:bg-yellow-500 hover:text-white px-1 uppercase" v-bind:class="{ 'shadow-xl bg-yellow-500 text-white' : payment.mode === 'test', 'shadow bg-gray-200 text-gray-400': payment.mode !== 'test' }" @click="payment.mode = 'test'">
-                            {{ $t(`dashboard.pages.payments.modes_settings.test`) }}
-                        </button>
-                        <button class="h-6 flex justify-center items-center rounded hover:bg-black hover:text-white px-1 uppercase" v-bind:class="{ 'shadow-xl bg-black text-white' : payment.mode === 'off', 'shadow bg-gray-200 text-gray-400': payment.mode !== 'off' }" @click="payment.mode = 'off'">
-                            {{ $t(`dashboard.pages.payments.modes_settings.off`) }}
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <button @click="$emit('selectPayment')" class="inline-block py-1 px-3 text-xs hover:font-bold">{{ $t(`dashboard.pages.payments.configure`) }}</button>
-                </div>
-            </div>
+        <div class="grid grid-cols-3 gap-1 w-full rounded-lg border border-gray-200 bg-gray-50 p-1 text-[11px] font-semibold" role="group" :aria-label="$t('dashboard.pages.payments.mode')">
+            <button v-for="mode in modes" :key="mode.value" type="button"
+                    class="flex items-center justify-center gap-1 rounded-md py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-fifthly"
+                    :class="payment.mode === mode.value ? 'bg-white shadow text-fifthly' : 'text-gray-500 hover:text-fifthly'"
+                    :aria-pressed="payment.mode === mode.value"
+                    @click="payment.mode = mode.value">
+                <span class="inline-block w-1.5 h-1.5 rounded-full" :class="mode.dot" aria-hidden="true"></span>
+                {{ $t(`dashboard.pages.payments.modes_settings.${mode.value}`) }}
+            </button>
         </div>
+
+        <button type="button" @click="$emit('selectPayment')"
+                class="mt-auto w-full flex items-center justify-center gap-1.5 rounded-lg border border-gray-200 py-1.5 text-xs font-semibold text-fifthly hover:bg-fifthly hover:text-white hover:border-fifthly focus:outline-none focus-visible:ring-2 focus-visible:ring-fifthly">
+            <i class="fas fa-cog text-[10px]" aria-hidden="true"></i>
+            {{ $t(`dashboard.pages.payments.configure`) }}
+        </button>
     </div>
 </template>
 
 <script>
-import { inject, ref, watch } from "vue";
+import { inject, ref, watch, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useApi } from "../lib/api"
 import { useToastr } from "../lib/toastr";
 
@@ -43,21 +42,35 @@ export default {
        }) {
             this.post(this.payment).then(() => {
                 if(this.data.status) {
-                    this.toastr.success(`Payment updated.`)
+                    this.toastr.success(this.t('dashboard.pages.payments.mode_updated', {
+                        name: this.displayName,
+                        mode: this.t(`dashboard.pages.payments.modes_settings.${this.payment.mode}`),
+                    }))
                 }
             })
             .catch((e) => {
-                this.toastr.error(`Something went wrong...`)
+                this.toastr.error(this.t('dashboard.pages.order_payment_methods.something_went_wrong'))
             })
         },
     },
     setup(props) {
         const { toastr } = useToastr()
+        const { t } = useI18n()
+        const displayName = computed(() => t(`verification_methods.${props.payment.name}`))
         const { post, data, loading, setEndpoint } = useApi('buckaroo_config_methodMode')
         const paymentState = ref((props.payment.config)? (props.payment.config.value.enabled ?? 0) : 0)
         const baseUrl = inject('baseUrl');
 
+        const modes = [
+            { value: 'live', dot: 'bg-green-500' },
+            { value: 'test', dot: 'bg-yellow-400' },
+            { value: 'off', dot: 'bg-gray-400' },
+        ]
+
         return {
+            modes,
+            t,
+            displayName,
             toastr,
             loading,
             post,

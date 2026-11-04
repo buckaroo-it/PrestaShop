@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReportingConsent;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
@@ -140,6 +141,9 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, false);
         \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
         \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
+
+        // Not asked yet: the merchant is prompted on the configuration page (opt-in).
+        \Configuration::updateValue(ErrorReportingConsent::CONFIG_KEY, ErrorReportingConsent::NOT_ASKED);
         \Configuration::updateValue(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL, 0);
     }
 

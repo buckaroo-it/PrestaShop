@@ -1,10 +1,11 @@
 <template>
-    <div class="md:px-6 w-full text-white text-sm relative">
+    <div class="text-white text-sm relative">
         <div>
-            <div class="inline-block hover:bg-sixthly p-2 cursor-pointer rounded-lg" @click="showMenu = !showMenu">
-              <div v-for="({name,flag}) in filterCurrentLanguage(languages)" class="flex space-x-1">
-                  <img :src="'../../../../../img/flags/'+flag+'.jpg'" class="w-4" alt=""/>
-                  <span class="text-xs">{{name}} <i class="fas fa-chevron-down text-[8px]"></i></span>
+            <div class="inline-block hover:bg-white/10 px-2 py-1.5 cursor-pointer rounded-lg" role="button" tabindex="0" :aria-expanded="showMenu"
+                 @click="showMenu = !showMenu" @keydown.enter.prevent="showMenu = !showMenu" @keydown.space.prevent="showMenu = !showMenu">
+              <div v-for="({name,flag}) in filterCurrentLanguage(languages)" class="flex items-center space-x-1">
+                  <img :src="'../../../../../img/flags/'+flag+'.jpg'" class="w-4 h-auto shrink-0 self-center" alt=""/>
+                  <span class="text-xs">{{name}} <i class="fas text-[8px]" :class="dropUp ? 'fa-chevron-up' : 'fa-chevron-down'" aria-hidden="true"></i></span>
               </div>
             </div>
         </div>
@@ -15,9 +16,10 @@
                     leave-active-class="transform transition ease-in duration-150"
                     leave-from-class="opacity-100 translate-y-0"
                     leave-to-class="opacity-0 translate-y-3">
-            <ul v-if="showMenu" ref="languageMenuRef" class="bg-white text-gray-800 rounded-lg inline-block shadow-xl mt-1 absolute w-1/2 overflow-hidden">
-              <li v-for="({name,flag,code}) in filterCurrentLanguage(languages,false)" @click="changeLanguage(code)" class="p-2 flex space-x-2 cursor-pointer hover:bg-gray-200">
-                  <img :src="'../../../../../img/flags/'+flag+'.jpg'"  alt="" class="w-4"/>
+            <ul v-if="showMenu" ref="languageMenuRef" class="bg-white text-gray-800 rounded-lg inline-block shadow-xl absolute w-40 z-10 overflow-hidden"
+                :class="dropUp ? 'bottom-full mb-1 left-0' : 'mt-1 right-0'">
+              <li v-for="({name,flag,code}) in filterCurrentLanguage(languages,false)" @click="changeLanguage(code)" class="p-2 flex items-center space-x-2 cursor-pointer hover:bg-gray-200">
+                  <img :src="'../../../../../img/flags/'+flag+'.jpg'"  alt="" class="w-4 h-auto shrink-0 self-center"/>
                   <div>{{name}}</div>
               </li>
             </ul>
@@ -32,6 +34,10 @@ import { onClickOutside } from '@vueuse/core';
 
 export default {
   name: 'LanguageSelector',
+  props: {
+    // Open the list above the toggle (used at the bottom of the sidebar)
+    dropUp: { type: Boolean, default: false },
+  },
   setup() {
     const { locale } = useI18n();
     const showMenu = ref(false);

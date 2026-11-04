@@ -6,29 +6,25 @@
           <div class="text-gray-400 text-xs" v-html="$t(`dashboard.pages.payments.display_type_label`)"></div>
         </div>
 
-        <div class="flex rounded shadow border justify-between md:w-80 w-full overflow-hidden font-bold md:text-sm text-xs">
-          <button class="w-1/2 h-12 space-x-1 hover:bg-green-500 hover:text-white"
-                  v-bind:class="{'bg-green-500 text-white': config.display_type === 'radio' }"
-                  @click="config.display_type = 'radio'">
-            <i v-if="config.display_type === 'radio'" class="fas fa-check"></i>
-            <span>{{ $t(`dashboard.pages.payments.display_types.radio`) }}</span>
-          </button>
-          <button class="w-1/2 h-12 space-x-1 hover:bg-primary hover:text-fifthly"
-                  v-bind:class="{'bg-primary text-fifthly': config.display_type === 'dropdown' }"
-                  @click="config.display_type = 'dropdown'">
-            <i v-if="config.display_type === 'dropdown'" class="fas fa-check"></i>
-            <span>{{ $t(`dashboard.pages.payments.display_types.dropdown`) }}</span>
-          </button>
-        </div>
+        <SegmentedControl v-model="config.display_type"
+                          :label="$t(`dashboard.pages.payments.display_type`)"
+                          :options="[
+                            { value: 'radio', label: $t(`dashboard.pages.payments.display_types.radio`) },
+                            { value: 'dropdown', label: $t(`dashboard.pages.payments.display_types.dropdown`) },
+                          ]"/>
       </div>
     </div>
 </template>
 
 <script>
 import {inject} from "vue";
+import SegmentedControl from '../fields/SegmentedControl.vue'
 
 export default {
     name: "PayByBankPaymentConfig",
+    components: {
+        SegmentedControl
+    },
     setup(props) {
         const config = inject('config')
 

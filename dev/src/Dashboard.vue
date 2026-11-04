@@ -1,20 +1,21 @@
 <template>
   <div>
-    <div class="md:flex">
-      <Menu class="bg-fifthly lg:w-1/5 md:w-1/3 w-full md:min-h-screen" @changedView="changedView"/>
+    <div class="xl:flex xl:gap-4">
+      <Menu class="bg-fifthly xl:w-64 w-full xl:shrink-0 xl:self-start xl:sticky xl:top-[141px] xl:h-[calc(100vh-157px)] xl:overflow-y-auto shadow rounded-2xl overflow-hidden xl:pb-4 xl:mb-0 mb-4" @changedView="changedView"/>
 
-      <div class="lg:w-4/5 md:2/3 w-full">
-        <Settings v-if="view === 'settings'" class="lg:flex h-full"/>
+      <div class="xl:flex-1 min-w-0 w-full">
+        <Settings v-if="view === 'settings'" class="2xl:flex h-full"/>
         <PaymentMethods v-if="view === 'payment_methods'" ref="paymentMethodsRef"/>
         <VerificationMethods v-if="view === 'verification_methods'" ref="paymentMethodsRef"/>
-        <OrderPaymentMethods v-if="view === 'order_payment_methods'" class="md:flex h-full"/>
+        <OrderPaymentMethods v-if="view === 'order_payment_methods'" class="2xl:flex h-full"/>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {ref, provide} from 'vue'
+import {ref, provide, watch} from 'vue'
+import { readRoute, writeRoute } from './lib/route'
 
 import Menu from './components/Menu.vue'
 import Settings from './pages/Settings.vue'
@@ -33,11 +34,17 @@ export default {
     OrderPaymentMethods,
   },
   setup(props) {
-    const view = ref('settings')
+    const initialRoute = readRoute()
+    const view = ref(initialRoute.view)
+    // The payment/verification method to reopen after a refresh, used once by those pages
+    provide('initialRouteDetail', ref(initialRoute.detail))
+    watch(view, (newView) => writeRoute(newView))
+    writeRoute(view.value, initialRoute.detail)
     const menu = ref(null)
     const paymentMethodsRef = ref(null)
 
     provide('view', view)
+    provide('hasUnsavedChanges', ref(false))
     provide('csrfToken', props.token)
     provide('baseUrl', props.baseUrl)
     provide('adminUrl', props.adminUrl)

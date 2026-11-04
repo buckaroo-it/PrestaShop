@@ -14,12 +14,11 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
-use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+
+require_once __DIR__ . '/ordering_helper.php';
 
 /**
  * Adds Google Pay payment method to existing installations.
@@ -50,6 +49,8 @@ function upgrade_module_5_1_1($object)
         return (bool) $db->getValue($sql);
     };
 
+    $addedIds = [];
+
     if (!$paymentMethodExists('googlepay')) {
         $googlePayData = [
             'name' => 'googlepay',
@@ -68,6 +69,7 @@ function upgrade_module_5_1_1($object)
         $db->execute($insertQuery);
 
         $paymentMethodId = (int) $db->Insert_ID();
+        $addedIds[] = $paymentMethodId;
 
         if ($paymentMethodId && !$configExistsForMethod($paymentMethodId)) {
             $googlePayConfig = [
@@ -79,8 +81,6 @@ function upgrade_module_5_1_1($object)
         }
     }
 
-    $orderingRepository = new RawOrderingRepository();
-    $orderingRepository->insertCountryOrdering();
-
-    return true;
+    // Append to the existing (per-country) orderings instead of rebuilding them.
+    return buckaroo_upgrade_update_orderings($db, $addedIds);
 }

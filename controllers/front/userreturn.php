@@ -77,6 +77,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $this->logger->logError('User return fatal: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'exception' => $e,
             ]);
             $this->redirectToCheckoutError($this->defaultErrorMessage());
         }
@@ -143,11 +144,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             return;
         }
 
-        $this->logger->logError('Payment failed or invalid response');
-        $this->finishFailure(
-            (int) $response->getCartId(),
-            $response->statusmessage ?: $this->defaultErrorMessage()
-        );
+        // The signature did not verify: brq_statusmessage is attacker-controlled
+        // and must not be shown to the shopper (cookie / checkout error URL).
+        $this->logger->logError('Payment failed or invalid response', [
+            'statusMessage' => (string) $response->statusmessage,
+        ]);
+        $this->finishFailure((int) $response->getCartId(), $this->defaultErrorMessage());
     }
 
     /**
@@ -201,7 +203,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             try {
                 $this->context->cart->delete();
             } catch (Throwable $e) {
-                $this->logger->logError('Cart delete failed: ' . $e->getMessage());
+                $this->logger->logError('Cart delete failed: ' . $e->getMessage(), $e);
             }
         }
 

@@ -1,117 +1,89 @@
 <template>
-    <div class="border-b h-16 flex justify-between items-center">
-        <div class="px-5 space-y-1 flex items-center  space-x-3">
-            <div class="w-8">
-                <img v-if="payment.icon" :src="`${baseUrl}/modules/buckaroo3/views/img/buckaroo/Identification methods/SVG/${ payment.icon }`" alt="" />
-            </div>
-
-            <div>
-                <h2 class="font-bold h2-title">{{ $t(`verification_methods.${ payment.name }`) }}</h2>
-                <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.settings`) }}</div>
-            </div>
-        </div>
-
-        <button class="h-full bg-primary text-fifthly px-8 font-bold hover:brightness-95" @click="updateConfig">{{ $t(`dashboard.pages.payments.save`) }}</button>
-    </div>
-
     <Transition enter-from-class="opacity-0 translate-y-3"
                 enter-to-class="opacity-100 translate-y-0"
                 enter-active-class="transform transition ease-out duration-50">
 
-        <div v-if="!loading" class="h-full">
-            <div class="p-5 space-y-5">
+        <div v-if="!loading">
+            <div class="md:p-5 p-4 space-y-6">
 
-                <div class="px-5 space-y-5">
-                    <div class="space-y-2">
-                        <h3 class="font-semibold text-sm modal-title">{{ $t(`dashboard.pages.payments.mode`) }}</h3>
-                        <div class="text-gray-400 text-xs">
-                            {{ $t(`dashboard.pages.payments.mode_label`) }}
+                <!-- Status -->
+                <section class="space-y-3">
+                    <div>
+                        <h2 class="m-0 font-semibold text-sm">{{ $t(`dashboard.pages.payments.mode`) }}</h2>
+                        <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.mode_label`) }}</div>
+                    </div>
+
+                    <div class="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 text-xs font-semibold" role="group" :aria-label="$t(`dashboard.pages.payments.mode`)">
+                        <button v-for="mode in modes" :key="mode.value" type="button"
+                                class="px-3 py-1.5 rounded-md flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-fifthly"
+                                :class="config.mode === mode.value ? 'bg-white shadow text-fifthly' : 'text-gray-500 hover:text-fifthly'"
+                                :aria-pressed="config.mode === mode.value"
+                                @click="config.mode = mode.value">
+                            <span class="inline-block w-2 h-2 rounded-full" :class="mode.dot" aria-hidden="true"></span>
+                            {{ $t(`dashboard.pages.payments.modes_settings.${mode.value}`) }}
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Checkout display -->
+                <section class="space-y-3">
+                    <h2 class="m-0 font-semibold text-sm">{{ $t(`dashboard.pages.payments.section_display`) }}</h2>
+
+                    <div class="rounded-xl border border-gray-200 divide-y divide-gray-100">
+                        <div class="px-4 py-3 space-y-3">
+                            <div>
+                                <label for="verification_frontend_label" class="m-0 font-semibold text-sm">{{ $t(`dashboard.pages.payments.front_label`) }}</label>
+                                <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.front_label_default_hint`, { name: methodName }) }}</div>
+                            </div>
+
+                            <div class="relative">
+                                <input type="text" id="verification_frontend_label" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer" placeholder=" " v-model="config.frontend_label" />
+                                <label for="verification_frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
+                                    {{ methodName }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="px-4 py-3 space-y-3">
+                            <div>
+                                <label for="verification_display_mode" class="m-0 font-semibold text-sm">{{ $t(`dashboard.pages.payments.idin.display_mode`) }}</label>
+                                <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.idin.display_mode_label`) }}</div>
+                            </div>
+
+                            <select id="verification_display_mode" v-model="config.display_mode"
+                                    class="block w-full md:w-80 h-[39px] px-2.5 text-sm text-gray-900 rounded-lg border border-gray-300 bg-white shadow-none focus:outline-none focus:border-fifthly">
+                                <option value="product">{{ $t(`dashboard.pages.payments.idin.display_mode.product`) }}</option>
+                                <option value="global">{{ $t(`dashboard.pages.payments.idin.display_mode.global`) }}</option>
+                            </select>
                         </div>
                     </div>
-
-                    <div class="flex rounded shadow border justify-between md:w-80 w-full overflow-hidden font-bold md:text-sm text-xs">
-                        <button class="w-1/3 h-12 space-x-1 hover:bg-green-500 hover:text-white" v-bind:class="{'bg-green-500 text-white': config.mode === 'live' }" @click="setMode('live')">
-                            <i v-if="config.mode === 'live'" class="fas fa-check"></i>
-                            <span>{{ $t(`dashboard.pages.payments.modes_settings.live`) }}</span>
-                        </button>
-                        <button class="w-1/3 h-12 space-x-1 hover:bg-yellow-400 hover:text-white" v-bind:class="{'bg-yellow-400 text-white': config.mode === 'test' }" @click="setMode('test')">
-                            <i v-if="config.mode === 'test'" class="fas fa-check"></i>
-                            <span>{{ $t(`dashboard.pages.payments.modes_settings.test`) }}</span>
-                        </button>
-                        <button class="w-1/3 h-12 space-x-1 hover:bg-gray-800 hover:text-white" v-bind:class="{'bg-gray-800 text-white': config.mode === 'off' }" @click="setMode('off')">
-                            <i v-if="config.mode === 'off'" class="fas fa-check"></i>
-                            <span>{{ $t(`dashboard.pages.payments.modes_settings.off`) }}</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="px-5 space-y-5">
-                    <div class="space-y-2">
-                        <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.front_label`) }}</h2>
-                        <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.front_label_label`) }}</div>
-                    </div>
-
-                    <div class="relative">
-                        <input type="text" id="frontend_label" class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer" placeholder=" " v-model="config.frontend_label" />
-                        <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                            {{ $t(`dashboard.pages.payments.front_label`) }}
-                        </label>
-                    </div>
-                </div>
+                </section>
 
                 <slot></slot>
 
-                <div class="p-5 space-y-5">
-                  <div class="space-y-2">
-                    <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.idin.display_mode`) }}</h2>
-                    <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.idin.display_mode_label`) }}</div>
-                  </div>
-
-                  <div class="relative">
-                    <select class="w-full rounded-lg border border-gray-300 p-2.5 peer" v-model="config.display_mode">
-                      <option value="product">{{ $t(`dashboard.pages.payments.idin.display_mode.product`) }}</option>
-                      <option value="global">{{ $t(`dashboard.pages.payments.idin.display_mode.global`) }}</option>
-                    </select>
-
-                    <label for="frontend_label" class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1">
-                      {{ $t(`dashboard.pages.payments.idin.display_mode`) }}
-                    </label>
-                  </div>
-                </div>
-
-                <div class="px-5 space-y-5">
-                    <div class="md:flex justify-between items-center space-y-2">
-                        <div class="space-y-2">
-                            <h2 class="font-semibold text-sm">{{ $t(`dashboard.pages.payments.countries`) }}</h2>
-                            <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.countries_label`) }}</div>
-                        </div>
-
-                        <div class="md:block flex justify-end">
-                            <button class="border border-green-400 rounded-l p-1 px-2 text-xs text-green-500 hover:bg-green-400 hover:text-white" @click="addAllCountries">{{ $t(`dashboard.pages.payments.all_countries`) }}</button>
-                            <button class="border border-red-400 rounded-r p-1 px-2 text-xs text-red-500 hover:bg-red-400 hover:text-white" @click="removeAllCountries">{{ $t(`dashboard.pages.payments.clear`) }}</button>
-                        </div>
+                <!-- Availability -->
+                <section class="space-y-3">
+                    <h2 class="m-0 font-semibold text-sm">{{ $t(`dashboard.pages.payments.section_availability`) }}</h2>
+                    <div class="rounded-xl border border-gray-200 px-4 py-3">
+                        <CountryAvailability v-model="config.countries" />
                     </div>
+                </section>
+            </div>
 
-                    <CountrySelect v-model="selectCountry" />
-
-                    <ul class="flex flex-wrap text-sm">
-                        <li v-for="country in enabledCountries" class="rounded flex border border-gray-300 p-2 space-x-2 my-1 mr-2 shadow text-sm">
-                            <button class="hover:text-red-500" @click="removeCountry(country)">
-                                <i class="fas fa-times text-xs"></i>
-                            </button>
-                            <div class="flex items-center space-x-2">
-                                <img :src="`/img/flags/${ country.icon }`" class="w-4" alt=""/>
-                                <span class="block">{{ $t(`countries.${ country.name }`) }}</span>
-                            </div>
-                        </li>
-
-                        <li v-if="config.countries && config.countries.length > 10" @click="showAllCountries = !showAllCountries" class="rounded flex border border-gray-300 p-2 space-x-2 my-1 mr-2 bg-gray-200 cursor-pointer">
-                            <span v-if="!showAllCountries">{{ $t(`dashboard.pages.payments.show_country_number_and_more`, { country_number: (config.countries.length - 10) }) }}</span>
-                            <span v-else>{{ $t(`dashboard.pages.payments.show_less`) }}</span>
-                        </li>
-                    </ul>
+            <!-- Save bar -->
+            <div class="sticky bottom-0 z-10 border-t border-gray-100 md:px-5 px-4 py-4 bg-white rounded-b-2xl flex flex-wrap items-center justify-end gap-3"
+                 :class="{'shadow-[0_-4px_12px_rgba(0,0,0,0.06)]': isDirty}">
+                <div v-if="isDirty" class="mr-auto flex items-center gap-2 text-sm text-fifthly" role="status">
+                    <span class="inline-block w-2 h-2 rounded-full bg-yellow-500" aria-hidden="true"></span>
+                    {{ $t('dashboard.common.unsaved_changes') }}
                 </div>
-
+                <button v-if="isDirty" type="button" class="text-sm text-gray-500 hover:text-fifthly px-3 py-2 rounded-lg hover:bg-gray-100" @click="discardChanges">
+                    {{ $t('dashboard.common.discard') }}
+                </button>
+                <button type="button" class="bg-primary font-bold text-fifthly rounded-lg px-8 py-3 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        :disabled="!isDirty || saving" @click="updateConfig">
+                    {{ $t(`dashboard.pages.payments.save`) }}
+                </button>
             </div>
         </div>
 
@@ -122,124 +94,106 @@
 </template>
 
 <script>
-import { ref, provide, computed, inject } from 'vue'
-import CountrySelect from '../CountrySelect.vue'
+import { ref, provide, inject, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+import { useI18n } from 'vue-i18n'
+import CountryAvailability from '../CountryAvailability.vue'
 import { useApi } from "../../lib/api";
 import { useToastr } from "../../lib/toastr"
-import {useCountries} from "../../lib/countries";
+
+const emptyConfig = () => ({
+    mode: 'off',
+    display_type: 'dropdown',
+    frontend_label: '',
+    countries: [],
+})
 
 export default {
     name: "DefaultVerificationConfig.vue",
     props: ['payment'],
     components: {
-        CountrySelect,
-    },
-    watch: {
-        selectCountry(value) {
-            if(!this.config.countries) {
-                this.config.countries = []
-            }
-
-            this.config.countries.push(value)
-        },
-        countries: {
-            handler(value, oldValue){
-                this.config.countries = value
-            },
-            deep: true
-        }
+        CountryAvailability,
     },
     setup(props) {
-
+        const { t } = useI18n()
         const { get, data, loading, post, setEndpoint } = useApi(`buckaroo_config_paymentMethod`)
         const { toastr } = useToastr()
-        const { countries } = useCountries()
-        const selectCountry = ref(null)
-        const showAllCountries = ref(false)
+        const saving = ref(false)
         const baseUrl = inject('baseUrl');
 
-        const config = ref({
-            mode: 'off',
-            frontend_label: '',
-            countries: []
-        })
-
+        const config = ref(emptyConfig())
         provide('config', config)
+
+        const methodName = computed(() => t(`verification_methods.${props.payment.name}`))
+
+        const modes = [
+            { value: 'live', dot: 'bg-green-500' },
+            { value: 'test', dot: 'bg-yellow-400' },
+            { value: 'off', dot: 'bg-gray-400' },
+        ]
+
+        // Unsaved changes, compared with the last loaded or saved configuration
+        const savedSnapshot = ref(null)
+        const hasUnsavedChanges = inject('hasUnsavedChanges', ref(false))
+        const isDirty = computed(() => savedSnapshot.value !== null && JSON.stringify(config.value) !== savedSnapshot.value)
+        watch(isDirty, (dirty) => { hasUnsavedChanges.value = dirty })
+
+        const discardChanges = () => {
+            config.value = JSON.parse(savedSnapshot.value)
+        }
+
+        const warnBeforeLeaving = (event) => {
+            if (isDirty.value) {
+                event.preventDefault()
+                event.returnValue = ''
+            }
+        }
+        onMounted(() => window.addEventListener('beforeunload', warnBeforeLeaving))
+        onBeforeUnmount(() => {
+            window.removeEventListener('beforeunload', warnBeforeLeaving)
+            hasUnsavedChanges.value = false
+        })
 
         const getConfig = () => {
             get({paymentName:props.payment.name}).then(() => {
-              if(data.value.status) {
-                    if(data.value.config) {
-                        config.value = data.value.config.value
-
-                        return
-                    }
-
-                    config.value = {
-                        mode: 'off',
-                        display_type: 'dropdown',
-                        frontend_label: '',
-                        countries: []
-                    }
+                if (data.value.status) {
+                    config.value = data.value.config ? data.value.config.value : emptyConfig()
+                    savedSnapshot.value = JSON.stringify(config.value)
                 }
             })
         }
 
         const updateConfig = () => {
+            saving.value = true
             post(config.value, {paymentName:props.payment.name}).then(() => {
-                if(data.value.status) {
-                    toastr.success(`Settings successfully updated.`)
-
+                if (data.value.status) {
+                    savedSnapshot.value = JSON.stringify(config.value)
+                    props.payment.mode = config.value.mode
+                    toastr.success(t('dashboard.pages.settings.settings_successfully_updated'))
                     return
                 }
 
-                toastr.error(`Something went wrong.`)
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+            }).catch(() => {
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+            }).finally(() => {
+                saving.value = false
             })
-        }
-
-        const setMode = (mode) => {
-            config.value.mode = mode
-            props.payment.mode = mode
-        }
-
-        const addAllCountries = () => {
-            config.value.countries = countries.value
-        }
-
-        const removeAllCountries = () => {
-            config.value.countries = []
-        }
-
-        const enabledCountries = computed(() => {
-            if(config.value.countries) {
-                if(config.value.countries.length > 10 && !showAllCountries.value) {
-                    return config.value.countries.slice(0, 10)
-                }
-            }
-
-            return config.value.countries ?? []
-        })
-
-        const removeCountry = (country) => {
-            config.value.countries = config.value.countries.filter(ec => ec.id !== country.id)
         }
 
         getConfig()
 
         return {
-            removeCountry,
-            removeAllCountries,
             config,
-            showAllCountries,
-            addAllCountries,
             updateConfig,
             setEndpoint,
             getConfig,
-            setMode,
             loading,
-            selectCountry,
-            enabledCountries,
-            baseUrl
+            saving,
+            baseUrl,
+            methodName,
+            modes,
+            isDirty,
+            discardChanges,
         }
     }
 }

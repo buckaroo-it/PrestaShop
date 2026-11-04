@@ -22,6 +22,9 @@ if (!defined('_PS_MODULE_DIR_')) {
     if (!is_dir($buckarooTestModuleDir)) {
         @mkdir($buckarooTestModuleDir, 0777, true);
     }
+    if (!file_exists($buckarooTestModuleDir . 'buckaroo3')) {
+        @symlink(realpath(__DIR__ . '/..'), $buckarooTestModuleDir . 'buckaroo3');
+    }
     define('_PS_MODULE_DIR_', $buckarooTestModuleDir);
 }
 
@@ -51,242 +54,32 @@ if (!defined('__PS_BASE_URI__')) {
 // Make sure we are in the module root when running tests
 chdir(__DIR__ . '/..');
 
+// Remaining PrestaShop constants the module code reads.
+foreach ([
+    '_DB_PREFIX_' => 'ps_',
+    '_MYSQL_ENGINE_' => 'InnoDB',
+    '_PS_MODE_DEV_' => false,
+    '_COOKIE_KEY_' => 'buckaroo-test-cookie-key',
+    '_MODULE_DIR_' => '/modules/',
+    '_PS_MAIL_DIR_' => sys_get_temp_dir() . '/buckaroo3-phpunit-mails/',
+] as $buckarooConstant => $buckarooValue) {
+    if (!defined($buckarooConstant)) {
+        define($buckarooConstant, $buckarooValue);
+    }
+}
+unset($buckarooConstant, $buckarooValue);
+
 /*
- * Lightweight stubs for legacy module dependencies that rely on a full
- * PrestaShop runtime. For isolated unit tests we only need the symbols
- * to exist so the production code can be loaded safely.
+ * PrestaShop core, Symfony and Doctrine stubs (see tests/Support/Stubs.php for
+ * how tests configure them). The real module files are loaded through
+ * _PS_MODULE_DIR_ . 'buckaroo3/', so no module class may be stubbed here.
  */
-if (!class_exists('Checkout')) {
-    class Checkout
-    {
-        public function setCheckout()
-        {
-            // No-op in tests; concrete subclasses can still override.
-        }
-    }
-}
-
-if (!class_exists('CarrierHandler')) {
-    class CarrierHandler
-    {
-        public function __construct($cart = null)
-        {
-        }
-
-        public function handleSendCloud()
-        {
-            // In unit tests we assume no external carrier integration.
-            return null;
-        }
-    }
-}
-
-// Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
-
-/*
- * Lightweight test doubles for common PrestaShop classes used by the module.
- * These keep the unit tests isolated from a real PrestaShop runtime while
- * still exercising the module logic.
- */
-
-// ---- Global Context / Tools / Currency stubs ----
-if (!class_exists('Context')) {
-    class Context
-    {
-        public $currency;
-        public $shop;
-        public $language;
-        public $country;
-        public $cookie;
-        public $link;
-        public $cart;
-        public $customer;
-        public $controller;
-
-        private static $instance;
-
-        public static function getContext()
-        {
-            if (!self::$instance) {
-                self::$instance = new self();
-                self::$instance->currency = new Currency();
-            }
-
-            return self::$instance;
-        }
-    }
-}
-
-// ---- Module registry stub (ContextResolver falls back to the module instance) ----
-if (!class_exists('Module')) {
-    class Module
-    {
-        /** @var array<string, object> */
-        public static $instances = [];
-
-        public $context;
-
-        public static function getInstanceByName($name)
-        {
-            return self::$instances[$name] ?? false;
-        }
-
-        /** Mirrors Buckaroo3::getModuleContext(); Module::$context is protected in the core. */
-        public function getModuleContext()
-        {
-            return $this->context;
-        }
-    }
-}
-
-if (!class_exists('Currency')) {
-    class Currency
-    {
-        public $iso_code = 'EUR';
-
-        /** @var array<int,string> */
-        public static $isoById = [];
-
-        /**
-         * ISO code for a currency id. Mirrors PrestaShop's Currency::getIsoCodeById()
-         * so refund request builders can resolve the order currency in unit tests.
-         */
-        public static function getIsoCodeById($id)
-        {
-            return self::$isoById[(int) $id] ?? 'EUR';
-        }
-
-        public function __construct($id = null)
-        {
-            // Allow tests to control the currency per ID while keeping a sane default.
-            if ($id !== null && isset(self::$isoById[(int) $id])) {
-                $this->iso_code = self::$isoById[(int) $id];
-            } else {
-                $this->iso_code = 'EUR';
-            }
-        }
-    }
-}
-
-if (!class_exists('Tools')) {
-    class Tools
-    {
-        public static function getContextLocale($context)
-        {
-            return new class {
-                public function formatPrice($amount, $isoCode)
-                {
-                    // Simple, deterministic representation for assertions
-                    return sprintf('%s %.2f', $isoCode, $amount);
-                }
-            };
-        }
-
-        public static function strtoupper($string)
-        {
-            return strtoupper($string);
-        }
-
-        public static function strtolower($string)
-        {
-            return strtolower($string);
-        }
-
-        /** Mirrors PrestaShop: POST first, then GET. */
-        public static function getValue($key, $defaultValue = false)
-        {
-            if (isset($_POST[$key])) {
-                return $_POST[$key];
-            }
-
-            return $_GET[$key] ?? $defaultValue;
-        }
-
-        /** Mirrors PrestaShop: POST wins over GET. */
-        public static function getAllValues()
-        {
-            return $_POST + $_GET;
-        }
-
-        public static function isSubmit($submit)
-        {
-            return isset($_POST[$submit]) || isset($_GET[$submit]);
-        }
-    }
-}
-
-if (!class_exists('Configuration')) {
-    class Configuration
-    {
-        /** @var array<string,mixed> */
-        public static $values = [];
-
-        public static function get($key)
-        {
-            return self::$values[$key] ?? false;
-        }
-
-        public static function updateValue($key, $value)
-        {
-            self::$values[$key] = $value;
-
-            return true;
-        }
-
-        public static function deleteByName($key)
-        {
-            unset(self::$values[$key]);
-
-            return true;
-        }
-    }
-}
-
-if (!class_exists('Validate')) {
-    class Validate
-    {
-        public static function isLoadedObject($object)
-        {
-            return $object !== null;
-        }
-    }
-}
-
-if (!class_exists('Country')) {
-    class Country
-    {
-        /** @var array<int,string> */
-        public static $isoById = [];
-
-        public $iso_code = 'NL';
-
-        public function __construct($id = null)
-        {
-            if ($id !== null && isset(self::$isoById[(int) $id])) {
-                $this->iso_code = self::$isoById[(int) $id];
-            }
-        }
-
-        public static function getIsoById($id)
-        {
-            return self::$isoById[(int) $id] ?? null;
-        }
-
-        /** @var array<int, array<string, mixed>> rows returned by getCountries() */
-        public static $countries = [];
-
-        /** @var int|null language id passed to the last getCountries() call */
-        public static $lastLanguageId;
-
-        public static function getCountries($idLang, $active = false, $containStates = false, $listStates = false)
-        {
-            self::$lastLanguageId = (int) $idLang;
-
-            return self::$countries;
-        }
-    }
-}
+require_once __DIR__ . '/Support/Stubs.php';
+require_once __DIR__ . '/Support/PrestaShopStubs.php';
+require_once __DIR__ . '/Support/FrameworkStubs.php';
+require_once __DIR__ . '/Support/TestCase.php';
+Context::reset();
 
 // ---- Namespaced PaymentOption stub ----
 if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
@@ -372,26 +165,3 @@ if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
 }
 
 // ---- Minimal Doctrine ORM EntityManager stub ----
-// The module services type-hint Doctrine\ORM\EntityManager, but for isolated
-// unit tests we only need the symbol to exist so that anonymous subclasses
-// in the tests can extend it and provide an in-memory repository.
-if (!class_exists('\Doctrine\ORM\EntityManager')) {
-    eval('
-    namespace Doctrine\ORM;
-
-    abstract class EntityManager
-    {
-        /**
-         * In production this would return a Doctrine repository. For unit tests
-         * we never call this implementation because test doubles override it.
-         *
-         * @param string $className
-         * @return mixed
-         */
-        public function getRepository($className)
-        {
-            return null;
-        }
-    }
-    ');
-}

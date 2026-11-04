@@ -166,7 +166,10 @@ class BuckarooClickToPayService
 
         $body = curl_exec($curl);
         $error = curl_error($curl);
-        curl_close($curl);
+        // PHP 8.0+ frees the handle automatically and deprecates curl_close() in 8.5.
+        if (PHP_VERSION_ID < 80000) {
+            curl_close($curl);
+        }
 
         if (!is_string($body) || $body === '') {
             $this->logError('Click to Pay token request failed: ' . ($error !== '' ? $error : 'empty response'));

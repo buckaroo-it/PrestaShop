@@ -14,18 +14,18 @@
         {{ $t(`dashboard.pages.payments.add_custom_giftcard`) }}
       </button>
     </div>
-    <div class="relative rounded-lg border border-gray-300 max-h-96 overflow-y-auto">
+    <div class="relative rounded-lg border border-gray-300 focus-within:border-fifthly max-h-96 overflow-y-auto">
       <div class="relative">
         <input
             id="search-giftcard"
             v-model="query"
-            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
+            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none border-0 shadow-none rounded-lg h-[37px] focus:outline-none focus:ring-0 peer"
             placeholder=" "
             type="text"
         />
         <label
             class="bk-no-close absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:top-8 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-            for="search-giftcard "
+            for="search-giftcard"
         >
           {{ $t(`dashboard.pages.payments.search_giftcard`) }}
         </label>
@@ -147,6 +147,12 @@ export default {
 
     const removeCustomGiftcard = customGiftcard => {
       customGiftcards.value = customGiftcards.value.filter(giftcard => customGiftcard.id !== giftcard.id);
+
+      // A deleted giftcard can't stay in the saved selection either.
+      if (activatedGiftcards.value?.customGiftcards) {
+        activatedGiftcards.value.customGiftcards = activatedGiftcards.value.customGiftcards
+            .filter(giftcard => customGiftcard.id !== giftcard.id);
+      }
     };
 
     const toggleGiftcard = giftcard => {

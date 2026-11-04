@@ -75,7 +75,7 @@ class Giftcards extends BaseApiController
         $code = $this->getValueOrNull($data, 'service_code');
         $logo = $this->getValueOrNull($data, 'logo_url');
 
-        if (!($name || $code || $logo)) {
+        if (!$name || !$code) {
             return $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing or invalid data',
@@ -100,7 +100,7 @@ class Giftcards extends BaseApiController
         $code = $this->getValueOrNull($data, 'service_code');
         $logo = $this->getValueOrNull($data, 'logo_url');
 
-        if (!($name || $code || $logo)) {
+        if (!$name || !$code) {
             return $this->sendResponse([
                 'status' => false,
                 'message' => 'Missing or invalid data',

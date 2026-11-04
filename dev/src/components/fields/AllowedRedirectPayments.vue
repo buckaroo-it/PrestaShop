@@ -5,12 +5,12 @@
       <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.payments.allowed_redirect_payments_label') }}</div>
     </div>
 
-    <div class="relative rounded-lg border border-gray-300 max-h-96 overflow-y-auto">
+    <div class="relative rounded-lg border border-gray-300 focus-within:border-fifthly max-h-96 overflow-y-auto">
       <div class="relative">
         <input
             id="search-redirect-payment"
             v-model="query"
-            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
+            class="bk-no-close block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent appearance-none border-0 shadow-none rounded-lg h-[37px] focus:outline-none focus:ring-0 peer"
             placeholder=" "
             type="text"
         />

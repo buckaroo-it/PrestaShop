@@ -51,6 +51,15 @@ $_MODULE['<{buckaroo3}prestashop>payment_8df34bb962577b90d574a51ed2ca757f'] = 'A
 $_MODULE['<{buckaroo3}prestashop>payment_billink_c66a608eb37f73d6474df12b5f15e380'] = 'Numéro de registre du commerce :';
 // Please select gender (legacy / shared)
 $_MODULE['<{buckaroo3}prestashop>payment_52db1a3d3cd7bf584459aa4c2db08b25'] = 'Veuillez sélectionner votre genre :';
+// --- Error reporting consent prompt ---
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_d0cc41aca33e543ac56f79e65b3c8639'] = 'Partager les rapports d\'erreurs avec Buckaroo ?';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_1423689e09bcdcf645356b12c20b7566'] = 'Aidez-nous à améliorer le plugin Buckaroo en envoyant automatiquement un rapport à Buckaroo lorsque le plugin rencontre une erreur.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_31eb1276848f179a0a28f947794240a8'] = 'Seules les exceptions du plugin sont envoyées : classe de l\'exception, message, fichier et ligne, trace d\'appels (sans arguments), versions du plugin, de PrestaShop et de PHP, URL de votre boutique, votre website key Buckaroo et le mode test/live.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_7ba287d9209220189f3be135fae5a1b2'] = 'Aucune donnée personnelle de client ni donnée de carte n\'est envoyée.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_654e9ea4a05bfc996093bb0dab66b56e'] = 'Vous pouvez modifier ce choix à tout moment sous Paramètres > Paramètres avancés.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_cf02a8b812bfa6f79a55fdce93422e44'] = 'Oui, partager les rapports d\'erreurs';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_a0248bd77b4646e6a1f903f6ea16a4d1'] = 'Non, merci';
+
 // Apple Pay express button
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay n’est pas disponible pour le moment. Veuillez réessayer ou choisir un autre moyen de paiement.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_a5ab7d8806c91c3c058255fddca2ba06'] = 'Votre paiement Apple Pay n’a pas pu être lancé. Veuillez réessayer.';

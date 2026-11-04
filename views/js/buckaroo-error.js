@@ -15,13 +15,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const wrapper = document.createElement('div');
     wrapper.className = 'js-buckaroo-payment-error';
 
-    wrapper.innerHTML = `
-    <article class="alert alert-danger" role="alert" data-alert="danger">
-      <ul id="buckaroo-notifications">
-        <li>${buckaroo_error_msg}</li>
-      </ul>
-    </article>
-  `;
+    // The message comes from the URL (buckaroo_error_msg), so it is set as text,
+    // never as HTML: a crafted link must not be able to inject markup or script.
+    const article = document.createElement('article');
+    article.className = 'alert alert-danger';
+    article.setAttribute('role', 'alert');
+    article.setAttribute('data-alert', 'danger');
+
+    const list = document.createElement('ul');
+    list.id = 'buckaroo-notifications';
+
+    const item = document.createElement('li');
+    item.textContent = String(window.buckaroo_error_msg);
+
+    list.appendChild(item);
+    article.appendChild(list);
+    wrapper.appendChild(article);
 
     // '.cart-grid-body' is the classic multi-step checkout column;
     // '.checkout-grid__content' covers both the Hummingbird checkout and the

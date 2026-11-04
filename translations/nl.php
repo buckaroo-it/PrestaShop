@@ -184,6 +184,15 @@ $_MODULE['<{buckaroo3}prestashop>refund-hook_88427ec035734b45aae9f7d8859a5008'] 
 $_MODULE['<{buckaroo3}prestashop>refund-hook_b2f40690858b404ed10e62bdf422c704'] = 'Bedrag';
 $_MODULE['<{buckaroo3}prestashop>refund-hook_3ec365dd533ddb7ef3d1c111186ce872'] = 'Details';
 $_MODULE['<{buckaroo3}prestashop>refund-hook_de78da3154b793d64d302db27e65baec'] = 'Er zijn geen betaalmethoden beschikbaar';
+// --- Error reporting consent prompt ---
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_d0cc41aca33e543ac56f79e65b3c8639'] = 'Foutrapporten delen met Buckaroo?';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_1423689e09bcdcf645356b12c20b7566'] = 'Help ons de Buckaroo-plugin te verbeteren door automatisch een rapport naar Buckaroo te sturen wanneer de plugin een fout tegenkomt.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_31eb1276848f179a0a28f947794240a8'] = 'Alleen plugin-exceptions worden verstuurd: de exception-klasse, melding, bestand en regel, de stacktrace (zonder argumenten), de plugin-, PrestaShop- en PHP-versies, uw winkel-URL, uw Buckaroo website key en de test/live-modus.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_7ba287d9209220189f3be135fae5a1b2'] = 'Er worden geen persoonsgegevens van klanten of kaartgegevens verstuurd.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_654e9ea4a05bfc996093bb0dab66b56e'] = 'U kunt deze keuze altijd wijzigen onder Instellingen > Geavanceerde instellingen.';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_cf02a8b812bfa6f79a55fdce93422e44'] = 'Ja, foutrapporten delen';
+$_MODULE['<{buckaroo3}prestashop>error_reporting_prompt_a0248bd77b4646e6a1f903f6ea16a4d1'] = 'Nee, bedankt';
+
 // Apple Pay express button
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_a5ab7d8806c91c3c058255fddca2ba06'] = 'Uw Apple Pay-betaling kon niet worden gestart. Probeer het opnieuw.';

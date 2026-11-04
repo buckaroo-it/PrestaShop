@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\ErrorReporting\ErrorReportingConsent;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -100,6 +101,7 @@ class Uninstaller
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
+            ErrorReportingConsent::CONFIG_KEY,
             Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
             Config::PAYMENT_FEE_MODE,
             Config::PAYMENT_FEE_FRONTEND_LABEL,
@@ -142,6 +144,10 @@ class Uninstaller
             'displayProductExtraContent',
             'actionProductFormBuilderModifier',
             'actionAfterUpdateProductFormHandler',
+            'displayShoppingCartFooter',
+            'displayPaymentTop',
+            'displayProductAdditionalInfo',
+            'displayExpressCheckout',
         ];
     }
 }

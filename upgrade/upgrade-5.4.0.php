@@ -22,6 +22,10 @@ if (!defined('_PS_VERSION_')) {
  * Hold the order confirmation until the Buckaroo order is paid.
  * Shops that do not enable the option keep the current email behaviour.
  *
+ * Introduce opt-in error reporting to Buckaroo. Existing installations start
+ * as "not asked yet" so the merchant is prompted on the configuration page.
+ * An existing decision is never overwritten.
+ *
  * @param object $object Module instance
  *
  * @return bool
@@ -78,7 +82,17 @@ function upgrade_module_5_4_0($object)
         $object->installApplePayDomainAssociation();
     }
 
-    return $object->registerHook('actionOrderStatusPostUpdate')
-        && $object->registerHook('displayProductAdditionalInfo')
-        && $object->registerHook('displayExpressCheckout');
+    // Opt-in error reporting: ask existing shops once, never overwrite a decision.
+    $errorReporting = Configuration::get('BUCKAROO_ERROR_REPORTING');
+    if ($errorReporting !== '1' && $errorReporting !== '0') {
+        Configuration::updateValue('BUCKAROO_ERROR_REPORTING', '');
+    }
+
+    // Register every hook, even when one fails, and report the combined result.
+    $success = true;
+    foreach (['actionOrderStatusPostUpdate', 'displayProductAdditionalInfo', 'displayExpressCheckout'] as $hook) {
+        $success = $object->registerHook($hook) && $success;
+    }
+
+    return $success;
 }

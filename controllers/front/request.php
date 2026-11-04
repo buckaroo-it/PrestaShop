@@ -125,7 +125,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
             $this->logger->logInfo('Checkout info', $debug);
 
-            $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
+            if (!$this->initializeCheckout($cart, $payment_method, $currency, $total, $customer)) {
+                // The checkout could not be created (e.g. no configuration for the
+                // payment method); the error page is already set up.
+                return;
+            }
 
             if ($this->checkout->isRequestSucceeded()) {
                 $this->handleSuccessfulRequest($cart->id, $customer);
@@ -133,7 +137,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->handleFailedRequest($cart->id);
             }
         } catch (Exception $exception) {
-            $this->logger->logError('Unexpected checkout exception: ' . $exception->getMessage());
+            $this->logger->logError('Unexpected checkout exception: ' . $exception->getMessage(), [
+                'exception' => $exception,
+                'payment_method' => Tools::strtolower(trim((string) Tools::getValue('method', ''))),
+            ]);
             $this->displayError(null, $this->module->l('We were unable to start your payment. Please try again or contact the merchant.'));
         }
     }
@@ -436,6 +443,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         return true;
     }
 
+    /**
+     * @return bool false when no checkout could be created for the payment method
+     *              (the error page is set up and postProcess must stop), true otherwise
+     */
     private function initializeCheckout($cart, $payment_method, $currency, $total, $customer)
     {
         try {
@@ -446,10 +457,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->setCheckoutProperties();
             $this->setCheckoutUrls();
         } catch (Exception $e) {
-            $this->logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', [
+                'exception' => $e,
+                'payment_method' => (string) $payment_method,
+            ]);
             $this->displayError(null, $e->getMessage());
 
-            return;
+            return false;
         }
 
         $pending = Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
@@ -471,10 +485,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                         $customer->secure_key
                     );
                 } catch (Exception $e) {
-                    $this->logger->logError('Order validation failed: ', $e->getMessage());
+                    $this->logger->logError('Order validation failed: ', [
+                        'exception' => $e,
+                        'payment_method' => (string) $payment_method,
+                        'cart_id' => (string) $cart->id,
+                    ]);
                     $this->displayError(null, $e->getMessage());
 
-                    return;
+                    return true;
                 }
             }
         } else {
@@ -494,11 +512,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 $this->checkout->startPayment();
             }
         } catch (Exception $e) {
-            $this->logger->logError('Set checkout info: ', $e->getMessage());
+            $this->logger->logError('Set checkout info: ', [
+                'exception' => $e,
+                'payment_method' => (string) $payment_method,
+            ]);
             $this->displayError(null, $e->getMessage());
-
-            return;
         }
+
+        return true;
     }
 
     private function setCheckoutProperties()

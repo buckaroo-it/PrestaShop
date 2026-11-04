@@ -44,94 +44,27 @@ if (!class_exists('PrestaShop\\PrestaShop\\Core\\Domain\\Order\\Exception\\Order
     ');
 }
 
-// ---- Global PrestaShop class stubs ----
-if (!class_exists('Order')) {
-    class Order
+// ---- Fixtures ----
+// The PrestaShop classes (Order, OrderPayment, Customer, Link, Db, ...) come from
+// tests/Support/PrestaShopStubs.php. These helpers register the shop data the
+// refund tests expect; call buckaroo_refund_fixtures() from setUp().
+
+if (!function_exists('buckaroo_refund_fixtures')) {
+    function buckaroo_refund_fixtures(): void
     {
-        public $id = 326;
-        public $id_cart = 55;
-        public $id_currency = 1;
-        public $id_customer = 28;
-        public $reference = 'GGADEYTRM';
-        public $total_paid = 28.80;
-        public $module = 'buckaroo3';
-
-        public function __construct($id = null)
-        {
-            if ($id !== null) {
-                $this->id = (int) $id;
-            }
-        }
-    }
-}
-
-if (!class_exists('OrderPayment')) {
-    class OrderPayment
-    {
-        public $order_reference = 'GGADEYTRM';
-        public $id_currency = 1;
-        public $transaction_id = 'ABCDEF0123456789ABCDEF0123456789';
-        public $amount = 28.80;
-        public $payment_method = 'fashioncheque';
-        public $conversion_rate = 1;
-
-        public function save()
-        {
-            return true;
-        }
-    }
-}
-
-if (!class_exists('Customer')) {
-    class Customer
-    {
-        public $email = 'buyer@example.com';
-        public $lastname = 'Kastrati';
-
-        public function __construct($id = null)
-        {
-        }
-    }
-}
-
-if (!class_exists('Link')) {
-    class Link
-    {
-        public function getModuleLink($module, $controller, array $params = [], $ssl = false)
-        {
-            return 'https://shop.test/module/' . $module . '/' . $controller;
-        }
-    }
-}
-
-if (!class_exists('DbQuery')) {
-    class DbQuery
-    {
-        public function select($fields)
-        {
-            return $this;
-        }
-
-        public function from($table)
-        {
-            return $this;
-        }
-
-        public function where($condition)
-        {
-            return $this;
-        }
-    }
-}
-
-if (!class_exists('Db')) {
-    class Db
-    {
-        /** @var Db|null */
-        private static $instance;
-
-        /** @var array<int,array<string,string>> Rows returned by executeS(); overridable by tests. */
-        public static $giftcards = [
+        BuckarooTest\Stubs::object('Order', 326, [
+            'id_cart' => 55,
+            'id_currency' => 1,
+            'id_customer' => 28,
+            'reference' => 'GGADEYTRM',
+            'total_paid' => 28.80,
+            'module' => 'buckaroo3',
+        ]);
+        BuckarooTest\Stubs::object('Customer', 28, [
+            'email' => 'buyer@example.com',
+            'lastname' => 'Kastrati',
+        ]);
+        BuckarooTest\Stubs::db('/bk_giftcards/i', [
             ['code' => 'boekenbon'],
             ['code' => 'fashionucadeaukaart'],
             ['code' => 'fashioncheque'],
@@ -139,43 +72,22 @@ if (!class_exists('Db')) {
             ['code' => 'webshopgiftcard'],
             ['code' => 'digitalebioscoopbon'],
             ['code' => 'yourgift'],
-        ];
-
-        public static function getInstance()
-        {
-            if (!self::$instance) {
-                self::$instance = new self();
-            }
-
-            return self::$instance;
-        }
-
-        public function executeS($query)
-        {
-            return self::$giftcards;
-        }
-
-        public function insert($table, $data)
-        {
-            return true;
-        }
-
-        public function execute($sql)
-        {
-            return true;
-        }
+        ]);
     }
 }
 
-if (!class_exists('Configuration')) {
-    class Configuration
+if (!function_exists('buckaroo_refund_payment')) {
+    /** An OrderPayment as PrestaShop stores it for the fixture order. */
+    function buckaroo_refund_payment(string $method, float $amount = 28.80): OrderPayment
     {
-        /** @var array<string,mixed> */
-        public static $values = [];
+        $payment = new OrderPayment();
+        $payment->order_reference = 'GGADEYTRM';
+        $payment->id_currency = 1;
+        $payment->transaction_id = 'ABCDEF0123456789ABCDEF0123456789';
+        $payment->amount = $amount;
+        $payment->payment_method = $method;
+        $payment->conversion_rate = 1;
 
-        public static function get($key)
-        {
-            return self::$values[$key] ?? false;
-        }
+        return $payment;
     }
 }

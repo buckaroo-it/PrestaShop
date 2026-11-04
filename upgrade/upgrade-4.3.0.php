@@ -45,12 +45,24 @@ function upgrade_module_4_3_0($object)
     // Check if the old table exists
     $tableExists = Db::getInstance()->executeS('SHOW TABLES LIKE "' . _DB_PREFIX_ . 'buckaroo_fee"');
     if ($tableExists) {
-        // Move data from old table to new table
-        $moveDataQuery = 'INSERT INTO `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (reference, id_cart, buckaroo_fee_tax_incl, buckaroo_fee_tax_excl, currency, created_at)
-        SELECT reference, id_cart, buckaroo_fee, buckaroo_fee, currency, created_at
-        FROM `' . _DB_PREFIX_ . 'buckaroo_fee`';
+        // The table created by upgrade 3.3.2 has no created_at column; only
+        // installs made by the 4.0.0 - 4.2.x installer have one.
+        $hasCreatedAt = Db::getInstance()->executeS('SHOW COLUMNS FROM `' . _DB_PREFIX_ . 'buckaroo_fee` LIKE "created_at"');
+        $createdAt = $hasCreatedAt ? 'f.created_at' : 'NOW()';
 
-        Db::getInstance()->execute($moveDataQuery);
+        // Move data from old table to new table. The order id is resolved from the
+        // cart the same way the checkout does (Order::getIdByCartId), 0 when the
+        // cart never became an order.
+        $moveDataQuery = 'INSERT INTO `' . _DB_PREFIX_ . 'bk_buckaroo_fee` (reference, id_cart, id_order, buckaroo_fee_tax_incl, buckaroo_fee_tax_excl, currency, created_at)
+        SELECT f.reference, CAST(f.id_cart AS UNSIGNED), COALESCE((SELECT MIN(o.id_order) FROM `' . _DB_PREFIX_ . 'orders` o WHERE o.id_cart = f.id_cart), 0), f.buckaroo_fee, f.buckaroo_fee, f.currency, ' . $createdAt . '
+        FROM `' . _DB_PREFIX_ . 'buckaroo_fee` f';
+
+        if (!Db::getInstance()->execute($moveDataQuery)) {
+            // Keep the old table so no fee data is lost; the upgrade can be retried.
+            PrestaShopLogger::addLog('Buckaroo upgrade 4.3.0: could not copy the payment fees to bk_buckaroo_fee, the old buckaroo_fee table was kept.', 3);
+
+            return false;
+        }
 
         // Delete the old table
         $deleteOldTableQuery = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'buckaroo_fee`';

@@ -95,7 +95,7 @@ class AfterPayCheckout extends Checkout
 
         $category = ($this->customerType == self::CUSTOMER_TYPE_B2C) ? RecipientCategory::PERSON
             : (($this->customerType == self::CUSTOMER_TYPE_B2B) ? RecipientCategory::COMPANY
-                : ($this->companyExists($this->invoice_address->company) ? self::CUSTOMER_TYPE_B2B : RecipientCategory::PERSON));
+                : ($this->companyExists($this->invoice_address->company) ? RecipientCategory::COMPANY : RecipientCategory::PERSON));
 
         $countryIso = Tools::strtoupper($country->iso_code);
 
@@ -139,12 +139,13 @@ class AfterPayCheckout extends Checkout
     public function getShippingAddress()
     {
         if (!empty($this->shipping_address)) {
-            $country = new Country($this->invoice_address->id_country);
+            $country = new Country($this->shipping_address->id_country);
+            $countryIso = Tools::strtoupper($country->iso_code);
 
             $address_components = $this->getAddressComponents($this->shipping_address->address1); // phpcs:ignore
             $street = $address_components['street'];
             if (empty($address_components['house_number'])) {
-                $houseNumber = $this->invoice_address->address2;
+                $houseNumber = $this->shipping_address->address2;
             } else {
                 $houseNumber = $address_components['house_number'];
             }
@@ -163,10 +164,11 @@ class AfterPayCheckout extends Checkout
                 $houseNumberSuffix = $sendCloudData['houseNumberSuffix'];
                 $zipcode = $sendCloudData['zipcode'];
                 $city = $sendCloudData['city'];
-                $country = $sendCloudData['country'];
+                if (!empty($sendCloudData['country'])) {
+                    $countryIso = $sendCloudData['country'];
+                }
             }
 
-            $countryIso = Tools::strtoupper($country->iso_code);
             if ($countryIso === 'DE' && empty(trim($houseNumber))) {
                 throw new Exception('Invalid shipping address, cannot find house number');
             }
@@ -234,7 +236,7 @@ class AfterPayCheckout extends Checkout
             $phone = $address->phone;
         }
 
-        return $phone;
+        return !empty($phone) ? $phone : '';
     }
 
     public function startPayment()

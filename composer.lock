@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "40cb5e241a96188f175770f8af73e334",
+    "content-hash": "4ec8b95a832a92453b529a3c4afee217",
     "packages": [
         {
             "name": "brick/math",
@@ -2725,6 +2725,59 @@
                 }
             ],
             "time": "2026-10-05T05:44:26+00:00"
+        },
+        {
+            "name": "prestashop/decimal",
+            "version": "1.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PrestaShop/decimal.git",
+                "reference": "b5afdcc4b03140f838bb7b256aec6c21fd83951b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShop/decimal/zipball/b5afdcc4b03140f838bb7b256aec6c21fd83951b",
+                "reference": "b5afdcc4b03140f838bb7b256aec6c21fd83951b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^0.12.99",
+                "phpunit/phpunit": "8.*",
+                "prestashop/php-dev-tools": "^4.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PrestaShop\\Decimal\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PrestaShop SA",
+                    "email": "contact@prestashop.com"
+                }
+            ],
+            "description": "Object-oriented wrapper/shim for BC Math PHP extension. Allows for arbitrary-precision math operations.",
+            "homepage": "https://github.com/prestashop/decimal",
+            "keywords": [
+                "bcmath",
+                "decimal",
+                "math",
+                "precision",
+                "prestashop"
+            ],
+            "support": {
+                "issues": "https://github.com/PrestaShop/decimal/issues",
+                "source": "https://github.com/PrestaShop/decimal/tree/1.5.0"
+            },
+            "time": "2022-02-02T09:04:37+00:00"
         },
         {
             "name": "prestashop/php-dev-tools",
@@ -5646,15 +5699,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": ">=7.4"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

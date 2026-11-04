@@ -755,6 +755,8 @@ class BuckarooPaymentService
         if ($billingAddress !== null) {
             return \Country::getIsoById($billingAddress->id_country);
         }
+
+        return null;
     }
 
     public function showAfterpayCoc($cart)
@@ -792,7 +794,7 @@ class BuckarooPaymentService
 
     private function isHouseNumberValid($address)
     {
-        if (is_string($address->address1)) {
+        if (is_object($address) && is_string($address->address1)) {
             $address = AddressComponents::getAddressComponents($address->address1);
 
             return is_string($address['house_number']) && !empty(trim($address['house_number']));
@@ -852,12 +854,16 @@ class BuckarooPaymentService
      *
      * @param mixed $id
      *
-     * @return \Address|void
+     * @return \Address|null null when the id is not an existing address
      */
     protected function getAddressById($id)
     {
-        if (is_scalar($id)) {
-            return new \Address((int) $id);
+        if (!is_scalar($id)) {
+            return null;
         }
+
+        $address = new \Address((int) $id);
+
+        return \Validate::isLoadedObject($address) ? $address : null;
     }
 }

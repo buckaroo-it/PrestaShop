@@ -7,6 +7,11 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 ### Added
 - BTI-1828 Apple Pay express button on the product, cart and checkout pages. The customer pays the selected product and quantity (product page) or the whole cart in the native Apple Pay sheet, chooses the shipping address and carrier there, and the shop calculates the carriers and the total for that address. Guests and logged-in customers are supported: the customer (a guest account for guests), the addresses and the order are created from the Apple Pay data, and the payment is sent to Buckaroo with the Apple Pay token. The authorized amount must match the PrestaShop order total, including shipping, taxes and the payment fee. New Apple Pay settings: "Show the express button on" (product, cart and checkout page; clear all options to hide the button), "List as payment method in checkout", GUID, button style and button type, with a live button preview. The button is shown only when Apple Pay is enabled, the GUID is filled in and the device and browser support Apple Pay. The Apple Pay domain association file is placed in `/.well-known/` on installation, on upgrade and when the Apple Pay settings are saved (an existing file of another provider is never replaced).
 - Added an option to hold the order confirmation email until the Buckaroo order is paid. The payment status email is still sent. Existing shops keep the current behavior until the option is enabled.
+- BTI-2003 Opt-in error reporting: merchants are asked once whether plugin errors may be shared with Buckaroo, and can change this under Settings > Advanced settings > Privacy. Nothing is sent without consent.
+- BTI-2003 Search and Live/Test/Off filters on the Payment methods overview.
+- BTI-2003 Unsaved-changes bar with Save/Discard on Settings, payment method, iDIN and payment method order pages, with a warning before leaving unsaved changes.
+- BTI-2003 Keyboard reordering (move up/down buttons) on the payment method order page.
+- BTI-2003 The open tab and payment method are kept in the page URL, so a refresh reopens the same page.
 
 ### Improved
 - BTI-1916 The module version is declared as a string literal and the module name is a stable "Buckaroo Payments" (PrestaShop Validator "Requirements" findings, #306). The version is shown on the configuration page instead, and the response-specific payment label no longer overwrites the module name.
@@ -22,6 +27,12 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - BTI-1734 The release build prefixes every third-party namespace in `vendor/` (Guzzle, Monolog, PSR, Ramsey, brick/math, composer/ca-bundle) with `Buckaroo\PrestaShop\Vendor` using php-scoper, so the module always runs the dependency versions it ships instead of the ones PrestaShop loads first. The module's own namespaces and the Buckaroo SDK keep their names; the package validator fails on any unprefixed third-party class.
 - BTI-1732 The push/return reply is read through `Tools::getAllValues()` instead of the raw superglobals, the request controller hands the validated credit card issuer to the checkout instead of writing it back into `$_POST`, and the commented-out legacy bank list was removed from the iDIN template.
 - The PHP code is formatted with PHP CS Fixer using the PrestaShop coding standard (the ruleset behind the validator's "Standards" section). The fixer is a dev dependency with `composer cs-check` / `composer cs-fix` scripts, and the check runs on every pull request.
+- BTI-2003 Redesigned configuration pages: grouped sections, consistent headers, cards, switches and notifications, and layouts for phones, tablets and wide screens.
+- BTI-2003 Payment fee and order amount fields only accept numbers and show clear validation messages.
+- BTI-2003 Clearer refund settings wording and grouping.
+- BTI-2003 Country picker: no duplicate countries, selected count, and correct country names and flags.
+- BTI-2003 Collapsible help panels.
+- BTI-2003 Fixed typos and the German and French translations of "Order payment methods".
 
 ### Security
 - BTI-1717 The merchant's payment method rules are checked again when the order is created, not only when the checkout shows the payment options: active state, country, minimum and maximum order amount, in3 Dutch billing address, Riverty B2B, Twint/Swish/Wero currency and iDIN age verification. iDIN is required as soon as any product in the cart requires it (only the first product was checked), and no other method can be used until the customer is verified. The credit card brand must be one of the active cards, the PayByBank bank one of the listed banks, and a giftcard applied in the checkout must be active, available for the cart and one of the enabled giftcards.
@@ -34,6 +45,8 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 ### Fixed
 - BTI-1717 Starting a payment or applying a gift card failed on PrestaShop 1.7.8 and 8 ("non-existent service buckaroo.config.api.payment.service"): the front controllers now resolve the payment service from the module container.
 - BTI-1916 The admin controllers (refund, Klarna reservation and the configuration API) no longer extend the deprecated FrameworkBundleAdminController; they extend Symfony's AbstractController, which exists on PrestaShop 1.7.8, 8 and 9. The refund and Klarna controllers are now wired as service subscribers, which fixes flash messages that failed on PrestaShop 1.7.8 and 8, and the container fallback boots FrontKernel on PrestaShop 9 where AppKernel is abstract.
+- BTI-2003 Riverty and Billink: the B2B order amount fields were never shown for "B2B" and edited the general order amounts; the duplicate fields have been removed.
+- BTI-2003 Toggle labels in Settings now switch their own toggle.
 
 ## v5.3.0
 

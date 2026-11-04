@@ -11,13 +11,15 @@ permissions:
   contents: read
 
 jobs:
+  # Every PHP version the module supports: composer.json allows >=7.4, and
+  # PrestaShop 1.7.8 / 8.x / 9.x run on 7.4 through 8.5.
   unit-tests:
     name: Unit tests (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.1', '8.3']
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4', '8.5']
 
     steps:
       - name: Checkout code
@@ -52,6 +54,126 @@ jobs:
 
       - name: Run unit tests
         run: vendor/bin/phpunit --configuration phpunit.xml --no-coverage --colors=always
+
+  # Line coverage is measured once (PCOV on 8.3) and must stay at or above the
+  # threshold. The scope is the <coverage> section of phpunit.xml: all module
+  # PHP code (src, classes, controllers, library, api, upgrade, buckaroo3.php).
+  coverage:
+    name: Code coverage (minimum 90%)
+    runs-on: ubuntu-latest
+    env:
+      MIN_COVERAGE: '90'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: dom, curl, libxml, mbstring, zip, bcmath, intl, gd, json
+          coverage: pcov
+          # PCOV records only src/ by default when that folder exists; the module
+          # code also lives in api/, classes/, controllers/, library/ and upgrade/.
+          ini-values: pcov.directory=${{ github.workspace }}, pcov.exclude="~/vendor/~"
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php8.3-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php8.3-composer-
+
+      - name: Install dependencies (including dev tools)
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run unit tests with coverage
+        run: |
+          vendor/bin/phpunit --configuration phpunit.xml --colors=always \
+            --coverage-clover build/coverage/clover.xml \
+            --coverage-html build/coverage/html \
+            --coverage-text=build/coverage/coverage.txt
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f build/coverage/clover.xml ]; then
+            {
+              echo '### Line coverage'
+              echo '```'
+              php tests/tools/coverage-report.php build/coverage/clover.xml | tail -n 1
+              echo '```'
+              echo '<details><summary>Per file</summary>'
+              echo
+              echo '```'
+              php tests/tools/coverage-report.php build/coverage/clover.xml
+              echo '```'
+              echo '</details>'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ github.sha }}
+          path: build/coverage/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Enforce minimum coverage
+        run: php tests/tools/coverage-report.php build/coverage/clover.xml --min="$MIN_COVERAGE" > /dev/null
+
+  # Admin configuration app (Vue 3, dev/): Vitest unit tests. Coverage
+  # thresholds live in dev/vitest.config.js; the run fails below them.
+  admin-ui-tests:
+    name: Admin UI tests (Vitest, coverage)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: dev/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run unit tests with coverage
+        run: npm run test:coverage
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            node -e '
+              const t = require("./coverage/coverage-summary.json").total;
+              const row = (k) => `| ${k} | ${t[k].pct}% | ${t[k].covered}/${t[k].total} |`;
+              console.log(["### Admin UI coverage", "| | % | covered |", "|---|---|---|", ...["lines", "statements", "functions", "branches"].map(row)].join("\n"));
+            ' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-ui-coverage-${{ github.sha }}
+          path: dev/coverage/
+          if-no-files-found: ignore
+          retention-days: 14
 
   coding-standards:
     name: Coding standards (PHP CS Fixer, PrestaShop ruleset)
