@@ -13,8 +13,8 @@
 /*
  * Apple Pay express button (product, cart and checkout page).
  *
- * The button is only shown once the Buckaroo SDK confirms that the device and
- * browser support Apple Pay. The sheet opens with a provisional total from the
+ * The button is shown once Apple's Apple Pay JS SDK is available (Safari:
+ * native sheet; other browsers: QR code for an iPhone). The sheet opens with a provisional total from the
  * page; Apple Pay then reports the shopper's address, and the shop calculates
  * the express cart, carriers and total for it. After the shopper authorized
  * the payment, the token is posted to the Buckaroo request controller, which
@@ -41,19 +41,39 @@
             && window.isSecureContext !== false;
     }
 
+    function hasApplePaySession() {
+        return 'ApplePaySession' in window && typeof window.ApplePaySession !== 'undefined';
+    }
+
+    /*
+     * Apple's Apple Pay JS SDK provides ApplePaySession in every browser: Safari
+     * opens the native sheet, other browsers (Chrome, Edge, Firefox, also on
+     * Windows and Android) show a QR code to complete the payment on an iPhone.
+     * So the button is shown whenever that SDK is available on a secure page,
+     * not only when the device itself has a card in Wallet.
+     */
     function isApplePaySupported() {
         if (supportCheck === null) {
             supportCheck = new Promise(function (resolve) {
+                var applePay;
                 if (!sdkAvailable()) {
                     resolve(false);
                     return;
                 }
+                applePay = window.BuckarooSdk.ApplePay;
                 try {
-                    Promise.resolve(window.BuckarooSdk.ApplePay.checkApplePaySupport(config.merchantGuid))
-                        .then(function (supported) { resolve(supported === true); })
-                        .catch(function () { resolve(false); });
+                    if (typeof applePay.loadApplePaySdk === 'function') {
+                        Promise.resolve(applePay.loadApplePaySdk())
+                            .then(function () { resolve(hasApplePaySession()); })
+                            .catch(function () { resolve(hasApplePaySession()); });
+                        return;
+                    }
+                    // Older Buckaroo SDK without the Apple Pay JS SDK loader.
+                    Promise.resolve(applePay.checkApplePaySupport(config.merchantGuid))
+                        .then(function (supported) { resolve(supported === true || hasApplePaySession()); })
+                        .catch(function () { resolve(hasApplePaySession()); });
                 } catch (e) {
-                    resolve(false);
+                    resolve(hasApplePaySession());
                 }
             });
         }

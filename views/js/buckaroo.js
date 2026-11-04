@@ -735,13 +735,62 @@ function buckaroo() {
     const buckarooPayByBank = new BuckarooPayByBank();
     buckarooPayByBank.init();
 
+    /*
+     * Apple Pay is offered wherever Apple's Apple Pay JS SDK is available on a
+     * secure page: Safari uses the native sheet, other browsers (Chrome, Edge,
+     * Firefox, also on Windows and Android) show a QR code to pay on an iPhone.
+     */
     class BuckarooApplePay {
-        get isApplePayAvailable() {
-            return !!(window.ApplePaySession && ApplePaySession.canMakePayments());
+        constructor() {
+            this.availability = null;
+        }
+
+        static hasApplePaySession() {
+            return 'ApplePaySession' in window && typeof window.ApplePaySession !== 'undefined';
+        }
+
+        static loadAppleSdk() {
+            if (window.BuckarooSdk && BuckarooSdk.ApplePay && typeof BuckarooSdk.ApplePay.loadApplePaySdk === 'function') {
+                return Promise.resolve(BuckarooSdk.ApplePay.loadApplePaySdk()).catch(() => undefined);
+            }
+
+            return new Promise((resolve) => {
+                let script = document.getElementById('buckaroo-apple-pay-sdk');
+                if (!script) {
+                    script = document.createElement('script');
+                    script.id = 'buckaroo-apple-pay-sdk';
+                    script.src = 'https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js';
+                    script.crossOrigin = 'anonymous';
+                    document.head.appendChild(script);
+                }
+                script.addEventListener('load', () => resolve());
+                script.addEventListener('error', () => resolve());
+                setTimeout(resolve, 10000);
+            });
+        }
+
+        isApplePayAvailable() {
+            if (this.availability === null) {
+                if (window.isSecureContext === false) {
+                    this.availability = Promise.resolve(false);
+                } else if (BuckarooApplePay.hasApplePaySession()) {
+                    this.availability = Promise.resolve(true);
+                } else {
+                    this.availability = BuckarooApplePay.loadAppleSdk()
+                        .then(() => BuckarooApplePay.hasApplePaySession());
+                }
+            }
+
+            return this.availability;
         }
 
         init() {
-            this.togglePayment(this.isApplePayAvailable)
+            if (!$('[data-module-name="applepay"]').length) {
+                return;
+            }
+            // Hidden until Apple Pay is confirmed available, so it never flashes.
+            this.togglePayment(false);
+            this.isApplePayAvailable().then((available) => this.togglePayment(available));
         }
 
         togglePayment(value = false) {
