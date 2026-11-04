@@ -221,6 +221,8 @@ class OrderHooksTest extends MainModuleTestCase
             '{payment_fee_label}' => 'Payment Fee',
             '{payment_fee}' => 'USD 2.00',
             '{payment_fee_tax}' => 'USD 0.42',
+            '{payment_fee_row_style}' => '',
+            '{payment_fee_txt}' => "Payment Fee     USD 2.00\nPayment Fee tax     USD 0.42\n",
             '{total_tax_paid}' => 'USD 17.78',
         ], $vars);
     }
@@ -234,7 +236,55 @@ class OrderHooksTest extends MainModuleTestCase
 
         $this->createModule(['buckaroo.config.api.fee.service' => $fees])->hookActionEmailSendBefore($params);
 
-        self::assertSame(['{payment_fee_label}' => false, '{payment_fee}' => 'USD 0.00'], $vars);
+        // #319: every fee placeholder gets a value and the shipped templates hide the fee rows.
+        self::assertSame([
+            '{payment_fee_label}' => false,
+            '{payment_fee}' => 'USD 0.00',
+            '{payment_fee_tax}' => 'USD 0.00',
+            '{payment_fee_row_style}' => 'display:none;mso-hide:all;',
+            '{payment_fee_txt}' => '',
+        ], $vars);
+    }
+
+    /**
+     * @return array<string, array{0: string|null, 1: bool}>
+     */
+    public function feeTemplateCases(): array
+    {
+        return [
+            'no fee' => [null, false],
+            'fee' => ['2', true],
+        ];
+    }
+
+    /**
+     * Renders the shipped order confirmation templates the way PrestaShop's Mail::send() does
+     * (plain placeholder replacement) with the variables the hook sets (#319).
+     *
+     * @dataProvider feeTemplateCases
+     */
+    public function testShippedOrderConfirmationTemplatesHaveNoUnresolvedFeePlaceholders(?string $fee, bool $feeShown): void
+    {
+        $this->emailOrder();
+        $context = $this->contextCart(1, 0.0);
+        $context->stub('getAverageProductsTaxRate', 0.21);
+        $fees = new ServiceDouble(['getPaymentMethodByLabel' => 'ideal', 'getBuckarooFeeValue' => $fee]);
+        $vars = [];
+        $params = ['template' => 'order_conf', 'templateVars' => &$vars, 'cart' => $this->cartRef(9)];
+        \Configuration::updateValue('BUCKAROO_PAYMENT_FEE_FRONTEND_LABEL', 'Payment Fee');
+
+        $this->createModule(['buckaroo.config.api.fee.service' => $fees])->hookActionEmailSendBefore($params);
+
+        $root = dirname(__DIR__, 4) . '/mails/en/';
+        $html = strtr((string) file_get_contents($root . 'order_conf.html'), $vars);
+        $txt = strtr((string) file_get_contents($root . 'order_conf.txt'), $vars);
+
+        foreach ([$html, $txt] as $rendered) {
+            self::assertDoesNotMatchRegularExpression('/\{payment_fee[a-z_]*\}/', $rendered);
+        }
+        self::assertSame($feeShown ? 0 : 2, substr_count($html, 'style="display:none;mso-hide:all;"'));
+        self::assertSame($feeShown, strpos($txt, 'Payment Fee tax') !== false);
+        self::assertStringContainsString($feeShown ? 'Payment Fee     USD 2.00' : "Shipping        {total_shipping}\nIncluding total tax", $txt);
     }
 
     public function testOtherEmailsOfBuckarooOrdersAreNotChanged(): void
