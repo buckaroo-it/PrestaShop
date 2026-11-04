@@ -14,6 +14,8 @@ export const useCountries = () => {
         if(data.value.status) {
             countries.value = data.value.countries
         }
+    }).catch(() => {
+        // Keep the list empty; the page still works with "All Countries".
     })
 
     const filteredCountries = computed(() => {

@@ -65,7 +65,7 @@
               <div class="h-0 p-5 divide-y" v-if="paymentOrderings">
                 <draggable
                     :list="paymentOrderings.value"
-                    item-key="order"
+                    item-key="id"
                     class="divide-y border rounded"
                     ghost-class="opacity-0.50"
                     @end="markChanged"
@@ -157,6 +157,9 @@ export default {
     const {toastr} = useToastr()
     const { t } = useI18n();
     const hasUnsavedChanges = inject('hasUnsavedChanges', ref(false));
+    // The ordering of the selected country; only the response of the latest request is shown.
+    const paymentOrderings = ref(null);
+    let latestRequest = 0;
 
     const displayName = (element) => element.name === 'ideal' ? 'iDEAL | Wero' : t(`payment_methods.${element.name}`);
 
@@ -166,7 +169,7 @@ export default {
 
     // Move a payment method with the up/down buttons (keyboard-friendly alternative to dragging).
     const moveItem = (index, delta) => {
-      const items = orderingsService.paymentOrderings.value?.value;
+      const items = paymentOrderings.value?.value;
       const target = index + delta;
       if (!items || target < 0 || target >= items.length) {
         return;
@@ -208,14 +211,33 @@ export default {
       hasUnsavedChanges.value = false;
     });
 
+    const loadOrdering = (countryCode) => {
+      const request = ++latestRequest;
+      // Never leave the previous country's list under the new heading.
+      paymentOrderings.value = null;
+
+      orderingsService.getOrdering(countryCode)
+          .then(() => {
+            if (request !== latestRequest) return;
+            if (orderingsService.data.value.status) {
+              paymentOrderings.value = orderingsService.paymentOrderings.value;
+              return;
+            }
+            toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+          })
+          .catch(() => {
+            if (request !== latestRequest) return;
+            toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+          });
+    };
+
     watch(selectedCountry, (newVal, oldVal) => {
-      orderingsService.getOrdering(
-          newVal ? newVal.iso_code_2 : ''
-      );
+      loadOrdering(newVal ? newVal.iso_code_2 : '');
     });
 
     const update = () => {
-      orderingsService.updateOrderings(orderingsService.paymentOrderings.value)
+      if (!paymentOrderings.value) return;
+      orderingsService.updateOrderings(paymentOrderings.value)
           .then(() => {
             if(orderingsService.data.value.status) {
               hasUnsavedChanges.value = false
@@ -223,14 +245,17 @@ export default {
               return;
             }
             toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+          })
+          .catch(() => {
+            toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
           });
     };
 
-    orderingsService.getOrdering('');
+    loadOrdering('');
 
     return {
       loading: orderingsService.loading,
-      paymentOrderings: orderingsService.paymentOrderings,
+      paymentOrderings,
       selectedCountry,
       update,
       query,

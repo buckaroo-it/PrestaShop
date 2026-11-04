@@ -261,7 +261,7 @@
 
                 <div class="rounded-xl border border-gray-200">
                   <ToggleField id="error_reporting" class="px-4 py-3" v-model="settings.error_reporting"
-                               @update:modelValue="errorReportingTouched = true">
+                               @update:modelValue="onErrorReportingChange">
                     <div class="pr-6">
                       <label for="error_reporting" class="m-0 font-semibold text-sm cursor-pointer">{{ $t('dashboard.pages.settings.error_reporting') }}</label>
                       <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.error_reporting_label') }}</div>
@@ -378,6 +378,13 @@ export default {
       errorReportingTouched.value = false
     }
 
+    // ToggleField also re-emits when the value is set programmatically (Discard, a reload or save),
+    // so only a value that differs from the saved one counts as the merchant's decision.
+    const onErrorReportingChange = (value) => {
+      const saved = savedSnapshot.value ? JSON.parse(savedSnapshot.value).error_reporting : undefined
+      errorReportingTouched.value = Boolean(value) !== Boolean(saved)
+    }
+
     const warnBeforeLeaving = (event) => {
       if (isDirty.value) {
         event.preventDefault()
@@ -394,7 +401,12 @@ export default {
       get().then(() => {
         if (data.value.status) {
           rememberSaved(data.value.settings)
+          return
         }
+
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+      }).catch(() => {
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
       })
     }
 
@@ -412,7 +424,12 @@ export default {
           errorReportingTouched.value = false
 
           toastr.success(t('dashboard.pages.settings.settings_successfully_updated'))
+          return
         }
+
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+      }).catch(() => {
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
       })
     }
 
@@ -452,6 +469,7 @@ export default {
       displayExampleTransactionDescription,
       showAdvanceSettings,
       errorReportingTouched,
+      onErrorReportingChange,
       isDirty,
       discardChanges
     }

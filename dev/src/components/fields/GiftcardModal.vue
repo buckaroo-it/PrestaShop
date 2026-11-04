@@ -130,6 +130,8 @@ export default {
         const showModal = ref(false);
         const mode = ref(null);
         const giftcard = ref(null);
+        // The giftcard in the list; the form edits a copy that is applied after a successful save.
+        let editedGiftcard = null;
 
         const { post, data, loading } = useApi('buckaroo_config_giftcards');
         const { post: editGiftcardPost, data: editGiftcardData } = useApi('buckaroo_edit_giftcard');
@@ -150,7 +152,8 @@ export default {
         const edit = editGiftcard => {
             mode.value = 'edit';
 
-            giftcard.value = editGiftcard;
+            editedGiftcard = editGiftcard;
+            giftcard.value = { ...editGiftcard };
 
             showModal.value = true;
         };
@@ -177,6 +180,15 @@ export default {
             if (giftcard.value.name && giftcard.value.service_code) {
                 editGiftcardPost(giftcard.value).then(() => {
                     if (editGiftcardData.value.status) {
+                        const updated = editGiftcardData.value.custom_giftcard;
+                        if (updated) {
+                            updated.isCustom = true;
+                            updated.service_code = updated.service_code || updated.code;
+                            updated.code = updated.service_code;
+                            updated.logo_url = updated.logo_url || updated.logo;
+                        }
+                        Object.assign(editedGiftcard, updated || giftcard.value);
+
                         showModal.value = false;
                     }
                 });

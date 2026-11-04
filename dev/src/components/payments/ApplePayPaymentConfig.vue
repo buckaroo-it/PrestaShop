@@ -12,7 +12,7 @@
             id="applepay_merchant_guid"
             class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
             placeholder=" "
-            v-model.trim="config.merchant_guid"
+            v-model.trim="merchantGuid"
           />
           <label
             for="applepay_merchant_guid"
@@ -31,7 +31,7 @@
 
         <div class="space-y-2">
           <label v-for="placement in placements" :key="placement" class="flex items-center space-x-2 text-sm">
-            <input type="checkbox" :value="placement" v-model="config.express_show_on" />
+            <input type="checkbox" :value="placement" v-model="showOn" />
             <span>{{ $t(`dashboard.pages.payments.applepay.placements.${placement}`) }}</span>
           </label>
         </div>
@@ -43,7 +43,7 @@
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.applepay.checkout_method_label`) }}</div>
         </div>
 
-        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="config.checkout_method">
+        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="checkoutMethod">
           <option value="1">{{ $t(`dashboard.pages.payments.applepay.yes`) }}</option>
           <option value="0">{{ $t(`dashboard.pages.payments.applepay.no`) }}</option>
         </select>
@@ -55,7 +55,7 @@
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.applepay.button_style_label`) }}</div>
         </div>
 
-        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="config.button_style">
+        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="buttonStyle">
           <option v-for="style in buttonStyles" :key="style" :value="style">
             {{ $t(`dashboard.pages.payments.applepay.styles.${style}`) }}
           </option>
@@ -66,7 +66,7 @@
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.applepay.button_type_label`) }}</div>
         </div>
 
-        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="config.button_type">
+        <select class="w-full rounded-lg border border-gray-300 p-2.5" v-model="buttonType">
           <option v-for="type in buttonTypes" :key="type" :value="type">
             {{ $t(`dashboard.pages.payments.applepay.types.${type}`) }}
           </option>
@@ -77,12 +77,12 @@
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.applepay.preview_label`) }}</div>
         </div>
 
-        <div class="rounded-lg border border-gray-200 p-4" :class="config.button_style === 'black' ? 'bg-white' : 'bg-gray-100'">
+        <div class="rounded-lg border border-gray-200 p-4" :class="buttonStyle === 'black' ? 'bg-white' : 'bg-gray-100'">
           <apple-pay-button
             v-if="previewReady"
-            :key="`${config.button_style}-${config.button_type}`"
-            :buttonstyle="config.button_style"
-            :type="config.button_type"
+            :key="`${buttonStyle}-${buttonType}`"
+            :buttonstyle="buttonStyle"
+            :type="buttonType"
             :locale="locale"
             class="buckaroo-applepay-preview"
           ></apple-pay-button>
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-import { inject, onMounted, ref, watch } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // Apple's Apple Pay JS SDK registers the <apple-pay-button> web component in every browser.
@@ -137,29 +137,22 @@ export default {
         const previewReady = ref(false);
         const locale = ref('en-US');
 
-        // Configurations saved before the express settings existed get the same defaults as the shop.
-        const applyDefaults = () => {
-            if (!config.value) {
-                return;
-            }
-            if (!Array.isArray(config.value.express_show_on)) {
-                config.value.express_show_on = [...PLACEMENTS];
-            }
-            if (config.value.checkout_method === undefined || config.value.checkout_method === null) {
-                config.value.checkout_method = '1';
-            }
-            if (!BUTTON_STYLES.includes(config.value.button_style)) {
-                config.value.button_style = BUTTON_STYLES[0];
-            }
-            if (!BUTTON_TYPES.includes(config.value.button_type)) {
-                config.value.button_type = BUTTON_TYPES[0];
-            }
-            if (config.value.merchant_guid === undefined || config.value.merchant_guid === null) {
-                config.value.merchant_guid = '';
-            }
-        };
+        // Configurations saved before the express settings existed behave like these defaults
+        // (src/ApplePay/ExpressSettings.php uses the same ones). The fields show the default
+        // without writing it, so opening the page never counts as an unsaved change; a value
+        // is only stored once the merchant picks one.
+        const setting = (key, read) => computed({
+            get: () => read(config.value ? config.value[key] : undefined),
+            set: (value) => {
+                config.value[key] = value;
+            },
+        });
 
-        watch(config, applyDefaults, { immediate: true });
+        const showOn = setting('express_show_on', (value) => (Array.isArray(value) ? value : [...PLACEMENTS]));
+        const checkoutMethod = setting('checkout_method', (value) => (value === undefined || value === null ? '1' : value));
+        const buttonStyle = setting('button_style', (value) => (BUTTON_STYLES.includes(value) ? value : BUTTON_STYLES[0]));
+        const buttonType = setting('button_type', (value) => (BUTTON_TYPES.includes(value) ? value : BUTTON_TYPES[0]));
+        const merchantGuid = setting('merchant_guid', (value) => (value === undefined || value === null ? '' : value));
 
         watch(i18nLocale, (value) => {
             locale.value = value === 'en' ? 'en-US' : `${value}-${String(value).toUpperCase()}`;
@@ -173,6 +166,11 @@ export default {
 
         return {
             config,
+            showOn,
+            checkoutMethod,
+            buttonStyle,
+            buttonType,
+            merchantGuid,
             locale,
             previewReady,
             placements: PLACEMENTS,

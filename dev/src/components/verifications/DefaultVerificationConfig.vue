@@ -173,6 +173,8 @@ export default {
                 }
 
                 toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+            }).catch(() => {
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
             }).finally(() => {
                 saving.value = false
             })

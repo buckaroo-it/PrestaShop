@@ -47,8 +47,8 @@ export default {
     const { t } = useI18n();
 
     const displayOptions = [
-      { text: t('Grouped'), value: 'grouped' },
-      { text: t('Inline'), value: 'separate' }
+      { text: t('dashboard.pages.payments.displayInCheckoutGrouped'), value: 'grouped' },
+      { text: t('dashboard.pages.payments.displayInCheckoutInline'), value: 'separate' }
     ];
     const config = inject('config')
 

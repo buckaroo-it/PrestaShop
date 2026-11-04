@@ -149,8 +149,18 @@ import { useToastr } from "../../lib/toastr"
 // Payment methods that pass extra fields through the default slot.
 const METHODS_WITH_EXTRA_SETTINGS = [
     'afterpay', 'billink', 'creditcard', 'paypal', 'paybybank', 'payperemail',
-    'transfer', 'giftcard', 'googlepay', 'clicktopay',
+    'transfer', 'giftcard', 'googlepay', 'applepay', 'clicktopay',
 ]
+
+// Fields kept numeric while typing; a stored number and its text form are the same value.
+const NUMERIC_FIELDS = ['payment_fee', 'min_order_amount', 'max_order_amount']
+
+const comparable = (value) => JSON.stringify({
+    ...value,
+    ...Object.fromEntries(NUMERIC_FIELDS
+        .filter((field) => value[field] !== null && value[field] !== undefined)
+        .map((field) => [field, String(value[field])])),
+})
 
 const emptyConfig = () => ({
     mode: 'off',
@@ -190,8 +200,9 @@ export default {
 
         // Unsaved changes, compared with the last loaded or saved configuration
         const savedSnapshot = ref(null)
+        const savedConfig = computed(() => savedSnapshot.value === null ? null : JSON.parse(savedSnapshot.value))
         const hasUnsavedChanges = inject('hasUnsavedChanges', ref(false))
-        const isDirty = computed(() => savedSnapshot.value !== null && JSON.stringify(config.value) !== savedSnapshot.value)
+        const isDirty = computed(() => savedConfig.value !== null && comparable(config.value) !== comparable(savedConfig.value))
         watch(isDirty, (dirty) => { hasUnsavedChanges.value = dirty })
 
         const rememberSaved = (value) => {
@@ -217,6 +228,7 @@ export default {
 
         // Only allow numbers: digits, one decimal point (a comma becomes a dot) and,
         // for the fee, an optional "%" at the end. Anything else is dropped while typing.
+        // Negative fees are not supported: the shop ignores a fee of zero or less.
         const sanitizeDecimal = (value, allowPercent = false) => {
             if (value === null || value === undefined) return value
             let text = String(value).replace(/,/g, '.')
@@ -232,6 +244,9 @@ export default {
         const keepNumeric = (field, allowPercent) => watch(
             () => config.value[field],
             (value) => {
+                // Leave the stored value alone: rewriting it would change the configuration
+                // (and mark the form unsaved) without the merchant touching the field.
+                if (savedConfig.value !== null && value === savedConfig.value[field]) return
                 const clean = sanitizeDecimal(value, allowPercent)
                 if (clean !== value && !(value === null && clean === null)) {
                     config.value[field] = clean
@@ -264,6 +279,8 @@ export default {
                 if (data.value.status) {
                     rememberSaved(data.value.config ? data.value.config.value : emptyConfig())
                 }
+            }).catch(() => {
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
             })
         }
 
@@ -278,6 +295,8 @@ export default {
                     return
                 }
 
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+            }).catch(() => {
                 toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
             }).finally(() => {
                 saving.value = false

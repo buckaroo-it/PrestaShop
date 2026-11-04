@@ -81,6 +81,7 @@ import { ref, computed, watch, inject } from "vue";
 import { writeRoute } from "../lib/route";
 import { useI18n } from "vue-i18n";
 import { useApi } from "../lib/api.ts"
+import { useToastr } from "../lib/toastr";
 
 import CountrySelect from "../components/CountrySelect.vue";
 import DefaultPaymentConfig from "../components/payments/DefaultPaymentConfig.vue";
@@ -130,6 +131,7 @@ export default {
     const { get, data, loading } = useApi('buckaroo_config_methods')
     const selectedPayment = ref(null)
     const { t } = useI18n()
+    const { toastr } = useToastr()
 
     // Search and filter the payment method tiles
     const search = ref('')
@@ -192,6 +194,8 @@ export default {
             initialRouteDetail.value = null
           }
         }
+      }).catch(() => {
+        toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
       })
     }
 

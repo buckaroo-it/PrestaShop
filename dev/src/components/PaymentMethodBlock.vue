@@ -36,23 +36,6 @@ import { useToastr } from "../lib/toastr";
 
 export default {
     props: ['payment'],
-    watch: {
-        'payment.mode'({
-            mode: value
-       }) {
-            this.post(this.payment).then(() => {
-                if(this.data.status) {
-                    this.toastr.success(this.t('dashboard.pages.payments.mode_updated', {
-                        name: this.displayName,
-                        mode: this.t(`dashboard.pages.payments.modes_settings.${this.payment.mode}`),
-                    }))
-                }
-            })
-            .catch((e) => {
-                this.toastr.error(this.t('dashboard.pages.order_payment_methods.something_went_wrong'))
-            })
-        },
-    },
     setup(props) {
         const { toastr } = useToastr()
         const { t } = useI18n()
@@ -60,6 +43,34 @@ export default {
         const { post, data, loading, setEndpoint } = useApi('buckaroo_config_methodMode')
         const paymentState = ref((props.payment.config)? (props.payment.config.value.enabled ?? 0) : 0)
         const baseUrl = inject('baseUrl');
+
+        // Save a mode picked on the tile; put the previous mode back when saving fails.
+        let rollingBack = false
+        watch(() => props.payment.mode, (mode, previousMode) => {
+            if (rollingBack) {
+                rollingBack = false
+                return
+            }
+
+            const rollBack = () => {
+                if (props.payment.mode !== previousMode) {
+                    rollingBack = true
+                    props.payment.mode = previousMode
+                }
+                toastr.error(t('dashboard.pages.order_payment_methods.something_went_wrong'))
+            }
+
+            post(props.payment).then(() => {
+                if (!data.value.status) {
+                    rollBack()
+                    return
+                }
+                toastr.success(t('dashboard.pages.payments.mode_updated', {
+                    name: displayName.value,
+                    mode: t(`dashboard.pages.payments.modes_settings.${mode}`),
+                }))
+            }).catch(rollBack)
+        })
 
         const modes = [
             { value: 'live', dot: 'bg-green-500' },
