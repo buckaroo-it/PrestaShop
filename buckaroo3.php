@@ -1630,14 +1630,25 @@ class Buckaroo3 extends PaymentModule
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFeeTaxIncl > 0) {
-                $params['templateVars']['{payment_fee}'] = $priceFormatter->format($buckarooFeeTaxExcl, $currencyIsoCode);
-                $params['templateVars']['{payment_fee_tax}'] = $priceFormatter->format($buckarooFee['buckaroo_fee_tax'], $currencyIsoCode);
+                $paymentFee = $priceFormatter->format($buckarooFeeTaxExcl, $currencyIsoCode);
+                $paymentFeeTax = $priceFormatter->format($buckarooFee['buckaroo_fee_tax'], $currencyIsoCode);
+                $params['templateVars']['{payment_fee}'] = $paymentFee;
+                $params['templateVars']['{payment_fee_tax}'] = $paymentFeeTax;
+                $params['templateVars']['{payment_fee_row_style}'] = '';
+                $params['templateVars']['{payment_fee_txt}'] = $paymentFeeLabel . '     ' . $paymentFee . "\n"
+                    . $paymentFeeLabel . ' tax     ' . $paymentFeeTax . "\n";
                 $params['templateVars']['{total_paid}'] = $priceFormatter->format($order->total_paid + $buckarooFeeTaxIncl, $currencyIsoCode);
                 // Include the total tax paid, which includes the payment fee tax
                 $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
                 $params['templateVars']['{total_tax_paid}'] = $priceFormatter->format($totalTaxPaid, $currencyIsoCode);
             } else {
-                $params['templateVars']['{payment_fee}'] = $priceFormatter->format(0, $currencyIsoCode);
+                // No fee: the shipped templates hide both fee rows. Every placeholder still gets a
+                // value, so a customised template never shows a raw "{payment_fee_tax}" (#319).
+                $zero = $priceFormatter->format(0, $currencyIsoCode);
+                $params['templateVars']['{payment_fee}'] = $zero;
+                $params['templateVars']['{payment_fee_tax}'] = $zero;
+                $params['templateVars']['{payment_fee_row_style}'] = 'display:none;mso-hide:all;';
+                $params['templateVars']['{payment_fee_txt}'] = '';
             }
         }
 
