@@ -64,7 +64,7 @@ class CarrierHandler
     private function getCountryIsoCode($country)
     {
         if (is_object($country)) {
-            $country = isset($country->iso_code) ? $country->iso_code : '';
+            $country = property_exists($country, 'iso_code') ? (string) $country->iso_code : '';
         }
 
         return Tools::strtoupper((string) $country);

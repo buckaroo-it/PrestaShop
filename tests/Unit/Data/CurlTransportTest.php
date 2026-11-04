@@ -46,7 +46,9 @@ class CurlTransportTest extends TestCase
                     $headers[$key] = $value;
                 }
             }
-            file_put_contents(__DIR__ . "/request.json", json_encode([
+            // serialize(), not json_encode(): the server runs with "php -n" (no ini files), and
+            // on PHP 7.4 builds where json is a shared extension it is then not loaded.
+            file_put_contents(__DIR__ . "/request.ser", serialize([
                 "method" => $_SERVER["REQUEST_METHOD"],
                 "uri" => $_SERVER["REQUEST_URI"],
                 "headers" => $headers,
@@ -95,7 +97,7 @@ class CurlTransportTest extends TestCase
         }
         self::$server = null;
         @unlink(self::$dir . '/router.php');
-        @unlink(self::$dir . '/request.json');
+        @unlink(self::$dir . '/request.ser');
         @rmdir(self::$dir);
     }
 
@@ -105,15 +107,15 @@ class CurlTransportTest extends TestCase
         if (self::$baseUrl === '') {
             self::markTestSkipped('could not start the local PHP test server');
         }
-        @unlink(self::$dir . '/request.json');
+        @unlink(self::$dir . '/request.ser');
     }
 
     private static function receivedRequest(): array
     {
-        $file = self::$dir . '/request.json';
+        $file = self::$dir . '/request.ser';
         self::assertFileExists($file, 'the local server received no request');
 
-        return json_decode((string) file_get_contents($file), true);
+        return unserialize((string) file_get_contents($file), ['allowed_classes' => false]);
     }
 
     /**
