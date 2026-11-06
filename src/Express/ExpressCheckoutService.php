@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\PrestaShop\Src\ApplePay;
+namespace Buckaroo\PrestaShop\Src\Express;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
@@ -25,15 +25,15 @@ if (!defined('_PS_VERSION_')) {
 }
 
 /**
- * Server side of the Apple Pay express button.
+ * Server side of the express buttons (Apple Pay, Google Pay).
  *
  * Each express payment uses its own cart: the selected product (product page)
  * or a copy of the shopper's cart (cart and checkout page). The shopper's own
- * cart is not touched until the payment is authorized in the Apple Pay sheet.
+ * cart is not touched until the payment is authorized in the wallet sheet.
  * While the sheet is open, carriers and totals are calculated on that cart
- * with a hidden estimate address built from the (partial) contact Apple Pay
+ * with a hidden estimate address built from the (partial) contact the wallet
  * shares. On authorization the customer and addresses are created from the
- * Apple Pay contacts, the cart becomes the shopper's cart and the regular
+ * wallet contacts, the cart becomes the shopper's cart and the regular
  * Buckaroo request controller creates the order and the payment.
  */
 class ExpressCheckoutService
@@ -44,12 +44,11 @@ class ExpressCheckoutService
     public const COOKIE_ADDRESS = 'buckaroo_ape_address';
     /** Shopper's own cart, put back after a product page express order. */
     public const COOKIE_RESTORE_CART = 'buckaroo_ape_restore';
-    /** Express cart that was authorized and may be paid with an Apple Pay token. */
+    /** Express cart that was authorized and may be paid with a wallet token: "method:id_cart". */
     public const COOKIE_READY = 'buckaroo_ape_ready';
     /** Guest customer created by an earlier authorization attempt of this session. */
     public const COOKIE_GUEST = 'buckaroo_ape_guest';
 
-    private const ADDRESS_ALIAS = 'Apple Pay';
     private const AMOUNT_TOLERANCE = 0.01;
 
     /** @var \Buckaroo3 */
@@ -61,14 +60,46 @@ class ExpressCheckoutService
     /** @var BuckarooPaymentService */
     private $paymentService;
 
+    /** @var Wallet */
+    private $wallet;
+
     /**
      * @param \Buckaroo3 $module
      */
-    public function __construct(\Buckaroo3 $module, \Context $context, BuckarooPaymentService $paymentService)
+    public function __construct(\Buckaroo3 $module, \Context $context, BuckarooPaymentService $paymentService, Wallet $wallet)
     {
         $this->module = $module;
         $this->context = $context;
         $this->paymentService = $paymentService;
+        $this->wallet = $wallet;
+    }
+
+    public function getWallet(): Wallet
+    {
+        return $this->wallet;
+    }
+
+    /**
+     * Shown when the wallet cannot be used right now (not configured, an unexpected error).
+     */
+    public function getUnavailableMessage(): string
+    {
+        return sprintf($this->module->l('%s is not available at the moment. Please try again or choose another payment method.', 'expresscheckoutservice'), $this->wallet->getLabel());
+    }
+
+    public function getSessionExpiredMessage(): string
+    {
+        return sprintf($this->module->l('Your %s session expired. Please try again.', 'expresscheckoutservice'), $this->wallet->getLabel());
+    }
+
+    public function getNotAvailableForOrderMessage(): string
+    {
+        return sprintf($this->module->l('%s is not available for this order. Please choose another payment method.', 'expresscheckoutservice'), $this->wallet->getLabel());
+    }
+
+    public function getTotalChangedMessage(): string
+    {
+        return $this->module->l('The order total has changed. Please try again.', 'expresscheckoutservice');
     }
 
     /**
@@ -90,7 +121,7 @@ class ExpressCheckoutService
             || !$product->checkAccess($customerId)
             || !empty(\Product::getRequiredCustomizableFieldsStatic($idProduct))
         ) {
-            throw new ExpressException($this->module->l('This product cannot be bought with Apple Pay.', 'expresscheckoutservice'));
+            throw new ExpressException(sprintf($this->module->l('This product cannot be bought with %s.', 'expresscheckoutservice'), $this->wallet->getLabel()));
         }
 
         $idProductAttribute = $this->resolveCombination($product, $idProductAttribute, $attributeIds);
@@ -126,7 +157,7 @@ class ExpressCheckoutService
 
         $duplication = $source->duplicate();
         if (!is_array($duplication) || empty($duplication['success']) || !\Validate::isLoadedObject($duplication['cart'])) {
-            throw new ExpressException($this->module->l('Your shopping cart could not be prepared for Apple Pay. Please try again.', 'expresscheckoutservice'));
+            throw new ExpressException(sprintf($this->module->l('Your shopping cart could not be prepared for %s. Please try again.', 'expresscheckoutservice'), $this->wallet->getLabel()));
         }
 
         /** @var \Cart $cart */
@@ -159,22 +190,22 @@ class ExpressCheckoutService
     }
 
     /**
-     * Whether Apple Pay may be used for the express cart, with the shop's
+     * Whether the wallet may be used for the express cart, with the shop's
      * country rules for the visitor's country.
      */
     public function isAvailable(\Cart $cart): bool
     {
         return $this->withCart($cart, null, function () use ($cart) {
-            return $this->paymentService->isMethodAvailableForCart($cart, ExpressSettings::METHOD_NAME);
+            return $this->paymentService->isMethodAvailableForCart($cart, $this->wallet->getMethod());
         });
     }
 
     /**
      * Carriers, line items and total for the address the shopper picked in the
-     * sheet. Apple Pay only shares country, region, postcode and city before
+     * sheet. Wallets only share country, region, postcode and city before
      * the payment is authorized, which is all carriers and taxes depend on.
      *
-     * @param array<string, mixed> $contact Apple Pay (redacted) shipping contact; empty for the visitor's country
+     * @param array<string, mixed> $contact wallet (redacted) shipping contact; empty for the visitor's country
      *
      * @return array<string, mixed>
      *
@@ -225,11 +256,11 @@ class ExpressCheckoutService
     }
 
     /**
-     * Turn the express cart into the shopper's cart for the authorized Apple
-     * Pay payment: customer (logged in, or a new guest), delivery and invoice
+     * Turn the express cart into the shopper's cart for the authorized wallet
+     * payment: customer (logged in, or a new guest), delivery and invoice
      * address, carrier, and a total that matches the authorized amount.
      *
-     * @param array<string, mixed> $payment Apple Pay payment (contacts; the token is posted to the request controller)
+     * @param array<string, mixed> $payment billingContact and shippingContact in the Apple Pay contact format (the token is posted to the request controller)
      *
      * @throws ExpressException
      */
@@ -239,11 +270,11 @@ class ExpressCheckoutService
         $shipping = isset($payment['shippingContact']) && is_array($payment['shippingContact']) ? $payment['shippingContact'] : null;
 
         if ($billing === null) {
-            throw new ExpressException($this->module->l('Apple Pay did not share a billing address. Please try again.', 'expresscheckoutservice'), 'postalAddress');
+            throw new ExpressException(sprintf($this->module->l('%s did not share a billing address. Please try again.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'postalAddress');
         }
         if ($shipping === null || empty($shipping['countryCode'])) {
             if (!$cart->isVirtualCart()) {
-                throw new ExpressException($this->module->l('Apple Pay did not share a shipping address. Please try again.', 'expresscheckoutservice'), 'postalAddress');
+                throw new ExpressException(sprintf($this->module->l('%s did not share a shipping address. Please try again.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'postalAddress');
             }
             $shipping = array_merge($billing, $shipping ?? []);
         }
@@ -281,22 +312,27 @@ class ExpressCheckoutService
         $this->verifyCart($cart, $shippingKey, $amount, $deliveryCountry);
         $this->context->country = $deliveryCountry;
 
-        $this->context->cookie->__set(self::COOKIE_READY, (int) $cart->id);
+        $this->context->cookie->__set(self::COOKIE_READY, $this->readyMarker($cart));
         $this->context->cookie->write();
     }
 
     /**
-     * Whether the cart was authorized in the Apple Pay sheet and may be paid
+     * Whether the cart was authorized in this wallet's sheet and may be paid
      * with the posted token. The marker is used once.
      */
     public function consumeAuthorization(\Cart $cart): bool
     {
-        $authorized = (int) $cart->id > 0 && (int) $this->context->cookie->__get(self::COOKIE_READY) === (int) $cart->id;
+        $authorized = (int) $cart->id > 0 && (string) $this->context->cookie->__get(self::COOKIE_READY) === $this->readyMarker($cart);
 
         $this->context->cookie->__unset(self::COOKIE_READY);
         $this->context->cookie->write();
 
         return $authorized;
+    }
+
+    private function readyMarker(\Cart $cart): string
+    {
+        return $this->wallet->getMethod() . ':' . (int) $cart->id;
     }
 
     /**
@@ -357,7 +393,7 @@ class ExpressCheckoutService
 
         $combination = new \Combination($idProductAttribute);
         if (!\Validate::isLoadedObject($combination) || (int) $combination->id_product !== (int) $product->id) {
-            throw new ExpressException($this->module->l('This product cannot be bought with Apple Pay.', 'expresscheckoutservice'));
+            throw new ExpressException(sprintf($this->module->l('This product cannot be bought with %s.', 'expresscheckoutservice'), $this->wallet->getLabel()));
         }
 
         return $idProductAttribute;
@@ -381,7 +417,7 @@ class ExpressCheckoutService
         }
 
         if (!$cart->add()) {
-            throw new ExpressException($this->module->l('Your shopping cart could not be prepared for Apple Pay. Please try again.', 'expresscheckoutservice'));
+            throw new ExpressException(sprintf($this->module->l('Your shopping cart could not be prepared for %s. Please try again.', 'expresscheckoutservice'), $this->wallet->getLabel()));
         }
 
         return $cart;
@@ -427,9 +463,9 @@ class ExpressCheckoutService
         $city = trim((string) ($contact['locality'] ?? ''));
 
         $address->id_customer = 0;
-        $address->alias = self::ADDRESS_ALIAS;
-        $address->firstname = 'Apple';
-        $address->lastname = 'Pay';
+        $address->alias = $this->wallet->getLabel();
+        $address->firstname = 'Express';
+        $address->lastname = 'Checkout';
         $address->address1 = '-';
         $address->id_country = (int) $country->id;
         $address->id_state = $this->resolveState($country, (string) ($contact['administrativeArea'] ?? ''));
@@ -468,7 +504,7 @@ class ExpressCheckoutService
      * Select the requested carrier when it is available for the cart address,
      * otherwise the cart's current or the first available one.
      *
-     * @return array<int, array<string, string>> Apple Pay shipping methods, the selected one first
+     * @return array<int, array<string, string>> shipping methods, the selected one first
      */
     private function selectDeliveryOption(\Cart $cart, ?string $shippingKey): array
     {
@@ -504,7 +540,7 @@ class ExpressCheckoutService
         $cart->setDeliveryOption([$idAddress => $selected]);
         $cart->update();
 
-        // Apple Pay preselects the first method in the list.
+        // The wallet sheet preselects the first method in the list.
         return array_values([$selected => $methods[$selected]] + $methods);
     }
 
@@ -540,7 +576,8 @@ class ExpressCheckoutService
     }
 
     /**
-     * Apple Pay line items, shipping methods and total of the cart.
+     * Line items (Apple Pay format; Google Pay also gets typed display items),
+     * shipping methods and total of the cart.
      *
      * @param array<int, array<string, string>> $shippingMethods
      *
@@ -549,35 +586,41 @@ class ExpressCheckoutService
     private function summarize(\Cart $cart, array $shippingMethods): array
     {
         $lineItems = [];
+        $displayItems = [];
         foreach ($cart->getProducts(true) as $product) {
             $name = (string) $product['name'];
             if (!empty($product['attributes_small'])) {
                 $name .= ' - ' . $product['attributes_small'];
             }
             $lineItems[] = $this->lineItem((int) $product['cart_quantity'] . ' x ' . $name, (float) $product['total_wt']);
+            $displayItems[] = $this->displayItem(end($lineItems), 'LINE_ITEM');
         }
 
         $discounts = (float) $cart->getOrderTotal(true, \Cart::ONLY_DISCOUNTS);
         if ($discounts > 0) {
             $lineItems[] = $this->lineItem($this->module->l('Discount', 'expresscheckoutservice'), -$discounts);
+            $displayItems[] = $this->displayItem(end($lineItems), 'DISCOUNT');
         }
 
         $wrapping = (float) $cart->getOrderTotal(true, \Cart::ONLY_WRAPPING);
         if ($wrapping > 0) {
             $lineItems[] = $this->lineItem($this->module->l('Gift wrapping', 'expresscheckoutservice'), $wrapping);
+            $displayItems[] = $this->displayItem(end($lineItems), 'LINE_ITEM');
         }
 
         if (!empty($shippingMethods)) {
             $lineItems[] = $this->lineItem($shippingMethods[0]['label'], (float) $cart->getOrderTotal(true, \Cart::ONLY_SHIPPING));
+            $displayItems[] = $this->displayItem(end($lineItems), 'SHIPPING_OPTION');
         }
 
         $fee = $this->getFee($cart);
         if ($fee > 0) {
             $feeLabel = (string) \Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL);
             $lineItems[] = $this->lineItem($feeLabel !== '' ? $feeLabel : $this->module->l('Payment fee', 'expresscheckoutservice'), $fee);
+            $displayItems[] = $this->displayItem(end($lineItems), 'LINE_ITEM');
         }
 
-        return [
+        $summary = [
             'lineItems' => $lineItems,
             'total' => [
                 'label' => $this->truncate((string) \Configuration::get('PS_SHOP_NAME')),
@@ -587,11 +630,17 @@ class ExpressCheckoutService
             'shippingMethods' => $shippingMethods,
             'selectedShipping' => empty($shippingMethods) ? null : $shippingMethods[0]['identifier'],
         ];
+
+        if ($this->wallet->getMethod() === Wallet::GOOGLE_PAY) {
+            $summary['displayItems'] = $displayItems;
+        }
+
+        return $summary;
     }
 
     /**
-     * The amount Buckaroo is asked to collect: the cart total with the Apple
-     * Pay payment fee, as the request controller and the checkout calculate it.
+     * The amount Buckaroo is asked to collect: the cart total with the payment
+     * fee of the wallet, as the request controller and the checkout calculate it.
      */
     private function getTotal(\Cart $cart): float
     {
@@ -600,7 +649,7 @@ class ExpressCheckoutService
 
     private function getFee(\Cart $cart): float
     {
-        $fee = $this->module->getBuckarooFee(ExpressSettings::METHOD_NAME, (float) $cart->getOrderTotal(true, \Cart::BOTH));
+        $fee = $this->module->getBuckarooFee($this->wallet->getMethod(), (float) $cart->getOrderTotal(true, \Cart::BOTH));
 
         return is_array($fee) ? (float) $fee['buckaroo_fee_tax_incl'] : 0.0;
     }
@@ -617,11 +666,11 @@ class ExpressCheckoutService
         }
 
         if (!\Configuration::get('PS_GUEST_CHECKOUT_ENABLED')) {
-            throw new ExpressException($this->module->l('Please sign in to pay with Apple Pay.', 'expresscheckoutservice'));
+            throw new ExpressException(sprintf($this->module->l('Please sign in to pay with %s.', 'expresscheckoutservice'), $this->wallet->getLabel()));
         }
 
         if (!\Validate::isEmail($email)) {
-            throw new ExpressException($this->module->l('Please enter a valid email address in Apple Pay.', 'expresscheckoutservice'), 'emailAddress');
+            throw new ExpressException(sprintf($this->module->l('Please enter a valid email address in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'emailAddress');
         }
 
         // A guest created for an earlier, rejected attempt in this session is reused.
@@ -657,7 +706,7 @@ class ExpressCheckoutService
     }
 
     /**
-     * @param array<string, mixed> $contact Apple Pay contact
+     * @param array<string, mixed> $contact wallet contact
      *
      * @return string[] first name and last name
      *
@@ -669,16 +718,16 @@ class ExpressCheckoutService
         $lastname = trim((string) ($contact['familyName'] ?? ''));
 
         if ($firstname === '' || $lastname === '' || !\Validate::isName($firstname) || !\Validate::isName($lastname)) {
-            throw new ExpressException($this->module->l('Please enter a valid first and last name in Apple Pay.', 'expresscheckoutservice'), 'name');
+            throw new ExpressException(sprintf($this->module->l('Please enter a valid first and last name in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'name');
         }
 
         return [$firstname, $lastname];
     }
 
     /**
-     * Validated address fields of an Apple Pay contact.
+     * Validated address fields of a wallet contact.
      *
-     * @param array<string, mixed> $contact Apple Pay contact
+     * @param array<string, mixed> $contact wallet contact
      *
      * @return array<string, int|string>
      *
@@ -705,13 +754,13 @@ class ExpressCheckoutService
         $postcode = strtoupper(trim((string) ($contact['postalCode'] ?? '')));
 
         if ($address1 === '' || !\Validate::isAddress($address1) || !\Validate::isAddress($address2)) {
-            throw new ExpressException($this->module->l('Please enter a valid street address in Apple Pay.', 'expresscheckoutservice'), 'addressLines');
+            throw new ExpressException(sprintf($this->module->l('Please enter a valid street address in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'addressLines');
         }
         if ($city === '' || !\Validate::isCityName($city)) {
-            throw new ExpressException($this->module->l('Please enter a valid city in Apple Pay.', 'expresscheckoutservice'), 'locality');
+            throw new ExpressException(sprintf($this->module->l('Please enter a valid city in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'locality');
         }
         if (!\Validate::isPostCode($postcode) || ($country->need_zip_code && !$country->checkZipCode($postcode))) {
-            throw new ExpressException($this->module->l('Please enter a valid postal code in Apple Pay.', 'expresscheckoutservice'), 'postalCode');
+            throw new ExpressException(sprintf($this->module->l('Please enter a valid postal code in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'postalCode');
         }
 
         return [
@@ -747,7 +796,7 @@ class ExpressCheckoutService
             $address->{$field} = $value;
         }
         $address->id_customer = (int) $customer->id;
-        $address->alias = self::ADDRESS_ALIAS;
+        $address->alias = $this->wallet->getLabel();
         $address->phone = \Validate::isPhoneNumber($phone) ? $phone : '';
 
         if (!$address->add()) {
@@ -785,7 +834,7 @@ class ExpressCheckoutService
 
     /**
      * The carrier chosen in the sheet must be available for the cart address,
-     * Apple Pay must be allowed for the cart and the total must be the amount
+     * the wallet must be allowed for the cart and the total must be the amount
      * the shopper authorized.
      *
      * @throws ExpressException
@@ -800,12 +849,12 @@ class ExpressCheckoutService
                 }
             }
 
-            if (!$this->paymentService->isMethodAvailableForCart($cart, ExpressSettings::METHOD_NAME)) {
-                throw new ExpressException($this->module->l('Apple Pay is not available for this order. Please choose another payment method.', 'expresscheckoutservice'));
+            if (!$this->paymentService->isMethodAvailableForCart($cart, $this->wallet->getMethod())) {
+                throw new ExpressException($this->getNotAvailableForOrderMessage());
             }
 
             if (abs($this->getTotal($cart) - $amount) > self::AMOUNT_TOLERANCE) {
-                throw new ExpressException($this->module->l('The order total has changed. Please try again.', 'expresscheckoutservice'));
+                throw new ExpressException($this->getTotalChangedMessage());
             }
         });
     }
@@ -826,8 +875,8 @@ class ExpressCheckoutService
     }
 
     /**
-     * PrestaShop state of the Apple Pay administrative area. Apple sends a
-     * code ("CA", "NH") or a name, and often nothing for countries such as the
+     * PrestaShop state of the wallet's administrative area: a code ("CA",
+     * "NH") or a name, and often nothing for countries such as the
      * Netherlands, where PrestaShop stores provinces as "NL-NH". An unknown or
      * missing area leaves the state empty rather than blocking the payment.
      */
@@ -898,6 +947,18 @@ class ExpressCheckoutService
         }
 
         return password_hash($password, PASSWORD_BCRYPT);
+    }
+
+    /**
+     * A Google Pay display item for a line item.
+     *
+     * @param array<string, string> $lineItem
+     *
+     * @return array<string, string>
+     */
+    private function displayItem(array $lineItem, string $type): array
+    {
+        return ['label' => $lineItem['label'], 'type' => $type, 'price' => $lineItem['amount']];
     }
 
     /**

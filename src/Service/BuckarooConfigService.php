@@ -18,11 +18,13 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
-use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
+use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -91,10 +93,15 @@ class BuckarooConfigService
             $this->syncGiftcardAllowedCards($mergedConfig);
         }
 
-        if ($name === ExpressSettings::METHOD_NAME) {
-            $mergedConfig = ExpressSettings::sanitize($mergedConfig);
+        if ($name === ApplePayExpressSettings::METHOD_NAME) {
+            $mergedConfig = ApplePayExpressSettings::sanitize($mergedConfig);
             $this->installApplePayDomainAssociation();
-            $this->registerApplePayExpressHooks();
+            $this->registerExpressHooks();
+        }
+
+        if ($name === GooglePayExpressSettings::METHOD_NAME) {
+            $mergedConfig = GooglePayExpressSettings::sanitize($mergedConfig);
+            $this->registerExpressHooks();
         }
 
         return $this->configurationRepository->updateConfig($paymentMethodId, $mergedConfig);
@@ -146,22 +153,23 @@ class BuckarooConfigService
     /**
      * The upgrade script registers the express button hooks, but it does not run
      * again for a shop that already had this module version (e.g. a development
-     * build). Registering them when Apple Pay is saved or enabled repairs that;
+     * build). Registering them when Apple Pay or Google Pay is saved or enabled
+     * repairs that;
      * hooks that are already registered are left alone.
      */
-    private function registerApplePayExpressHooks(): void
+    private function registerExpressHooks(): void
     {
         $module = \Module::getInstanceByName('buckaroo3');
         if (!$module instanceof \Module) {
             return;
         }
 
-        foreach (ExpressSettings::HOOKS as $hook) {
+        foreach (AbstractExpressSettings::HOOKS as $hook) {
             if ($module->isRegisteredInHook($hook)) {
                 continue;
             }
             if (!$module->registerHook($hook)) {
-                \PrestaShopLogger::addLog('Buckaroo: Apple Pay express hook ' . $hook . ' could not be registered', 2);
+                \PrestaShopLogger::addLog('Buckaroo: express button hook ' . $hook . ' could not be registered', 2);
             }
         }
     }
@@ -177,8 +185,8 @@ class BuckarooConfigService
         $configArray = $this->configurationRepository->getConfigArray($paymentMethod->getId());
         $configArray['mode'] = $mode;
 
-        if ($name === ExpressSettings::METHOD_NAME && Config::isPaymentModeEnabled($mode)) {
-            $this->registerApplePayExpressHooks();
+        if (in_array($name, [ApplePayExpressSettings::METHOD_NAME, GooglePayExpressSettings::METHOD_NAME], true) && Config::isPaymentModeEnabled($mode)) {
+            $this->registerExpressHooks();
         }
 
         return $this->configurationRepository->updateConfig($paymentMethod->getId(), $configArray);
