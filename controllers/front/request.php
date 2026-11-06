@@ -15,7 +15,8 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-use Buckaroo\PrestaShop\Src\ApplePay\ExpressCheckoutService;
+use Buckaroo\PrestaShop\Src\Express\ExpressCheckoutService;
+use Buckaroo\PrestaShop\Src\Express\Wallet;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\Transaction\Response\TransactionResponse;
@@ -111,7 +112,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 return;
             }
 
-            if (!$this->isValidApplePayRequest($payment_method)) {
+            if (!$this->isValidWalletRequest($payment_method)) {
                 return;
             }
 
@@ -385,38 +386,48 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     }
 
     /**
-     * An Apple Pay express payment is only accepted for the cart that was
-     * prepared and authorized in the Apple Pay sheet, with its token. Without
-     * the express button, Apple Pay is only accepted while the merchant lists
-     * it as a checkout payment method.
+     * A wallet express payment (Apple Pay, Google Pay) is only accepted for the
+     * cart that was prepared and authorized in the wallet sheet, with its
+     * token. Without the express button, the wallet is only accepted while the
+     * merchant lists it as a checkout payment method.
      */
-    private function isValidApplePayRequest(string $payment_method): bool
+    private function isValidWalletRequest(string $payment_method): bool
     {
-        if ($payment_method !== 'applepay') {
+        if (!Wallet::isExpressMethod($payment_method) || !$this->module instanceof Buckaroo3) {
             return true;
         }
 
-        require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/applepaycheckout.php';
+        $wallet = Wallet::fromMethod($payment_method);
+        if ($payment_method === Wallet::APPLE_PAY) {
+            require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/applepaycheckout.php';
+            $isExpress = ApplePayCheckout::isExpressRequest();
+            $settings = $this->module->getApplePayExpressSettings();
+        } else {
+            require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/googlepaycheckout.php';
+            $isExpress = GooglePayCheckout::isExpressRequest();
+            $settings = $this->module->getGooglePayExpressSettings();
+        }
 
-        if (!ApplePayCheckout::isExpressRequest()) {
-            if ($this->module instanceof Buckaroo3 && $this->module->getApplePayExpressSettings()->isListedInCheckout()) {
+        if (!$isExpress) {
+            if ($settings->isListedInCheckout()) {
                 return true;
             }
 
-            $this->logger->logError('Apple Pay checkout payment requested while it is only offered as express button.');
+            $this->logger->logError($wallet->getLabel() . ' checkout payment requested while it is only offered as express button.');
             $this->redirectToCheckoutStep(3, $this->module->l('The selected payment method is not available.'));
 
             return false;
         }
 
-        $authorized = false;
-        if ($this->module instanceof Buckaroo3) {
-            $authorized = (new ExpressCheckoutService($this->module, $this->context, $this->getPaymentService()))
-                ->consumeAuthorization($this->context->cart);
-        }
-        if (!$authorized || ApplePayCheckout::resolveExpressPaymentData() === '') {
-            $this->logger->logError('Apple Pay express payment without an authorized cart or token for cart ' . (int) $this->context->cart->id);
-            $this->redirectToCheckoutStep(3, $this->module->l('Your Apple Pay payment could not be started. Please try again.'));
+        $authorized = (new ExpressCheckoutService($this->module, $this->context, $this->getPaymentService(), $wallet))
+            ->consumeAuthorization($this->context->cart);
+        $token = $payment_method === Wallet::APPLE_PAY
+            ? ApplePayCheckout::resolveExpressPaymentData()
+            : GooglePayCheckout::resolveExpressPaymentData();
+
+        if (!$authorized || $token === '') {
+            $this->logger->logError($wallet->getLabel() . ' express payment without an authorized cart or token for cart ' . (int) $this->context->cart->id);
+            $this->redirectToCheckoutStep(3, sprintf($this->module->l('Your %s payment could not be started. Please try again.'), $wallet->getLabel()));
 
             return false;
         }

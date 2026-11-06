@@ -11,9 +11,9 @@
  * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *}
 {* Stays hidden until the browser confirms Apple Pay is supported on this device *}
-<div class="buckaroo-applepay-express buckaroo-applepay-express--{$buckarooApplePayPlacement|escape:'htmlall':'UTF-8'}"
-     data-placement="{$buckarooApplePayPlacement|escape:'htmlall':'UTF-8'}"
-     data-id-product="{$buckarooApplePayProductId|intval}"
+<div class="buckaroo-applepay-express buckaroo-applepay-express--{$buckarooExpressPlacement|escape:'htmlall':'UTF-8'}"
+     data-placement="{$buckarooExpressPlacement|escape:'htmlall':'UTF-8'}"
+     data-id-product="{$buckarooExpressProductId|intval}"
      hidden>
     <div class="buckaroo-applepay-express__button"></div>
     <div class="buckaroo-applepay-express__message alert alert-danger" role="alert" hidden></div>

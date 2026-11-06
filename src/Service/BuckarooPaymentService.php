@@ -22,10 +22,11 @@ require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
 include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
-use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
+use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Doctrine\ORM\EntityManager;
@@ -105,6 +106,23 @@ class BuckarooPaymentService
         return $this->priceFormatter;
     }
 
+    /**
+     * Whether a wallet with an express button stays listed as a checkout
+     * payment method; other methods always are.
+     */
+    private function isListedInCheckout(string $method): bool
+    {
+        if ($method === ApplePayExpressSettings::METHOD_NAME) {
+            return (new ApplePayExpressSettings($this->buckarooConfigService->getConfigArrayForMethod($method)))->isListedInCheckout();
+        }
+
+        if ($method === GooglePayExpressSettings::METHOD_NAME) {
+            return (new GooglePayExpressSettings($this->buckarooConfigService->getConfigArrayForMethod($method)))->isListedInCheckout();
+        }
+
+        return true;
+    }
+
     public function getPaymentOptions($cart)
     {
         $payment_options = [];
@@ -120,10 +138,8 @@ class BuckarooPaymentService
                 continue;
             }
 
-            // Apple Pay can be offered as express button only.
-            if ($method === ExpressSettings::METHOD_NAME
-                && !(new ExpressSettings($this->buckarooConfigService->getConfigArrayForMethod($method)))->isListedInCheckout()
-            ) {
+            // Apple Pay and Google Pay can be offered as express button only.
+            if (!$this->isListedInCheckout($method)) {
                 continue;
             }
 
