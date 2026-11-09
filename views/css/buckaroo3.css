@@ -251,10 +251,24 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin: 0 0 20px;
 }
 
-.buckaroo-applepay-express__button apple-pay-button {
+/*
+ * The Buckaroo SDK stylesheet makes the host an unsized inline-flex box and
+ * sizes the web component to 100% of it, which collapses the button to Apple's
+ * default 100px. Size the host here, with a more specific selector than the SDK.
+ */
+.buckaroo-applepay-express .buckaroo-applepay-express__button.apple-pay-sdk-host {
+    display: flex;
+    width: 100%;
+    height: 44px;
+}
+
+.buckaroo-applepay-express .buckaroo-applepay-express__button.apple-pay-sdk-host apple-pay-button {
     display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
     --apple-pay-button-width: 100%;
-    --apple-pay-button-height: 44px;
+    --apple-pay-button-height: 100%;
     --apple-pay-button-border-radius: 4px;
     --apple-pay-button-padding: 0;
     --apple-pay-button-box-sizing: border-box;
