@@ -13,18 +13,14 @@
  * @license   http://opensource.org/licenses/afl-3.0 Academic Free License (AFL 3.0)
 *}
 
-
-<div style="display: none">
-<div rel="booAnimBl" id="iDINBankLinks" class="booBlAnimCont row">
-    <div class="col-xs-12 col-md-12">
-        <h2> {l s='Age Verification' mod='buckaroo3'}</h2>
-
+{* The checkout's own Place Order button submits this form when iDIN is selected. *}
+<section class="additional-information" id="iDINBankLinks">
+    <form id="booIdinForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'idin'])|escape:'quotes':'UTF-8'}" method="post">
+        <p>{l s='To continue you must verify your age using iDIN' mod='buckaroo3'}</p>
         <div id="booIdealErr" class="booBlAnimError"></div>
-
-        <form id="booIdinForm" action="{$link->getModuleLink('buckaroo3', 'request', ['method' => 'idin'])|escape:'quotes':'UTF-8'}"
-              method="post" style="padding: 10px; background: #d4eded; display: inline-block; width: 100%; ">
-            <img src="{$this_path|escape:'quotes':'UTF-8'}views/img/buckaroo/Identification methods/SVG/iDIN.svg" class="middle" style="width: 70px;"/>{l s='To continue you must verify your age using iDIN' mod='buckaroo3'}
-            <select name="BPE_Issuer" id="BPE_Issuer">
+        <p class="form-row form-row-wide">
+            <label for="BPE_Issuer">{l s='Choose your bank' mod='buckaroo3'}</label>
+            <select name="BPE_Issuer" id="BPE_Issuer" class="form-control">
                 <option value="ABNAMRO">{l s='ABN AMRO' mod='buckaroo3'}</option>
                 <option value="INGBANK">{l s='ING' mod='buckaroo3'}</option>
                 <option value="RABOBANK">{l s='Rabobank' mod='buckaroo3'}</option>
@@ -37,23 +33,6 @@
                     <option value="BANKNL2Y">{l s='TEST BANK' mod='buckaroo3'}</option>
                 {/if}
             </select>
-            <div class="row row-padding">
-                <button type="submit" id="booIdinSendBtn" name="processCarrier"
-                        class="continue btn btn-primary float-xs-right">
-                        {l s='Verify your age via iDIN' mod='buckaroo3'}
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-</div>
-
-<script>
-    window.addEventListener("load", function(){
-        var fragment = document.createDocumentFragment();
-        fragment.appendChild(document.getElementById('iDINBankLinks'));
-        var cps = document.getElementById("checkout-payment-step").getElementsByClassName("content")[0];
-        cps.innerHTML = '';
-        cps.appendChild(fragment);
-    });
-</script>
+        </p>
+    </form>
+</section>

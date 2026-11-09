@@ -88,6 +88,8 @@ $_MODULE['<{buckaroo3}prestashop>payment_request_f1d3b424cd68795ecaa552883759ace
 $_MODULE['<{buckaroo3}prestashop>idin_5f00203a42c0023434af555f62336eb4'] = 'leeftijd verificatie';
 $_MODULE['<{buckaroo3}prestashop>idin_cd74b1d3f18e4b9ba54b984e9bbd5f3e'] = 'om door te gaan moet u uw leeftijd middels iDIN verifieren';
 $_MODULE['<{buckaroo3}prestashop>idin_2b280c61b74991789dcf1404da3bcd65'] = 'verifiëren uw leeftijd via iDIN';
+$_MODULE['<{buckaroo3}prestashop>idin_48fa0f621f79f451e58f200957da5b52'] = 'Kies uw bank';
+$_MODULE['<{buckaroo3}prestashop>userreturn_1e55f1fe6a565f4f4dc612e355ca26a2'] = 'Uw leeftijd kon niet worden geverifieerd met iDIN. Probeer het opnieuw.';
 $_MODULE['<{buckaroo3}prestashop>idin_box_69e32388ae7c2d8fd30631a74759db11'] = 'Om dit product te bestellen dien je 18 jaar of ouder te zijn';
 $_MODULE['<{buckaroo3}prestashop>payment_8e88b7fa504cd3541dc194c1b04b1811'] = 'Bezig met betalen';
 $_MODULE['<{buckaroo3}prestashop>payment_19ef08887745e7b9e37ea8c46849e592'] = 'Betalen via PayPal';
