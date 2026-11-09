@@ -35,14 +35,14 @@ final class ExpressPaymentTest extends TestCase
         self::assertSame('Pay,ExtraInfo', $service['action']);
         self::assertSame('paypal', $service['name']);
         self::assertSame([
-            'PayPalOrderId' => '5O190127TN364715T',
-            'Street1' => 'Hoofdstraat',
-            'PostalCode' => '1011 AB',
             'CityName' => 'Amsterdam',
             'Country' => 'NL',
-            'Street2' => '2',
-            'Phone' => '0612345678',
             'Name' => 'Jane Tester',
+            'PayPalOrderId' => '5O190127TN364715T',
+            'Phone' => '0612345678',
+            'PostalCode' => '1011 AB',
+            'Street1' => 'Hoofdstraat',
+            'Street2' => '2',
         ], $this->parameters($service));
     }
 
@@ -86,6 +86,8 @@ final class ExpressPaymentTest extends TestCase
         foreach ($service['parameters'] as $parameter) {
             $parameters[$parameter['Name']] = $parameter['Value'];
         }
+        // The SDK orders the address fields differently per PHP version; the order does not matter.
+        ksort($parameters);
 
         return $parameters;
     }
