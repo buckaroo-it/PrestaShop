@@ -296,3 +296,24 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 .buckaroo-applepay-express__message {
     margin-top: 10px;
 }
+
+.buckaroo-googlepay-express {
+    margin: 10px 0;
+}
+
+.buckaroo-googlepay-express--checkout {
+    margin: 0 0 20px;
+}
+
+.buckaroo-googlepay-express__button {
+    width: 100%;
+    height: 44px;
+}
+
+.buckaroo-googlepay-express__button button {
+    width: 100%;
+}
+
+.buckaroo-googlepay-express__message {
+    margin-top: 10px;
+}

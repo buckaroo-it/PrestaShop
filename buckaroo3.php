@@ -26,10 +26,13 @@ include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
 use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
-use Buckaroo\PrestaShop\Src\ApplePay\ExpressCheckoutService;
-use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
+use Buckaroo\PrestaShop\Src\Express\ExpressCheckoutService;
+use Buckaroo\PrestaShop\Src\Express\Wallet;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
+use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
@@ -73,9 +76,14 @@ class Buckaroo3 extends PaymentModule
     private $clickToPayJsLoaded = false;
 
     /**
-     * @var ExpressSettings|null
+     * @var ApplePayExpressSettings|null
      */
     private $applePayExpressSettings;
+
+    /**
+     * @var GooglePayExpressSettings|null
+     */
+    private $googlePayExpressSettings;
 
     /**
      * @var PriceFormatter|null
@@ -260,7 +268,7 @@ class Buckaroo3 extends PaymentModule
             return '';
         }
 
-        $this->restoreCartAfterApplePayExpress($order);
+        $this->restoreCartAfterExpress($order);
 
         $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
 
@@ -1011,9 +1019,14 @@ class Buckaroo3 extends PaymentModule
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
 
-        $placement = $this->getApplePayExpressPlacementForPage();
-        if ($placement !== null && $this->canShowApplePayExpress($placement)) {
-            $this->registerApplePayExpressAssets();
+        $placement = $this->getExpressPlacementForPage();
+        if ($placement !== null) {
+            if ($this->canShowExpress($this->getApplePayExpressSettings(), $placement)) {
+                $this->registerApplePayExpressAssets();
+            }
+            if ($this->canShowExpress($this->getGooglePayExpressSettings(), $placement)) {
+                $this->registerGooglePayExpressAssets();
+            }
         }
     }
 
@@ -1025,72 +1038,85 @@ class Buckaroo3 extends PaymentModule
     {
         $this->ensureBuckarooJsLoaded();
 
-        $applePayExpress = $this->canShowApplePayExpress(ExpressSettings::PLACEMENT_CHECKOUT)
-            ? $this->renderApplePayExpress(ExpressSettings::PLACEMENT_CHECKOUT)
-            : '';
-
-        return $applePayExpress . $this->renderGiftcardAlreadyPaidBlock();
+        return $this->renderExpressButtons(AbstractExpressSettings::PLACEMENT_CHECKOUT) . $this->renderGiftcardAlreadyPaidBlock();
     }
 
     /**
-     * Apple Pay express button on the product page, for the selected product,
+     * Express buttons on the product page, for the selected product,
      * combination and quantity.
      */
     public function hookDisplayProductAdditionalInfo($params)
     {
         $product = $params['product'] ?? null;
-        if ($product === null
-            || empty($product['add_to_cart_url'])
-            || !$this->canShowApplePayExpress(ExpressSettings::PLACEMENT_PRODUCT)
-        ) {
+        if ($product === null || empty($product['add_to_cart_url'])) {
             return '';
         }
 
-        return $this->renderApplePayExpress(ExpressSettings::PLACEMENT_PRODUCT, (int) $product['id_product']);
+        return $this->renderExpressButtons(
+            AbstractExpressSettings::PLACEMENT_PRODUCT,
+            (int) $product['id_product'],
+            !empty($product['is_virtual'])
+        );
     }
 
     /**
-     * Apple Pay express button on the cart page, below the checkout button.
+     * Express buttons on the cart page, below the checkout button.
      */
     public function hookDisplayExpressCheckout($params)
     {
-        if (!$this->canShowApplePayExpress(ExpressSettings::PLACEMENT_CART)) {
-            return '';
-        }
-
-        return $this->renderApplePayExpress(ExpressSettings::PLACEMENT_CART);
+        return $this->renderExpressButtons(AbstractExpressSettings::PLACEMENT_CART);
     }
 
-    public function getApplePayExpressSettings(): ExpressSettings
+    public function getApplePayExpressSettings(): ApplePayExpressSettings
     {
         if ($this->applePayExpressSettings === null) {
-            $this->applePayExpressSettings = new ExpressSettings(
-                $this->getBuckarooConfigService()->getConfigArrayForMethod(ExpressSettings::METHOD_NAME)
+            $this->applePayExpressSettings = new ApplePayExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(ApplePayExpressSettings::METHOD_NAME)
             );
         }
 
         return $this->applePayExpressSettings;
     }
 
+    public function getGooglePayExpressSettings(): GooglePayExpressSettings
+    {
+        if ($this->googlePayExpressSettings === null) {
+            $this->googlePayExpressSettings = new GooglePayExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(GooglePayExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->googlePayExpressSettings;
+    }
+
     /**
-     * Whether the Apple Pay express button may be shown on a page. Device and
+     * @return AbstractExpressSettings[] the wallets with an express button
+     */
+    private function getExpressSettings(): array
+    {
+        return [$this->getApplePayExpressSettings(), $this->getGooglePayExpressSettings()];
+    }
+
+    /**
+     * Whether a wallet's express button may be shown on a page. Device and
      * browser support is checked in the browser; the express endpoints check
      * the payment method rules again for the express cart.
      */
-    private function canShowApplePayExpress(string $placement): bool
+    private function canShowExpress(AbstractExpressSettings $settings, string $placement): bool
     {
+        $method = $settings->getWallet()->getMethod();
+
         try {
             // Only the presence of the keys: isActivated() verifies them with a
             // request to Buckaroo, which is too slow for every product page view.
             if (!$this->active
                 || empty(Configuration::get('BUCKAROO_MERCHANT_KEY'))
                 || empty(Configuration::get('BUCKAROO_SECRET_KEY'))
-                || !$this->isPaymentModeActive(ExpressSettings::METHOD_NAME)
+                || !$this->isPaymentModeActive($method)
             ) {
                 return false;
             }
 
-            $settings = $this->getApplePayExpressSettings();
             if (!$settings->isConfigured() || !$settings->showsOn($placement)) {
                 return false;
             }
@@ -1101,7 +1127,7 @@ class Buckaroo3 extends PaymentModule
                 return false;
             }
 
-            if ($placement === ExpressSettings::PLACEMENT_PRODUCT) {
+            if ($placement === AbstractExpressSettings::PLACEMENT_PRODUCT) {
                 return true;
             }
 
@@ -1122,40 +1148,61 @@ class Buckaroo3 extends PaymentModule
             $paymentService = $this->get('buckaroo.config.api.payment.service');
 
             return $paymentService instanceof BuckarooPaymentService
-                && $paymentService->isMethodAvailableForCart($cart, ExpressSettings::METHOD_NAME);
+                && $paymentService->isMethodAvailableForCart($cart, $method);
         } catch (Exception $e) {
-            PrestaShopLogger::addLog('Buckaroo: Apple Pay express availability - ' . $e->getMessage(), 2);
+            PrestaShopLogger::addLog('Buckaroo: ' . $settings->getWallet()->getLabel() . ' express availability - ' . $e->getMessage(), 2);
 
             return false;
         }
     }
 
-    private function getApplePayExpressPlacementForPage(): ?string
+    private function getExpressPlacementForPage(): ?string
     {
         $controller = $this->context->controller;
         $page = $controller && isset($controller->php_self) ? (string) $controller->php_self : '';
 
         switch ($page) {
             case 'product':
-                return ExpressSettings::PLACEMENT_PRODUCT;
+                return AbstractExpressSettings::PLACEMENT_PRODUCT;
             case 'cart':
-                return ExpressSettings::PLACEMENT_CART;
+                return AbstractExpressSettings::PLACEMENT_CART;
             case 'order':
             case 'order-opc':
-                return ExpressSettings::PLACEMENT_CHECKOUT;
+                return AbstractExpressSettings::PLACEMENT_CHECKOUT;
             default:
                 return null;
         }
     }
 
-    private function renderApplePayExpress(string $placement, int $idProduct = 0): string
+    /**
+     * The express buttons of the wallets that may be shown on the page.
+     *
+     * @param bool|null $virtual whether nothing has to be shipped; the cart decides when null
+     */
+    private function renderExpressButtons(string $placement, int $idProduct = 0, ?bool $virtual = null): string
     {
-        $this->context->smarty->assign([
-            'buckarooApplePayPlacement' => $placement,
-            'buckarooApplePayProductId' => $idProduct,
-        ]);
+        $html = '';
 
-        return $this->display(__FILE__, 'views/templates/hook/applepay_express.tpl');
+        foreach ($this->getExpressSettings() as $settings) {
+            if (!$this->canShowExpress($settings, $placement)) {
+                continue;
+            }
+
+            if ($virtual === null) {
+                $cart = $this->context->cart;
+                $virtual = $cart instanceof Cart && Validate::isLoadedObject($cart) && $cart->isVirtualCart();
+            }
+
+            $this->context->smarty->assign([
+                'buckarooExpressPlacement' => $placement,
+                'buckarooExpressProductId' => $idProduct,
+                'buckarooExpressVirtual' => $virtual,
+            ]);
+
+            $html .= $this->display(__FILE__, 'views/templates/hook/' . $settings->getWallet()->getMethod() . '_express.tpl');
+        }
+
+        return $html;
     }
 
     /**
@@ -1197,7 +1244,47 @@ class Buckaroo3 extends PaymentModule
         );
     }
 
-    private function restoreCartAfterApplePayExpress(Order $order): void
+    /**
+     * The express script loads Google's Google Pay API (pay.js) itself and
+     * tokenizes the card for Buckaroo with the gateway merchant ID.
+     */
+    private function registerGooglePayExpressAssets(): void
+    {
+        $settings = $this->getGooglePayExpressSettings();
+        $merchantName = $settings->getMerchantName();
+
+        Media::addJsDef([
+            'buckarooGooglePayExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'googlepayexpress', [], true),
+                'token' => Tools::getToken(false),
+                'environment' => $settings->isLiveMode() ? 'PRODUCTION' : 'TEST',
+                'gatewayMerchantId' => $settings->getGatewayMerchantId(),
+                'googleMerchantId' => $settings->getGoogleMerchantId(),
+                'merchantName' => $merchantName !== '' ? $merchantName : (string) Configuration::get('PS_SHOP_NAME'),
+                'buttonColor' => $settings->getButtonStyle(),
+                'buttonType' => $settings->getButtonType(),
+                'buttonLocale' => (string) $this->context->language->iso_code,
+                'countryCode' => (string) Country::getIsoById((int) Configuration::get('PS_COUNTRY_DEFAULT')),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'messages' => [
+                    'error' => $this->l('Google Pay is not available at the moment. Please try again or choose another payment method.'),
+                    'shipping' => $this->l('Shipping costs follow from your address'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-googlepay-express',
+            'modules/' . $this->name . '/views/js/buckaroo-googlepay-express.js',
+            ['position' => 'bottom', 'priority' => 231]
+        );
+    }
+
+    /**
+     * After a product page express order, give the shopper back the cart
+     * they had before (the same for every wallet).
+     */
+    private function restoreCartAfterExpress(Order $order): void
     {
         if (empty($this->context->cookie->__get(ExpressCheckoutService::COOKIE_CART))) {
             return;
@@ -1206,10 +1293,12 @@ class Buckaroo3 extends PaymentModule
         try {
             $paymentService = $this->get('buckaroo.config.api.payment.service');
             if ($paymentService instanceof BuckarooPaymentService) {
-                (new ExpressCheckoutService($this, $this->context, $paymentService))->restoreShopperCart($order);
+                // Restoring the cart works from the session cookies only, whatever the wallet.
+                (new ExpressCheckoutService($this, $this->context, $paymentService, Wallet::applePay()))
+                    ->restoreShopperCart($order);
             }
         } catch (Exception $e) {
-            PrestaShopLogger::addLog('Buckaroo: Apple Pay express cart restore - ' . $e->getMessage(), 2);
+            PrestaShopLogger::addLog('Buckaroo: express cart restore - ' . $e->getMessage(), 2);
         }
     }
 

@@ -15,22 +15,22 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
-namespace Buckaroo\PrestaShop\Src\ApplePay;
+namespace Buckaroo\PrestaShop\Src\Express;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 /**
- * An Apple Pay express step that cannot continue. The message is translated
- * and safe to show to the shopper; the Apple Pay field tells the sheet which
- * contact field to highlight.
+ * An express checkout step that cannot continue. The message is translated
+ * and safe to show to the shopper; the contact field tells the wallet sheet
+ * which field to highlight.
  */
 class ExpressException extends \Exception
 {
     public const FIELD_NONE = '';
 
-    /** @var string Apple Pay contact field (country, postalAddress, ...) */
+    /** @var string wallet contact field (country, postalAddress, ...) */
     private $contactField;
 
     public function __construct(string $message, string $contactField = self::FIELD_NONE)

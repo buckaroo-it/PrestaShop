@@ -146,6 +146,13 @@
         }
     }
 
+    /* Product data of the product page: #product-details (Classic) or .js-product-details (Hummingbird). */
+    function productDetails() {
+        var element = document.getElementById('product-details') || document.querySelector('.js-product-details[data-product]');
+
+        return element ? parseJson(element.getAttribute('data-product')) : null;
+    }
+
     function formatAmount(amount) {
         var value = parseFloat(amount);
         return isNaN(value) || value < 0 ? '0.00' : value.toFixed(2);
@@ -207,8 +214,7 @@
         var quantity;
 
         if (this.placement === 'product') {
-            details = document.getElementById('product-details');
-            details = details ? parseJson(details.getAttribute('data-product')) : null;
+            details = productDetails();
             quantity = document.getElementById('quantity_wanted');
             quantity = quantity ? parseInt(quantity.value, 10) : 1;
             if (details && details.price_amount) {
@@ -224,7 +230,7 @@
     /* The product, combination and quantity selected in the product form. */
     ExpressButton.prototype.productParams = function () {
         var form = document.getElementById('add-to-cart-or-refresh');
-        var details = document.getElementById('product-details');
+        var details = productDetails();
         var entries = [];
         var params = {
             id_product: this.container.getAttribute('data-id-product'),
@@ -233,7 +239,6 @@
         var elements;
         var i;
 
-        details = details ? parseJson(details.getAttribute('data-product')) : null;
         if (details && details.id_product_attribute) {
             params.id_product_attribute = details.id_product_attribute;
         }
