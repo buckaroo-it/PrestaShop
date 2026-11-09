@@ -83,7 +83,13 @@ class RawPaymentMethodRepository
                 break;
 
             case 'paypal':
-                $configValue['seller_protection'] = '0';
+                $configValue['seller_protection'] = '1';
+                $configValue['express_show_on'] = [];
+                $configValue['express_merchant_id'] = '';
+                $configValue['express_sandbox_merchant_id'] = '';
+                $configValue['button_style'] = 'gold';
+                $configValue['button_type'] = 'paypal';
+                $configValue['button_rounded'] = '0';
                 break;
 
             case 'afterpay':

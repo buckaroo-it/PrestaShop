@@ -386,7 +386,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     }
 
     /**
-     * A wallet express payment (Apple Pay, Google Pay) is only accepted for the
+     * A wallet express payment (Apple Pay, Google Pay, PayPal) is only accepted for the
      * cart that was prepared and authorized in the wallet sheet, with its
      * token. Without the express button, the wallet is only accepted while the
      * merchant lists it as a checkout payment method.
@@ -402,10 +402,14 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/applepaycheckout.php';
             $isExpress = ApplePayCheckout::isExpressRequest();
             $settings = $this->module->getApplePayExpressSettings();
-        } else {
+        } elseif ($payment_method === Wallet::GOOGLE_PAY) {
             require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/googlepaycheckout.php';
             $isExpress = GooglePayCheckout::isExpressRequest();
             $settings = $this->module->getGooglePayExpressSettings();
+        } else {
+            require_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/paypalcheckout.php';
+            $isExpress = PayPalCheckout::isExpressRequest();
+            $settings = $this->module->getPayPalExpressSettings();
         }
 
         if (!$isExpress) {
@@ -421,9 +425,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         $authorized = (new ExpressCheckoutService($this->module, $this->context, $this->getPaymentService(), $wallet))
             ->consumeAuthorization($this->context->cart);
-        $token = $payment_method === Wallet::APPLE_PAY
-            ? ApplePayCheckout::resolveExpressPaymentData()
-            : GooglePayCheckout::resolveExpressPaymentData();
+        if ($payment_method === Wallet::APPLE_PAY) {
+            $token = ApplePayCheckout::resolveExpressPaymentData();
+        } elseif ($payment_method === Wallet::GOOGLE_PAY) {
+            $token = GooglePayCheckout::resolveExpressPaymentData();
+        } else {
+            $token = PayPalCheckout::resolveExpressOrderId();
+        }
 
         if (!$authorized || $token === '') {
             $this->logger->logError($wallet->getLabel() . ' express payment without an authorized cart or token for cart ' . (int) $this->context->cart->id);

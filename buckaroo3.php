@@ -39,6 +39,7 @@ use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
+use Buckaroo\PrestaShop\Src\PayPal\ExpressSettings as PayPalExpressSettings;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
@@ -84,6 +85,11 @@ class Buckaroo3 extends PaymentModule
      * @var GooglePayExpressSettings|null
      */
     private $googlePayExpressSettings;
+
+    /**
+     * @var PayPalExpressSettings|null
+     */
+    private $payPalExpressSettings;
 
     /**
      * @var PriceFormatter|null
@@ -1027,6 +1033,9 @@ class Buckaroo3 extends PaymentModule
             if ($this->canShowExpress($this->getGooglePayExpressSettings(), $placement)) {
                 $this->registerGooglePayExpressAssets();
             }
+            if ($this->canShowExpress($this->getPayPalExpressSettings(), $placement)) {
+                $this->registerPayPalExpressAssets();
+            }
         }
     }
 
@@ -1089,12 +1098,23 @@ class Buckaroo3 extends PaymentModule
         return $this->googlePayExpressSettings;
     }
 
+    public function getPayPalExpressSettings(): PayPalExpressSettings
+    {
+        if ($this->payPalExpressSettings === null) {
+            $this->payPalExpressSettings = new PayPalExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(PayPalExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->payPalExpressSettings;
+    }
+
     /**
      * @return AbstractExpressSettings[] the wallets with an express button
      */
     private function getExpressSettings(): array
     {
-        return [$this->getApplePayExpressSettings(), $this->getGooglePayExpressSettings()];
+        return [$this->getApplePayExpressSettings(), $this->getGooglePayExpressSettings(), $this->getPayPalExpressSettings()];
     }
 
     /**
@@ -1278,6 +1298,57 @@ class Buckaroo3 extends PaymentModule
             'modules/' . $this->name . '/views/js/buckaroo-googlepay-express.js',
             ['position' => 'bottom', 'priority' => 231]
         );
+    }
+
+    /**
+     * The express script loads PayPal's JS SDK for Buckaroo's PayPal client
+     * and the merchant ID; Buckaroo creates the PayPal order.
+     */
+    private function registerPayPalExpressAssets(): void
+    {
+        $settings = $this->getPayPalExpressSettings();
+
+        Media::addJsDef([
+            'buckarooPayPalExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'paypalexpress', [], true),
+                'token' => Tools::getToken(false),
+                'clientId' => $settings->getClientId(),
+                'merchantId' => $settings->getSdkMerchantId(),
+                'partnerAttributionId' => $settings->getPartnerAttributionId(),
+                'createOrderUrl' => $settings->getCheckoutUrl() . '/api/paypal/createOrder',
+                'websiteKey' => (string) Configuration::get('BUCKAROO_MERCHANT_KEY'),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'locale' => $this->getPayPalLocale(),
+                'buttonColor' => $settings->getButtonStyle(),
+                'buttonLabel' => $settings->getButtonType(),
+                'buttonShape' => $settings->isButtonRounded() ? 'pill' : 'rect',
+                'messages' => [
+                    'error' => $this->l('PayPal is not available at the moment. Please try again or choose another payment method.'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-paypal-express',
+            'modules/' . $this->name . '/views/js/buckaroo-paypal-express.js',
+            ['position' => 'bottom', 'priority' => 232]
+        );
+    }
+
+    /**
+     * PayPal button locale (en_US, nl_NL); empty lets PayPal pick one.
+     */
+    private function getPayPalLocale(): string
+    {
+        $language = $this->context->language;
+        $locale = !empty($language->locale) ? (string) $language->locale : (string) $language->language_code;
+        $parts = preg_split('/[-_]/', $locale);
+
+        if (!is_array($parts) || count($parts) < 2 || strlen($parts[0]) !== 2 || strlen($parts[1]) !== 2) {
+            return '';
+        }
+
+        return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
     }
 
     /**

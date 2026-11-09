@@ -139,7 +139,7 @@ final class ExpressSettingsTest extends TestCase
         self::assertSame('Apple Pay', Wallet::fromMethod('applepay')->getLabel());
         self::assertTrue(Wallet::isExpressMethod('googlepay'));
         self::assertFalse(Wallet::isExpressMethod('ideal'));
-        self::assertSame(['applepay', 'googlepay'], Wallet::methods());
+        self::assertSame(['applepay', 'googlepay', 'paypal'], Wallet::methods());
 
         $this->expectException(\InvalidArgumentException::class);
         Wallet::fromMethod('ideal');

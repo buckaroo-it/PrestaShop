@@ -125,12 +125,24 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $buckaroo = $this->getBuckarooClient($mode);
         // Pay
-        $response = $buckaroo->method($this->type)->$payAction($this->payload);
+        $response = $this->sendPayRequest($buckaroo, $payAction);
 
         $result = ResponseFactory::getResponse($response);
         $result->setGatewayMode($mode);
 
         return $result;
+    }
+
+    /**
+     * Send the payment request with the SDK method of this payment type.
+     *
+     * @param BuckarooClient $buckaroo
+     *
+     * @return mixed the SDK transaction response
+     */
+    protected function sendPayRequest($buckaroo, string $payAction)
+    {
+        return $buckaroo->method($this->type)->$payAction($this->payload);
     }
 
     /**

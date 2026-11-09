@@ -187,6 +187,7 @@ $_MODULE['<{buckaroo3}prestashop>refund-hook_de78da3154b793d64d302db27e65baec'] 
 // Apple Pay express button
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_a4fea24d5435e7d2ffa0d6c1d5d60f9e'] = 'Google Pay is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_1bfc5be6816976d4bad04dfb06e9770a'] = 'PayPal is op dit moment niet beschikbaar. Probeer het opnieuw of kies een andere betaalmethode.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_065c0f86a51748c88ef793db1fb4d956'] = 'De verzendkosten volgen uit uw adres';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_adb05ac441f7f3a2109cdaaa226c09ba'] = 'Uw %s-betaling kon niet worden gestart. Probeer het opnieuw.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_17ffb24862c7db18f577ee8328688a9d'] = 'De gekozen betaalmethode is niet beschikbaar.';
