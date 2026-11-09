@@ -54,6 +54,7 @@ $_MODULE['<{buckaroo3}prestashop>payment_52db1a3d3cd7bf584459aa4c2db08b25'] = 'V
 // Apple Pay express button
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_9951b21e5273124ff34d11ec2f4ba231'] = 'Apple Pay n’est pas disponible pour le moment. Veuillez réessayer ou choisir un autre moyen de paiement.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_a4fea24d5435e7d2ffa0d6c1d5d60f9e'] = 'Google Pay n’est pas disponible pour le moment. Veuillez réessayer ou choisir un autre moyen de paiement.';
+$_MODULE['<{buckaroo3}prestashop>buckaroo3_1bfc5be6816976d4bad04dfb06e9770a'] = 'PayPal n\x27est pas disponible pour le moment. Veuillez réessayer ou choisir un autre moyen de paiement.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_065c0f86a51748c88ef793db1fb4d956'] = 'Les frais de livraison dépendent de votre adresse';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_adb05ac441f7f3a2109cdaaa226c09ba'] = 'Votre paiement %s n’a pas pu être lancé. Veuillez réessayer.';
 $_MODULE['<{buckaroo3}prestashop>buckaroo3_17ffb24862c7db18f577ee8328688a9d'] = 'Le moyen de paiement choisi n’est pas disponible.';

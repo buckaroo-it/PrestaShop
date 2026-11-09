@@ -317,3 +317,21 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 .buckaroo-googlepay-express__message {
     margin-top: 10px;
 }
+
+/* PayPal express button; PayPal sizes its own buttons (PayPal and Pay Later) */
+.buckaroo-paypal-express {
+    margin: 10px 0;
+}
+
+.buckaroo-paypal-express--checkout {
+    margin: 0 0 20px;
+}
+
+.buckaroo-paypal-express__button {
+    width: 100%;
+    min-height: 45px;
+}
+
+.buckaroo-paypal-express__message {
+    margin-top: 10px;
+}

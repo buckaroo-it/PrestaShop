@@ -1,0 +1,40 @@
+<?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * It is available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade this file
+ *
+ *  @author    Buckaroo.nl <plugins@buckaroo.nl>
+ *  @copyright Copyright (c) Buckaroo B.V.
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ */
+
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressFrontController;
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
+use Buckaroo\PrestaShop\Src\Express\Wallet;
+
+if (!defined('_PS_VERSION_')) {
+    exit;
+}
+
+/**
+ * JSON endpoints behind the PayPal express button.
+ */
+class Buckaroo3PaypalexpressModuleFrontController extends AbstractExpressFrontController
+{
+    protected function getWallet(): Wallet
+    {
+        return Wallet::payPal();
+    }
+
+    protected function getExpressSettings(Buckaroo3 $module): AbstractExpressSettings
+    {
+        return $module->getPayPalExpressSettings();
+    }
+}

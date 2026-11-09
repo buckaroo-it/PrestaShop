@@ -25,7 +25,7 @@ if (!defined('_PS_VERSION_')) {
 }
 
 /**
- * Server side of the express buttons (Apple Pay, Google Pay).
+ * Server side of the express buttons (Apple Pay, Google Pay, PayPal).
  *
  * Each express payment uses its own cart: the selected product (product page)
  * or a copy of the shopper's cart (cart and checkout page). The shopper's own
@@ -635,7 +635,42 @@ class ExpressCheckoutService
             $summary['displayItems'] = $displayItems;
         }
 
+        if ($this->wallet->getMethod() === Wallet::PAYPAL) {
+            $summary['paypalAmount'] = $this->payPalAmount($cart, !empty($shippingMethods));
+        }
+
         return $summary;
+    }
+
+    /**
+     * The PayPal order amount with its breakdown. PayPal checks that item
+     * total + shipping - discount equals the amount, so the item total
+     * (products, wrapping and payment fee, taxes included) is derived from
+     * the other parts.
+     *
+     * @return array<string, mixed>
+     */
+    private function payPalAmount(\Cart $cart, bool $hasShipping): array
+    {
+        $precision = $this->getPrecision();
+        $total = (float) \Tools::ps_round($this->getTotal($cart), $precision);
+        $shipping = $hasShipping ? (float) \Tools::ps_round((float) $cart->getOrderTotal(true, \Cart::ONLY_SHIPPING), $precision) : 0.0;
+        $discount = (float) \Tools::ps_round((float) $cart->getOrderTotal(true, \Cart::ONLY_DISCOUNTS), $precision);
+        $currency = (string) $this->context->currency->iso_code;
+
+        $money = function (float $amount) use ($currency): array {
+            return ['currency_code' => $currency, 'value' => $this->formatAmount(max(0.0, $amount))];
+        };
+
+        $breakdown = [
+            'item_total' => $money($total - $shipping + $discount),
+            'shipping' => $money($shipping),
+        ];
+        if ($discount > 0) {
+            $breakdown['discount'] = $money($discount);
+        }
+
+        return $money($total) + ['breakdown' => $breakdown];
     }
 
     /**

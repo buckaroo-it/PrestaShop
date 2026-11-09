@@ -29,10 +29,12 @@ final class Wallet
 {
     public const APPLE_PAY = 'applepay';
     public const GOOGLE_PAY = 'googlepay';
+    public const PAYPAL = 'paypal';
 
     private const LABELS = [
         self::APPLE_PAY => 'Apple Pay',
         self::GOOGLE_PAY => 'Google Pay',
+        self::PAYPAL => 'PayPal',
     ];
 
     /** @var string */
@@ -51,6 +53,11 @@ final class Wallet
     public static function googlePay(): self
     {
         return new self(self::GOOGLE_PAY);
+    }
+
+    public static function payPal(): self
+    {
+        return new self(self::PAYPAL);
     }
 
     /**

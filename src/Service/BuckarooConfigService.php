@@ -25,6 +25,7 @@ use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
 use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
+use Buckaroo\PrestaShop\Src\PayPal\ExpressSettings as PayPalExpressSettings;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -101,6 +102,11 @@ class BuckarooConfigService
 
         if ($name === GooglePayExpressSettings::METHOD_NAME) {
             $mergedConfig = GooglePayExpressSettings::sanitize($mergedConfig);
+            $this->registerExpressHooks();
+        }
+
+        if ($name === PayPalExpressSettings::METHOD_NAME) {
+            $mergedConfig = PayPalExpressSettings::sanitize($mergedConfig);
             $this->registerExpressHooks();
         }
 
@@ -185,7 +191,7 @@ class BuckarooConfigService
         $configArray = $this->configurationRepository->getConfigArray($paymentMethod->getId());
         $configArray['mode'] = $mode;
 
-        if (in_array($name, [ApplePayExpressSettings::METHOD_NAME, GooglePayExpressSettings::METHOD_NAME], true) && Config::isPaymentModeEnabled($mode)) {
+        if (in_array($name, [ApplePayExpressSettings::METHOD_NAME, GooglePayExpressSettings::METHOD_NAME, PayPalExpressSettings::METHOD_NAME], true) && Config::isPaymentModeEnabled($mode)) {
             $this->registerExpressHooks();
         }
 
