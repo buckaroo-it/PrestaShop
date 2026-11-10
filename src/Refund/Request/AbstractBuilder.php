@@ -73,7 +73,6 @@ abstract class AbstractBuilder
     /**
      * Build body for credit & debit cards and gift cards
      *
-     * @param \Order $order
      * @param \OrderPayment $payment
      *
      * @return array

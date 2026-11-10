@@ -31,10 +31,11 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      * Fetches payment methods from the database.
      *
      * @param int $isPaymentMethod
+     * @param bool $allMethods
      *
      * @return array
      */
-    private function fetchPaymentMethods(int $isPaymentMethod, int $allMethods): array
+    private function fetchPaymentMethods(int $isPaymentMethod, bool $allMethods): array
     {
         $qb = $this->_em->createQueryBuilder();
         $qb->select('pm.id, pm.name AS payment_name', 'pm.icon AS payment_icon', 'config.value AS config_value')
@@ -66,10 +67,11 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      *
      * @return array
      *
-     * @throws Exception
+     * @throws \Exception
      */
     private function formatPaymentMethods(array $results): array
     {
+        /** @var \Buckaroo\PrestaShop\Classes\CapayableIn3 $capayableIn3 */
         $capayableIn3 = \Module::getInstanceByName('buckaroo3')->get('buckaroo.classes.issuers.capayableIn3');
 
         $payments = [];

@@ -31,14 +31,22 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     public $content_only = true;
 
     /**
+     * Drop any output buffered so far, so the response body is JSON only.
+     */
+    private function discardOutputBuffers(): void
+    {
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+    }
+
+    /**
      * @throws PrestaShopException
      * @throws LocalizationException
      */
     public function initContent()
     {
-        while (@ob_get_level()) {
-            @ob_end_clean();
-        }
+        $this->discardOutputBuffers();
 
         header('Content-Type: application/json;charset=utf-8');
         header('Cache-Control: no-cache, must-revalidate');
@@ -49,9 +57,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             // Ignore parent errors, we'll handle everything ourselves
         }
 
-        while (@ob_get_level()) {
-            @ob_end_clean();
-        }
+        $this->discardOutputBuffers();
 
         header('Content-Type: application/json;charset=utf-8');
 
@@ -75,9 +81,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 PrestaShopLogger::addLog('Buckaroo3 Ajax Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine(), 3);
             }
-            while (@ob_get_level()) {
-                @ob_end_clean();
-            }
+            $this->discardOutputBuffers();
             header('Content-Type: application/json;charset=utf-8');
             $this->ajaxRender(json_encode([
                 'error' => true,
@@ -92,9 +96,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 PrestaShopLogger::addLog('Buckaroo3 Ajax Fatal Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine() . ' Trace: ' . $e->getTraceAsString(), 3);
             }
-            while (@ob_get_level()) {
-                @ob_end_clean();
-            }
+            $this->discardOutputBuffers();
             header('Content-Type: application/json;charset=utf-8');
             $errorMessage = 'Fatal error processing request';
             if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) {
@@ -161,7 +163,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
     /**
      * @param Cart $cart
-     * @param array|PrestaShop\PrestaShop\Adapter\Presenter\Cart\CartLazyArray|null $presentedCart
+     * @param array|ArrayAccess|null $presentedCart Presented cart (an array or a lazy array, depending on the PrestaShop version)
      *
      * @throws PrestaShopException
      * @throws Exception
@@ -169,11 +171,11 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function renderCartSummary(Cart $cart, $presentedCart = null)
     {
         try {
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 $this->get('prestashop.core.cart.cart_presenter');
             }
 
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
                     $container = $this->module->getCoreServiceContainer();
                     if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
@@ -182,7 +184,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 }
             }
 
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 throw new Exception('Cart presenter is not available');
             }
 
@@ -247,7 +249,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             $cart = $this->context->cart;
             $paymentFeeValue = trim(Tools::getValue('paymentFee'));
 
-            if (!$paymentFeeValue || $paymentFeeValue === '') {
+            if (!$paymentFeeValue) {
                 $this->renderCartSummary($cart);
 
                 return;
@@ -273,7 +275,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
         }
     }
 
-    private function calculatePaymentFee($paymentFeeValue, $cart): ?DecimalNumber
+    private function calculatePaymentFee($paymentFeeValue, $cart): DecimalNumber
     {
         $orderTotal = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
 
@@ -377,7 +379,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     {
         try {
             // Initialize cart_presenter if not available
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
                     $container = $this->module->getCoreServiceContainer();
                     if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
@@ -386,11 +388,11 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 }
             }
 
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 $this->cart_presenter = $this->get('prestashop.core.cart.cart_presenter');
             }
 
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
+            if (!$this->cart_presenter) {
                 throw new Exception('Cart presenter is not available');
             }
 

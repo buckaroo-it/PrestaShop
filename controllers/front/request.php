@@ -510,11 +510,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 try {
                     $this->module->validateOrder(
                         (int) $cart->id,
-                        $pending,
+                        (int) $pending,
                         (float) $total,
                         $payment_method_tr,
                         null,
-                        null,
+                        [],
                         (int) $currency->id,
                         false,
                         $customer->secure_key
@@ -831,7 +831,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             'Your payment was unsuccessful. Please try again or choose another payment method.'
         );
 
-        if ($response && method_exists($response, 'getResponse') && $response->getResponse() instanceof TransactionResponse) {
+        if ($response instanceof Response && $response->getResponse() instanceof TransactionResponse) {
             $error = $response->getSomeError();
             if (!empty($error)) {
                 $this->logger->logInfo('Buckaroo error', $error);

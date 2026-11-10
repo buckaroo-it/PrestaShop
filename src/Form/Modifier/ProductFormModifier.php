@@ -44,7 +44,7 @@ final class ProductFormModifier
     }
 
     /**
-     * @param int|null $productId
+     * @param int $productId
      * @param FormBuilderInterface $productFormBuilder
      */
     public function modify(
@@ -79,7 +79,7 @@ final class ProductFormModifier
 
         $sql->select('buckaroo_idin');
         $sql->from('bk_product_idin');
-        $sql->where('product_id = ' . pSQL($productId));
+        $sql->where('product_id = ' . (int) $productId);
 
         $result = \Db::getInstance()->getValue($sql);
 

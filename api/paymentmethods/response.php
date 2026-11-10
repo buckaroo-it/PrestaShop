@@ -31,10 +31,8 @@ if (!defined('_PS_VERSION_')) {
 
 abstract class Response extends BuckarooAbstract
 {
-    private $received = false;
     private $validated = false;
     private $test = true;
-    private $signature;
     private $isPush;
     private ?string $gatewayMode = null;
     public $payment;
@@ -69,7 +67,6 @@ abstract class Response extends BuckarooAbstract
             $this->logger->logInfo('Response object provided directly');
         } else {
             $this->isPush = $this->isPushRequest();
-            $this->received = true;
             $this->logger->logInfo(
                 $this->isPush
                     ? 'Response determined to be a push/return request'
@@ -112,7 +109,6 @@ abstract class Response extends BuckarooAbstract
         $this->test = $this->setPostVariable('brq_test');
         $this->timestamp = $this->setPostVariable('brq_timestamp');
         $this->transactions = $this->setPostVariable('brq_transactions');
-        $this->signature = $this->setPostVariable('brq_signature');
 
         $this->logger->logInfo('Parsed push request', [
             'statuscode' => $this->statuscode,
@@ -172,21 +168,6 @@ abstract class Response extends BuckarooAbstract
     public function getServiceParameters()
     {
         return $this->response->getServiceParameters();
-    }
-
-    public function getStatuscode()
-    {
-        return $this->response->statuscode;
-    }
-
-    public function getStatusmessage()
-    {
-        return $this->response->statusmessage;
-    }
-
-    public function getAmount()
-    {
-        return $this->response->amount;
     }
 
     public function getBrqRelatedtransactionPartialpayment()

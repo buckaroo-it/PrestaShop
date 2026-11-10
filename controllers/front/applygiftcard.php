@@ -135,7 +135,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         }
 
         try {
-            /** @var BuckarooGiftCard $giftcardApi */
+            /** @var GiftCard $giftcardApi */
             $giftcardApi = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_GIFTCARD);
 
             $giftcardApi->currency = $currency->iso_code;

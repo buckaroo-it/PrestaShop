@@ -6,6 +6,16 @@
 # PrestaShop container (see .github/workflows/tests.yml for the images):
 #   vendor/bin/phpstan analyse -c tests/phpstan/phpstan.generate.neon \
 #     --generate-baseline=tests/phpstan/baseline/prestashop-9.neon
+#
+# Accepted items. These remain in baseline/prestashop-1.7.8.neon because they
+# come from PHPDoc types in the 1.7.8 core that differ from PrestaShop 8 and 9,
+# so changing the module code would only move the finding to the other versions:
+#   - OrderPayment::getByOrderReference(): 1.7.8 documents the order reference as
+#     int, it is a string in every version.
+#   - TaxManagerFactory::getManager(): 1.7.8 documents the tax rules group id as
+#     string, PrestaShop 8 and 9 document it as int.
+#   - OrderState::$template: 1.7.8 documents the property as array<string> only,
+#     the module assigns the same empty value for all languages.
 includes:
   - baseline/prestashop-1.7.8.neon
   - baseline/prestashop-8.neon

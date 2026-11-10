@@ -31,6 +31,9 @@ class Buckaroo3ClickToPayTokenModuleFrontController extends ModuleFrontControlle
 {
     use ContainerAwareTrait;
 
+    /** @var Buckaroo3 */
+    public $module;
+
     public $ssl = true;
     public $ajax = true;
     public $content_only = true;
