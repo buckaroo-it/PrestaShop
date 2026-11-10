@@ -361,7 +361,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $history = new OrderHistory();
                 $history->id_order = (int) $order->id;
                 $history->changeIdOrderState($canceledState, (int) $order->id, true);
-                $history->addWithemail(false);
+                // First argument is $autodate: it must be true so date_add is filled in.
+                $history->addWithemail(true);
             }
 
             if ((float) $payment->amount != 0.0) {
