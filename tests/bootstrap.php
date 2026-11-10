@@ -83,7 +83,6 @@ if (!class_exists('CarrierHandler')) {
 
 // Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/Fixtures/Db.php';
 
 /*
  * Lightweight test doubles for common PrestaShop classes used by the module.

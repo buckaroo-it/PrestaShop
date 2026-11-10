@@ -259,19 +259,7 @@ abstract class Checkout
 
         (new RawBuckarooFeeRepository())->insertFee($this->reference, $this->cart->id, $order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl, $currency->iso_code);
 
-        // Order after payment: the fee is stored on the attempt reference and added to
-        // the order totals when the order is created (OrderAfterPaymentService).
-        if ((int) $order_id > 0) {
-            $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
-        }
-    }
-
-    /**
-     * Amount sent to Buckaroo, including the payment fee.
-     */
-    public function getAmountDebit(): float
-    {
-        return is_object($this->payment_request) ? (float) $this->payment_request->amountDebit : 0.0;
+        $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
     }
 
     protected function updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl)
