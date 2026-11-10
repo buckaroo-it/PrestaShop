@@ -89,9 +89,11 @@ class ReservationService
         );
 
         $klarna = $client->method('klarna');
-        $response = $action === 'cancelReserve'
-            ? $klarna->cancelReserve(['dataRequestKey' => $key])
-            : $klarna->extendReserve(['dataRequestKey' => $key]);
+        // Both actions are resolved by the SDK facade at runtime, so they are called through __call().
+        $response = $klarna->__call(
+            $action === 'cancelReserve' ? 'cancelReserve' : 'extendReserve',
+            [['dataRequestKey' => $key]]
+        );
 
         if (!$response->isSuccess()) {
             $error = trim($response->getSomeError());

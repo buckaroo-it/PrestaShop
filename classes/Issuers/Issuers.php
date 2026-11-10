@@ -45,6 +45,9 @@ abstract class Issuers
         'NTSBDEB1' => 'N26.svg',
     ];
 
+    /** @var string Buckaroo payment method code the issuers belong to */
+    protected $method;
+
     public function __construct($method)
     {
         $this->method = $method;
@@ -119,7 +122,8 @@ abstract class Issuers
                 Config::getMode($this->method)
             );
 
-            return $buckaroo->method($this->method)->issuers();
+            // issuers() is resolved by the SDK facade at runtime, so it is called through __call().
+            return $buckaroo->method($this->method)->__call('issuers', []);
         }
         throw new \Exception('Buckaroo master settings not found.');
     }
