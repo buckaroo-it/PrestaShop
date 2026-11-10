@@ -70,44 +70,6 @@ class RawBuckarooFeeRepository
     }
 
     /**
-     * Retrieves the fee stored for a payment reference (an order or payment attempt reference).
-     *
-     * @return array|false
-     */
-    public function getFeeByReference(string $reference)
-    {
-        if ($reference === '') {
-            return false;
-        }
-
-        $sql = 'SELECT * FROM ' . _DB_PREFIX_ . 'bk_buckaroo_fee WHERE reference = \'' . pSQL($reference) . '\' ORDER BY id DESC';
-
-        return \Db::getInstance()->getRow($sql);
-    }
-
-    /**
-     * Links the fee stored for a payment attempt to the order created after the payment.
-     */
-    public function assignOrder(string $reference, int $orderId): bool
-    {
-        if ($reference === '' || $orderId <= 0) {
-            return false;
-        }
-
-        try {
-            return \Db::getInstance()->update(
-                'bk_buckaroo_fee',
-                ['id_order' => $orderId],
-                'reference = \'' . pSQL($reference) . '\' AND id_order = 0'
-            );
-        } catch (\Exception $e) {
-            \PrestaShopLogger::addLog('Failed to link buckaroo fee to order: ' . $e->getMessage(), 3);
-
-            return false;
-        }
-    }
-
-    /**
      * Marks the payment fee for an order as refunded.
      *
      * @param int $orderId
