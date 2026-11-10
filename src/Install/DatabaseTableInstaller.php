@@ -163,6 +163,8 @@ final class DatabaseTableInstaller implements InstallerInterface
 				PRIMARY KEY (`invoice`, `mode`)
 			) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = ' . _MYSQL_ENGINE_;
 
+        $sql[] = \Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository::createTableSql();
+
         return $sql;
     }
 }
