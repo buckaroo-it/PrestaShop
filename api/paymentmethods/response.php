@@ -14,7 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../../library/logger.php';
+require_once dirname(__FILE__) . '/../corelogger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 
@@ -59,7 +59,7 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct(?TransactionResponse $response = null)
     {
-        $this->logger = new Logger(Logger::INFO, 'response');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'response');
         $this->logger->logInfo("\n\n\n\n***************** Response start ***********************");
 
         if ($response) {
