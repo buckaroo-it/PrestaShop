@@ -62,6 +62,11 @@ function upgrade_module_5_4_0($object)
         return false;
     }
 
+    // Payment attempts of methods that create the order only after a successful payment.
+    if (!Db::getInstance()->execute(Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository::createTableSql())) {
+        return false;
+    }
+
     // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
     (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
 

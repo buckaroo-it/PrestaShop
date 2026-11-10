@@ -17,6 +17,7 @@
 
 use Buckaroo\PrestaShop\Src\Refund\KlarnaTransactionKey;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 
@@ -145,6 +146,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 exit;
             }
 
+            $attempt = $this->findPaymentAttempt($response);
+            if ($attempt !== null) {
+                $id_order = $this->handleAttemptPush($attempt, $response, (int) $id_order);
+            }
+
             if (!$id_order) {
                 header('HTTP/1.1 503 Service Unavailable');
                 echo 'Order does not exist';
@@ -172,7 +178,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $new_status_code = (int) $order->getCurrentState();
             }
 
-            if (!in_array($order->reference, $references) && !$this->isGiftcardPushForOrder($response, $order)) {
+            if (!in_array($order->reference, $references)
+                && !$this->isGiftcardPushForOrder($response, $order)
+                && !($attempt !== null && (int) $attempt['id_cart'] === (int) $order->id_cart)
+            ) {
                 header('HTTP/1.1 503 Service Unavailable');
                 $this->logger->logError('Order not in reference ' . $order->reference);
                 echo 'Order not in reference: ' . $order->reference;
@@ -262,6 +271,68 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             }
         }
 
+        exit;
+    }
+
+    /**
+     * Push for a payment that creates the order only after payment.
+     *
+     * A paid push creates the order (or finds the one the customer return created) and
+     * returns its id, so the normal push handling marks it paid. Every other push only
+     * updates the attempt and ends the request, unless the attempt created the order.
+     *
+     * @param array<string, mixed> $attempt
+     *
+     * @return int the order to continue with
+     */
+    private function handleAttemptPush(array $attempt, $response, int $orderId): int
+    {
+        $attempts = new RawPaymentAttemptRepository();
+        $attemptId = (int) $attempt['id_bk_payment_attempt'];
+        $transactionKey = (string) $response->transactions;
+
+        if ($response->isPaid()) {
+            $result = $this->createOrderForAttempt($attempt, $this->getReplyAmount($response), $transactionKey);
+            if ($result === null) {
+                // Buckaroo repeats the push, so the order is created on a later try.
+                header('HTTP/1.1 503 Service Unavailable');
+                echo 'Order could not be created';
+                exit;
+            }
+
+            if ($result['duplicate'] || !$result['amount_matches']) {
+                $this->logger->logError('Order after payment: order not marked paid', [
+                    'order' => $result['id_order'],
+                    'duplicate' => $result['duplicate'],
+                    'amount_matches' => $result['amount_matches'],
+                ]);
+                echo 'OK';
+                exit;
+            }
+
+            $this->logger->logInfo('Order after payment: order ' . $result['id_order'] . ($result['created'] ? ' created' : ' found'));
+
+            return (int) $result['id_order'];
+        }
+
+        // A later push (refund, chargeback, ...) of the attempt that created the order.
+        if ($orderId > 0 && (int) $attempt['id_order'] === $orderId) {
+            if (RawPaymentAttemptRepository::hasAmountMismatch($attempt)) {
+                echo 'OK';
+                exit;
+            }
+
+            return $orderId;
+        }
+
+        // Not paid (yet): there is no order to change. Never touch an order another attempt created.
+        if ($response->hasSucceeded()) {
+            $attempts->markPending($attemptId, $transactionKey);
+        } else {
+            $attempts->markFailed($attemptId, $transactionKey);
+        }
+        $this->logger->logInfo('Order after payment: attempt ' . $attempt['reference'] . ' updated, status ' . $response->getStatusCodeValue());
+        echo 'OK';
         exit;
     }
 
