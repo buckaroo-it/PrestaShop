@@ -21,7 +21,7 @@ if (!defined('_PS_VERSION_')) {
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 
 require_once dirname(__FILE__) . '/../response.php';
-require_once dirname(__FILE__) . '/../../../library/logger.php';
+require_once dirname(__FILE__) . '/../../corelogger.php';
 class IdinResponse extends Response
 {
     protected $buckarooIdinService;

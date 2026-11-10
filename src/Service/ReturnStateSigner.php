@@ -34,6 +34,10 @@ final class ReturnStateSigner
 {
     public const OUTCOME_SUCCESS = 'success';
     public const OUTCOME_FAILURE = 'failure';
+    /** Paid but not confirmed yet: the order is created when Buckaroo confirms the payment. */
+    public const OUTCOME_PENDING = 'pending';
+
+    private const OUTCOMES = [self::OUTCOME_SUCCESS, self::OUTCOME_FAILURE, self::OUTCOME_PENDING];
 
     private const DEFAULT_TTL = 600;
 
@@ -60,7 +64,7 @@ final class ReturnStateSigner
 
     public function sign(int $cartId, string $outcome, string $message = ''): string
     {
-        if (!in_array($outcome, [self::OUTCOME_SUCCESS, self::OUTCOME_FAILURE], true)) {
+        if (!in_array($outcome, self::OUTCOMES, true)) {
             throw new \InvalidArgumentException('Unknown return outcome: ' . $outcome);
         }
 
@@ -94,7 +98,7 @@ final class ReturnStateSigner
             || !isset($data['c'], $data['o'], $data['e'])
             || !is_int($data['c'])
             || !is_int($data['e'])
-            || !in_array($data['o'], [self::OUTCOME_SUCCESS, self::OUTCOME_FAILURE], true)
+            || !in_array($data['o'], self::OUTCOMES, true)
         ) {
             return null;
         }

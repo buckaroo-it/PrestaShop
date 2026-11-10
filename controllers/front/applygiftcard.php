@@ -16,7 +16,7 @@
  */
 
 include_once __DIR__ . '/../../api/paymentmethods/paymentrequestfactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
@@ -42,7 +42,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'applygiftcard');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'applygiftcard');
     }
 
     public function postProcess()
@@ -242,12 +242,12 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         ]);
 
         // Also store in session cookies as fast-access cache for this page-load
-        $this->context->cookie->buckaroo_giftcard_group_tx = $groupTransaction;
-        $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
-        $this->context->cookie->buckaroo_giftcard_applied = (string) $totalApplied;
-        $this->context->cookie->buckaroo_giftcard_tx_key = $transactionKey;
-        $this->context->cookie->buckaroo_giftcard_card_code = $cardCode;
-        $this->context->cookie->buckaroo_giftcard_cart_id = (string) (int) $cart->id;
+        $this->context->cookie->__set('buckaroo_giftcard_group_tx', $groupTransaction);
+        $this->context->cookie->__set('buckaroo_giftcard_remainder', (string) $remainingAmount);
+        $this->context->cookie->__set('buckaroo_giftcard_applied', (string) $totalApplied);
+        $this->context->cookie->__set('buckaroo_giftcard_tx_key', $transactionKey);
+        $this->context->cookie->__set('buckaroo_giftcard_card_code', $cardCode);
+        $this->context->cookie->__set('buckaroo_giftcard_cart_id', (string) (int) $cart->id);
         $this->context->cookie->write();
 
         if ($remainingAmount <= 0) {
