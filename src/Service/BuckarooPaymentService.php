@@ -553,7 +553,7 @@ class BuckarooPaymentService
     /**
      * Check if afterpay available
      *
-     * @param Cart $cart
+     * @param \Cart $cart
      *
      * @return bool
      */
@@ -594,7 +594,7 @@ class BuckarooPaymentService
     /**
      * Check if company exists
      *
-     * @param Address|null $address
+     * @param \Address|null $address
      *
      * @return bool
      */
@@ -610,7 +610,7 @@ class BuckarooPaymentService
     /**
      * Check if payment method available
      *
-     * @param Cart $cart
+     * @param \Cart $cart
      *
      * @return bool
      */
@@ -747,7 +747,7 @@ class BuckarooPaymentService
     /**
      * Is in3 available
      *
-     * @param Cart $cart
+     * @param \Cart $cart
      *
      * @return bool
      */
@@ -759,7 +759,7 @@ class BuckarooPaymentService
     /**
      * Get billing country iso from cart
      *
-     * @param Cart $cart
+     * @param \Cart $cart
      *
      * @return string|null
      */
@@ -771,6 +771,8 @@ class BuckarooPaymentService
         if ($billingAddress !== null) {
             return \Country::getIsoById($billingAddress->id_country);
         }
+
+        return null;
     }
 
     public function showAfterpayCoc($cart)

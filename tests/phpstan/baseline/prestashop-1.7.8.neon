@@ -706,26 +706,6 @@ parameters:
 			path: ../../../src/Refund/KlarnaTransactionKey.php
 
 		-
-			message: "#^Call to method remove\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\.$#"
-			count: 1
-			path: ../../../src/Refund/OrderService.php
-
-		-
-			message: "#^Call to method set\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\.$#"
-			count: 1
-			path: ../../../src/Refund/OrderService.php
-
-		-
-			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\OrderService\\:\\:\\$session \\(Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session\\) does not accept Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\SessionInterface\\.$#"
-			count: 1
-			path: ../../../src/Refund/OrderService.php
-
-		-
-			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\OrderService\\:\\:\\$session has unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Session as its type\\.$#"
-			count: 1
-			path: ../../../src/Refund/OrderService.php
-
-		-
 			message: "#^Method Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Push\\\\Handler\\:\\:getOrder\\(\\) should return Order\\|null but returns OrderCore\\.$#"
 			count: 1
 			path: ../../../src/Refund/Push/Handler.php
@@ -781,38 +761,8 @@ parameters:
 			path: ../../../src/Service/BuckarooIdinService.php
 
 		-
-			message: "#^Access to property \\$company on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Access to property \\$id_address_delivery on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 3
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Access to property \\$id_address_invoice on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 4
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
 			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
 			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Call to method getOrderTotal\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 3
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:getBillingCountryIso\\(\\) should return string\\|null but return statement is missing\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\#1 \\$address of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:companyExists\\(\\) expects Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\|null, Address\\|null given\\.$#"
-			count: 2
 			path: ../../../src/Service/BuckarooPaymentService.php
 
 		-
@@ -825,27 +775,3 @@ parameters:
 			count: 1
 			path: ../../../src/Service/BuckarooPaymentService.php
 
-		-
-			message: "#^Parameter \\$address of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:companyExists\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:getBillingCountryIso\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isAfterpayAvailable\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isIn3Available\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\$cart of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:isPaymentMethodAvailable\\(\\) has invalid type Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
