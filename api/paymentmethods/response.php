@@ -174,21 +174,6 @@ abstract class Response extends BuckarooAbstract
         return $this->response->getServiceParameters();
     }
 
-    public function getStatuscode()
-    {
-        return $this->response->statuscode;
-    }
-
-    public function getStatusmessage()
-    {
-        return $this->response->statusmessage;
-    }
-
-    public function getAmount()
-    {
-        return $this->response->amount;
-    }
-
     public function getBrqRelatedtransactionPartialpayment()
     {
         return $this->brq_relatedtransaction_partialpayment;
