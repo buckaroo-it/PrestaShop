@@ -35,7 +35,7 @@ class OrderService
     private $commandBus;
 
     /**
-     * @var Session
+     * @var SessionInterface
      */
     protected $session;
 
