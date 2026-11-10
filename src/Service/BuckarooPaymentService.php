@@ -19,7 +19,7 @@ namespace Buckaroo\PrestaShop\Src\Service;
 
 require_once dirname(__FILE__) . '/../../library/checkout/billinkcheckout.php';
 require_once dirname(__FILE__) . '/../../library/checkout/afterpaycheckout.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/api/corelogger.php';
 
 use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
@@ -71,7 +71,7 @@ class BuckarooPaymentService
     public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository, $legacyContext = null)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
-        $this->logger = new \Logger(\Logger::INFO, '');
+        $this->logger = new \CoreLogger(\CoreLogger::INFO, '');
         $this->contextSource = $legacyContext;
         $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
