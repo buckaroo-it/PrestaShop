@@ -270,9 +270,11 @@ class Buckaroo3 extends PaymentModule
         $order = isset($params['objOrder']) ? $params['objOrder'] : null;
         $order = isset($params['order']) ? $params['order'] : $order;
 
-        if (!$order || !($cart = new Cart($order->id_cart))) {
+        if (!$order) {
             return '';
         }
+
+        $cart = new Cart($order->id_cart);
 
         $this->restoreCartAfterExpress($order);
 
