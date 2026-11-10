@@ -111,6 +111,11 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
 			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -126,6 +131,21 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
+			message: "#^Property OrderStateCore\\:\\:\\$invoice \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$logable \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$send_email \\(bool\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
 			message: "#^Property OrderStateCore\\:\\:\\$template \\(array\\<string\\>\\) does not accept string\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -134,6 +154,16 @@ parameters:
 			message: "#^Constructor of class Buckaroo\\\\PrestaShop\\\\Classes\\\\CapayableIn3 has an unused parameter \\$buckarooConfigService\\.$#"
 			count: 1
 			path: ../../../classes/CapayableIn3.php
+
+		-
+			message: "#^Call to static method getFromCart\\(\\) on an unknown class SendcloudServicePoint\\.$#"
+			count: 1
+			path: ../../../classes/CarrierHandler.php
+
+		-
+			message: "#^Parameter \\#2 \\$id_lang of class Carrier constructor expects int\\|null, string\\|false given\\.$#"
+			count: 1
+			path: ../../../classes/CarrierHandler.php
 
 		-
 			message: "#^Access to an undefined property Buckaroo\\\\PrestaShop\\\\Classes\\\\Issuers\\\\Issuers\\:\\:\\$method\\.$#"
@@ -149,6 +179,11 @@ parameters:
 			message: "#^PHPDoc tag @throws with type Doctrine\\\\ORM\\\\Exception\\\\ORMException\\|Doctrine\\\\ORM\\\\OptimisticLockException is not subtype of Throwable$#"
 			count: 1
 			path: ../../../controllers/admin/PaymentMethodConfig.php
+
+		-
+			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Controllers\\\\admin\\\\Exception is not subtype of Throwable$#"
+			count: 1
+			path: ../../../controllers/admin/PaymentMethods.php
 
 		-
 			message: "#^Method Buckaroo3AjaxModuleFrontController\\:\\:calculatePaymentFee\\(\\) never returns null so it can be removed from the return type\\.$#"
@@ -431,12 +466,37 @@ parameters:
 			path: ../../../library/checkout/checkout.php
 
 		-
+			message: "#^Parameter \\#2 \\$taxRulesGroupId of method Checkout\\:\\:getTaxRate\\(\\) expects int, string\\|false given\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
 			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
 
 		-
 			message: "#^Property Checkout\\:\\:\\$module \\(Buckaroo3\\) does not accept ModuleCore\\|false\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_real \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_tax_excl \\(float\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Property OrderCore\\:\\:\\$total_paid_tax_incl \\(float\\) does not accept string\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
 
@@ -481,6 +541,16 @@ parameters:
 			path: ../../../src/Entity/BkRefundRequest.php
 
 		-
+			message: "#^PHPDoc tag @param for parameter \\$productId with type int\\|null is not subtype of native type int\\.$#"
+			count: 1
+			path: ../../../src/Form/Modifier/ProductFormModifier.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
+			path: ../../../src/Form/Modifier/ProductFormModifier.php
+
+		-
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Form\\\\Type\\\\IdinTabType\\:\\:\\$defaultCurrency is never read, only written\\.$#"
 			count: 1
 			path: ../../../src/Form/Type/IdinTabType.php
@@ -499,6 +569,11 @@ parameters:
 			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
 			count: 1
 			path: ../../../src/Klarna/ReservationService.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$order$#"
+			count: 1
+			path: ../../../src/Refund/Handler.php
 
 		-
 			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
@@ -526,7 +601,37 @@ parameters:
 			path: ../../../src/Refund/OrderService.php
 
 		-
+			message: "#^Method Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\Push\\\\Handler\\:\\:getOrder\\(\\) should return Order\\|null but returns OrderCore\\.$#"
+			count: 1
+			path: ../../../src/Refund/Push/Handler.php
+
+		-
+			message: "#^PHPDoc tag @param references unknown parameter\\: \\$order$#"
+			count: 1
+			path: ../../../src/Refund/Request/AbstractBuilder.php
+
+		-
+			message: "#^Parameter \\#2 \\$status of method Buckaroo\\\\PrestaShop\\\\Src\\\\Refund\\\\StatusService\\:\\:update\\(\\) expects int, string\\|false given\\.$#"
+			count: 2
+			path: ../../../src/Refund/StatusService.php
+
+		-
 			message: "#^Cannot call method getLogo\\(\\) on object\\|false\\.$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\Exception is not subtype of Throwable$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$allMethods of method Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\PaymentMethodRepository\\:\\:fetchPaymentMethods\\(\\) expects int, false given\\.$#"
+			count: 1
+			path: ../../../src/Repository/PaymentMethodRepository.php
+
+		-
+			message: "#^Parameter \\#2 \\$allMethods of method Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\PaymentMethodRepository\\:\\:fetchPaymentMethods\\(\\) expects int, true given\\.$#"
 			count: 1
 			path: ../../../src/Repository/PaymentMethodRepository.php
 
@@ -544,6 +649,11 @@ parameters:
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooConfigService\\:\\:\\$orderingRepository is never read, only written\\.$#"
 			count: 1
 			path: ../../../src/Service/BuckarooConfigService.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 2
+			path: ../../../src/Service/BuckarooIdinService.php
 
 		-
 			message: "#^Access to property \\$company on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\.$#"
@@ -573,6 +683,11 @@ parameters:
 		-
 			message: "#^Parameter \\#1 \\$address of method Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooPaymentService\\:\\:companyExists\\(\\) expects Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Address\\|null, Address\\|null given\\.$#"
 			count: 2
+			path: ../../../src/Service/BuckarooPaymentService.php
+
+		-
+			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
+			count: 1
 			path: ../../../src/Service/BuckarooPaymentService.php
 
 		-
