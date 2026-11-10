@@ -353,7 +353,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         $this->setCartCookie($cartId);
 
         $cookie = new Cookie('ps');
-        $cookie->statusMessage = $msg;
+        $cookie->__set('statusMessage', $msg);
 
         $this->redirectToCheckoutError($msg);
     }
@@ -420,13 +420,13 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->__set('id_cart', $duplication['cart']->id);
                 $this->context->cookie->write();
             } else {
                 $this->logger->logError('Cart duplication failed');
             }
         } else {
-            $this->context->cookie->id_cart = $cartId;
+            $this->context->cookie->__set('id_cart', $cartId);
             $this->context->cookie->write();
         }
     }

@@ -925,13 +925,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->__set('id_cart', $duplication['cart']->id);
                 $this->context->cookie->write();
             } else {
                 $this->logger->logError('Cart duplication failed');
             }
         } else {
-            $this->context->cookie->id_cart = (int) $cartId;
+            $this->context->cookie->__set('id_cart', (int) $cartId);
             $this->context->cookie->write();
         }
     }
@@ -971,7 +971,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $duplication = $oldCart->duplicate();
 
         if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-            $this->context->cookie->id_cart = $duplication['cart']->id;
+            $this->context->cookie->__set('id_cart', $duplication['cart']->id);
             $this->context->cart = $duplication['cart'];
             $this->context->cookie->write();
 
