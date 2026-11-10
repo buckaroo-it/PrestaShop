@@ -22,6 +22,7 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\Service\OrderAfterPayment;
+use Buckaroo\PrestaShop\Src\Service\PaidCartGuard;
 use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
@@ -49,6 +50,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
      * @var array<string, mixed>|null
      */
     private ?array $attempt = null;
+    /** Express wallet payment: its cart is managed by ExpressCheckoutService. */
+    private bool $isExpressPayment = false;
 
     public function __construct()
     {
@@ -434,6 +437,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             return false;
         }
 
+        $this->isExpressPayment = true;
         $authorized = (new ExpressCheckoutService($this->module, $this->context, $this->getPaymentService(), $wallet))
             ->consumeAuthorization($this->context->cart);
         if ($payment_method === Wallet::APPLE_PAY) {
@@ -663,7 +667,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
         if ($this->checkout->isRedirectRequired()) {
             $attempts->markPending($attemptId, $transactionKey);
-            $this->setCartCookie($cartId);
+            $this->freezePaidCart($cartId);
             $this->logger->logInfo('Redirecting ... ');
             $this->checkout->doRedirect();
             exit;
@@ -679,6 +683,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if (!$response->isPaid()) {
             // Accepted but not final: the push creates the order once the payment is confirmed.
             $attempts->markPending($attemptId, $transactionKey);
+            $this->freezePaidCart($cartId);
             $this->clearGiftcardCookies();
             Tools::redirect($this->context->link->getModuleLink('buckaroo3', 'userreturn', [
                 'bk_state' => (new ReturnStateSigner(_COOKIE_KEY_))->sign($cartId, ReturnStateSigner::OUTCOME_PENDING),
@@ -689,6 +694,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $result = $this->createOrderForAttempt($this->attempt, $this->checkout->getAmountDebit(), $transactionKey);
         if ($result === null) {
             // The payment succeeded; the push creates the order when it arrives.
+            $this->freezePaidCart($cartId);
             Tools::redirect($this->context->link->getModuleLink('buckaroo3', 'userreturn', [
                 'bk_state' => (new ReturnStateSigner(_COOKIE_KEY_))->sign($cartId, ReturnStateSigner::OUTCOME_PENDING),
             ], true));
@@ -699,6 +705,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($transactionKey !== '') {
             $this->createTransactionMessage($id_order, 'Transaction Key: ' . $transactionKey);
         }
+        // Same as the order-first flow: giftcard payments and the paid total are recorded now.
+        $this->prepareOrderPaymentsBeforePaidStatus($id_order, $response);
         $this->clearGiftcardCookies();
 
         // Like the order-first flow, the push sets the final paid state.
@@ -710,6 +718,29 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             'success' => 'true',
             'response_received' => $response->payment_method,
         ]));
+    }
+
+    /**
+     * The payment is still open: keep the paid cart as it is and let the session work on a
+     * copy, so changes in another tab never reach the order. Express wallets keep their cart.
+     */
+    private function freezePaidCart(int $cartId): void
+    {
+        if ($this->isExpressPayment) {
+            $this->setCartCookie($cartId);
+
+            return;
+        }
+
+        $copy = (new PaidCartGuard($this->context))->moveSessionToCopy(new Cart($cartId));
+        if ($copy === null) {
+            $this->logger->logError('Cart ' . $cartId . ' could not be copied; the session keeps the paid cart');
+            $this->setCartCookie($cartId);
+
+            return;
+        }
+
+        $this->logger->logInfo('Paid cart ' . $cartId . ' kept unchanged; session continues with cart ' . (int) $copy->id);
     }
 
     private function processSepaDirectDebit($id_order, $responseData)
