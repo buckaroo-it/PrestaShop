@@ -17,8 +17,12 @@
 
 use Buckaroo\PrestaShop\Src\Express\ExpressCheckoutService;
 use Buckaroo\PrestaShop\Src\Express\Wallet;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
+use Buckaroo\PrestaShop\Src\Service\OrderAfterPayment;
+use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
 use Buckaroo\Transaction\Response\TransactionResponse;
 
 include_once __DIR__ . '/../../library/checkout/checkout.php';
@@ -38,6 +42,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private RawPaymentMethodRepository $paymentMethodRepository;
     /** Card brand/issuer validated for a credit card payment, handed to the checkout explicitly. */
     private string $creditCardIssuer = '';
+    /**
+     * Payment attempt of a method that creates the order only after payment; null when the
+     * order is created before the payment.
+     *
+     * @var array<string, mixed>|null
+     */
+    private ?array $attempt = null;
 
     public function __construct()
     {
@@ -475,7 +486,22 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $payment_method_tr = $this->paymentMethodRepository->getPaymentMethodsLabel($payment_method);
 
         $id_order_cart = Order::getIdByCartId($cart->id);
-        if (!$id_order_cart) {
+        if (!$id_order_cart && $this->usesOrderAfterPayment($payment_method, $cart)) {
+            $this->attempt = (new RawPaymentAttemptRepository())->start(
+                (int) $cart->id,
+                (int) $this->context->shop->id,
+                (string) $payment_method,
+                (string) $payment_method_tr,
+                (string) $currency->iso_code
+            );
+            if ($this->attempt === null) {
+                $this->logger->logError('Payment attempt could not be stored for cart ' . (int) $cart->id);
+                $this->displayError(null, $this->module->l('We were unable to start your payment. Please try again or contact the merchant.'));
+
+                return;
+            }
+            $this->logger->logInfo('Order after payment: attempt ' . $this->attempt['reference'] . ' started');
+        } elseif (!$id_order_cart) {
             if (!$this->checkout->isVerifyRequired()) {
                 try {
                     $this->module->validateOrder(
@@ -500,11 +526,18 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->module->currentOrder = $id_order_cart;
         }
 
-        $order = new Order($this->module->currentOrder);
-        $this->checkout->setReference($order->reference);
+        if ($this->attempt !== null) {
+            $this->checkout->setReference((string) $this->attempt['reference']);
+        } else {
+            $order = new Order($this->module->currentOrder);
+            $this->checkout->setReference($order->reference);
+        }
 
         try {
             $this->checkout->setCheckout();
+            if ($this->attempt !== null) {
+                (new RawPaymentAttemptRepository())->setAmount((int) $this->attempt['id_bk_payment_attempt'], $this->checkout->getAmountDebit());
+            }
             if ($this->checkout->isVerifyRequired()) {
                 $this->logger->logInfo('Start verify process');
                 $this->checkout->startVerify(['cid' => (int) $cart->id_customer, 'cart' => (int) $cart->id]);
@@ -535,10 +568,36 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->checkout->pushUrl = $this->context->link->getModuleLink('buckaroo3', 'return', [], true);
     }
 
+    /**
+     * Whether this payment creates the order only after a successful payment. A verification
+     * (iDIN) has no order, and a remainder after a giftcard keeps the order-first flow.
+     */
+    private function usesOrderAfterPayment(string $payment_method, Cart $cart): bool
+    {
+        if ($this->checkout->isVerifyRequired()) {
+            return false;
+        }
+
+        $hasGiftcardPayment = false;
+        try {
+            $hasGiftcardPayment = (new BuckarooGroupTransactionService())->getAlreadyPaid((int) $cart->id) > 0;
+        } catch (Throwable $e) {
+            // No giftcard data: treat the cart as without a giftcard payment.
+        }
+
+        return OrderAfterPayment::appliesTo($payment_method, $hasGiftcardPayment);
+    }
+
     private function handleSuccessfulRequest($cartId, $customer)
     {
         $response = $this->checkout->getResponse();
         $this->logger->logInfo('Request succeeded');
+
+        if ($this->attempt !== null) {
+            $this->handleAttemptResponse((int) $cartId, $customer, $response);
+
+            return;
+        }
 
         if ($this->checkout->isRedirectRequired()) {
             $this->storeKlarnaDataRequestKey($response);
@@ -581,6 +640,68 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->prepareOrderPaymentsBeforePaidStatus((int) $id_order, $response);
         $this->clearGiftcardCookies();
 
+        Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
+            'id_cart' => $cartId,
+            'id_module' => $this->module->id,
+            'id_order' => $id_order,
+            'key' => $customer->secure_key,
+            'success' => 'true',
+            'response_received' => $response->payment_method,
+        ]));
+    }
+
+    /**
+     * Order after payment: no order exists yet. A redirect sends the customer to Buckaroo;
+     * a direct paid response creates the order now. A pending response waits for the push.
+     */
+    private function handleAttemptResponse(int $cartId, $customer, $response): void
+    {
+        $attempts = new RawPaymentAttemptRepository();
+        $attemptId = (int) $this->attempt['id_bk_payment_attempt'];
+        $responseData = $response->getResponse();
+        $transactionKey = $responseData ? trim((string) $responseData->getTransactionKey()) : '';
+
+        if ($this->checkout->isRedirectRequired()) {
+            $attempts->markPending($attemptId, $transactionKey);
+            $this->setCartCookie($cartId);
+            $this->logger->logInfo('Redirecting ... ');
+            $this->checkout->doRedirect();
+            exit;
+        }
+
+        if (!$response->hasSucceeded()) {
+            $attempts->markFailed($attemptId, $transactionKey);
+            $this->processFailedPayment($cartId, $response);
+
+            return;
+        }
+
+        if (!$response->isPaid()) {
+            // Accepted but not final: the push creates the order once the payment is confirmed.
+            $attempts->markPending($attemptId, $transactionKey);
+            $this->clearGiftcardCookies();
+            Tools::redirect($this->context->link->getModuleLink('buckaroo3', 'userreturn', [
+                'bk_state' => (new ReturnStateSigner(_COOKIE_KEY_))->sign($cartId, ReturnStateSigner::OUTCOME_PENDING),
+            ], true));
+            exit;
+        }
+
+        $result = $this->createOrderForAttempt($this->attempt, $this->checkout->getAmountDebit(), $transactionKey);
+        if ($result === null) {
+            // The payment succeeded; the push creates the order when it arrives.
+            Tools::redirect($this->context->link->getModuleLink('buckaroo3', 'userreturn', [
+                'bk_state' => (new ReturnStateSigner(_COOKIE_KEY_))->sign($cartId, ReturnStateSigner::OUTCOME_PENDING),
+            ], true));
+            exit;
+        }
+
+        $id_order = (int) $result['id_order'];
+        if ($transactionKey !== '') {
+            $this->createTransactionMessage($id_order, 'Transaction Key: ' . $transactionKey);
+        }
+        $this->clearGiftcardCookies();
+
+        // Like the order-first flow, the push sets the final paid state.
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
             'id_cart' => $cartId,
             'id_module' => $this->module->id,
@@ -668,6 +789,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         }
 
         $this->logger->logInfo('Request not succeeded');
+
+        if ($this->attempt !== null) {
+            (new RawPaymentAttemptRepository())->markFailed((int) $this->attempt['id_bk_payment_attempt']);
+        }
 
         $this->setCartCookie($cartId);
 
