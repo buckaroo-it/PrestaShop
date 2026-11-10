@@ -72,6 +72,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             }
 
             $response = ResponseFactory::getResponse();
+            if ($response instanceof IdinResponse) {
+                $this->handleIdinReturn($response);
+
+                return;
+            }
+
             $this->handleReturn($response);
         } catch (Throwable $e) {
             $this->logger->logError('User return fatal: ' . $e->getMessage(), [
@@ -80,6 +86,25 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             ]);
             $this->redirectToCheckoutError($this->defaultErrorMessage());
         }
+    }
+
+    /**
+     * Return from an iDIN age verification: there is no order yet. Store the signed
+     * result and send the customer back to the payment step, where the regular
+     * payment methods are offered once the verification counts.
+     */
+    private function handleIdinReturn(IdinResponse $response): void
+    {
+        if ($response->storeCustomerVerification() && Tools::getValue('brq_SERVICE_idin_IsEighteenOrOlder') === 'True') {
+            $this->logger->logInfo('iDIN verification stored on return');
+            Tools::redirect($this->context->link->getPageLink('order', true, null, ['step' => 3]));
+            exit;
+        }
+
+        $this->logger->logError('iDIN verification not completed on return', ['statuscode' => $response->getStatusCodeValue()]);
+        $this->redirectToCheckoutError(
+            $this->module->l('Your age could not be verified with iDIN. Please try again.')
+        );
     }
 
     private function handleReturn($response): void

@@ -139,7 +139,8 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      */
     private function isCountryInConfig(?array $configValue, int $countryId): bool
     {
-        if (isset($configValue['countries']) && is_array($configValue['countries'])) {
+        // No countries selected (never set, or cleared in the admin) means all countries.
+        if (isset($configValue['countries']) && is_array($configValue['countries']) && $configValue['countries'] !== []) {
             foreach ($configValue['countries'] as $country) {
                 if (isset($country['id']) && $country['id'] == $countryId) {
                     return true;

@@ -36,6 +36,9 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 
 ### Fixed
 - BTI-1717 Starting a payment or applying a gift card failed on PrestaShop 1.7.8 and 8 ("non-existent service buckaroo.config.api.payment.service"): the front controllers now resolve the payment service from the module container.
+- BTI-1717 A payment method whose Countries setting was cleared is offered for all countries again, as the setting describes (it was hidden for every country).
+- BTI-1717 The iDIN age verification can be started on themes without the classic checkout markup (such as Hummingbird): the iDIN bank choice is a regular payment option form submitted by Place Order. After the verification the customer returns to the payment step with the result stored, instead of an "order could not be loaded" error.
+- BTI-1717 The selected countries in the payment method settings show the country name instead of "countries.<name>".
 - BTI-1916 The admin controllers (refund, Klarna reservation and the configuration API) no longer extend the deprecated FrameworkBundleAdminController; they extend Symfony's AbstractController, which exists on PrestaShop 1.7.8, 8 and 9. The refund and Klarna controllers are now wired as service subscribers, which fixes flash messages that failed on PrestaShop 1.7.8 and 8, and the container fallback boots FrontKernel on PrestaShop 9 where AppKernel is abstract.
 
 ## v5.3.0

@@ -395,3 +395,18 @@ if (!class_exists('\Doctrine\ORM\EntityManager')) {
     }
     ');
 }
+
+// ---- Minimal Doctrine ORM EntityRepository stub ----
+// Lets the module repositories be loaded so their in-memory logic can be tested
+// without a database; tests create them without calling a constructor.
+if (!class_exists('\Doctrine\ORM\EntityRepository')) {
+    eval('
+    namespace Doctrine\ORM;
+
+    class EntityRepository
+    {
+        /** @var EntityManager|null */
+        protected $_em;
+    }
+    ');
+}
