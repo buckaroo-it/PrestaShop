@@ -161,7 +161,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
     /**
      * @param Cart $cart
-     * @param array|PrestaShop\PrestaShop\Adapter\Presenter\Cart\CartLazyArray|null $presentedCart
+     * @param array|ArrayAccess|null $presentedCart Presented cart (an array or a lazy array, depending on the PrestaShop version)
      *
      * @throws PrestaShopException
      * @throws Exception

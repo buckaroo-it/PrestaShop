@@ -71,56 +71,6 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$id_lang\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method areHouseNumberValidForCountryDE\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method generate\\(\\) on object\\|false\\.$#"
-			count: 3
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method get\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method getAdminData\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method getMethod\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method getPaymentOptions\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method has\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method showAfterpayCoc\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Cannot call method showBillinkCoc\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
 			message: "#^Class AdminDashboard not found\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -147,16 +97,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Property ContextCore\\:\\:\\$cart \\(Cart\\) in isset\\(\\) is not nullable\\.$#"
-			count: 2
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Property ContextCore\\:\\:\\$controller \\(AdminController\\|FrontController\\) in isset\\(\\) is not nullable\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
 
@@ -206,11 +146,6 @@ parameters:
 			path: ../../../classes/Issuers/Issuers.php
 
 		-
-			message: "#^PHPDoc tag @throws with type Doctrine\\\\ORM\\\\Exception\\\\ORMException\\|Doctrine\\\\ORM\\\\OptimisticLockException is not subtype of Throwable$#"
-			count: 1
-			path: ../../../controllers/admin/PaymentMethodConfig.php
-
-		-
 			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Controllers\\\\admin\\\\Exception is not subtype of Throwable$#"
 			count: 1
 			path: ../../../controllers/admin/PaymentMethods.php
@@ -222,11 +157,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
-			count: 1
-			path: ../../../controllers/front/ajax.php
-
-		-
-			message: "#^Parameter \\$presentedCart of method Buckaroo3AjaxModuleFrontController\\:\\:renderCartSummary\\(\\) has invalid type PrestaShop\\\\PrestaShop\\\\Adapter\\\\Presenter\\\\Cart\\\\CartLazyArray\\.$#"
 			count: 1
 			path: ../../../controllers/front/ajax.php
 
@@ -566,11 +496,6 @@ parameters:
 			path: ../../../controllers/front/userreturn.php
 
 		-
-			message: "#^Property ContextCore\\:\\:\\$cart \\(Cart\\) in isset\\(\\) is not nullable\\.$#"
-			count: 1
-			path: ../../../controllers/front/userreturn.php
-
-		-
 			message: "#^Access to undefined constant PaymentRequestFactory\\:\\:REQUEST_TYPE_CASHTICKET\\.$#"
 			count: 1
 			path: ../../../library/checkout/cashticketcheckout.php
@@ -741,11 +666,6 @@ parameters:
 			path: ../../../src/Refund/StatusService.php
 
 		-
-			message: "#^Cannot call method getLogo\\(\\) on object\\|false\\.$#"
-			count: 1
-			path: ../../../src/Repository/PaymentMethodRepository.php
-
-		-
 			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\Exception is not subtype of Throwable$#"
 			count: 1
 			path: ../../../src/Repository/PaymentMethodRepository.php
@@ -764,11 +684,6 @@ parameters:
 			message: "#^Call to an undefined method ModuleCore\\:\\:getBuckarooFee\\(\\)\\.$#"
 			count: 1
 			path: ../../../src/Service/BuckarooClickToPayService.php
-
-		-
-			message: "#^PHPDoc tag @throws with type Doctrine\\\\ORM\\\\Exception\\\\ORMException\\|Doctrine\\\\ORM\\\\OptimisticLockException is not subtype of Throwable$#"
-			count: 1
-			path: ../../../src/Service/BuckarooConfigService.php
 
 		-
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooConfigService\\:\\:\\$orderingRepository is never read, only written\\.$#"

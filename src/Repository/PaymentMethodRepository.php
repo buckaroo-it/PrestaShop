@@ -70,6 +70,7 @@ class PaymentMethodRepository extends EntityRepository implements BkPaymentMetho
      */
     private function formatPaymentMethods(array $results): array
     {
+        /** @var \Buckaroo\PrestaShop\Classes\CapayableIn3 $capayableIn3 */
         $capayableIn3 = \Module::getInstanceByName('buckaroo3')->get('buckaroo.classes.issuers.capayableIn3');
 
         $payments = [];
