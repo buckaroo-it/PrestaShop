@@ -181,7 +181,82 @@ parameters:
 			path: ../../../controllers/front/applygiftcard.php
 
 		-
+			message: "#^Access to property \\$OriginalTransactionKey on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$amountDebit on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$currency on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$description on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$invoiceId on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleName on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleSupplier on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$moduleVersion on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$orderId on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$platformName on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$platformVersion on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$pushUrl on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Access to property \\$returnUrl on an unknown class BuckarooGiftCard\\.$#"
+			count: 2
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
 			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^Call to method payDirect\\(\\) on an unknown class BuckarooGiftCard\\.$#"
+			count: 1
+			path: ../../../controllers/front/applygiftcard.php
+
+		-
+			message: "#^PHPDoc tag @var for variable \\$giftcardApi contains unknown class BuckarooGiftCard\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
 
