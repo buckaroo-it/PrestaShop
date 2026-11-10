@@ -527,7 +527,7 @@ class BuckarooPaymentService
         $sql = new \DbQuery();
         $sql->select('buckaroo_idin_iseighteenorolder');
         $sql->from('bk_customer_idin');
-        $sql->where('customer_id = ' . pSQL($id_customer));
+        $sql->where('customer_id = ' . (int) $id_customer);
 
         return \Db::getInstance()->getValue($sql) === 'True';
     }

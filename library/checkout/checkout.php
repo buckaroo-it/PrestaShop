@@ -284,10 +284,10 @@ abstract class Checkout
         $totalPriceIncl = $originalAmountIncl->plus(new DecimalNumber((string) $buckarooFeeTaxIncl));
 
         $order = new Order($order_id);
-        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
-        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);
-        $order->total_paid = $totalPriceIncl->toPrecision(2);
-        $order->total_paid_real = $totalPriceIncl->toPrecision(2);
+        $order->total_paid_tax_excl = (float) $totalPriceExcl->toPrecision(2);
+        $order->total_paid_tax_incl = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid_real = (float) $totalPriceIncl->toPrecision(2);
         $order->update();
     }
 
@@ -572,7 +572,7 @@ abstract class Checkout
             return null;
         }
 
-        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, Configuration::get('PS_TAX'));
+        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, (int) Configuration::get('PS_TAX'));
 
         return [
             'identifier' => 'shipping',

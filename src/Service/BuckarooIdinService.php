@@ -28,7 +28,7 @@ class BuckarooIdinService
         $sqlCheck = new \DbQuery();
         $sqlCheck->select('COUNT(*)');
         $sqlCheck->from('bk_customer_idin');
-        $sqlCheck->where('customer_id = ' . pSQL($customerId));
+        $sqlCheck->where('customer_id = ' . (int) $customerId);
 
         return \Db::getInstance()->getValue($sqlCheck);
     }
@@ -56,7 +56,7 @@ class BuckarooIdinService
         $sqlCheck = new \DbQuery();
         $sqlCheck->select('COUNT(*)');
         $sqlCheck->from('bk_product_idin');
-        $sqlCheck->where('product_id = ' . pSQL($productId));
+        $sqlCheck->where('product_id = ' . (int) $productId);
 
         return \Db::getInstance()->getValue($sqlCheck);
     }

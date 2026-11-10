@@ -392,12 +392,12 @@ class Buckaroo3 extends PaymentModule
         $defaultOrderState = new OrderState();
         $defaultOrderState->name = [Configuration::get('PS_LANG_DEFAULT') => $this->l('Awaiting for Remote payment')];
         $defaultOrderState->module_name = $this->name;
-        $defaultOrderState->send_email = 0;
+        $defaultOrderState->send_email = false;
         $defaultOrderState->template = '';
-        $defaultOrderState->invoice = 0;
+        $defaultOrderState->invoice = false;
         $defaultOrderState->color = '#FFF000';
         $defaultOrderState->unremovable = false;
-        $defaultOrderState->logable = 0;
+        $defaultOrderState->logable = false;
 
         if ($defaultOrderState->add()) {
             $this->copyLogo($defaultOrderState->id);
@@ -1876,7 +1876,7 @@ class Buckaroo3 extends PaymentModule
 
         $sql->select('buckaroo_idin');
         $sql->from('bk_product_idin');
-        $sql->where('product_id = ' . pSQL($productId));
+        $sql->where('product_id = ' . (int) $productId);
 
         $buckarooIdin = Db::getInstance()->getValue($sql);
 

@@ -240,7 +240,10 @@ class Handler
             return null;
         }
 
-        return \Order::getByCartId($cartId);
+        /** @var \Order|null $order */
+        $order = \Order::getByCartId($cartId);
+
+        return $order;
     }
 
     /**
