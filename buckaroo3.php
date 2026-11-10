@@ -1515,7 +1515,7 @@ class Buckaroo3 extends PaymentModule
      * - safer fallbacks when configured states are missing or deleted
      * - explicit backorder handling using stock information
      *
-     * @param int $status_code Buckaroo payment status constant
+     * @param string $status_code Buckaroo payment status constant
      * @param int|null $id_order Optional order id for stock/backorder checks
      *
      * @return int Valid PrestaShop order state id

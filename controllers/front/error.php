@@ -30,8 +30,6 @@ class Buckaroo3ErrorModuleFrontController extends BuckarooCommonController
     public function initContent()
     {
         $cookie = new Cookie('ps');
-        $this->display_column_left = false;
-        $this->display_column_right = false;
         parent::initContent();
         $error = Tools::getValue('error', null);
         if ($cookie->statusMessage != '') {

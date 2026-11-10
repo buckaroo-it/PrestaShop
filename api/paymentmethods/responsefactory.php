@@ -24,6 +24,11 @@ if (!defined('_PS_VERSION_')) {
 
 class ResponseFactory
 {
+    /**
+     * @param Buckaroo\Transaction\Response\TransactionResponse|null $transactionResponse
+     *
+     * @return Response
+     */
     final public static function getResponse($transactionResponse = null)
     {
         $paymentmethod = null;

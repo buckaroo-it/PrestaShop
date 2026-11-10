@@ -107,6 +107,9 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         );
     }
 
+    /**
+     * @param Response $response
+     */
     private function handleReturn($response): void
     {
         if ($response->isValid()) {
@@ -118,7 +121,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
                 && ($response->statuscode == 791)
             ) {
                 $response->statuscode = 890;
-                $response->status = $response::BUCKAROO_CANCELED;
+                $response->status = BuckarooAbstract::BUCKAROO_CANCELED;
             }
 
             $cartId = (int) $response->getCartId();
