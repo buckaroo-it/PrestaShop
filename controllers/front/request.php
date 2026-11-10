@@ -28,7 +28,7 @@ use Buckaroo\Transaction\Response\TransactionResponse;
 
 include_once __DIR__ . '/../../library/checkout/checkout.php';
 include_once __DIR__ . '/common.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -56,7 +56,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'request');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'request');
         $this->paymentMethodRepository = $this->resolvePaymentMethodRepository();
     }
 
