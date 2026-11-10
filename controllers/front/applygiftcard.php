@@ -16,7 +16,7 @@
  */
 
 include_once __DIR__ . '/../../api/paymentmethods/paymentrequestfactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
@@ -42,7 +42,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'applygiftcard');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'applygiftcard');
     }
 
     public function postProcess()

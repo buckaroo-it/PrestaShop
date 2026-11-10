@@ -15,7 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
@@ -42,7 +42,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'userreturn');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'userreturn');
     }
 
     public function init()

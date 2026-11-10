@@ -21,7 +21,7 @@ use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -37,7 +37,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'return');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'return');
         $this->buckarooFeeRepository = $this->resolveBuckarooFeeRepository();
     }
 
