@@ -16,6 +16,21 @@ parameters:
 			path: ../../../api/paymentmethods/paypal/paypal.php
 
 		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$amount\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$statuscode\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$statusmessage\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
 			message: "#^Property Response\\:\\:\\$received is never read, only written\\.$#"
 			count: 1
 			path: ../../../api/paymentmethods/response.php
@@ -79,6 +94,16 @@ parameters:
 			message: "#^Parameter \\#2 \\$id_lang of class Carrier constructor expects int\\|null, string\\|false given\\.$#"
 			count: 1
 			path: ../../../classes/CarrierHandler.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo\\\\PrestaShop\\\\Classes\\\\Issuers\\\\Issuers\\:\\:\\$method\\.$#"
+			count: 3
+			path: ../../../classes/Issuers/Issuers.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:issuers\\(\\)\\.$#"
+			count: 1
+			path: ../../../classes/Issuers/Issuers.php
 
 		-
 			message: "#^PHPDoc tag @throws with type Buckaroo\\\\PrestaShop\\\\Controllers\\\\admin\\\\Exception is not subtype of Throwable$#"
@@ -419,6 +444,16 @@ parameters:
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Form\\\\Type\\\\IdinTabType\\:\\:\\$defaultCurrency is never read, only written\\.$#"
 			count: 1
 			path: ../../../src/Form/Type/IdinTabType.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:cancelReserve\\(\\)\\.$#"
+			count: 1
+			path: ../../../src/Klarna/ReservationService.php
+
+		-
+			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:extendReserve\\(\\)\\.$#"
+			count: 1
+			path: ../../../src/Klarna/ReservationService.php
 
 		-
 			message: "#^PHPDoc tag @param references unknown parameter\\: \\$order$#"
