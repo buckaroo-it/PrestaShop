@@ -31,6 +31,26 @@ parameters:
 			path: ../../../api/paymentmethods/response.php
 
 		-
+			message: "#^Property Response\\:\\:\\$received is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Property Response\\:\\:\\$signature is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Property Response\\:\\:\\$test is never read, only written\\.$#"
+			count: 1
+			path: ../../../api/paymentmethods/response.php
+
+		-
+			message: "#^Access to an undefined property Buckaroo3\\:\\:\\$tpl_folder\\.$#"
+			count: 2
+			path: ../../../buckaroo3.php
+
+		-
 			message: "#^Access to an undefined property Cookie\\:\\:\\$id_lang\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -81,6 +101,11 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
+			message: "#^Class AdminDashboard not found\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
 			message: "#^Negated boolean expression is always false\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -124,6 +149,11 @@ parameters:
 			message: "#^Property OrderStateCore\\:\\:\\$template \\(array\\<string\\>\\) does not accept string\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Constructor of class Buckaroo\\\\PrestaShop\\\\Classes\\\\CapayableIn3 has an unused parameter \\$buckarooConfigService\\.$#"
+			count: 1
+			path: ../../../classes/CapayableIn3.php
 
 		-
 			message: "#^Call to static method getFromCart\\(\\) on an unknown class SendcloudServicePoint\\.$#"
@@ -421,6 +451,11 @@ parameters:
 			path: ../../../controllers/front/userreturn.php
 
 		-
+			message: "#^Access to undefined constant PaymentRequestFactory\\:\\:REQUEST_TYPE_CASHTICKET\\.$#"
+			count: 1
+			path: ../../../library/checkout/cashticketcheckout.php
+
+		-
 			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
@@ -466,6 +501,46 @@ parameters:
 			path: ../../../library/checkout/checkout.php
 
 		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkCreditcards\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkCreditcards.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkGiftcards\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkGiftcards.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$data is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$id is never written, only read\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$orderId \\(string\\) does not accept int\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$orderId is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$payload is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkRefundRequest\\:\\:\\$paymentKey is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Entity/BkRefundRequest.php
+
+		-
 			message: "#^PHPDoc tag @param for parameter \\$productId with type int\\|null is not subtype of native type int\\.$#"
 			count: 1
 			path: ../../../src/Form/Modifier/ProductFormModifier.php
@@ -474,6 +549,11 @@ parameters:
 			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
 			count: 1
 			path: ../../../src/Form/Modifier/ProductFormModifier.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Form\\\\Type\\\\IdinTabType\\:\\:\\$defaultCurrency is never read, only written\\.$#"
+			count: 1
+			path: ../../../src/Form/Type/IdinTabType.php
 
 		-
 			message: "#^Call to an undefined method Buckaroo\\\\PaymentMethods\\\\PaymentFacade\\:\\:cancelReserve\\(\\)\\.$#"
@@ -562,6 +642,11 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @throws with type Doctrine\\\\ORM\\\\Exception\\\\ORMException\\|Doctrine\\\\ORM\\\\OptimisticLockException is not subtype of Throwable$#"
+			count: 1
+			path: ../../../src/Service/BuckarooConfigService.php
+
+		-
+			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooConfigService\\:\\:\\$orderingRepository is never read, only written\\.$#"
 			count: 1
 			path: ../../../src/Service/BuckarooConfigService.php
 
