@@ -26,12 +26,6 @@ class CapayableIn3
     public const VERSION_V2 = 'V2';
     public const LOGO_DEFAULT = 'In3.svg?v';
 
-    public function __construct($buckarooConfigService)
-    {
-        // Intentionally ignore stored API version configuration.
-        // All In3 payments now always use the V3 API.
-    }
-
     public function isV3(): bool
     {
         return true;

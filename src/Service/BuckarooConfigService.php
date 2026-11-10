@@ -21,7 +21,6 @@ use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
 use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Entity\BkConfiguration;
-use Buckaroo\PrestaShop\Src\Entity\BkOrdering;
 use Buckaroo\PrestaShop\Src\Entity\BkPaymentMethods;
 use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
 use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
@@ -38,13 +37,11 @@ class BuckarooConfigService
 {
     private $paymentMethodRepository;
     private $configurationRepository;
-    private $orderingRepository;
 
     public function __construct(EntityManager $entityManager)
     {
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
         $this->configurationRepository = $entityManager->getRepository(BkConfiguration::class);
-        $this->orderingRepository = $entityManager->getRepository(BkOrdering::class);
     }
 
     public function getConfigArrayForMethod($method)

@@ -66,6 +66,9 @@ class Buckaroo3 extends PaymentModule
 
     public $logger;
 
+    /** @var string Module folder name used to build template paths */
+    public $tpl_folder;
+
     /**
      * @var ContainerInterface|null
      */
@@ -679,7 +682,7 @@ class Buckaroo3 extends PaymentModule
             }
         }
 
-        $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
+        $adminUrl = explode('?', $this->context->link->getAdminLink('AdminDashboard'))[0];
         $adminUrl = rtrim($adminUrl, '/');
 
         $this->context->smarty->assign([
