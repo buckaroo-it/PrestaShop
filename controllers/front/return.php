@@ -56,8 +56,6 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
      */
     public function initContent()
     {
-        $this->display_column_left = false;
-        $this->display_column_right = false;
         $this->logger->logInfo("\n\n\n\n***************** Return start ***********************");
 
         parent::initContent();
@@ -84,10 +82,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
                 && !empty($response->statuscode)
-                && ($response->statuscode == $response::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+                && ($response->statuscode == BuckarooAbstract::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
             ) {
-                $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
-                $response->status = $response::BUCKAROO_CANCELED;
+                $response->statuscode = BuckarooAbstract::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+                $response->status = BuckarooAbstract::BUCKAROO_CANCELED;
             }
 
             $actionCode = Tools::strtolower((string) Tools::getValue('brq_actioncode'));
@@ -256,7 +254,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         $buckarooFee = $this->buckarooFeeRepository->getFeeByOrderId($order->id);
 
-        if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
+        if ($buckarooFee && (isset($payments, $payment) && $payment->payment_method != 'Group transaction')) {
             $jj = 0;
             foreach ($payments as $payment) {
                 if ($jj > 0) {
@@ -414,11 +412,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         $payments = new PrestaShopCollection('OrderPayment');
         $payments->where('transaction_id', '=', $reservationKey);
+        /** @var OrderPayment|false $payment */
         $payment = $payments->getFirst();
         if (!$payment || !$payment->order_reference) {
             return false;
         }
 
+        /** @var Order|false $order */
         $order = Order::getByReference($payment->order_reference)->getFirst();
         if (!$order) {
             return false;

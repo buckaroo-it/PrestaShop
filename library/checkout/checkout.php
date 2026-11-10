@@ -166,7 +166,7 @@ abstract class Checkout
         return $this->reference;
     }
 
-    protected function setCheckout()
+    public function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
         $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
@@ -304,6 +304,19 @@ abstract class Checkout
     abstract public function isRedirectRequired();
 
     abstract public function isVerifyRequired();
+
+    /**
+     * Start a verification request. Only checkouts that report
+     * isVerifyRequired() implement it.
+     *
+     * @param array $customVars
+     *
+     * @throws Exception
+     */
+    public function startVerify($customVars = [])
+    {
+        throw new Exception('Verification is not available for this payment method');
+    }
 
     public function doRedirect($redirect_url = null)
     {
