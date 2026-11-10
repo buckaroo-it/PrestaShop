@@ -32,8 +32,8 @@ class Buckaroo3ErrorModuleFrontController extends BuckarooCommonController
         $cookie = new Cookie('ps');
         parent::initContent();
         $error = Tools::getValue('error', null);
-        if ($cookie->statusMessage != '') {
-            $error = $cookie->statusMessage;
+        if ($cookie->__get('statusMessage') != '') {
+            $error = $cookie->__get('statusMessage');
         }
         $invoice = Tools::getValue('invoice', null);
         $this->displayError($invoice, $error);

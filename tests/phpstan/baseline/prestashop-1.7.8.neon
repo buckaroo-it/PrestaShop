@@ -31,21 +31,6 @@ parameters:
 			path: ../../../api/paymentmethods/response.php
 
 		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
-			path: ../../../api/paymentmethods/response.php
-
-		-
-			message: "#^Call to an undefined method Logger\\:\\:logInfo\\(\\)\\.$#"
-			count: 3
-			path: ../../../api/paymentmethods/response.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
-			count: 1
-			path: ../../../api/paymentmethods/response.php
-
-		-
 			message: "#^Property Response\\:\\:\\$received is never read, only written\\.$#"
 			count: 1
 			path: ../../../api/paymentmethods/response.php
@@ -63,11 +48,6 @@ parameters:
 		-
 			message: "#^Access to an undefined property Buckaroo3\\:\\:\\$tpl_folder\\.$#"
 			count: 2
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$HtmlText\\.$#"
-			count: 1
 			path: ../../../buckaroo3.php
 
 		-
@@ -131,17 +111,7 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
-			message: "#^Parameter \\#1 \\$id of class Logger constructor expects int\\|null, string given\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
 			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
 
@@ -246,36 +216,6 @@ parameters:
 			path: ../../../controllers/front/ajax.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_applied\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_card_code\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_cart_id\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_group_tx\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_remainder\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_tx_key\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
 			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
@@ -346,11 +286,6 @@ parameters:
 			path: ../../../controllers/front/applygiftcard.php
 
 		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
 			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
@@ -362,11 +297,6 @@ parameters:
 
 		-
 			message: "#^PHPDoc tag @var for variable \\$giftcardApi contains unknown class BuckarooGiftCard\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
 
@@ -386,23 +316,8 @@ parameters:
 			path: ../../../controllers/front/common.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
-			count: 1
-			path: ../../../controllers/front/error.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
-			count: 3
-			path: ../../../controllers/front/request.php
-
-		-
 			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
 			count: 4
-			path: ../../../controllers/front/request.php
-
-		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
 			path: ../../../controllers/front/request.php
 
 		-
@@ -426,44 +341,9 @@ parameters:
 			path: ../../../controllers/front/request.php
 
 		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
-			count: 1
-			path: ../../../controllers/front/request.php
-
-		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
-			path: ../../../controllers/front/return.php
-
-		-
 			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
 			count: 2
 			path: ../../../controllers/front/return.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
-			count: 1
-			path: ../../../controllers/front/return.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
-			count: 2
-			path: ../../../controllers/front/userreturn.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
-			count: 1
-			path: ../../../controllers/front/userreturn.php
-
-		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
-			path: ../../../controllers/front/userreturn.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
-			count: 1
-			path: ../../../controllers/front/userreturn.php
 
 		-
 			message: "#^Property ContextCore\\:\\:\\$cart \\(Cart\\) in isset\\(\\) is not nullable\\.$#"
@@ -519,11 +399,6 @@ parameters:
 			message: "#^Property OrderCore\\:\\:\\$total_paid_tax_incl \\(float\\) does not accept string\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
-
-		-
-			message: "#^Property Logger\\:\\:\\$logtype is never read, only written\\.$#"
-			count: 1
-			path: ../../../library/logger.php
 
 		-
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Entity\\\\BkCreditcards\\:\\:\\$id is never written, only read\\.$#"
@@ -696,11 +571,6 @@ parameters:
 			path: ../../../src/Service/BuckarooPaymentService.php
 
 		-
-			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
 			message: "#^Call to method getOrderTotal\\(\\) on an unknown class Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\Cart\\.$#"
 			count: 3
 			path: ../../../src/Service/BuckarooPaymentService.php
@@ -717,11 +587,6 @@ parameters:
 
 		-
 			message: "#^Parameter \\#1 \\$string of function pSQL expects string, int given\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooPaymentService.php
-
-		-
-			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
 			count: 1
 			path: ../../../src/Service/BuckarooPaymentService.php
 
