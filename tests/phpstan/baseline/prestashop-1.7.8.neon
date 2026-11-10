@@ -66,11 +66,6 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$HtmlText\\.$#"
-			count: 1
-			path: ../../../buckaroo3.php
-
-		-
 			message: "#^Access to an undefined property Cookie\\:\\:\\$id_lang\\.$#"
 			count: 1
 			path: ../../../buckaroo3.php
@@ -246,36 +241,6 @@ parameters:
 			path: ../../../controllers/front/ajax.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_applied\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_card_code\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_cart_id\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_group_tx\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_remainder\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$buckaroo_giftcard_tx_key\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
 			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
@@ -406,16 +371,6 @@ parameters:
 			path: ../../../controllers/front/error.php
 
 		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
-			count: 1
-			path: ../../../controllers/front/error.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
-			count: 3
-			path: ../../../controllers/front/request.php
-
-		-
 			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
 			count: 4
 			path: ../../../controllers/front/request.php
@@ -534,16 +489,6 @@ parameters:
 			message: "#^Variable \\$payments might not be defined\\.$#"
 			count: 1
 			path: ../../../controllers/front/return.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$id_cart\\.$#"
-			count: 2
-			path: ../../../controllers/front/userreturn.php
-
-		-
-			message: "#^Access to an undefined property Cookie\\:\\:\\$statusMessage\\.$#"
-			count: 1
-			path: ../../../controllers/front/userreturn.php
 
 		-
 			message: "#^Access to an undefined property object\\:\\:\\$status\\.$#"

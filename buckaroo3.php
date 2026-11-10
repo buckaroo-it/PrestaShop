@@ -988,7 +988,7 @@ class Buckaroo3 extends PaymentModule
                     'is_guest' => $isGuest,
                     'order' => $order,
                     'price' => $price,
-                    'message' => $this->context->cookie->HtmlText,
+                    'message' => $this->context->cookie->__get('HtmlText'),
                 ]);
 
                 return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');

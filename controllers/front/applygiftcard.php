@@ -242,12 +242,12 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         ]);
 
         // Also store in session cookies as fast-access cache for this page-load
-        $this->context->cookie->buckaroo_giftcard_group_tx = $groupTransaction;
-        $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
-        $this->context->cookie->buckaroo_giftcard_applied = (string) $totalApplied;
-        $this->context->cookie->buckaroo_giftcard_tx_key = $transactionKey;
-        $this->context->cookie->buckaroo_giftcard_card_code = $cardCode;
-        $this->context->cookie->buckaroo_giftcard_cart_id = (string) (int) $cart->id;
+        $this->context->cookie->__set('buckaroo_giftcard_group_tx', $groupTransaction);
+        $this->context->cookie->__set('buckaroo_giftcard_remainder', (string) $remainingAmount);
+        $this->context->cookie->__set('buckaroo_giftcard_applied', (string) $totalApplied);
+        $this->context->cookie->__set('buckaroo_giftcard_tx_key', $transactionKey);
+        $this->context->cookie->__set('buckaroo_giftcard_card_code', $cardCode);
+        $this->context->cookie->__set('buckaroo_giftcard_cart_id', (string) (int) $cart->id);
         $this->context->cookie->write();
 
         if ($remainingAmount <= 0) {
