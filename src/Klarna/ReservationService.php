@@ -101,7 +101,7 @@ class ReservationService
 
     private function openKey(\Order $order): ?string
     {
-        if ($this->isCanceled($order)) {
+        if ($this->isCanceled($order) || $this->isShipped($order)) {
             return null;
         }
 
@@ -120,6 +120,15 @@ class ReservationService
         ];
 
         return in_array($state, array_filter($canceledStates), true);
+    }
+
+    /**
+     * Once the order reached a "shipped" state (Shipped, Delivered or any custom
+     * state flagged as shipped) the reservation can no longer be cancelled or extended.
+     */
+    private function isShipped(\Order $order): bool
+    {
+        return (bool) $order->hasBeenShipped();
     }
 
     /**
