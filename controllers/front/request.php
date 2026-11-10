@@ -480,11 +480,11 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 try {
                     $this->module->validateOrder(
                         (int) $cart->id,
-                        $pending,
+                        (int) $pending,
                         (float) $total,
                         $payment_method_tr,
                         null,
-                        null,
+                        [],
                         (int) $currency->id,
                         false,
                         $customer->secure_key

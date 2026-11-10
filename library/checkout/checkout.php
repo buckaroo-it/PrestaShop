@@ -136,7 +136,9 @@ abstract class Checkout
             // Hand the controller context down so the request never resolves it statically.
             $this->payment_request->setContext($context);
         }
-        $this->module = Module::getInstanceByName('buckaroo3');
+        /** @var Buckaroo3 $module */
+        $module = Module::getInstanceByName('buckaroo3');
+        $this->module = $module;
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);

@@ -6,16 +6,6 @@ parameters:
 			path: ../../../api/corelogger.php
 
 		-
-			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
-			count: 1
-			path: ../../../api/paymentmethods/ideal/ideal.php
-
-		-
-			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
-			count: 1
-			path: ../../../api/paymentmethods/paypal/paypal.php
-
-		-
 			message: "#^Access to an undefined property Buckaroo\\\\Transaction\\\\Response\\\\TransactionResponse\\:\\:\\$amount\\.$#"
 			count: 1
 			path: ../../../api/paymentmethods/response.php
@@ -191,11 +181,6 @@ parameters:
 			path: ../../../controllers/front/applygiftcard.php
 
 		-
-			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
 			message: "#^Access to property \\$OriginalTransactionKey on an unknown class BuckarooGiftCard\\.$#"
 			count: 2
 			path: ../../../controllers/front/applygiftcard.php
@@ -266,11 +251,6 @@ parameters:
 			path: ../../../controllers/front/applygiftcard.php
 
 		-
-			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/applygiftcard.php
-
-		-
 			message: "#^Call to method payDirect\\(\\) on an unknown class BuckarooGiftCard\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
@@ -289,16 +269,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$id_lang of class Logger constructor expects int\\|null, string given\\.$#"
 			count: 1
 			path: ../../../controllers/front/applygiftcard.php
-
-		-
-			message: "#^Call to an undefined method Module\\:\\:getBuckarooConfigService\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/clicktopaytoken.php
-
-		-
-			message: "#^Call to an undefined method Module\\:\\:isPaymentModeActive\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/clicktopaytoken.php
 
 		-
 			message: "#^Parameter \\#1 \\$status_code of static method Buckaroo3\\:\\:resolveStatusCode\\(\\) expects int, string given\\.$#"
@@ -326,32 +296,12 @@ parameters:
 			path: ../../../controllers/front/request.php
 
 		-
-			message: "#^Access to an undefined property Module\\:\\:\\$currentOrder\\.$#"
-			count: 4
-			path: ../../../controllers/front/request.php
-
-		-
 			message: "#^Access to undefined constant Logger\\:\\:INFO\\.$#"
 			count: 1
 			path: ../../../controllers/front/request.php
 
 		-
 			message: "#^Call to an undefined method Checkout\\:\\:startVerify\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/request.php
-
-		-
-			message: "#^Call to an undefined method Module\\:\\:getBuckarooFee\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/request.php
-
-		-
-			message: "#^Call to an undefined method Module\\:\\:isPaymentModeActive\\(\\)\\.$#"
-			count: 1
-			path: ../../../controllers/front/request.php
-
-		-
-			message: "#^Call to an undefined method Module\\:\\:validateOrder\\(\\)\\.$#"
 			count: 1
 			path: ../../../controllers/front/request.php
 
@@ -471,22 +421,7 @@ parameters:
 			path: ../../../library/checkout/cashticketcheckout.php
 
 		-
-			message: "#^Cannot call method getBuckarooConfigService\\(\\) on ModuleCore\\|false\\.$#"
-			count: 1
-			path: ../../../library/checkout/checkout.php
-
-		-
-			message: "#^Cannot call method getBuckarooFeeService\\(\\) on ModuleCore\\|false\\.$#"
-			count: 1
-			path: ../../../library/checkout/checkout.php
-
-		-
 			message: "#^Parameter \\#2 \\$taxRulesGroupId of method Checkout\\:\\:getTaxRate\\(\\) expects int, string\\|false given\\.$#"
-			count: 1
-			path: ../../../library/checkout/checkout.php
-
-		-
-			message: "#^Property Checkout\\:\\:\\$module \\(Buckaroo3\\) does not accept ModuleCore\\|false\\.$#"
 			count: 1
 			path: ../../../library/checkout/checkout.php
 
@@ -634,11 +569,6 @@ parameters:
 			message: "#^Parameter \\#2 \\$allMethods of method Buckaroo\\\\PrestaShop\\\\Src\\\\Repository\\\\PaymentMethodRepository\\:\\:fetchPaymentMethods\\(\\) expects int, true given\\.$#"
 			count: 1
 			path: ../../../src/Repository/PaymentMethodRepository.php
-
-		-
-			message: "#^Call to an undefined method ModuleCore\\:\\:getBuckarooFee\\(\\)\\.$#"
-			count: 1
-			path: ../../../src/Service/BuckarooClickToPayService.php
 
 		-
 			message: "#^Property Buckaroo\\\\PrestaShop\\\\Src\\\\Service\\\\BuckarooConfigService\\:\\:\\$orderingRepository is never read, only written\\.$#"

@@ -28,6 +28,9 @@ class BuckarooCommonController extends ModuleFrontController
 {
     use ContainerAwareTrait;
 
+    /** @var Buckaroo3 */
+    public $module;
+
     public function __construct()
     {
         parent::__construct();
