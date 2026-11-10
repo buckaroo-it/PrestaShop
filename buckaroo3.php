@@ -208,6 +208,7 @@ class Buckaroo3 extends PaymentModule
             return;
         }
 
+        /** @var Buckaroo\PrestaShop\Src\Refund\Admin\Provider $refundProvider */
         $refundProvider = $this->get('buckaroo.refund.admin.provider');
         $refunds = $refundProvider->get($order);
         $this->context->smarty->assign($refunds);
@@ -225,7 +226,10 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
         }
 
+        /** @var Symfony\Component\HttpFoundation\Session\SessionInterface $session */
         $session = $this->get('buckaroo.session');
+        /** @var Symfony\Component\Routing\RouterInterface $router */
+        $router = $this->get('prestashop.router');
         $feeSessionKey = 'buckaroo_include_fee_' . $order->id;
 
         $currency = new Currency($order->id_currency);
@@ -243,13 +247,14 @@ class Buckaroo3 extends PaymentModule
             'currency' => $currency,
             'buckaroo_fee_refunded' => !empty($buckarooFeeData['fee_refunded']),
             'buckaroo_fee_flag_set' => $session->has($feeSessionKey),
-            'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
+            'buckaroo_set_fee_flag_url' => $router->generate('buckaroo_set_refund_fee_flag'),
         ]);
 
         $klarnaReservation = '';
-        $klarnaData = $this->get('buckaroo.klarna.reservation')->getAdminData($order);
+        /** @var Buckaroo\PrestaShop\Src\Klarna\ReservationService $klarnaReservationService */
+        $klarnaReservationService = $this->get('buckaroo.klarna.reservation');
+        $klarnaData = $klarnaReservationService->getAdminData($order);
         if (is_array($klarnaData)) {
-            $router = $this->get('prestashop.router');
             $this->context->smarty->assign([
                 'klarnaReservationKey' => $klarnaData['key'],
                 'klarnaCancelSent' => $klarnaData['cancelSent'],
@@ -525,7 +530,7 @@ class Buckaroo3 extends PaymentModule
     private function getContextControllerContainer()
     {
         $context = $this->context;
-        if (!$context || !isset($context->controller) || !is_object($context->controller)) {
+        if (!$context || !is_object($context->controller)) {
             return null;
         }
 
@@ -732,7 +737,7 @@ class Buckaroo3 extends PaymentModule
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
-        $cookie_id_lang = (int) $cookie->id_lang;
+        $cookie_id_lang = (int) $cookie->__get('id_lang');
         $id_lang = $cookie_id_lang ? $cookie_id_lang : (int) (Configuration::get('PS_LANG_DEFAULT'));
         $addresses = $customer->getAddresses($id_lang);
         $company = '';
@@ -790,9 +795,12 @@ class Buckaroo3 extends PaymentModule
         }
 
         $buckarooConfigService = $this->getBuckarooConfigService();
+        /** @var BuckarooPaymentService $buckarooPaymentService */
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
 
         try {
+            /** @var Buckaroo\PrestaShop\Classes\CapayableIn3 $capayableIn3 */
+            $capayableIn3 = $this->get('buckaroo.classes.issuers.capayableIn3');
             $this->context->smarty->assign(
                 [
                     'address_differ' => $address_differ,
@@ -816,7 +824,7 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
-                    'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
+                    'in3Method' => $capayableIn3->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart),
                     'clickToPayConfigured' => $this->getBuckarooClickToPayService()->isConfigured(),
@@ -1728,7 +1736,7 @@ class Buckaroo3 extends PaymentModule
             return (float) $overrideAmount;
         }
 
-        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
+        if ($this->context && $this->context->cart instanceof Cart) {
             return (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
         }
 
@@ -1737,7 +1745,7 @@ class Buckaroo3 extends PaymentModule
 
     private function getAverageCartTaxRate(): float
     {
-        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
+        if ($this->context && $this->context->cart instanceof Cart) {
             return (float) $this->context->cart->getAverageProductsTaxRate();
         }
 

@@ -324,7 +324,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 
         $this->clearGiftcardCookies();
 
-        if (isset($this->context->cart) && Validate::isLoadedObject($this->context->cart)) {
+        if (Validate::isLoadedObject($this->context->cart)) {
             try {
                 $this->context->cart->delete();
             } catch (Throwable $e) {

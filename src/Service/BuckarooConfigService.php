@@ -26,7 +26,6 @@ use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
 use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
 use Buckaroo\PrestaShop\Src\PayPal\ExpressSettings as PayPalExpressSettings;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
 if (!defined('_PS_VERSION_')) {
@@ -67,7 +66,7 @@ class BuckarooConfigService
 
     /**
      * @throws OptimisticLockException
-     * @throws ORMException
+     * @throws \Exception
      */
     public function updatePaymentMethodConfig($name, array $data): bool
     {

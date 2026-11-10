@@ -18,7 +18,6 @@
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
-use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
 if (!defined('_PS_VERSION_')) {
@@ -64,7 +63,7 @@ class PaymentMethodConfig extends BaseApiController
 
     /**
      * @throws OptimisticLockException
-     * @throws ORMException
+     * @throws \Exception
      */
     private function handlePost()
     {
