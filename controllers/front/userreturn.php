@@ -15,9 +15,10 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
 
 if (!defined('_PS_VERSION_')) {
@@ -27,6 +28,10 @@ if (!defined('_PS_VERSION_')) {
 class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 {
     private const STATE_PARAMETER = 'bk_state';
+    /** Refresh count of the pending page; it stops refreshing after PENDING_MAX_REFRESHES. */
+    private const PENDING_TRY_PARAMETER = 'bk_try';
+    private const PENDING_REFRESH_SECONDS = 5;
+    private const PENDING_MAX_REFRESHES = 24;
 
     public $ssl = true;
     protected $logger;
@@ -42,7 +47,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'userreturn');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'userreturn');
     }
 
     public function init()
@@ -125,6 +130,16 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $id_order = $cartId > 0 ? (int) Order::getIdByCartId($cartId) : 0;
             $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
 
+            $attempt = $this->findPaymentAttempt($response);
+            if ($attempt !== null && $response->hasSucceeded()) {
+                $this->handleAttemptReturn($attempt, $response, $cartId);
+
+                return;
+            }
+            if ($attempt !== null && (int) $attempt['id_order'] <= 0) {
+                (new RawPaymentAttemptRepository())->markFailed((int) $attempt['id_bk_payment_attempt'], (string) $response->transactions);
+            }
+
             if ($response->hasSucceeded()) {
                 if ($cartId <= 0 || $id_order <= 0) {
                     $this->logger->logError('Missing cart/order on successful return', [
@@ -176,6 +191,79 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     }
 
     /**
+     * Successful return of a payment that creates the order only after payment.
+     *
+     * @param array<string, mixed> $attempt
+     */
+    private function handleAttemptReturn(array $attempt, $response, int $cartId): void
+    {
+        if (!$response->isPaid()) {
+            (new RawPaymentAttemptRepository())->markPending((int) $attempt['id_bk_payment_attempt'], (string) $response->transactions);
+            $this->logger->logInfo('Pending return; the push creates the order', ['attempt' => $attempt['reference']]);
+            $this->redirectToPending($cartId);
+        }
+
+        $result = $this->createOrderForAttempt($attempt, $this->getReplyAmount($response), (string) $response->transactions);
+        if ($result === null) {
+            // Paid, but the order could not be created now: the push creates it.
+            $this->redirectToPending($cartId);
+        }
+
+        if (!$result['duplicate'] && $result['amount_matches']) {
+            $this->markOrderPaidAfterSuccessfulReturn((int) $result['id_order'], $response);
+        }
+
+        $this->finishSuccess($cartId);
+    }
+
+    private function redirectToPending(int $cartId, int $try = 0): void
+    {
+        Tools::redirect($this->getPendingUrl($cartId, $try));
+        exit;
+    }
+
+    private function getPendingUrl(int $cartId, int $try): string
+    {
+        $params = [self::STATE_PARAMETER => $this->getStateSigner()->sign($cartId, ReturnStateSigner::OUTCOME_PENDING)];
+        if ($try > 0) {
+            $params[self::PENDING_TRY_PARAMETER] = $try;
+        }
+
+        return $this->context->link->getModuleLink('buckaroo3', 'userreturn', $params, true);
+    }
+
+    /**
+     * The payment is not confirmed yet. Show the order once the push created it, the
+     * checkout once the payment failed, and otherwise a page that checks again.
+     */
+    private function showPending(int $cartId): void
+    {
+        if ($cartId > 0 && (int) Order::getIdByCartId($cartId) > 0) {
+            $this->finishSuccess($cartId);
+        }
+
+        $attempt = (new RawPaymentAttemptRepository())->findLatestByCart($cartId);
+        if ($attempt !== null && (string) $attempt['status'] === RawPaymentAttemptRepository::STATUS_FAILED) {
+            $this->finishFailure($cartId, $this->defaultErrorMessage());
+        }
+
+        // The return controller skips the page setup; the pending page needs it (page.tpl).
+        parent::initContent();
+
+        $try = max(0, (int) Tools::getValue(self::PENDING_TRY_PARAMETER));
+        $refresh = $try < self::PENDING_MAX_REFRESHES;
+
+        $this->context->smarty->assign([
+            'buckaroo_pending_message' => $refresh
+                ? $this->module->l('Your payment is being processed. Your order is created as soon as the payment is confirmed.', 'userreturn')
+                : $this->module->l('We have not received the payment confirmation yet. You will receive an email as soon as your order is confirmed.', 'userreturn'),
+            'buckaroo_pending_refresh_url' => $refresh ? $this->getPendingUrl($cartId, $try + 1) : '',
+            'buckaroo_pending_refresh_seconds' => self::PENDING_REFRESH_SECONDS,
+        ]);
+        $this->setTemplate('module:buckaroo3/views/templates/front/payment-pending.tpl');
+    }
+
+    /**
      * Second leg of a return that arrived without the session: a same-site GET that carries the cookie.
      */
     private function handleSignedState(string $state): void
@@ -195,6 +283,12 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             return;
         }
 
+        if ($data['outcome'] === ReturnStateSigner::OUTCOME_PENDING) {
+            $this->showPending($data['cartId']);
+
+            return;
+        }
+
         $this->finishFailure($data['cartId'], $data['message'] ?: $this->defaultErrorMessage());
     }
 
@@ -210,6 +304,11 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         $cart = new Cart($cartId);
         $customer = new Customer((int) $cart->id_customer);
         $id_order = $cartId > 0 ? (int) Order::getIdByCartId($cartId) : 0;
+
+        if ($id_order <= 0 && (new RawPaymentAttemptRepository())->findLatestByCart($cartId) !== null) {
+            // Order after payment: the push has not created the order yet.
+            $this->redirectToPending($cartId);
+        }
 
         if ($id_order <= 0 || !Validate::isLoadedObject($customer)) {
             $this->logger->logError('Missing cart/order/customer on successful return', [
@@ -254,7 +353,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
         $this->setCartCookie($cartId);
 
         $cookie = new Cookie('ps');
-        $cookie->statusMessage = $msg;
+        $cookie->__set('statusMessage', $msg);
 
         $this->redirectToCheckoutError($msg);
     }
@@ -321,13 +420,13 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             $duplication = $oldCart->duplicate();
 
             if ($duplication && Validate::isLoadedObject($duplication['cart']) && $duplication['success']) {
-                $this->context->cookie->id_cart = $duplication['cart']->id;
+                $this->context->cookie->__set('id_cart', $duplication['cart']->id);
                 $this->context->cookie->write();
             } else {
                 $this->logger->logError('Cart duplication failed');
             }
         } else {
-            $this->context->cookie->id_cart = $cartId;
+            $this->context->cookie->__set('id_cart', $cartId);
             $this->context->cookie->write();
         }
     }

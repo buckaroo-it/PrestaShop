@@ -16,8 +16,10 @@
  */
 
 use Buckaroo\PrestaShop\Src\Container\ContainerAwareTrait;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
+use Buckaroo\PrestaShop\Src\Service\OrderAfterPaymentService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -472,5 +474,59 @@ class BuckarooCommonController extends ModuleFrontController
         unset($this->context->cookie->buckaroo_giftcard_card_code);
         unset($this->context->cookie->buckaroo_giftcard_cart_id);
         $this->context->cookie->write();
+    }
+
+    /**
+     * The payment attempt a push or return refers to (order created only after payment), or null
+     * for a payment that started with the order (its invoice carries the order reference).
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function findPaymentAttempt($response): ?array
+    {
+        if (!is_object($response) || !method_exists($response, 'getReferenceId') || !method_exists($response, 'getCartId')) {
+            return null;
+        }
+
+        $reference = (string) $response->getReferenceId();
+        if (!RawPaymentAttemptRepository::isAttemptReference($reference)) {
+            return null;
+        }
+
+        return (new RawPaymentAttemptRepository())->findByInvoice($reference, (int) $response->getCartId());
+    }
+
+    /**
+     * Create the order for a paid attempt, or find the one another request created.
+     *
+     * @param array<string, mixed> $attempt
+     *
+     * @return array{id_order:int,created:bool,amount_matches:bool,duplicate:bool}|null
+     */
+    protected function createOrderForAttempt(array $attempt, float $paidAmount, string $transactionKey): ?array
+    {
+        if (!$this->module instanceof PaymentModule) {
+            return null;
+        }
+
+        $service = new OrderAfterPaymentService($this->module, $this->context);
+        $result = $service->createOrder($attempt, $paidAmount, $transactionKey);
+
+        if ($result === null && isset($this->logger)) {
+            $this->logger->logError('Order after payment: ' . $service->getLastError(), [
+                'attempt' => (string) $attempt['reference'],
+                'transaction' => $transactionKey,
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Paid amount of a push or return (brq_amount, URL encoded in returns).
+     */
+    protected function getReplyAmount($response): float
+    {
+        return (float) urldecode((string) ($response->amount ?? 0));
     }
 }

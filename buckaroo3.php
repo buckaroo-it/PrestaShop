@@ -21,7 +21,7 @@ if (!defined('_PS_VERSION_')) {
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/api/corelogger.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
@@ -124,7 +124,7 @@ class Buckaroo3 extends PaymentModule
 
     private function initializeLogger()
     {
-        $this->logger = new Logger(CoreLogger::INFO, '');
+        $this->logger = new CoreLogger(CoreLogger::INFO, '');
     }
 
     /**
@@ -996,7 +996,7 @@ class Buckaroo3 extends PaymentModule
                     'is_guest' => $isGuest,
                     'order' => $order,
                     'price' => $price,
-                    'message' => $this->context->cookie->HtmlText,
+                    'message' => $this->context->cookie->__get('HtmlText'),
                 ]);
 
                 return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
