@@ -509,39 +509,102 @@ class ExpressCheckoutService
     private function selectDeliveryOption(\Cart $cart, ?string $shippingKey): array
     {
         if ($cart->isVirtualCart()) {
+            $this->refreshCartRules();
+
             return [];
         }
 
         $idAddress = (int) $cart->id_address_delivery;
         $options = $cart->getDeliveryOptionList(null, true);
-        $addressOptions = isset($options[$idAddress]) && is_array($options[$idAddress]) ? $options[$idAddress] : [];
-
-        $methods = [];
-        foreach ($addressOptions as $key => $option) {
-            $methods[(string) $key] = $this->toShippingMethod((string) $key, $option);
+        $addressOptions = [];
+        if (isset($options[$idAddress]) && is_array($options[$idAddress])) {
+            foreach ($options[$idAddress] as $key => $option) {
+                $addressOptions[(string) $key] = $option;
+            }
         }
 
-        if (empty($methods)) {
+        if (empty($addressOptions)) {
             $cart->setDeliveryOption(null);
             $cart->update();
+            $this->refreshCartRules();
 
             return [];
         }
 
         $current = $cart->getDeliveryOption(null, true);
-        if ($shippingKey !== null && isset($methods[$shippingKey])) {
+        if ($shippingKey !== null && isset($addressOptions[$shippingKey])) {
             $selected = $shippingKey;
-        } elseif (is_array($current) && isset($current[$idAddress], $methods[(string) $current[$idAddress]])) {
+        } elseif (is_array($current) && isset($current[$idAddress], $addressOptions[(string) $current[$idAddress]])) {
             $selected = (string) $current[$idAddress];
         } else {
-            $selected = (string) array_key_first($methods);
+            $selected = (string) array_key_first($addressOptions);
         }
 
         $cart->setDeliveryOption([$idAddress => $selected]);
         $cart->update();
 
+        // Cart rules may depend on the address and carrier, so they are
+        // applied before the shipping amounts are presented.
+        $this->refreshCartRules();
+        $freeShipping = $this->hasFreeShippingRule($cart);
+
+        $methods = [];
+        foreach ($addressOptions as $key => $option) {
+            $methods[$key] = $this->toShippingMethod($key, $option, $freeShipping);
+        }
+
         // The wallet sheet preselects the first method in the list.
         return array_values([$selected => $methods[$selected]] + $methods);
+    }
+
+    /**
+     * Apply and remove automatic cart rules (vouchers without a code), as
+     * PrestaShop does for the shopper's cart on the cart and checkout pages.
+     * Runs with the express cart in the context, where CartRule reads it.
+     */
+    private function refreshCartRules(): void
+    {
+        if (!\CartRule::isFeatureActive()) {
+            return;
+        }
+
+        \CartRule::autoRemoveFromCart($this->context);
+        \CartRule::autoAddToCart($this->context);
+    }
+
+    /**
+     * A free shipping cart rule without a carrier restriction makes every
+     * carrier free, as the PrestaShop checkout shows it (DeliveryOptionsFinder).
+     */
+    private function hasFreeShippingRule(\Cart $cart): bool
+    {
+        foreach ($cart->getCartRules() as $rule) {
+            if (!empty($rule['free_shipping']) && empty($rule['carrier_restriction'])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Shipping costs the shopper pays: nothing when a free shipping cart rule
+     * covers them. The shipping covered by a cart rule is then not listed as a
+     * discount either, as in the PrestaShop cart summary.
+     *
+     * @return float[] shipping costs and discounts, taxes included
+     */
+    private function getShippingAndDiscounts(\Cart $cart): array
+    {
+        $shipping = (float) $cart->getOrderTotal(true, \Cart::ONLY_SHIPPING);
+        $discounts = (float) $cart->getOrderTotal(true, \Cart::ONLY_DISCOUNTS);
+
+        if ($shipping > 0 && $this->hasFreeShippingRule($cart)) {
+            $discounts = max(0.0, $discounts - $shipping);
+            $shipping = 0.0;
+        }
+
+        return [$shipping, $discounts];
     }
 
     /**
@@ -549,7 +612,7 @@ class ExpressCheckoutService
      *
      * @return array<string, string>
      */
-    private function toShippingMethod(string $key, array $option): array
+    private function toShippingMethod(string $key, array $option, bool $freeShipping = false): array
     {
         $names = [];
         $delays = [];
@@ -571,7 +634,7 @@ class ExpressCheckoutService
             'identifier' => $key,
             'label' => $this->truncate(implode(', ', $names) ?: $this->module->l('Shipping', 'expresscheckoutservice')),
             'detail' => $this->truncate(implode(', ', $delays)),
-            'amount' => $this->formatAmount((float) ($option['total_price_with_tax'] ?? 0)),
+            'amount' => $this->formatAmount($freeShipping ? 0.0 : (float) ($option['total_price_with_tax'] ?? 0)),
         ];
     }
 
@@ -596,7 +659,7 @@ class ExpressCheckoutService
             $displayItems[] = $this->displayItem(end($lineItems), 'LINE_ITEM');
         }
 
-        $discounts = (float) $cart->getOrderTotal(true, \Cart::ONLY_DISCOUNTS);
+        [$shipping, $discounts] = $this->getShippingAndDiscounts($cart);
         if ($discounts > 0) {
             $lineItems[] = $this->lineItem($this->module->l('Discount', 'expresscheckoutservice'), -$discounts);
             $displayItems[] = $this->displayItem(end($lineItems), 'DISCOUNT');
@@ -609,7 +672,7 @@ class ExpressCheckoutService
         }
 
         if (!empty($shippingMethods)) {
-            $lineItems[] = $this->lineItem($shippingMethods[0]['label'], (float) $cart->getOrderTotal(true, \Cart::ONLY_SHIPPING));
+            $lineItems[] = $this->lineItem($shippingMethods[0]['label'], $shipping);
             $displayItems[] = $this->displayItem(end($lineItems), 'SHIPPING_OPTION');
         }
 
@@ -654,8 +717,9 @@ class ExpressCheckoutService
     {
         $precision = $this->getPrecision();
         $total = (float) \Tools::ps_round($this->getTotal($cart), $precision);
-        $shipping = $hasShipping ? (float) \Tools::ps_round((float) $cart->getOrderTotal(true, \Cart::ONLY_SHIPPING), $precision) : 0.0;
-        $discount = (float) \Tools::ps_round((float) $cart->getOrderTotal(true, \Cart::ONLY_DISCOUNTS), $precision);
+        [$cartShipping, $cartDiscounts] = $this->getShippingAndDiscounts($cart);
+        $shipping = $hasShipping ? (float) \Tools::ps_round($cartShipping, $precision) : 0.0;
+        $discount = (float) \Tools::ps_round($cartDiscounts, $precision);
         $currency = (string) $this->context->currency->iso_code;
 
         $money = function (float $amount) use ($currency): array {
