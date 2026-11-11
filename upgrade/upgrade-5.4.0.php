@@ -88,5 +88,7 @@ function upgrade_module_5_4_0($object)
 
     return $object->registerHook('actionOrderStatusPostUpdate')
         && $object->registerHook('displayProductAdditionalInfo')
-        && $object->registerHook('displayExpressCheckout');
+        && $object->registerHook('displayExpressCheckout')
+        // Payment fee line on the order confirmation and order details pages of every theme.
+        && $object->registerHook('actionPresentOrder');
 }

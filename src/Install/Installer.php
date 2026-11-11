@@ -120,6 +120,7 @@ class Installer implements InstallerInterface
             'displayPaymentTop',
             'displayProductAdditionalInfo',
             'displayExpressCheckout',
+            'actionPresentOrder',
         ];
     }
 
