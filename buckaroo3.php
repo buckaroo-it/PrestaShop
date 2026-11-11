@@ -271,9 +271,6 @@ class Buckaroo3 extends PaymentModule
             $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 
-    /**
-     * @throws LocalizationException
-     */
     public function hookDisplayOrderConfirmation(array $params)
     {
         $order = isset($params['objOrder']) ? $params['objOrder'] : null;
@@ -283,28 +280,57 @@ class Buckaroo3 extends PaymentModule
             return '';
         }
 
-        $cart = new Cart($order->id_cart);
-
         $this->restoreCartAfterExpress($order);
 
-        $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
+        // The payment fee line is added to the presented order (hookActionPresentOrder).
+        return '';
+    }
 
-        if (!$buckarooFeeData) {
-            return '';
+    /**
+     * Adds the stored Buckaroo payment fee to the presented order as a subtotal.
+     *
+     * Themes render the order subtotals themselves (order confirmation, order details),
+     * so the fee line follows the theme markup without any theme-specific code.
+     */
+    public function hookActionPresentOrder(array $params)
+    {
+        if (!isset($params['presentedOrder']) || !($params['presentedOrder'] instanceof ArrayAccess)) {
+            return;
         }
 
-        $buckarooFee = (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
-        $taxData = $this->calculateTax($cart, $buckarooFee);
-        $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL);
+        $presentedOrder = $params['presentedOrder'];
 
-        // Assign data to Smarty
-        $this->context->smarty->assign([
-            'orderBuckarooFee' => $this->formatPrice($taxData['feeInclTax']),
-            'paymentFeeLabel' => $paymentFeeLabel,
-        ]);
+        try {
+            $details = $presentedOrder['details'];
+            $orderId = isset($details['id']) ? (int) $details['id'] : 0;
+            if ($orderId <= 0) {
+                return;
+            }
 
-        // Fetch and return the template content
-        return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
+            $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($orderId);
+            if (!is_array($buckarooFeeData) || (float) $buckarooFeeData['buckaroo_fee_tax_incl'] <= 0) {
+                return;
+            }
+
+            $subtotals = $presentedOrder['subtotals'];
+            if (!($subtotals instanceof ArrayAccess) || isset($subtotals['buckaroo_fee'])) {
+                return;
+            }
+
+            // Same amounts as the order total, the Admin order page and the invoice.
+            $amount = (new TaxConfiguration())->includeTaxes()
+                ? (float) $buckarooFeeData['buckaroo_fee_tax_incl']
+                : (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
+
+            $subtotals['buckaroo_fee'] = [
+                'type' => 'buckaroo_fee',
+                'label' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee',
+                'amount' => $amount,
+                'value' => $this->getPriceFormatter()->format($amount, (string) $buckarooFeeData['currency']),
+            ];
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo3: could not add the payment fee to the presented order: ' . $e->getMessage(), 2);
+        }
     }
 
     private function calculateTax($cart, $fee)
@@ -872,7 +898,7 @@ class Buckaroo3 extends PaymentModule
             Media::addJsDef([
                 'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
                 'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
-                'paymentFeeLabel' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
+                'paymentFeeLabel' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee',
                 'buckarooMessages' => [
                     'validation' => [
                         'date' => $this->l('Please enter correct birthdate date'),

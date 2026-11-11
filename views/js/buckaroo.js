@@ -37,9 +37,11 @@ class BuckarooFeeManager {
     }
 
     _findSubtotalsContainer() {
-        const $existing = $('.cart-summary-subtotals-container');
+        // 'js-cart-summary-subtotals-container' is the PrestaShop core hook class on the
+        // order summary subtotals (Classic, Hummingbird and their child themes).
+        const $existing = $('.js-cart-summary-subtotals-container, .cart-summary-subtotals-container').not('#bk-fee-wrapper');
         if ($existing.length) {
-            return $existing;
+            return $existing.first();
         }
         const $totalsBlock = this._findTotalsContainer();
         if ($totalsBlock.length) {
@@ -231,19 +233,19 @@ class BuckarooFeeManager {
         this.$cartSubtotalBuckarooFee = $('#cart-subtotal-buckarooFee');
         this.$cartSubtotalBuckarooFeeTax = $('#cart-subtotal-buckarooFeeTax');
         
-        // Ensure container reference is up to date, with PS9 fallback
-        if (!this.$cartSummarySubtotalsContainer || this.$cartSummarySubtotalsContainer.length === 0) {
-            this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
-        }
+        // Look the container up again: removePaymentFee() also drops the fallback
+        // wrapper, so a cached reference can point to a detached element.
+        this.$cartSummarySubtotalsContainer = this._findSubtotalsContainer();
 
-        const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFee">
-                                    <span class="label">${paymentFeeLabel}</span>
-                                    <span class="value">${paymentFee}</span>
+        // Classic (cart-summary-line/label/value) and Hummingbird (cart-summary__*) classes.
+        const paymentFeeHtml = `<div class="cart-summary-line cart-summary-subtotals cart-summary__line" id="cart-subtotal-buckarooFee">
+                                    <span class="label cart-summary__label">${paymentFeeLabel}</span>
+                                    <span class="value cart-summary__value">${paymentFee}</span>
                                 </div>`;
 
-        const paymentFeeTaxHtml = `<div class="cart-summary-line cart-summary-subtotals" id="cart-subtotal-buckarooFeeTax">
-                                    <span class="label">${paymentFeeLabel} Tax</span>
-                                    <span class="value">${paymentFeeTax}</span>
+        const paymentFeeTaxHtml = `<div class="cart-summary-line cart-summary-subtotals cart-summary__line" id="cart-subtotal-buckarooFeeTax">
+                                    <span class="label cart-summary__label">${paymentFeeLabel} Tax</span>
+                                    <span class="value cart-summary__value">${paymentFeeTax}</span>
                                 </div>`;
 
         if (includedTaxes) {
