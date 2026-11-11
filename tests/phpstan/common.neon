@@ -18,4 +18,4 @@ parameters:
     # Module autoloader (Buckaroo SDK and module namespaces); php-dev-tools boots the PrestaShop core.
     - ../../vendor/autoload.php
   reportUnmatchedIgnoredErrors: false
-  treatPhpDocTypesAsCertain: false
+  treatPhpDocTypesAsCertain: true

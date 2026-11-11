@@ -879,6 +879,7 @@ class Buckaroo3 extends PaymentModule
             'cartTotal' => 0,
         ];
         try {
+            /** @var Cart|null $cart The context has no cart outside a shop page request */
             $cart = $this->context->cart;
             if ($cart) {
                 $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
@@ -915,8 +916,10 @@ class Buckaroo3 extends PaymentModule
 
             $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
 
-            if ($this->context->controller) {
-                $this->context->controller->registerJavascript(
+            /** @var FrontController|null $controller The controller is not set outside a regular page request */
+            $controller = $this->context->controller;
+            if ($controller) {
+                $controller->registerJavascript(
                     'module-buckaroo3',
                     $jsPath,
                     [
@@ -924,7 +927,7 @@ class Buckaroo3 extends PaymentModule
                         'priority' => 200,
                     ]
                 );
-                $this->context->controller->registerJavascript(
+                $controller->registerJavascript(
                     'module-buckaroo3-already-paid',
                     'modules/' . $this->name . '/views/js/already-paid.js',
                     [
@@ -957,6 +960,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         try {
+            /** @var Cart|null $cart The context has no cart outside a shop page request */
             $cart = $this->context->cart;
             $clickToPayService = $this->getBuckarooClickToPayService();
 
@@ -1044,6 +1048,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
+        /** @var Controller|null $controller The controller is not set outside a regular page request */
         $controller = $this->context->controller;
         if ($controller && in_array($controller->php_self, ['order', 'order-opc'])) {
             $this->ensureBuckarooJsLoaded();
@@ -1215,6 +1220,7 @@ class Buckaroo3 extends PaymentModule
 
     private function getExpressPlacementForPage(): ?string
     {
+        /** @var object|null $controller The controller is not set outside a regular page request */
         $controller = $this->context->controller;
         $page = $controller && isset($controller->php_self) ? (string) $controller->php_self : '';
 
@@ -1442,6 +1448,7 @@ class Buckaroo3 extends PaymentModule
      */
     private function renderGiftcardAlreadyPaidBlock(): string
     {
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {
             return '';
@@ -1733,8 +1740,10 @@ class Buckaroo3 extends PaymentModule
             return (float) $overrideAmount;
         }
 
-        if ($this->context->cart instanceof Cart) {
-            return (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
+        $cart = $this->context->cart;
+        if ($cart instanceof Cart) {
+            return (float) $cart->getOrderTotal(true, Cart::BOTH);
         }
 
         return 0.0;
@@ -1742,8 +1751,10 @@ class Buckaroo3 extends PaymentModule
 
     private function getAverageCartTaxRate(): float
     {
-        if ($this->context->cart instanceof Cart) {
-            return (float) $this->context->cart->getAverageProductsTaxRate();
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
+        $cart = $this->context->cart;
+        if ($cart instanceof Cart) {
+            return (float) $cart->getAverageProductsTaxRate();
         }
 
         return 0.0;
