@@ -124,7 +124,7 @@ class PayPalCheckout extends Checkout
 
         $address = [
             'street' => $address_components['street'] ?? '',
-            'street2' => $address_components['house_number'] ?? '',
+            'street2' => (string) $address_components['house_number'],
             'zipcode' => $customerAddress->postcode,
             'city' => $customerAddress->city,
             'country' => Tools::strtoupper(
@@ -134,12 +134,8 @@ class PayPalCheckout extends Checkout
 
         if ($customerAddress->id_state) {
             $state = new State((int) $customerAddress->id_state);
-            $stateName = $state->name;
-            if (is_array($stateName)) {
-                $stateName = reset($stateName) ?: null;
-            }
-            if (!empty($stateName)) {
-                $address['state'] = (string) $stateName;
+            if (!empty($state->name)) {
+                $address['state'] = (string) $state->name;
             }
         }
 
