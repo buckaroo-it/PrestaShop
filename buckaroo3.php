@@ -556,17 +556,14 @@ class Buckaroo3 extends PaymentModule
      */
     private function getContextControllerContainer()
     {
-        $context = $this->context;
-        if (!$context || !is_object($context->controller)) {
-            return null;
-        }
-
-        if (!method_exists($context->controller, 'getContainer')) {
+        /** @var Controller|null $controller The controller is not set outside a regular page request */
+        $controller = $this->context->controller;
+        if (!is_object($controller) || !method_exists($controller, 'getContainer')) {
             return null;
         }
 
         try {
-            $container = $context->controller->getContainer();
+            $container = $controller->getContainer();
             if ($container instanceof ContainerInterface) {
                 return $container;
             }
@@ -1736,7 +1733,7 @@ class Buckaroo3 extends PaymentModule
             return (float) $overrideAmount;
         }
 
-        if ($this->context && $this->context->cart instanceof Cart) {
+        if ($this->context->cart instanceof Cart) {
             return (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
         }
 
@@ -1745,7 +1742,7 @@ class Buckaroo3 extends PaymentModule
 
     private function getAverageCartTaxRate(): float
     {
-        if ($this->context && $this->context->cart instanceof Cart) {
+        if ($this->context->cart instanceof Cart) {
             return (float) $this->context->cart->getAverageProductsTaxRate();
         }
 

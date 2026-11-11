@@ -331,7 +331,7 @@ class BuckarooCommonController extends ModuleFrontController
         }
 
         $invoices = $order->getInvoicesCollection();
-        if (!$invoices || !count($invoices)) {
+        if (!count($invoices)) {
             return;
         }
 

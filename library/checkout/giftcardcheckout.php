@@ -78,10 +78,6 @@ class GiftCardCheckout extends Checkout
      */
     private function getAllowedRedirectPaymentServices(): array
     {
-        if (!$this->buckarooConfigService) {
-            return [];
-        }
-
         try {
             $config = $this->buckarooConfigService->getConfigArrayForMethod('giftcard');
         } catch (Throwable $e) {
@@ -142,10 +138,6 @@ class GiftCardCheckout extends Checkout
      */
     private function getActiveCreditCardServices(): array
     {
-        if (!$this->buckarooConfigService) {
-            return [];
-        }
-
         try {
             $cards = $this->buckarooConfigService->getActiveCreditCards();
         } catch (Throwable $e) {
@@ -188,10 +180,6 @@ class GiftCardCheckout extends Checkout
      */
     private function getAllowedGiftcardServices(): string
     {
-        if (!$this->buckarooConfigService) {
-            return '';
-        }
-
         try {
             return implode(',', $this->buckarooConfigService->getAllowedGiftcardCodes());
         } catch (Throwable $e) {

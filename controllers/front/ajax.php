@@ -174,23 +174,6 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function renderCartSummary(Cart $cart, $presentedCart = null)
     {
         try {
-            if (!$this->cart_presenter) {
-                $this->get('prestashop.core.cart.cart_presenter');
-            }
-
-            if (!$this->cart_presenter) {
-                if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
-                    $container = $this->module->getCoreServiceContainer();
-                    if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
-                        $this->cart_presenter = $container->get('prestashop.core.cart.cart_presenter');
-                    }
-                }
-            }
-
-            if (!$this->cart_presenter) {
-                throw new Exception('Cart presenter is not available');
-            }
-
             $presentedCart = $presentedCart ?: $this->cart_presenter->present($cart);
 
             $this->context->smarty->assign([
@@ -245,7 +228,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function calculateTotalWithPaymentFee()
     {
         try {
-            if (!$this->context || !$this->context->cart || !Validate::isLoadedObject($this->context->cart)) {
+            if (!Validate::isLoadedObject($this->context->cart)) {
                 throw new Exception('Cart is not available');
             }
 
@@ -331,24 +314,6 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function updatePresentedCart($cart, $orderTotals)
     {
         try {
-            // Initialize cart_presenter if not available
-            if (!$this->cart_presenter) {
-                if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
-                    $container = $this->module->getCoreServiceContainer();
-                    if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
-                        $this->cart_presenter = $container->get('prestashop.core.cart.cart_presenter');
-                    }
-                }
-            }
-
-            if (!$this->cart_presenter) {
-                $this->cart_presenter = $this->get('prestashop.core.cart.cart_presenter');
-            }
-
-            if (!$this->cart_presenter) {
-                throw new Exception('Cart presenter is not available');
-            }
-
             $presentedCart = $this->cart_presenter->present($cart);
 
             $presentedCartArray = [];

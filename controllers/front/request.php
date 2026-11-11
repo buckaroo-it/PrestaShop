@@ -75,8 +75,8 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
 
         try {
-            if (!$this->context || !$this->context->cart) {
-                $this->logger->logError('Context or cart is not properly initialized.');
+            if (!Validate::isLoadedObject($this->context->cart)) {
+                $this->logger->logError('Cart is not available for this request.');
                 $this->redirectToCheckoutStep(1, $this->module->l('Your shopping session expired. Please start the checkout again.'));
 
                 return;
