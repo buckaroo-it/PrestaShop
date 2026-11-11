@@ -703,11 +703,22 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($transactionKey !== '') {
             $this->createTransactionMessage($id_order, 'Transaction Key: ' . $transactionKey);
         }
-        // Same as the order-first flow: giftcard payments and the paid total are recorded now.
-        $this->prepareOrderPaymentsBeforePaidStatus($id_order, $response);
+        if (!$result['duplicate'] && $result['amount_matches']) {
+            // Paid directly (express wallets): book the payment with its transaction key and
+            // mark the order paid now, like a successful return. The push then finds it paid.
+            $this->recordDirectPayment(
+                $id_order,
+                $transactionKey,
+                $this->checkout->getAmountDebit(),
+                (string) $this->attempt['payment_method']
+            );
+            $this->markOrderPaidAfterSuccessfulReturn($id_order, $response);
+        } else {
+            // Another payment created the order, or the amount differs: only record the totals.
+            $this->prepareOrderPaymentsBeforePaidStatus($id_order, $response);
+        }
         $this->clearGiftcardCookies();
 
-        // Like the order-first flow, the push sets the final paid state.
         Tools::redirect($this->context->link->getPageLink('order-confirmation', true, null, [
             'id_cart' => $cartId,
             'id_module' => $this->module->id,

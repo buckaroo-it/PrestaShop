@@ -197,6 +197,29 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
+        return $this->bookOrderPayment(
+            $orderId,
+            $transactionKey,
+            (float) urldecode((string) ($response->amount ?? 0)),
+            (string) ($response->payment_method ?? '')
+        );
+    }
+
+    /**
+     * Record a payment Buckaroo confirmed in its direct response (no push data yet),
+     * so the order has the transaction key before it is marked paid.
+     */
+    protected function recordDirectPayment(int $orderId, string $transactionKey, float $amount, string $paymentMethod): bool
+    {
+        return $this->bookOrderPayment($orderId, $transactionKey, $amount, $paymentMethod);
+    }
+
+    private function bookOrderPayment(int $orderId, string $transactionKey, float $amount, string $paymentMethod): bool
+    {
+        if ($transactionKey === '' || $amount <= 0) {
+            return false;
+        }
+
         $order = new Order($orderId);
         if (!Validate::isLoadedObject($order)) {
             return false;
@@ -206,17 +229,12 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
-        $amount = (float) urldecode((string) ($response->amount ?? 0));
-        if ($amount <= 0) {
-            return false;
-        }
-
         $payment = new OrderPayment();
         $payment->order_reference = $order->reference;
         $payment->id_currency = $order->id_currency;
         $payment->conversion_rate = 1;
         $payment->amount = $amount;
-        $payment->payment_method = Tools::strtolower((string) ($response->payment_method ?? $order->payment));
+        $payment->payment_method = Tools::strtolower($paymentMethod !== '' ? $paymentMethod : (string) $order->payment);
         $payment->transaction_id = $transactionKey;
         $payment->save();
 
@@ -239,12 +257,24 @@ class BuckarooCommonController extends ModuleFrontController
         }
 
         $totalDue = (float) $order->total_paid;
-        if ($totalDue > 0 && abs($sum - $totalDue) <= 0.005) {
-            $order->total_paid_real = $totalDue;
-        } else {
-            $order->total_paid_real = $sum;
-        }
-        $order->save();
+        $totalPaidReal = ($totalDue > 0 && abs($sum - $totalDue) <= 0.005) ? $totalDue : $sum;
+
+        // Update only this column: saving the whole order could write back a status
+        // that the push changed in the meantime.
+        Db::getInstance()->update('orders', [
+            'total_paid_real' => (float) $totalPaidReal,
+            'date_upd' => date('Y-m-d H:i:s'),
+        ], 'id_order = ' . (int) $orderId);
+        $this->clearOrderCache($orderId);
+    }
+
+    /**
+     * PrestaShop caches loaded orders per request; drop the copy so the next
+     * new Order() reads what the push (another request) may have changed.
+     */
+    protected function clearOrderCache(int $orderId): void
+    {
+        Cache::clean('objectmodel_Order_' . (int) $orderId . '_*');
     }
 
     protected function prepareOrderPaymentsBeforePaidStatus(int $orderId, $response = null): void
@@ -401,6 +431,8 @@ class BuckarooCommonController extends ModuleFrontController
 
     protected function updatePendingOrderStatus(int $orderId, int $newStatusCode, bool $sendEmail = false): bool
     {
+        // The push may have changed the status already: compare with the stored one.
+        $this->clearOrderCache($orderId);
         $order = new Order($orderId);
         if (!Validate::isLoadedObject($order)) {
             return false;
