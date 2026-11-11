@@ -285,7 +285,16 @@ class ExpressCheckoutService
         // Validate everything with the hidden estimate address first, so a
         // rejected authorization does not leave customers or addresses behind.
         $deliveryFields = $this->getAddressFields($shipping);
-        $invoiceFields = $this->getAddressFields($billing);
+
+        $invoiceFields = $deliveryFields;
+        $invoiceCountry = $this->findCountry((string) ($billing['countryCode'] ?? ''), false);
+        if ($invoiceCountry !== null) {
+            try {
+                $invoiceFields = $this->getAddressFields($billing, $invoiceCountry, false);
+            } catch (ExpressException $exception) {
+                $invoiceFields = $deliveryFields;
+            }
+        }
         $deliveryCountry = new \Country((int) $deliveryFields['id_country']);
 
         $estimate = $this->saveEstimateAddress($deliveryCountry, $shipping);
@@ -827,15 +836,17 @@ class ExpressCheckoutService
      * Validated address fields of a wallet contact.
      *
      * @param array<string, mixed> $contact wallet contact
+     * @param \Country|null $country country of the contact; by default a country the shop delivers to
+     * @param bool $checkPostcodeFormat false accepts a missing postcode or one in another format (billing address)
      *
      * @return array<string, int|string>
      *
      * @throws ExpressException
      */
-    private function getAddressFields(array $contact): array
+    private function getAddressFields(array $contact, ?\Country $country = null, bool $checkPostcodeFormat = true): array
     {
         [$firstname, $lastname] = $this->resolveName($contact);
-        $country = $this->resolveCountry((string) ($contact['countryCode'] ?? ''));
+        $country = $country ?? $this->resolveCountry((string) ($contact['countryCode'] ?? ''));
         $idState = $this->resolveState($country, (string) ($contact['administrativeArea'] ?? ''));
 
         $lines = [];
@@ -858,7 +869,10 @@ class ExpressCheckoutService
         if ($city === '' || !\Validate::isCityName($city)) {
             throw new ExpressException(sprintf($this->module->l('Please enter a valid city in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'locality');
         }
-        if (!\Validate::isPostCode($postcode) || ($country->need_zip_code && !$country->checkZipCode($postcode))) {
+        if (!$checkPostcodeFormat && !\Validate::isPostCode($postcode)) {
+            $postcode = '';
+        }
+        if ($checkPostcodeFormat && (!\Validate::isPostCode($postcode) || ($country->need_zip_code && !$country->checkZipCode($postcode)))) {
             throw new ExpressException(sprintf($this->module->l('Please enter a valid postal code in %s.', 'expresscheckoutservice'), $this->wallet->getLabel()), 'postalCode');
         }
 
@@ -963,11 +977,35 @@ class ExpressCheckoutService
      */
     private function resolveCountry(string $isoCode): \Country
     {
-        $idCountry = (int) \Country::getByIso(strtoupper(trim($isoCode)), true);
-        $country = new \Country($idCountry, (int) $this->context->language->id);
+        $country = $this->findCountry($isoCode, true);
 
-        if ($idCountry <= 0 || !\Validate::isLoadedObject($country) || !$country->active) {
+        if ($country === null) {
             throw new ExpressException($this->module->l('We do not deliver to this country. Please choose another address.', 'expresscheckoutservice'), 'country');
+        }
+
+        return $country;
+    }
+
+    /**
+     * PrestaShop country of a wallet country code, or null when the shop has
+     * no such country (or, with $activeOnly, it is not active).
+     */
+    private function findCountry(string $isoCode, bool $activeOnly): ?\Country
+    {
+        $isoCode = strtoupper(trim($isoCode));
+        // Country::getByIso() stops the request on a malformed code.
+        if (!\Validate::isLanguageIsoCode($isoCode)) {
+            return null;
+        }
+
+        $idCountry = (int) \Country::getByIso($isoCode, $activeOnly);
+        if ($idCountry <= 0) {
+            return null;
+        }
+
+        $country = new \Country($idCountry, (int) $this->context->language->id);
+        if (!\Validate::isLoadedObject($country) || ($activeOnly && !$country->active)) {
+            return null;
         }
 
         return $country;
