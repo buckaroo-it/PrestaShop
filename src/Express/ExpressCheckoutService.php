@@ -633,7 +633,9 @@ class ExpressCheckoutService
                 continue;
             }
             $names[] = $carrier->name === '0' ? (string) \Configuration::get('PS_SHOP_NAME') : (string) $carrier->name;
-            $delay = is_array($carrier->delay) ? (string) ($carrier->delay[$idLang] ?? '') : (string) $carrier->delay;
+            /** @var string|array<int, string> $carrierDelay One value per language when the carrier is loaded without a language */
+            $carrierDelay = $carrier->delay;
+            $delay = is_array($carrierDelay) ? (string) ($carrierDelay[$idLang] ?? '') : (string) $carrierDelay;
             if ($delay !== '') {
                 $delays[] = $delay;
             }

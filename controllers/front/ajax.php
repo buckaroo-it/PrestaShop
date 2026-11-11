@@ -122,6 +122,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      */
     private function getPhoneStatus()
     {
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {
             $this->ajaxRender(json_encode(['error' => true, 'delivery_phone' => '', 'billing_phone' => '']));
