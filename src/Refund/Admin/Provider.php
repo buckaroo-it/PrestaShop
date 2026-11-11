@@ -59,6 +59,18 @@ class Provider
     }
 
     /**
+     * Maximum refundable amount, as shown in the Buckaroo refunds block.
+     *
+     * @param \Order $order
+     *
+     * @return float
+     */
+    public function getMaxRefundAmount(\Order $order): float
+    {
+        return $this->getAvailableRefundAmount($order, $this->getRefundRequests((int) $order->id));
+    }
+
+    /**
      * Get available amount for refund
      *
      * @param \Order $order

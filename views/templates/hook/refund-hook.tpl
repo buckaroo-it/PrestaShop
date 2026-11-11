@@ -66,12 +66,17 @@
     </div>
 </div>
 
+{assign var='bkMaxAmountFormatted' value=Tools::getContextLocale(Context::getContext())->formatPrice($maxAvailableAmount, Currency::getIsoCodeById($currencyId))}
 <script>
     $(function() {
         $('#bk-btn-refund').click(function() {
             var refundAmount = Number($('#bk-refund-amount').val());
             if (refundAmount === 0) {
                 alert('{l s="A refund amount grater than 0 is required" mod="buckaroo3"}');
+                return;
+            }
+            if (Math.round(refundAmount * 100) > Math.round(Number('{$maxAvailableAmount|escape:'javascript':'UTF-8'}') * 100)) {
+                alert('{l s='The refund amount cannot exceed the maximum refundable amount of %s.' sprintf=[$bkMaxAmountFormatted] mod='buckaroo3' js=1}');
                 return;
             }
             if (

@@ -220,3 +220,8 @@ $_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_092631abc4f7b157f0857aec
 $_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_925b76d1049649c9829688b9847b57c4'] = 'Vul in %s een geldige postcode in.';
 $_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_f171d1706ffa1f5ed63afb027f729c27'] = 'Wij konden uw adres niet opslaan. Probeer het opnieuw.';
 $_MODULE['<{buckaroo3}prestashop>expresscheckoutservice_f04f000f8861cdb34519bdc6d1e93108'] = 'Wij leveren niet in dit land. Kies een ander adres.';
+$_MODULE['<{buckaroo3}prestashop>adminrefundcontroller_b7c5dd982291c61cd7d2d19767ce4429'] = 'De terugbetaling kon niet worden gecontroleerd. Laad de pagina opnieuw en probeer het nog eens.';
+$_MODULE['<{buckaroo3}prestashop>adminrefundcontroller_12219d61006d98c53f6230c7111d2ee7'] = 'Voor deze bestelling is geen bedrag meer beschikbaar om terug te betalen.';
+$_MODULE['<{buckaroo3}prestashop>adminrefundcontroller_afe2a36d9e02231502d7d95633a3cc3b'] = 'Het terug te betalen bedrag mag niet hoger zijn dan het maximaal terug te betalen bedrag van %s.';
+$_MODULE['<{buckaroo3}prestashop>adminrefundcontroller_49d5e71c04a01c40fb89ac3d3570513c'] = 'Voer een geldig terug te betalen bedrag groter dan 0 in, met maximaal twee decimalen.';
+$_MODULE['<{buckaroo3}prestashop>refund-hook_afe2a36d9e02231502d7d95633a3cc3b'] = 'Het terug te betalen bedrag mag niet hoger zijn dan het maximaal terug te betalen bedrag van %s.';
