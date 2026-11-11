@@ -18,7 +18,6 @@
 use Buckaroo\PrestaShop\Src\Config\Config;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
-use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -27,6 +26,9 @@ if (!defined('_PS_VERSION_')) {
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
+    /** @var Buckaroo3 */
+    public $module;
+
     public $ssl = true;
     public $ajax = true;
     public $content_only = true;
