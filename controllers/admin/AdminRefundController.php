@@ -17,7 +17,9 @@
 
 namespace Buckaroo\PrestaShop\Controllers\admin;
 
+use Buckaroo\PrestaShop\Src\Refund\Admin\Provider as RefundProvider;
 use Buckaroo\PrestaShop\Src\Refund\OrderService;
+use Buckaroo\PrestaShop\Src\Refund\RefundAmount;
 use Buckaroo\PrestaShop\Src\Refund\RefundSplit;
 use Buckaroo\PrestaShop\Src\Refund\Request\Handler as RefundRequestHandler;
 use Buckaroo\PrestaShop\Src\Refund\Request\QuantityBasedBuilder;
@@ -76,7 +78,13 @@ class AdminRefundController extends AbstractController
     private $priceFormatter;
 
     /**
+     * @var RefundProvider|null
+     */
+    private $refundProvider;
+
+    /**
      * @param object|null $legacyContext prestashop.adapter.legacy.context service (optional for backward compatibility)
+     * @param RefundProvider|null $refundProvider source of the maximum refundable amount; refunds are refused without it
      */
     public function __construct(
         QuantityBasedBuilder $refundBuilder,
@@ -84,7 +92,8 @@ class AdminRefundController extends AbstractController
         RefundResponseHandler $responseHandler,
         OrderService $orderService,
         SessionInterface $session,
-        $legacyContext = null
+        $legacyContext = null,
+        ?RefundProvider $refundProvider = null
     ) {
         $this->refundHandler = $refundHandler;
         $this->refundBuilder = $refundBuilder;
@@ -92,6 +101,7 @@ class AdminRefundController extends AbstractController
         $this->orderService = $orderService;
         $this->session = $session;
         $this->priceFormatter = new PriceFormatter($legacyContext);
+        $this->refundProvider = $refundProvider;
     }
 
     public function refund(Request $request)
@@ -110,7 +120,13 @@ class AdminRefundController extends AbstractController
         $order = new \Order($orderId);
 
         try {
-            $totalRefundAmount = $this->sendRefundRequests($order, (float) $refundAmount);
+            $validationError = $this->validateRefundAmount($order, $refundAmount);
+            if ($validationError !== null) {
+                return $this->renderError($validationError);
+            }
+
+            $requestedAmount = RefundAmount::toCents($refundAmount) / 100;
+            $totalRefundAmount = $this->sendRefundRequests($order, $requestedAmount);
 
             $message = 'Successfully refunded amount of ' . $this->formatPrice($order, $totalRefundAmount);
             $this->addFlash('success', $message);
@@ -121,6 +137,49 @@ class AdminRefundController extends AbstractController
         } catch (\Throwable $th) {
             return $this->renderError($this->exceptionMessage($th));
         }
+    }
+
+    /**
+     * Check the entered amount against the maximum shown in the refunds block,
+     * before anything is sent to Buckaroo or recorded on the order. The entered
+     * amount is never capped: an amount above the maximum is refused.
+     *
+     * @param \Order $order
+     * @param mixed $refundAmount
+     *
+     * @return string|null error message, or null when the amount is valid
+     */
+    private function validateRefundAmount(\Order $order, $refundAmount): ?string
+    {
+        if ($this->refundProvider === null || !\Validate::isLoadedObject($order)) {
+            return $this->translate('The refund could not be validated. Please reload the page and try again.');
+        }
+
+        $maxRefundAmount = $this->refundProvider->getMaxRefundAmount($order);
+
+        switch (RefundAmount::validate($refundAmount, $maxRefundAmount)) {
+            case RefundAmount::VALID:
+                return null;
+            case RefundAmount::NOTHING_TO_REFUND:
+                return $this->translate('This order has no remaining amount to refund.');
+            case RefundAmount::EXCEEDS_MAXIMUM:
+                return sprintf(
+                    $this->translate('The refund amount cannot exceed the maximum refundable amount of %s.'),
+                    $this->formatPrice($order, $maxRefundAmount)
+                );
+            default:
+                return $this->translate('Please enter a valid refund amount greater than 0, with at most two decimals.');
+        }
+    }
+
+    private function translate(string $message): string
+    {
+        $module = \Module::getInstanceByName('buckaroo3');
+        if (!$module instanceof \Module) {
+            return $message;
+        }
+
+        return $module->l($message, 'adminrefundcontroller');
     }
 
     /**
