@@ -137,13 +137,13 @@ class BuckarooFeeManager {
         // Handle empty or null values
         if (!paymentFee || paymentFee === '' || paymentFee === 0 || paymentFee === '0' || paymentFee === null || paymentFee === undefined) {
             this.removePaymentFee();
-            this.updateCartSummary('');
+            this.updateCartSummary('', buckarooKey);
         } else {
-            this.updateCartSummary(String(paymentFee).trim());
+            this.updateCartSummary(String(paymentFee).trim(), buckarooKey);
         }
     }
 
-    updateCartSummary(paymentFee) {
+    updateCartSummary(paymentFee, paymentMethod) {
         
         if (!buckarooAjaxUrl) {
             console.error('buckarooAjaxUrl is not defined!');
@@ -153,7 +153,8 @@ class BuckarooFeeManager {
         $.ajax({
             url: buckarooAjaxUrl,
             method: 'GET',
-            data: {'paymentFee': paymentFee, ajax: 1, action: 'getTotalCartPrice'},
+            // The server calculates the fee from the method's configuration, exactly as for the order.
+            data: {'paymentFee': paymentFee, 'paymentMethod': paymentFee ? (paymentMethod || '') : '', ajax: 1, action: 'getTotalCartPrice'},
             dataType: 'json',
             success: (response) => {
                 this.handleCartUpdate(response);

@@ -44,6 +44,7 @@ use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
@@ -1669,65 +1670,38 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFee($payment_method, $percentageBaseAmount = null)
     {
-        $buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
+        return $this->calculateBuckarooFee(
+            $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method),
+            $percentageBaseAmount
+        );
+    }
 
-        if ($buckarooFee === null || $buckarooFee === '') {
+    /**
+     * Calculates a configured fee value for the current cart. Every place that shows,
+     * charges or stores the fee goes through here (see BuckarooFeeCalculator).
+     *
+     * @param mixed $configuredFee fixed amount (tax excl.) or percentage ("2%")
+     * @param float|null $percentageBaseAmount
+     *
+     * @return array|null
+     */
+    public function calculateBuckarooFee($configuredFee, $percentageBaseAmount = null)
+    {
+        if ($configuredFee === null || $configuredFee === '' || $configuredFee === false) {
             return null;
         }
 
-        $buckarooFee = trim((string) $buckarooFee);
+        $configuredFee = trim((string) $configuredFee);
+        $percentageBase = BuckarooFeeCalculator::isPercentage($configuredFee)
+            ? $this->resolvePercentageBaseAmount($percentageBaseAmount)
+            : 0.0;
 
-        if ($this->isPercentageFee($buckarooFee)) {
-            $percentageValue = $this->normalizePercentageValue($buckarooFee);
-            if ($percentageValue <= 0) {
-                return null;
-            }
-
-            $percentageBase = $this->resolvePercentageBaseAmount($percentageBaseAmount);
-            if ($percentageBase <= 0) {
-                return null;
-            }
-
-            $computePrecision = $this->context->getComputingPrecision();
-            $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
-
-            $buckarooFee = $roundedBase * ($percentageValue / 100);
-        } else {
-            $buckarooFee = (float) $buckarooFee;
-        }
-
-        if ($buckarooFee <= 0) {
-            return null;
-        }
-
-        $computePrecision = $this->context->getComputingPrecision();
-        $buckarooFee = Tools::ps_round($buckarooFee, $computePrecision);
-
-        $taxRate = $this->getAverageCartTaxRate();
-        $buckarooFeeTax = $buckarooFee * $taxRate;
-        $buckarooFeeTax = Tools::ps_round($buckarooFeeTax, $computePrecision);
-
-        $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
-        $buckarooFeeTaxIncl = Tools::ps_round($buckarooFeeTaxIncl, $computePrecision);
-
-        return [
-            'buckaroo_fee_tax_excl' => $buckarooFee,
-            'buckaroo_fee_tax' => $buckarooFeeTax,
-            'buckaroo_fee_tax_incl' => $buckarooFeeTaxIncl,
-        ];
-    }
-
-    private function isPercentageFee($fee): bool
-    {
-        return is_string($fee) && strpos($fee, '%') !== false;
-    }
-
-    private function normalizePercentageValue($fee): float
-    {
-        $normalized = str_replace('%', '', $fee);
-        $normalized = str_replace(',', '.', $normalized);
-
-        return (float) trim($normalized);
+        return BuckarooFeeCalculator::calculate(
+            $configuredFee,
+            $percentageBase,
+            $this->getAverageCartTaxRate(),
+            (int) $this->context->getComputingPrecision()
+        );
     }
 
     private function resolvePercentageBaseAmount($overrideAmount = null): float

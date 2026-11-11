@@ -184,6 +184,15 @@ if (!class_exists('Tools')) {
             };
         }
 
+        /**
+         * PrestaShop rounds prices half up by default (PS_PRICE_ROUND_MODE = PS_ROUND_HALF_UP),
+         * pre-rounding away binary float noise such as 1.5 * 0.21 = 0.31499999...
+         */
+        public static function ps_round($value, $precision = 0, $roundMode = null)
+        {
+            return round((float) $value, (int) $precision, PHP_ROUND_HALF_UP);
+        }
+
         public static function strtoupper($string)
         {
             return strtoupper($string);
