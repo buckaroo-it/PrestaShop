@@ -19,6 +19,7 @@ use Buckaroo\PrestaShop\Src\Express\ExpressCheckoutService;
 use Buckaroo\PrestaShop\Src\Express\Wallet;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\Service\OrderAfterPayment;
@@ -255,15 +256,12 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     {
         $buckarooFee = $this->module->getBuckarooFee($payment_method, $total);
 
-        if (is_array($buckarooFee)) {
-            $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
-            $total += $buckarooFeeTaxIncl;
-
-            $computePrecision = $this->context->getComputingPrecision();
-            $total = Tools::ps_round($total, $computePrecision);
+        if (!is_array($buckarooFee)) {
+            return $total;
         }
 
-        return $total;
+        // Same rounding as the checkout summary (ajax controller), so both show one total.
+        return BuckarooFeeCalculator::addToTotal((float) $total, $buckarooFee, (int) $this->context->getComputingPrecision());
     }
 
     private function isValidCurrency($currency): bool

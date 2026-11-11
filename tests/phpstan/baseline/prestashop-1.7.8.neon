@@ -11,11 +11,6 @@ parameters:
 			path: ../../../buckaroo3.php
 
 		-
-			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
-			count: 1
-			path: ../../../controllers/front/ajax.php
-
-		-
 			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
 			count: 4
 			path: ../../../controllers/front/common.php
