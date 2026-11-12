@@ -18,7 +18,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class AdminBuckaroologController extends AdminControllerCore
+class AdminBuckaroologController extends ModuleAdminController
 {
     public function __construct()
     {
