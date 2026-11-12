@@ -270,28 +270,11 @@ class OrderAfterPaymentService
 
     private function lock(int $cartId): bool
     {
-        try {
-            return (int) \Db::getInstance()->getValue(
-                'SELECT GET_LOCK(\'' . $this->lockName($cartId) . '\', ' . self::LOCK_TIMEOUT . ')',
-                false
-            ) === 1;
-        } catch (\Throwable $e) {
-            return false;
-        }
+        return (new CartOrderLock())->acquire($cartId, self::LOCK_TIMEOUT);
     }
 
     private function unlock(int $cartId): void
     {
-        try {
-            \Db::getInstance()->getValue('SELECT RELEASE_LOCK(\'' . $this->lockName($cartId) . '\')', false);
-        } catch (\Throwable $e) {
-            // The lock is released with the connection anyway.
-        }
-    }
-
-    private function lockName(int $cartId): string
-    {
-        // Lock names are server wide: include the database so two shops on one server do not share them.
-        return 'bk_order_' . md5(_DB_NAME_ . _DB_PREFIX_) . '_' . $cartId;
+        (new CartOrderLock())->release($cartId);
     }
 }

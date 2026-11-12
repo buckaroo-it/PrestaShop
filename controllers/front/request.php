@@ -22,6 +22,7 @@ use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
+use Buckaroo\PrestaShop\Src\Service\CartOrderLock;
 use Buckaroo\PrestaShop\Src\Service\OrderAfterPayment;
 use Buckaroo\PrestaShop\Src\Service\PaidCartGuard;
 use Buckaroo\PrestaShop\Src\Service\ReturnStateSigner;
@@ -505,21 +506,43 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->logger->logInfo('Order after payment: attempt ' . $this->attempt['reference'] . ' started');
         } elseif (!$id_order_cart) {
             if (!$this->checkout->isVerifyRequired()) {
+                // Same per-cart lock as every other order-creating path (giftcard, push, return):
+                // re-check for an order inside it so one cart never gets two orders.
+                $lock = new CartOrderLock();
+                if (!$lock->acquire((int) $cart->id)) {
+                    $this->logger->logError('Order validation: cart ' . (int) $cart->id . ' is locked by another request');
+                    $this->displayError(null, $this->module->l('Your payment is already being processed. Please try again in a few minutes.'));
+
+                    return;
+                }
+
+                $error = null;
                 try {
-                    $this->module->validateOrder(
-                        (int) $cart->id,
-                        (int) $pending,
-                        (float) $total,
-                        $payment_method_tr,
-                        null,
-                        [],
-                        (int) $currency->id,
-                        false,
-                        $customer->secure_key
-                    );
+                    $id_order_cart = (int) Order::getIdByCartId((int) $cart->id);
+                    if ($id_order_cart > 0) {
+                        $this->module->currentOrder = $id_order_cart;
+                    } else {
+                        $this->module->validateOrder(
+                            (int) $cart->id,
+                            (int) $pending,
+                            (float) $total,
+                            $payment_method_tr,
+                            null,
+                            [],
+                            (int) $currency->id,
+                            false,
+                            $customer->secure_key
+                        );
+                    }
                 } catch (Exception $e) {
                     $this->logger->logError('Order validation failed: ', $e->getMessage());
-                    $this->displayError(null, $e->getMessage());
+                    $error = $e->getMessage();
+                } finally {
+                    $lock->release((int) $cart->id);
+                }
+
+                if ($error !== null) {
+                    $this->displayError(null, $error);
 
                     return;
                 }
