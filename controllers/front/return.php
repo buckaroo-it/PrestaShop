@@ -17,11 +17,12 @@
 
 use Buckaroo\PrestaShop\Src\Refund\KlarnaTransactionKey;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
 
 include_once __DIR__ . '/../../api/paymentmethods/responsefactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 if (!defined('_PS_VERSION_')) {
@@ -37,7 +38,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'return');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'return');
         $this->buckarooFeeRepository = $this->resolveBuckarooFeeRepository();
     }
 
@@ -55,8 +56,6 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
      */
     public function initContent()
     {
-        $this->display_column_left = false;
-        $this->display_column_right = false;
         $this->logger->logInfo("\n\n\n\n***************** Return start ***********************");
 
         parent::initContent();
@@ -72,13 +71,21 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         if ($response->isValid()) {
             $this->logger->logInfo('Response valid');
+
+            // An iDIN verification has no order; store the result and stop here.
+            if ($response instanceof IdinResponse) {
+                $stored = $response->storeCustomerVerification();
+                $this->logger->logInfo('iDIN push handled', ['stored' => $stored]);
+                echo $stored ? 'OK' : 'iDIN result not stored';
+                exit;
+            }
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
                 && !empty($response->statuscode)
-                && ($response->statuscode == $response::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
+                && ($response->statuscode == BuckarooAbstract::BUCKAROO_STATUSCODE_PENDING_PROCESSING)
             ) {
-                $response->statuscode = $response::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
-                $response->status = $response::BUCKAROO_CANCELED;
+                $response->statuscode = BuckarooAbstract::BUCKAROO_STATUSCODE_CANCELLED_BY_USER;
+                $response->status = BuckarooAbstract::BUCKAROO_CANCELED;
             }
 
             $actionCode = Tools::strtolower((string) Tools::getValue('brq_actioncode'));
@@ -137,6 +144,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 exit;
             }
 
+            $attempt = $this->findPaymentAttempt($response);
+            if ($attempt !== null) {
+                $id_order = $this->handleAttemptPush($attempt, $response, (int) $id_order);
+            }
+
             if (!$id_order) {
                 header('HTTP/1.1 503 Service Unavailable');
                 echo 'Order does not exist';
@@ -164,7 +176,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $new_status_code = (int) $order->getCurrentState();
             }
 
-            if (!in_array($order->reference, $references) && !$this->isGiftcardPushForOrder($response, $order)) {
+            if (!in_array($order->reference, $references)
+                && !$this->isGiftcardPushForOrder($response, $order)
+                && !($attempt !== null && (int) $attempt['id_cart'] === (int) $order->id_cart)
+            ) {
                 header('HTTP/1.1 503 Service Unavailable');
                 $this->logger->logError('Order not in reference ' . $order->reference);
                 echo 'Order not in reference: ' . $order->reference;
@@ -239,7 +254,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         $buckarooFee = $this->buckarooFeeRepository->getFeeByOrderId($order->id);
 
-        if ($buckarooFee && (isset($payment) && $payment->payment_method != 'Group transaction')) {
+        if ($buckarooFee && (isset($payments, $payment) && $payment->payment_method != 'Group transaction')) {
             $jj = 0;
             foreach ($payments as $payment) {
                 if ($jj > 0) {
@@ -254,6 +269,68 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             }
         }
 
+        exit;
+    }
+
+    /**
+     * Push for a payment that creates the order only after payment.
+     *
+     * A paid push creates the order (or finds the one the customer return created) and
+     * returns its id, so the normal push handling marks it paid. Every other push only
+     * updates the attempt and ends the request, unless the attempt created the order.
+     *
+     * @param array<string, mixed> $attempt
+     *
+     * @return int the order to continue with
+     */
+    private function handleAttemptPush(array $attempt, $response, int $orderId): int
+    {
+        $attempts = new RawPaymentAttemptRepository();
+        $attemptId = (int) $attempt['id_bk_payment_attempt'];
+        $transactionKey = (string) $response->transactions;
+
+        if ($response->isPaid()) {
+            $result = $this->createOrderForAttempt($attempt, $this->getReplyAmount($response), $transactionKey);
+            if ($result === null) {
+                // Buckaroo repeats the push, so the order is created on a later try.
+                header('HTTP/1.1 503 Service Unavailable');
+                echo 'Order could not be created';
+                exit;
+            }
+
+            if ($result['duplicate'] || !$result['amount_matches']) {
+                $this->logger->logError('Order after payment: order not marked paid', [
+                    'order' => $result['id_order'],
+                    'duplicate' => $result['duplicate'],
+                    'amount_matches' => $result['amount_matches'],
+                ]);
+                echo 'OK';
+                exit;
+            }
+
+            $this->logger->logInfo('Order after payment: order ' . $result['id_order'] . ($result['created'] ? ' created' : ' found'));
+
+            return (int) $result['id_order'];
+        }
+
+        // A later push (refund, chargeback, ...) of the attempt that created the order.
+        if ($orderId > 0 && (int) $attempt['id_order'] === $orderId) {
+            if (RawPaymentAttemptRepository::hasAmountMismatch($attempt)) {
+                echo 'OK';
+                exit;
+            }
+
+            return $orderId;
+        }
+
+        // Not paid (yet): there is no order to change. Never touch an order another attempt created.
+        if ($response->hasSucceeded()) {
+            $attempts->markPending($attemptId, $transactionKey);
+        } else {
+            $attempts->markFailed($attemptId, $transactionKey);
+        }
+        $this->logger->logInfo('Order after payment: attempt ' . $attempt['reference'] . ' updated, status ' . $response->getStatusCodeValue());
+        echo 'OK';
         exit;
     }
 
@@ -335,11 +412,13 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
 
         $payments = new PrestaShopCollection('OrderPayment');
         $payments->where('transaction_id', '=', $reservationKey);
+        /** @var OrderPayment|false $payment */
         $payment = $payments->getFirst();
         if (!$payment || !$payment->order_reference) {
             return false;
         }
 
+        /** @var Order|false $order */
         $order = Order::getByReference($payment->order_reference)->getFirst();
         if (!$order) {
             return false;
@@ -353,7 +432,8 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $history = new OrderHistory();
                 $history->id_order = (int) $order->id;
                 $history->changeIdOrderState($canceledState, (int) $order->id, true);
-                $history->addWithemail(false);
+                // First argument is $autodate: it must be true so date_add is filled in.
+                $history->addWithemail(true);
             }
 
             if ((float) $payment->amount != 0.0) {

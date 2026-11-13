@@ -136,7 +136,9 @@ abstract class Checkout
             // Hand the controller context down so the request never resolves it statically.
             $this->payment_request->setContext($context);
         }
-        $this->module = Module::getInstanceByName('buckaroo3');
+        /** @var Buckaroo3 $module */
+        $module = Module::getInstanceByName('buckaroo3');
+        $this->module = $module;
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
@@ -164,7 +166,7 @@ abstract class Checkout
         return $this->reference;
     }
 
-    protected function setCheckout()
+    public function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
         $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
@@ -259,7 +261,19 @@ abstract class Checkout
 
         (new RawBuckarooFeeRepository())->insertFee($this->reference, $this->cart->id, $order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl, $currency->iso_code);
 
-        $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
+        // Order after payment: the fee is stored on the attempt reference and added to
+        // the order totals when the order is created (OrderAfterPaymentService).
+        if ((int) $order_id > 0) {
+            $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
+        }
+    }
+
+    /**
+     * Amount sent to Buckaroo, including the payment fee.
+     */
+    public function getAmountDebit(): float
+    {
+        return is_object($this->payment_request) ? (float) $this->payment_request->amountDebit : 0.0;
     }
 
     protected function updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl)
@@ -270,10 +284,10 @@ abstract class Checkout
         $totalPriceIncl = $originalAmountIncl->plus(new DecimalNumber((string) $buckarooFeeTaxIncl));
 
         $order = new Order($order_id);
-        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
-        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);
-        $order->total_paid = $totalPriceIncl->toPrecision(2);
-        $order->total_paid_real = $totalPriceIncl->toPrecision(2);
+        $order->total_paid_tax_excl = (float) $totalPriceExcl->toPrecision(2);
+        $order->total_paid_tax_incl = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid_real = (float) $totalPriceIncl->toPrecision(2);
         $order->update();
     }
 
@@ -290,6 +304,19 @@ abstract class Checkout
     abstract public function isRedirectRequired();
 
     abstract public function isVerifyRequired();
+
+    /**
+     * Start a verification request. Only checkouts that report
+     * isVerifyRequired() implement it.
+     *
+     * @param array $customVars
+     *
+     * @throws Exception
+     */
+    public function startVerify($customVars = [])
+    {
+        throw new Exception('Verification is not available for this payment method');
+    }
 
     public function doRedirect($redirect_url = null)
     {
@@ -545,7 +572,7 @@ abstract class Checkout
             return null;
         }
 
-        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, Configuration::get('PS_TAX'));
+        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, (int) Configuration::get('PS_TAX'));
 
         return [
             'identifier' => 'shipping',

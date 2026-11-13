@@ -83,6 +83,7 @@ if (!class_exists('CarrierHandler')) {
 
 // Composer autoload for the module and its vendors
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/Fixtures/Db.php';
 
 /*
  * Lightweight test doubles for common PrestaShop classes used by the module.
@@ -183,6 +184,15 @@ if (!class_exists('Tools')) {
             };
         }
 
+        /**
+         * PrestaShop rounds prices half up by default (PS_PRICE_ROUND_MODE = PS_ROUND_HALF_UP),
+         * pre-rounding away binary float noise such as 1.5 * 0.21 = 0.31499999...
+         */
+        public static function ps_round($value, $precision = 0, $roundMode = null)
+        {
+            return round((float) $value, (int) $precision, PHP_ROUND_HALF_UP);
+        }
+
         public static function strtoupper($string)
         {
             return strtoupper($string);
@@ -201,6 +211,12 @@ if (!class_exists('Tools')) {
             }
 
             return $_GET[$key] ?? $defaultValue;
+        }
+
+        /** Mirrors PrestaShop: POST wins over GET. */
+        public static function getAllValues()
+        {
+            return $_POST + $_GET;
         }
 
         public static function isSubmit($submit)
@@ -386,6 +402,21 @@ if (!class_exists('\Doctrine\ORM\EntityManager')) {
         {
             return null;
         }
+    }
+    ');
+}
+
+// ---- Minimal Doctrine ORM EntityRepository stub ----
+// Lets the module repositories be loaded so their in-memory logic can be tested
+// without a database; tests create them without calling a constructor.
+if (!class_exists('\Doctrine\ORM\EntityRepository')) {
+    eval('
+    namespace Doctrine\ORM;
+
+    class EntityRepository
+    {
+        /** @var EntityManager|null */
+        protected $_em;
     }
     ');
 }

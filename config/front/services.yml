@@ -18,8 +18,6 @@ services:
     public: true
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
-    arguments:
-      - "@buckaroo.config.api.config.service"
     public: true
   buckaroo.classes.issuers.payByBank:
     class: Buckaroo\PrestaShop\Classes\Issuers\PayByBank

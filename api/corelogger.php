@@ -50,7 +50,7 @@ class CoreLogger
 
     private function logEvent($info, $level, $descr = null)
     {
-        if (self::LOG && $level >= $this->level) {
+        if ($level >= $this->level) {
             $prefix = self::$log_level[$level] . ' ' . date('Y-m-d H:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {

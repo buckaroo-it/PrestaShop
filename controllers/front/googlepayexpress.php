@@ -14,31 +14,27 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/checkout/checkout.php';
+
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressFrontController;
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
+use Buckaroo\PrestaShop\Src\Express\Wallet;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class CashTicketCheckout extends Checkout
+/**
+ * JSON endpoints behind the Google Pay express button.
+ */
+class Buckaroo3GooglepayexpressModuleFrontController extends AbstractExpressFrontController
 {
-    final public function setCheckout()
+    protected function getWallet(): Wallet
     {
-        parent::setCheckout();
+        return Wallet::googlePay();
     }
 
-    public function isRedirectRequired()
+    protected function getExpressSettings(Buckaroo3 $module): AbstractExpressSettings
     {
-        return true;
-    }
-
-    public function isVerifyRequired()
-    {
-        return false;
-    }
-
-    protected function initialize()
-    {
-        $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_CASHTICKET);
+        return $module->getGooglePayExpressSettings();
     }
 }

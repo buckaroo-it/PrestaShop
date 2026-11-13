@@ -50,7 +50,7 @@ class PaymentMethods extends BaseApiController
     }
 
     /**
-     * @throws Exception
+     * @throws \Exception
      */
     private function getPaymentConfigurations()
     {

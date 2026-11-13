@@ -41,6 +41,7 @@ const FORBIDDEN_PATHS = [
     '.php-cs-fixer.cache', 'phpunit.xml', 'phpunit.xml.dist', 'phpstan.neon', 'phpstan.neon.dist',
     'phpstan-baseline.neon', 'sonar-project.properties', 'CONTRIBUTING.md', 'README.md', 'RELEASE.md',
     'views/img/buckaroo/README.md', 'composer.lock', '.DS_Store', 'Thumbs.db', '.env',
+    'scoper.inc.php',
     'api/log/',
     // development-only Composer packages that must not leak into the shipped vendor/
     'vendor/phpunit/', 'vendor/phpstan/', 'vendor/prestashop/php-dev-tools/', 'vendor/bin/',
@@ -54,12 +55,21 @@ const REQUIRED_FILES = [
     'config/services.yml', 'config/front/services.yml', 'config/routes.yml', 'config/admin/routes.yml',
     'controllers/front/request.php', 'controllers/front/return.php', 'controllers/front/userreturn.php',
     'controllers/admin/AdminRefundController.php', 'api/paymentmethods/paymentmethod.php',
-    'library/checkout/checkout.php', 'library/logger.php', 'api/corelogger.php',
+    'library/checkout/checkout.php', 'api/corelogger.php',
     'src/Install/Installer.php', 'src/Service/BuckarooPaymentService.php', 'src/Service/BuckarooFeeService.php',
     'views/js/buckaroo.vue.js', 'views/css/buckaroo3.vue.css', 'views/templates/admin/app.tpl',
     'views/templates/hook/payment-fee-table.tpl', 'mails/en/order_conf.html', 'mails/en/order_conf.txt',
     'translations/en.php', 'upgrade/index.php',
 ];
+
+/**
+ * Namespace prefix build-release.sh gives every third-party package in vendor/
+ * (php-scoper, see scoper.inc.php). The Buckaroo SDK keeps its own namespace.
+ */
+const VENDOR_PREFIX = 'Buckaroo\\PrestaShop\\Vendor\\';
+
+/** vendor/ packages that are deliberately left unprefixed: guarded global polyfills and the Composer autoloader. */
+const UNSCOPED_VENDOR_PREFIXES = ['vendor/composer/', 'vendor/symfony/polyfill-', 'vendor/symfony/deprecation-contracts/', 'vendor/ralouphie/getallheaders/', 'vendor/buckaroo/sdk/'];
 
 /**
  * Directories that are not expected to carry index.php files. vendor/ is not
@@ -359,6 +369,43 @@ function checkVendorIsProductionOnly(ModuleFiles $files, Report $report): void
     $report->check('vendor/ contains production dependencies only', $problems);
 }
 
+/**
+ * Every namespaced PHP file of a third-party package must live under the
+ * php-scoper prefix, so the shipped Guzzle, Monolog, PSR and Ramsey classes
+ * cannot be shadowed by the versions PrestaShop itself loads.
+ */
+function checkVendorIsScoped(ModuleFiles $files, Report $report): void
+{
+    $problems = [];
+    $prefixed = 0;
+    foreach ($files->paths() as $path) {
+        if (strpos($path, 'vendor/') !== 0 || substr($path, -4) !== '.php' || basename($path) === 'index.php') {
+            continue;
+        }
+        $unscoped = false;
+        foreach (UNSCOPED_VENDOR_PREFIXES as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                $unscoped = true;
+            }
+        }
+        if ($unscoped) {
+            continue;
+        }
+        if (!preg_match('/^\s*namespace\s+([A-Za-z0-9_\\\\]+)\s*;/m', $files->read($path), $match)) {
+            continue;
+        }
+        if (strpos($match[1] . '\\', VENDOR_PREFIX) === 0) {
+            ++$prefixed;
+        } else {
+            $problems[] = $path . ' (namespace ' . $match[1] . ')';
+        }
+    }
+    if ($prefixed === 0) {
+        $problems[] = 'no vendor/ class carries the ' . VENDOR_PREFIX . ' prefix; was php-scoper run?';
+    }
+    $report->check('Third-party vendor/ namespaces are prefixed with ' . rtrim(VENDOR_PREFIX, '\\'), array_slice($problems, 0, 50));
+}
+
 function checkFrontendChunks(ModuleFiles $files, Report $report): void
 {
     $problems = [];
@@ -617,6 +664,7 @@ checkRequiredFiles($files, $report, $mode === 'zip');
 if ($mode === 'zip') {
     checkForbiddenPaths($files, $report);
     checkVendorIsProductionOnly($files, $report);
+    checkVendorIsScoped($files, $report);
 }
 checkNoHiddenFiles($files, $report);
 checkFrontendChunks($files, $report);

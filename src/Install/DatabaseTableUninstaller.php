@@ -48,6 +48,7 @@ final class DatabaseTableUninstaller implements UninstallerInterface
             'bk_product_idin',
             'bk_deferred_order_mail',
             'bk_transaction_mode',
+            'bk_payment_attempt',
         ];
         foreach ($tablesToDrop as $table) {
             $sql[] = 'DROP TABLE IF EXISTS ' . _DB_PREFIX_ . $table;

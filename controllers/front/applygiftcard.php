@@ -16,11 +16,12 @@
  */
 
 include_once __DIR__ . '/../../api/paymentmethods/paymentrequestfactory.php';
-include_once __DIR__ . '/../../library/logger.php';
+include_once __DIR__ . '/../../api/corelogger.php';
 include_once __DIR__ . '/common.php';
 
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentStatus;
+use Buckaroo\PrestaShop\Src\Service\CartOrderLock;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -42,7 +43,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new Logger(Logger::INFO, 'applygiftcard');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'applygiftcard');
     }
 
     public function postProcess()
@@ -73,6 +74,18 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             } else {
                 $this->redirectWithError($this->module->l('Please fill in all giftcard fields.'));
             }
+
+            return;
+        }
+
+        // The giftcard method must be active and available for this cart, also when the
+        // stored giftcards already cover the cart and no new card is charged.
+        $paymentService = $this->getBuckarooPaymentService();
+        if (!$paymentService->isMethodAvailableForCart($cart, 'giftcard')) {
+            $this->logger->logError('Giftcard not available for cart ' . (int) $cart->id);
+            $this->redirectWithError(
+                $this->module->l('Giftcards are not available for this order.')
+            );
 
             return;
         }
@@ -112,8 +125,19 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             }
         }
 
+        // The card code (sent to Buckaroo as the service name) must be one the merchant enabled.
+        $cardCode = $paymentService->resolveAllowedGiftcardCode($cardCode);
+        if ($cardCode === '') {
+            $this->logger->logError('Giftcard code not enabled by the merchant for cart ' . (int) $cart->id);
+            $this->redirectWithError(
+                $this->module->l('The selected giftcard is not accepted. Please choose another giftcard.')
+            );
+
+            return;
+        }
+
         try {
-            /** @var BuckarooGiftCard $giftcardApi */
+            /** @var GiftCard $giftcardApi */
             $giftcardApi = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_GIFTCARD);
 
             $giftcardApi->currency = $currency->iso_code;
@@ -136,10 +160,8 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             $customVars = [
                 'cardNumber' => $cardNumber,
                 'pin' => $securityCode,
+                'name' => $cardCode,
             ];
-            if (!empty($cardCode)) {
-                $customVars['name'] = $cardCode;
-            }
 
             $response = $giftcardApi->payDirect($customVars);
         } catch (Exception $e) {
@@ -222,12 +244,12 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         ]);
 
         // Also store in session cookies as fast-access cache for this page-load
-        $this->context->cookie->buckaroo_giftcard_group_tx = $groupTransaction;
-        $this->context->cookie->buckaroo_giftcard_remainder = (string) $remainingAmount;
-        $this->context->cookie->buckaroo_giftcard_applied = (string) $totalApplied;
-        $this->context->cookie->buckaroo_giftcard_tx_key = $transactionKey;
-        $this->context->cookie->buckaroo_giftcard_card_code = $cardCode;
-        $this->context->cookie->buckaroo_giftcard_cart_id = (string) (int) $cart->id;
+        $this->context->cookie->__set('buckaroo_giftcard_group_tx', $groupTransaction);
+        $this->context->cookie->__set('buckaroo_giftcard_remainder', (string) $remainingAmount);
+        $this->context->cookie->__set('buckaroo_giftcard_applied', (string) $totalApplied);
+        $this->context->cookie->__set('buckaroo_giftcard_tx_key', $transactionKey);
+        $this->context->cookie->__set('buckaroo_giftcard_card_code', $cardCode);
+        $this->context->cookie->__set('buckaroo_giftcard_cart_id', (string) (int) $cart->id);
         $this->context->cookie->write();
 
         if ($remainingAmount <= 0) {
@@ -245,37 +267,69 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
         $customer = new Customer($cart->id_customer);
         $currency = $this->context->currency;
         $pendingState = (int) Configuration::get('BUCKAROO_ORDER_STATE_DEFAULT');
+        $cartId = (int) $cart->id;
 
-        try {
-            $this->module->validateOrder(
-                (int) $cart->id,
-                $pendingState,
-                $total,
-                $this->module->l('Giftcard'),
-                null,
-                [],
-                (int) $currency->id,
-                false,
-                $customer->secure_key
+        // One order per cart: the same lock is held by every path that creates an order for
+        // a cart (push, return, direct response), and the existing-order check runs inside it.
+        $lock = new CartOrderLock();
+        if (!$lock->acquire($cartId)) {
+            $this->logger->logError('Giftcard order: cart ' . $cartId . ' is locked by another request');
+            $this->redirectWithError(
+                $this->module->l('Your giftcard payment is still being processed. Please try again in a few minutes or choose another payment method.')
             );
-        } catch (Exception $e) {
-            $this->logger->logError('validateOrder failed: ' . $e->getMessage());
-            $this->redirectWithError($e->getMessage());
 
             return;
         }
 
-        $orderId = $this->module->currentOrder;
+        // Tools::redirect() exits, which skips finally blocks: redirect only after the lock is released.
+        $error = null;
+        try {
+            $orderId = (int) Order::getIdByCartId($cartId);
+            if ($orderId > 0) {
+                // Another request created the order for this cart while this one waited:
+                // show that order instead of creating a second one.
+                $this->logger->logInfo('Giftcard order already exists for cart', ['cartId' => $cartId, 'orderId' => $orderId]);
+            } else {
+                try {
+                    $this->module->validateOrder(
+                        $cartId,
+                        $pendingState,
+                        $total,
+                        $this->module->l('Giftcard'),
+                        null,
+                        [],
+                        (int) $currency->id,
+                        false,
+                        $customer->secure_key
+                    );
+                } catch (Exception $e) {
+                    $this->logger->logError('validateOrder failed: ' . $e->getMessage());
+                    $error = $e->getMessage();
+                }
 
-        $this->recordGroupTransactionPayments((int) $orderId);
-        $this->syncOrderTotalPaidReal((int) $orderId);
+                if ($error === null) {
+                    $orderId = (int) $this->module->currentOrder;
 
-        // Only confirmed (190) giftcard rows count; otherwise the push completes the order.
-        if ($this->isOrderFullyPaid(new Order((int) $orderId))) {
-            $paidState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, (int) $orderId);
-            $this->updatePendingOrderStatus((int) $orderId, $paidState, true);
-        } else {
-            $this->logger->logInfo('Giftcard order left pending until confirmed', ['orderId' => $orderId]);
+                    $this->recordGroupTransactionPayments($orderId);
+                    $this->syncOrderTotalPaidReal($orderId);
+
+                    // Only confirmed (190) giftcard rows count; otherwise the push completes the order.
+                    if ($this->isOrderFullyPaid(new Order($orderId))) {
+                        $paidState = (int) Buckaroo3::resolveStatusCode(BuckarooAbstract::BUCKAROO_SUCCESS, $orderId);
+                        $this->updatePendingOrderStatus($orderId, $paidState, true);
+                    } else {
+                        $this->logger->logInfo('Giftcard order left pending until confirmed', ['orderId' => $orderId]);
+                    }
+                }
+            }
+        } finally {
+            $lock->release($cartId);
+        }
+
+        if ($error !== null) {
+            $this->redirectWithError($error);
+
+            return;
         }
 
         $this->clearGiftcardCookies();

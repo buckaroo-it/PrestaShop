@@ -13,6 +13,13 @@ require_once __DIR__ . '/BuckarooPaymentServiceTestDoubles.php';
  */
 abstract class BuckarooPaymentServiceFlowTestCase extends TestCase
 {
+    protected function tearDown(): void
+    {
+        // Currency ids are shared static state; do not let one flow test change another.
+        \Currency::$isoById = [];
+        parent::tearDown();
+    }
+
     /**
      * Helper to build a flow-focused test double for a single payment method.
      *

@@ -21,24 +21,33 @@ if (!defined('_PS_VERSION_')) {
 require_once _PS_MODULE_DIR_ . 'buckaroo3/vendor/autoload.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/api/paymentmethods/responsefactory.php';
 require_once _PS_MODULE_DIR_ . 'buckaroo3/controllers/front/common.php';
-include_once _PS_MODULE_DIR_ . 'buckaroo3/library/logger.php';
+include_once _PS_MODULE_DIR_ . 'buckaroo3/api/corelogger.php';
 
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Issuers\PayByBank as IssuersPayByBank;
+use Buckaroo\PrestaShop\Src\ApplePay\DomainAssociation;
+use Buckaroo\PrestaShop\Src\ApplePay\ExpressSettings as ApplePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Express\AbstractExpressSettings;
+use Buckaroo\PrestaShop\Src\Express\ExpressCheckoutService;
+use Buckaroo\PrestaShop\Src\Express\Wallet;
 use Buckaroo\PrestaShop\Src\Form\Modifier\ProductFormModifier;
+use Buckaroo\PrestaShop\Src\GooglePay\ExpressSettings as GooglePayExpressSettings;
 use Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableInstaller;
 use Buckaroo\PrestaShop\Src\Install\DatabaseTableUninstaller;
 use Buckaroo\PrestaShop\Src\Install\IdinColumnsRemover;
 use Buckaroo\PrestaShop\Src\Install\Installer;
 use Buckaroo\PrestaShop\Src\Install\Uninstaller;
+use Buckaroo\PrestaShop\Src\PayPal\ExpressSettings as PayPalExpressSettings;
 use Buckaroo\PrestaShop\Src\Refund\Settings as RefundSettings;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawPaymentMethodRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
 use Buckaroo\PrestaShop\Src\Service\BuckarooIdinService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
 use Buckaroo\PrestaShop\Src\Service\DeferredOrderConfirmation;
 use Buckaroo\PrestaShop\Src\Service\PaymentLabelResolver;
 use Buckaroo\PrestaShop\Src\Service\PriceFormatter;
@@ -58,6 +67,9 @@ class Buckaroo3 extends PaymentModule
 
     public $logger;
 
+    /** @var string Module folder name used to build template paths */
+    public $tpl_folder;
+
     /**
      * @var ContainerInterface|null
      */
@@ -67,6 +79,21 @@ class Buckaroo3 extends PaymentModule
      * @var bool Guards against rebuilding the Click to Pay config per hook
      */
     private $clickToPayJsLoaded = false;
+
+    /**
+     * @var ApplePayExpressSettings|null
+     */
+    private $applePayExpressSettings;
+
+    /**
+     * @var GooglePayExpressSettings|null
+     */
+    private $googlePayExpressSettings;
+
+    /**
+     * @var PayPalExpressSettings|null
+     */
+    private $payPalExpressSettings;
 
     /**
      * @var PriceFormatter|null
@@ -91,16 +118,17 @@ class Buckaroo3 extends PaymentModule
         $this->need_instance = 1;
         $this->bootstrap = true;
         $this->module_key = '8d2a2f65a77a8021da5d5ffccc9bbd2b';
-        $this->ps_versions_compliancy = ['min' => '1.7.0', 'max' => '9.2.99'];
+        // 1.7.8 is the first PrestaShop release that runs on PHP 7.4, the module's minimum.
+        $this->ps_versions_compliancy = ['min' => '1.7.8.0', 'max' => '9.2.99'];
         $this->displayName = $this->l('Buckaroo Payments');
-        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop version 1.7.x up to 9.2.x');
+        $this->description = $this->l('Buckaroo Payment module. Compatible with PrestaShop 1.7.8 up to 9.2.x');
         $this->confirmUninstall = $this->l('Are you sure you want to delete Buckaroo Payments module?');
         $this->tpl_folder = 'buckaroo3';
     }
 
     private function initializeLogger()
     {
-        $this->logger = new Logger(CoreLogger::INFO, '');
+        $this->logger = new CoreLogger(CoreLogger::INFO, '');
     }
 
     /**
@@ -181,6 +209,7 @@ class Buckaroo3 extends PaymentModule
             return;
         }
 
+        /** @var Buckaroo\PrestaShop\Src\Refund\Admin\Provider $refundProvider */
         $refundProvider = $this->get('buckaroo.refund.admin.provider');
         $refunds = $refundProvider->get($order);
         $this->context->smarty->assign($refunds);
@@ -198,7 +227,10 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeData['buckaroo_fee_tax'] = $buckarooFeeData['buckaroo_fee_tax_incl'] - $buckarooFeeData['buckaroo_fee_tax_excl'];
         }
 
+        /** @var Symfony\Component\HttpFoundation\Session\SessionInterface $session */
         $session = $this->get('buckaroo.session');
+        /** @var Symfony\Component\Routing\RouterInterface $router */
+        $router = $this->get('prestashop.router');
         $feeSessionKey = 'buckaroo_include_fee_' . $order->id;
 
         $currency = new Currency($order->id_currency);
@@ -216,13 +248,14 @@ class Buckaroo3 extends PaymentModule
             'currency' => $currency,
             'buckaroo_fee_refunded' => !empty($buckarooFeeData['fee_refunded']),
             'buckaroo_fee_flag_set' => $session->has($feeSessionKey),
-            'buckaroo_set_fee_flag_url' => $this->get('prestashop.router')->generate('buckaroo_set_refund_fee_flag'),
+            'buckaroo_set_fee_flag_url' => $router->generate('buckaroo_set_refund_fee_flag'),
         ]);
 
         $klarnaReservation = '';
-        $klarnaData = $this->get('buckaroo.klarna.reservation')->getAdminData($order);
+        /** @var Buckaroo\PrestaShop\Src\Klarna\ReservationService $klarnaReservationService */
+        $klarnaReservationService = $this->get('buckaroo.klarna.reservation');
+        $klarnaData = $klarnaReservationService->getAdminData($order);
         if (is_array($klarnaData)) {
-            $router = $this->get('prestashop.router');
             $this->context->smarty->assign([
                 'klarnaReservationKey' => $klarnaData['key'],
                 'klarnaCancelSent' => $klarnaData['cancelSent'],
@@ -238,36 +271,66 @@ class Buckaroo3 extends PaymentModule
             $this->display(__FILE__, 'views/templates/hook/refund-hook.tpl');
     }
 
-    /**
-     * @throws LocalizationException
-     */
     public function hookDisplayOrderConfirmation(array $params)
     {
         $order = isset($params['objOrder']) ? $params['objOrder'] : null;
         $order = isset($params['order']) ? $params['order'] : $order;
 
-        if (!$order || !($cart = new Cart($order->id_cart))) {
+        if (!$order) {
             return '';
         }
 
-        $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($order->id);
+        $this->restoreCartAfterExpress($order);
 
-        if (!$buckarooFeeData) {
-            return '';
+        // The payment fee line is added to the presented order (hookActionPresentOrder).
+        return '';
+    }
+
+    /**
+     * Adds the stored Buckaroo payment fee to the presented order as a subtotal.
+     *
+     * Themes render the order subtotals themselves (order confirmation, order details),
+     * so the fee line follows the theme markup without any theme-specific code.
+     */
+    public function hookActionPresentOrder(array $params)
+    {
+        if (!isset($params['presentedOrder']) || !($params['presentedOrder'] instanceof ArrayAccess)) {
+            return;
         }
 
-        $buckarooFee = (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
-        $taxData = $this->calculateTax($cart, $buckarooFee);
-        $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+        $presentedOrder = $params['presentedOrder'];
 
-        // Assign data to Smarty
-        $this->context->smarty->assign([
-            'orderBuckarooFee' => $this->formatPrice($taxData['feeInclTax']),
-            'paymentFeeLabel' => $paymentFeeLabel,
-        ]);
+        try {
+            $details = $presentedOrder['details'];
+            $orderId = isset($details['id']) ? (int) $details['id'] : 0;
+            if ($orderId <= 0) {
+                return;
+            }
 
-        // Fetch and return the template content
-        return $this->display(__FILE__, 'views/templates/hook/order-confirmation-fee.tpl');
+            $buckarooFeeData = (new RawBuckarooFeeRepository())->getFeeByOrderId($orderId);
+            if (!is_array($buckarooFeeData) || (float) $buckarooFeeData['buckaroo_fee_tax_incl'] <= 0) {
+                return;
+            }
+
+            $subtotals = $presentedOrder['subtotals'];
+            if (!($subtotals instanceof ArrayAccess) || isset($subtotals['buckaroo_fee'])) {
+                return;
+            }
+
+            // Same amounts as the order total, the Admin order page and the invoice.
+            $amount = (new TaxConfiguration())->includeTaxes()
+                ? (float) $buckarooFeeData['buckaroo_fee_tax_incl']
+                : (float) $buckarooFeeData['buckaroo_fee_tax_excl'];
+
+            $subtotals['buckaroo_fee'] = [
+                'type' => 'buckaroo_fee',
+                'label' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee',
+                'amount' => $amount,
+                'value' => $this->getPriceFormatter()->format($amount, (string) $buckarooFeeData['currency']),
+            ];
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo3: could not add the payment fee to the presented order: ' . $e->getMessage(), 2);
+        }
     }
 
     private function calculateTax($cart, $fee)
@@ -308,6 +371,7 @@ class Buckaroo3 extends PaymentModule
 
         (new RefundSettings())->install();
         $this->configureOrderStates();
+        $this->installApplePayDomainAssociation();
         // The shop cookie SameSite setting is left as the merchant configured it.
         (new CookieSameSiteRestorer())->markHandled();
 
@@ -360,12 +424,12 @@ class Buckaroo3 extends PaymentModule
         $defaultOrderState = new OrderState();
         $defaultOrderState->name = [Configuration::get('PS_LANG_DEFAULT') => $this->l('Awaiting for Remote payment')];
         $defaultOrderState->module_name = $this->name;
-        $defaultOrderState->send_email = 0;
+        $defaultOrderState->send_email = false;
         $defaultOrderState->template = '';
-        $defaultOrderState->invoice = 0;
+        $defaultOrderState->invoice = false;
         $defaultOrderState->color = '#FFF000';
         $defaultOrderState->unremovable = false;
-        $defaultOrderState->logable = 0;
+        $defaultOrderState->logable = false;
 
         if ($defaultOrderState->add()) {
             $this->copyLogo($defaultOrderState->id);
@@ -492,17 +556,14 @@ class Buckaroo3 extends PaymentModule
      */
     private function getContextControllerContainer()
     {
-        $context = $this->context;
-        if (!$context || !isset($context->controller) || !is_object($context->controller)) {
-            return null;
-        }
-
-        if (!method_exists($context->controller, 'getContainer')) {
+        /** @var Controller|null $controller The controller is not set outside a regular page request */
+        $controller = $this->context->controller;
+        if (!is_object($controller) || !method_exists($controller, 'getContainer')) {
             return null;
         }
 
         try {
-            $container = $context->controller->getContainer();
+            $container = $controller->getContainer();
             if ($container instanceof ContainerInterface) {
                 return $container;
             }
@@ -652,7 +713,7 @@ class Buckaroo3 extends PaymentModule
             }
         }
 
-        $adminUrl = explode('?', $this->context->link->getAdminLink(AdminDashboard::class))[0];
+        $adminUrl = explode('?', $this->context->link->getAdminLink('AdminDashboard'))[0];
         $adminUrl = rtrim($adminUrl, '/');
 
         $this->context->smarty->assign([
@@ -700,7 +761,7 @@ class Buckaroo3 extends PaymentModule
         $cookie = new Cookie('ps');
         $cart = new Cart($params['cookie']->__get('id_cart'));
         $customer = new Customer($cart->id_customer);
-        $cookie_id_lang = (int) $cookie->id_lang;
+        $cookie_id_lang = (int) $cookie->__get('id_lang');
         $id_lang = $cookie_id_lang ? $cookie_id_lang : (int) (Configuration::get('PS_LANG_DEFAULT'));
         $addresses = $customer->getAddresses($id_lang);
         $company = '';
@@ -758,9 +819,12 @@ class Buckaroo3 extends PaymentModule
         }
 
         $buckarooConfigService = $this->getBuckarooConfigService();
+        /** @var BuckarooPaymentService $buckarooPaymentService */
         $buckarooPaymentService = $this->get('buckaroo.config.api.payment.service');
 
         try {
+            /** @var Buckaroo\PrestaShop\Classes\CapayableIn3 $capayableIn3 */
+            $capayableIn3 = $this->get('buckaroo.classes.issuers.capayableIn3');
             $this->context->smarty->assign(
                 [
                     'address_differ' => $address_differ,
@@ -784,7 +848,7 @@ class Buckaroo3 extends PaymentModule
                     'creditcardIssuers' => $buckarooConfigService->getActiveCreditCards(),
                     'creditCardDisplayMode' => $buckarooConfigService->getConfigValue('creditcard', 'display_type'),
                     'giftCardDisplayMode' => $buckarooConfigService->getConfigValue('giftcard', 'display_in_checkout'),
-                    'in3Method' => $this->get('buckaroo.classes.issuers.capayableIn3')->getMethod(),
+                    'in3Method' => $capayableIn3->getMethod(),
                     'buckaroo_idin_test' => $buckarooConfigService->getConfigValue('idin', 'mode'),
                     'houseNumbersAreValid' => $buckarooPaymentService->areHouseNumberValidForCountryDE($cart),
                     'clickToPayConfigured' => $this->getBuckarooClickToPayService()->isConfigured(),
@@ -815,6 +879,7 @@ class Buckaroo3 extends PaymentModule
             'cartTotal' => 0,
         ];
         try {
+            /** @var Cart|null $cart The context has no cart outside a shop page request */
             $cart = $this->context->cart;
             if ($cart) {
                 $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
@@ -831,7 +896,7 @@ class Buckaroo3 extends PaymentModule
             Media::addJsDef([
                 'buckarooAjaxUrl' => $this->context->link->getModuleLink('buckaroo3', 'ajax'),
                 'buckarooFees' => $this->getBuckarooFeeService()->getBuckarooFees(),
-                'paymentFeeLabel' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
+                'paymentFeeLabel' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee',
                 'buckarooMessages' => [
                     'validation' => [
                         'date' => $this->l('Please enter correct birthdate date'),
@@ -851,8 +916,10 @@ class Buckaroo3 extends PaymentModule
 
             $jsPath = 'modules/' . $this->name . '/views/js/buckaroo.js';
 
-            if ($this->context->controller) {
-                $this->context->controller->registerJavascript(
+            /** @var FrontController|null $controller The controller is not set outside a regular page request */
+            $controller = $this->context->controller;
+            if ($controller) {
+                $controller->registerJavascript(
                     'module-buckaroo3',
                     $jsPath,
                     [
@@ -860,7 +927,7 @@ class Buckaroo3 extends PaymentModule
                         'priority' => 200,
                     ]
                 );
-                $this->context->controller->registerJavascript(
+                $controller->registerJavascript(
                     'module-buckaroo3-already-paid',
                     'modules/' . $this->name . '/views/js/already-paid.js',
                     [
@@ -893,6 +960,7 @@ class Buckaroo3 extends PaymentModule
         }
 
         try {
+            /** @var Cart|null $cart The context has no cart outside a shop page request */
             $cart = $this->context->cart;
             $clickToPayService = $this->getBuckarooClickToPayService();
 
@@ -961,7 +1029,7 @@ class Buckaroo3 extends PaymentModule
                     'is_guest' => $isGuest,
                     'order' => $order,
                     'price' => $price,
-                    'message' => $this->context->cookie->HtmlText,
+                    'message' => $this->context->cookie->__get('HtmlText'),
                 ]);
 
                 return $this->display(__FILE__, 'payment_return_redirectsuccess.tpl');
@@ -980,6 +1048,7 @@ class Buckaroo3 extends PaymentModule
 
     public function hookDisplayHeader()
     {
+        /** @var Controller|null $controller The controller is not set outside a regular page request */
         $controller = $this->context->controller;
         if ($controller && in_array($controller->php_self, ['order', 'order-opc'])) {
             $this->ensureBuckarooJsLoaded();
@@ -997,6 +1066,19 @@ class Buckaroo3 extends PaymentModule
         }
 
         $this->context->controller->addCSS($this->_path . 'views/css/buckaroo3.css', 'all');
+
+        $placement = $this->getExpressPlacementForPage();
+        if ($placement !== null) {
+            if ($this->canShowExpress($this->getApplePayExpressSettings(), $placement)) {
+                $this->registerApplePayExpressAssets();
+            }
+            if ($this->canShowExpress($this->getGooglePayExpressSettings(), $placement)) {
+                $this->registerGooglePayExpressAssets();
+            }
+            if ($this->canShowExpress($this->getPayPalExpressSettings(), $placement)) {
+                $this->registerPayPalExpressAssets();
+            }
+        }
     }
 
     /**
@@ -1007,7 +1089,348 @@ class Buckaroo3 extends PaymentModule
     {
         $this->ensureBuckarooJsLoaded();
 
-        return $this->renderGiftcardAlreadyPaidBlock();
+        return $this->renderExpressButtons(AbstractExpressSettings::PLACEMENT_CHECKOUT) . $this->renderGiftcardAlreadyPaidBlock();
+    }
+
+    /**
+     * Express buttons on the product page, for the selected product,
+     * combination and quantity.
+     */
+    public function hookDisplayProductAdditionalInfo($params)
+    {
+        $product = $params['product'] ?? null;
+        if ($product === null || empty($product['add_to_cart_url'])) {
+            return '';
+        }
+
+        return $this->renderExpressButtons(
+            AbstractExpressSettings::PLACEMENT_PRODUCT,
+            (int) $product['id_product'],
+            !empty($product['is_virtual'])
+        );
+    }
+
+    /**
+     * Express buttons on the cart page, below the checkout button.
+     */
+    public function hookDisplayExpressCheckout($params)
+    {
+        return $this->renderExpressButtons(AbstractExpressSettings::PLACEMENT_CART);
+    }
+
+    public function getApplePayExpressSettings(): ApplePayExpressSettings
+    {
+        if ($this->applePayExpressSettings === null) {
+            $this->applePayExpressSettings = new ApplePayExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(ApplePayExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->applePayExpressSettings;
+    }
+
+    public function getGooglePayExpressSettings(): GooglePayExpressSettings
+    {
+        if ($this->googlePayExpressSettings === null) {
+            $this->googlePayExpressSettings = new GooglePayExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(GooglePayExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->googlePayExpressSettings;
+    }
+
+    public function getPayPalExpressSettings(): PayPalExpressSettings
+    {
+        if ($this->payPalExpressSettings === null) {
+            $this->payPalExpressSettings = new PayPalExpressSettings(
+                $this->getBuckarooConfigService()->getConfigArrayForMethod(PayPalExpressSettings::METHOD_NAME)
+            );
+        }
+
+        return $this->payPalExpressSettings;
+    }
+
+    /**
+     * @return AbstractExpressSettings[] the wallets with an express button
+     */
+    private function getExpressSettings(): array
+    {
+        return [$this->getApplePayExpressSettings(), $this->getGooglePayExpressSettings(), $this->getPayPalExpressSettings()];
+    }
+
+    /**
+     * Whether a wallet's express button may be shown on a page. Device and
+     * browser support is checked in the browser; the express endpoints check
+     * the payment method rules again for the express cart.
+     */
+    private function canShowExpress(AbstractExpressSettings $settings, string $placement): bool
+    {
+        $method = $settings->getWallet()->getMethod();
+
+        try {
+            // Only the presence of the keys: isActivated() verifies them with a
+            // request to Buckaroo, which is too slow for every product page view.
+            if (!$this->active
+                || empty(Configuration::get('BUCKAROO_MERCHANT_KEY'))
+                || empty(Configuration::get('BUCKAROO_SECRET_KEY'))
+                || !$this->isPaymentModeActive($method)
+            ) {
+                return false;
+            }
+
+            if (!$settings->isConfigured() || !$settings->showsOn($placement)) {
+                return false;
+            }
+
+            $customer = $this->context->customer;
+            $loggedIn = $customer instanceof Customer && (int) $customer->id > 0 && $customer->isLogged();
+            if (!$loggedIn && !Configuration::get('PS_GUEST_CHECKOUT_ENABLED')) {
+                return false;
+            }
+
+            if ($placement === AbstractExpressSettings::PLACEMENT_PRODUCT) {
+                return true;
+            }
+
+            $cart = $this->context->cart;
+            if (!$cart instanceof Cart
+                || !Validate::isLoadedObject($cart)
+                || (int) $cart->nbProducts() <= 0
+                || $this->getGiftcardAlreadyPaid($cart) > 0
+            ) {
+                return false;
+            }
+
+            $minimumPurchase = (float) Tools::convertPrice((float) Configuration::get('PS_PURCHASE_MINIMUM'), $this->context->currency);
+            if ($minimumPurchase > 0 && (float) $cart->getOrderTotal(false, Cart::ONLY_PRODUCTS) < $minimumPurchase) {
+                return false;
+            }
+
+            $paymentService = $this->get('buckaroo.config.api.payment.service');
+
+            return $paymentService instanceof BuckarooPaymentService
+                && $paymentService->isMethodAvailableForCart($cart, $method);
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: ' . $settings->getWallet()->getLabel() . ' express availability - ' . $e->getMessage(), 2);
+
+            return false;
+        }
+    }
+
+    private function getExpressPlacementForPage(): ?string
+    {
+        /** @var object|null $controller The controller is not set outside a regular page request */
+        $controller = $this->context->controller;
+        $page = $controller && isset($controller->php_self) ? (string) $controller->php_self : '';
+
+        switch ($page) {
+            case 'product':
+                return AbstractExpressSettings::PLACEMENT_PRODUCT;
+            case 'cart':
+                return AbstractExpressSettings::PLACEMENT_CART;
+            case 'order':
+            case 'order-opc':
+                return AbstractExpressSettings::PLACEMENT_CHECKOUT;
+            default:
+                return null;
+        }
+    }
+
+    /**
+     * The express buttons of the wallets that may be shown on the page.
+     *
+     * @param bool|null $virtual whether nothing has to be shipped; the cart decides when null
+     */
+    private function renderExpressButtons(string $placement, int $idProduct = 0, ?bool $virtual = null): string
+    {
+        $html = '';
+
+        foreach ($this->getExpressSettings() as $settings) {
+            if (!$this->canShowExpress($settings, $placement)) {
+                continue;
+            }
+
+            if ($virtual === null) {
+                $cart = $this->context->cart;
+                $virtual = $cart instanceof Cart && Validate::isLoadedObject($cart) && $cart->isVirtualCart();
+            }
+
+            $this->context->smarty->assign([
+                'buckarooExpressPlacement' => $placement,
+                'buckarooExpressProductId' => $idProduct,
+                'buckarooExpressVirtual' => $virtual,
+            ]);
+
+            $html .= $this->display(__FILE__, 'views/templates/hook/' . $settings->getWallet()->getMethod() . '_express.tpl');
+        }
+
+        return $html;
+    }
+
+    /**
+     * The Buckaroo SDK validates the Apple Pay merchant session for the GUID
+     * and loads Apple's Apple Pay JS SDK; the express script drives the sheet.
+     */
+    private function registerApplePayExpressAssets(): void
+    {
+        $settings = $this->getApplePayExpressSettings();
+        $language = $this->context->language;
+        $locale = !empty($language->locale) ? (string) $language->locale : (string) $language->language_code;
+
+        Media::addJsDef([
+            'buckarooApplePayExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'applepayexpress', [], true),
+                'token' => Tools::getToken(false),
+                'merchantGuid' => $settings->getMerchantGuid(),
+                'buttonStyle' => $settings->getButtonStyle(),
+                'buttonType' => $settings->getButtonType(),
+                'storeName' => (string) Configuration::get('PS_SHOP_NAME'),
+                'countryCode' => (string) Country::getIsoById((int) Configuration::get('PS_COUNTRY_DEFAULT')),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'cultureCode' => $locale,
+                'messages' => [
+                    'error' => $this->l('Apple Pay is not available at the moment. Please try again or choose another payment method.'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-sdk',
+            $this->getBuckarooClickToPayService()->getSdkScriptUrl(),
+            ['server' => 'remote', 'position' => 'bottom', 'priority' => 190]
+        );
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-applepay-express',
+            'modules/' . $this->name . '/views/js/buckaroo-applepay-express.js',
+            ['position' => 'bottom', 'priority' => 230]
+        );
+    }
+
+    /**
+     * The express script loads Google's Google Pay API (pay.js) itself and
+     * tokenizes the card for Buckaroo with the gateway merchant ID.
+     */
+    private function registerGooglePayExpressAssets(): void
+    {
+        $settings = $this->getGooglePayExpressSettings();
+        $merchantName = $settings->getMerchantName();
+
+        Media::addJsDef([
+            'buckarooGooglePayExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'googlepayexpress', [], true),
+                'token' => Tools::getToken(false),
+                'environment' => $settings->isLiveMode() ? 'PRODUCTION' : 'TEST',
+                'gatewayMerchantId' => $settings->getGatewayMerchantId(),
+                'googleMerchantId' => $settings->getGoogleMerchantId(),
+                'merchantName' => $merchantName !== '' ? $merchantName : (string) Configuration::get('PS_SHOP_NAME'),
+                'buttonColor' => $settings->getButtonStyle(),
+                'buttonType' => $settings->getButtonType(),
+                'buttonLocale' => (string) $this->context->language->iso_code,
+                'countryCode' => (string) Country::getIsoById((int) Configuration::get('PS_COUNTRY_DEFAULT')),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'messages' => [
+                    'error' => $this->l('Google Pay is not available at the moment. Please try again or choose another payment method.'),
+                    'shipping' => $this->l('Shipping costs follow from your address'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-googlepay-express',
+            'modules/' . $this->name . '/views/js/buckaroo-googlepay-express.js',
+            ['position' => 'bottom', 'priority' => 231]
+        );
+    }
+
+    /**
+     * The express script loads PayPal's JS SDK for Buckaroo's PayPal client
+     * and the merchant ID; Buckaroo creates the PayPal order.
+     */
+    private function registerPayPalExpressAssets(): void
+    {
+        $settings = $this->getPayPalExpressSettings();
+
+        Media::addJsDef([
+            'buckarooPayPalExpress' => [
+                'url' => $this->context->link->getModuleLink($this->name, 'paypalexpress', [], true),
+                'token' => Tools::getToken(false),
+                'clientId' => $settings->getClientId(),
+                'merchantId' => $settings->getSdkMerchantId(),
+                'partnerAttributionId' => $settings->getPartnerAttributionId(),
+                'createOrderUrl' => $settings->getCheckoutUrl() . '/api/paypal/createOrder',
+                'websiteKey' => (string) Configuration::get('BUCKAROO_MERCHANT_KEY'),
+                'currencyCode' => (string) $this->context->currency->iso_code,
+                'locale' => $this->getPayPalLocale(),
+                'buttonColor' => $settings->getButtonStyle(),
+                'buttonLabel' => $settings->getButtonType(),
+                'buttonShape' => $settings->isButtonRounded() ? 'pill' : 'rect',
+                'messages' => [
+                    'error' => $this->l('PayPal is not available at the moment. Please try again or choose another payment method.'),
+                ],
+            ],
+        ]);
+
+        $this->context->controller->registerJavascript(
+            'module-buckaroo3-paypal-express',
+            'modules/' . $this->name . '/views/js/buckaroo-paypal-express.js',
+            ['position' => 'bottom', 'priority' => 232]
+        );
+    }
+
+    /**
+     * PayPal button locale (en_US, nl_NL); empty lets PayPal pick one.
+     */
+    private function getPayPalLocale(): string
+    {
+        $language = $this->context->language;
+        $locale = !empty($language->locale) ? (string) $language->locale : (string) $language->language_code;
+        $parts = preg_split('/[-_]/', $locale);
+
+        if (!is_array($parts) || count($parts) < 2 || strlen($parts[0]) !== 2 || strlen($parts[1]) !== 2) {
+            return '';
+        }
+
+        return strtolower($parts[0]) . '_' . strtoupper($parts[1]);
+    }
+
+    /**
+     * After a product page express order, give the shopper back the cart
+     * they had before (the same for every wallet).
+     */
+    private function restoreCartAfterExpress(Order $order): void
+    {
+        if (empty($this->context->cookie->__get(ExpressCheckoutService::COOKIE_CART))) {
+            return;
+        }
+
+        try {
+            $paymentService = $this->get('buckaroo.config.api.payment.service');
+            if ($paymentService instanceof BuckarooPaymentService) {
+                // Restoring the cart works from the session cookies only, whatever the wallet.
+                (new ExpressCheckoutService($this, $this->context, $paymentService, Wallet::applePay()))
+                    ->restoreShopperCart($order);
+            }
+        } catch (Exception $e) {
+            PrestaShopLogger::addLog('Buckaroo: express cart restore - ' . $e->getMessage(), 2);
+        }
+    }
+
+    /**
+     * Place Buckaroo's Apple Pay domain association file in /.well-known/.
+     */
+    public function installApplePayDomainAssociation(): string
+    {
+        $status = DomainAssociation::forModule(_PS_MODULE_DIR_ . $this->name)->install();
+
+        if ($status === DomainAssociation::STATUS_FAILED || $status === DomainAssociation::STATUS_OTHER_FILE) {
+            PrestaShopLogger::addLog(
+                'Buckaroo: Apple Pay domain association file not placed in /.well-known/ (' . $status . ')',
+                2
+            );
+        }
+
+        return $status;
     }
 
     /**
@@ -1025,6 +1448,7 @@ class Buckaroo3 extends PaymentModule
      */
     private function renderGiftcardAlreadyPaidBlock(): string
     {
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {
             return '';
@@ -1135,7 +1559,7 @@ class Buckaroo3 extends PaymentModule
      * - safer fallbacks when configured states are missing or deleted
      * - explicit backorder handling using stock information
      *
-     * @param int $status_code Buckaroo payment status constant
+     * @param string $status_code Buckaroo payment status constant
      * @param int|null $id_order Optional order id for stock/backorder checks
      *
      * @return int Valid PrestaShop order state id
@@ -1276,65 +1700,38 @@ class Buckaroo3 extends PaymentModule
 
     public function getBuckarooFee($payment_method, $percentageBaseAmount = null)
     {
-        $buckarooFee = $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method);
+        return $this->calculateBuckarooFee(
+            $this->getBuckarooFeeService()->getBuckarooFeeValue($payment_method),
+            $percentageBaseAmount
+        );
+    }
 
-        if ($buckarooFee === null || $buckarooFee === '') {
+    /**
+     * Calculates a configured fee value for the current cart. Every place that shows,
+     * charges or stores the fee goes through here (see BuckarooFeeCalculator).
+     *
+     * @param mixed $configuredFee fixed amount (tax excl.) or percentage ("2%")
+     * @param float|null $percentageBaseAmount
+     *
+     * @return array|null
+     */
+    public function calculateBuckarooFee($configuredFee, $percentageBaseAmount = null)
+    {
+        if ($configuredFee === null || $configuredFee === '' || $configuredFee === false) {
             return null;
         }
 
-        $buckarooFee = trim((string) $buckarooFee);
+        $configuredFee = trim((string) $configuredFee);
+        $percentageBase = BuckarooFeeCalculator::isPercentage($configuredFee)
+            ? $this->resolvePercentageBaseAmount($percentageBaseAmount)
+            : 0.0;
 
-        if ($this->isPercentageFee($buckarooFee)) {
-            $percentageValue = $this->normalizePercentageValue($buckarooFee);
-            if ($percentageValue <= 0) {
-                return null;
-            }
-
-            $percentageBase = $this->resolvePercentageBaseAmount($percentageBaseAmount);
-            if ($percentageBase <= 0) {
-                return null;
-            }
-
-            $computePrecision = $this->context->getComputingPrecision();
-            $roundedBase = Tools::ps_round($percentageBase, $computePrecision);
-
-            $buckarooFee = $roundedBase * ($percentageValue / 100);
-        } else {
-            $buckarooFee = (float) $buckarooFee;
-        }
-
-        if ($buckarooFee <= 0) {
-            return null;
-        }
-
-        $computePrecision = $this->context->getComputingPrecision();
-        $buckarooFee = Tools::ps_round($buckarooFee, $computePrecision);
-
-        $taxRate = $this->getAverageCartTaxRate();
-        $buckarooFeeTax = $buckarooFee * $taxRate;
-        $buckarooFeeTax = Tools::ps_round($buckarooFeeTax, $computePrecision);
-
-        $buckarooFeeTaxIncl = $buckarooFee + $buckarooFeeTax;
-        $buckarooFeeTaxIncl = Tools::ps_round($buckarooFeeTaxIncl, $computePrecision);
-
-        return [
-            'buckaroo_fee_tax_excl' => $buckarooFee,
-            'buckaroo_fee_tax' => $buckarooFeeTax,
-            'buckaroo_fee_tax_incl' => $buckarooFeeTaxIncl,
-        ];
-    }
-
-    private function isPercentageFee($fee): bool
-    {
-        return is_string($fee) && strpos($fee, '%') !== false;
-    }
-
-    private function normalizePercentageValue($fee): float
-    {
-        $normalized = str_replace('%', '', $fee);
-        $normalized = str_replace(',', '.', $normalized);
-
-        return (float) trim($normalized);
+        return BuckarooFeeCalculator::calculate(
+            $configuredFee,
+            $percentageBase,
+            $this->getAverageCartTaxRate(),
+            (int) $this->context->getComputingPrecision()
+        );
     }
 
     private function resolvePercentageBaseAmount($overrideAmount = null): float
@@ -1343,8 +1740,10 @@ class Buckaroo3 extends PaymentModule
             return (float) $overrideAmount;
         }
 
-        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
-            return (float) $this->context->cart->getOrderTotal(true, Cart::BOTH);
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
+        $cart = $this->context->cart;
+        if ($cart instanceof Cart) {
+            return (float) $cart->getOrderTotal(true, Cart::BOTH);
         }
 
         return 0.0;
@@ -1352,8 +1751,10 @@ class Buckaroo3 extends PaymentModule
 
     private function getAverageCartTaxRate(): float
     {
-        if ($this->context && isset($this->context->cart) && $this->context->cart instanceof Cart) {
-            return (float) $this->context->cart->getAverageProductsTaxRate();
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
+        $cart = $this->context->cart;
+        if ($cart instanceof Cart) {
+            return (float) $cart->getAverageProductsTaxRate();
         }
 
         return 0.0;
@@ -1402,7 +1803,7 @@ class Buckaroo3 extends PaymentModule
             $buckarooFeeTaxExcl = $buckarooFee['buckaroo_fee_tax_excl'];
             $buckarooFeeTaxIncl = $buckarooFee['buckaroo_fee_tax_incl'];
 
-            $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL');
+            $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL);
             $currency = new Currency($order->id_currency);
             $priceFormatter = $this->getPriceFormatter();
             $currencyIsoCode = !empty($currency->iso_code) ? (string) $currency->iso_code : null;
@@ -1410,14 +1811,25 @@ class Buckaroo3 extends PaymentModule
             $params['templateVars']['{payment_fee_label}'] = $paymentFeeLabel;
 
             if ($buckarooFeeTaxIncl > 0) {
-                $params['templateVars']['{payment_fee}'] = $priceFormatter->format($buckarooFeeTaxExcl, $currencyIsoCode);
-                $params['templateVars']['{payment_fee_tax}'] = $priceFormatter->format($buckarooFee['buckaroo_fee_tax'], $currencyIsoCode);
+                $paymentFee = $priceFormatter->format($buckarooFeeTaxExcl, $currencyIsoCode);
+                $paymentFeeTax = $priceFormatter->format($buckarooFee['buckaroo_fee_tax'], $currencyIsoCode);
+                $params['templateVars']['{payment_fee}'] = $paymentFee;
+                $params['templateVars']['{payment_fee_tax}'] = $paymentFeeTax;
+                $params['templateVars']['{payment_fee_row_style}'] = '';
+                $params['templateVars']['{payment_fee_txt}'] = $paymentFeeLabel . '     ' . $paymentFee . "\n"
+                    . $paymentFeeLabel . ' tax     ' . $paymentFeeTax . "\n";
                 $params['templateVars']['{total_paid}'] = $priceFormatter->format($order->total_paid + $buckarooFeeTaxIncl, $currencyIsoCode);
                 // Include the total tax paid, which includes the payment fee tax
                 $totalTaxPaid = $order->total_paid_tax_incl - $order->total_paid_tax_excl + $buckarooFee['buckaroo_fee_tax'];
                 $params['templateVars']['{total_tax_paid}'] = $priceFormatter->format($totalTaxPaid, $currencyIsoCode);
             } else {
-                $params['templateVars']['{payment_fee}'] = $priceFormatter->format(0, $currencyIsoCode);
+                // No fee: the shipped templates hide both fee rows. Every placeholder still gets a
+                // value, so a customised template never shows a raw "{payment_fee_tax}" (#319).
+                $zero = $priceFormatter->format(0, $currencyIsoCode);
+                $params['templateVars']['{payment_fee}'] = $zero;
+                $params['templateVars']['{payment_fee_tax}'] = $zero;
+                $params['templateVars']['{payment_fee_row_style}'] = 'display:none;mso-hide:all;';
+                $params['templateVars']['{payment_fee_txt}'] = '';
             }
         }
 
@@ -1438,7 +1850,7 @@ class Buckaroo3 extends PaymentModule
             $taxData = $this->calculateTax($order, $buckarooFee);
 
             $this->context->smarty->assign([
-                'payment_fee_label' => Configuration::get('PAYMENT_FEE_FRONTEND_LABEL'),
+                'payment_fee_label' => Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
                 'order_buckaroo_fee' => $this->formatPrice($taxData['feeInclTax']),
                 'order_buckaroo_fee_tax' => $this->formatPrice($taxData['taxAmount']),
             ]);
@@ -1480,7 +1892,7 @@ class Buckaroo3 extends PaymentModule
 
         $sql->select('buckaroo_idin');
         $sql->from('bk_product_idin');
-        $sql->where('product_id = ' . pSQL($productId));
+        $sql->where('product_id = ' . (int) $productId);
 
         $buckarooIdin = Db::getInstance()->getValue($sql);
 
@@ -1495,8 +1907,11 @@ class Buckaroo3 extends PaymentModule
 
         switch ($this->getBuckarooConfigService()->getConfigValue('idin', 'display_mode')) {
             case 'product':
+                // Verification is required as soon as any product in the cart requires it.
                 foreach ($cart->getProducts(true) as $value) {
-                    return $this->isProductBuckarooIdinEnabled($value['id_product']);
+                    if ($this->isProductBuckarooIdinEnabled((int) $value['id_product'])) {
+                        return true;
+                    }
                 }
                 break;
             case 'global':

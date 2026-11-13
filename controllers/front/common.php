@@ -16,7 +16,10 @@
  */
 
 use Buckaroo\PrestaShop\Src\Container\ContainerAwareTrait;
+use Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
+use Buckaroo\PrestaShop\Src\Service\BuckarooPaymentService;
+use Buckaroo\PrestaShop\Src\Service\OrderAfterPaymentService;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -27,9 +30,31 @@ class BuckarooCommonController extends ModuleFrontController
 {
     use ContainerAwareTrait;
 
+    /** @var Buckaroo3 */
+    public $module;
+
     public function __construct()
     {
         parent::__construct();
+    }
+
+    /**
+     * The payment service is defined for the shop front (config/front/services.yml),
+     * which the module container resolves. The Symfony container of a PrestaShop
+     * 1.7.8 or 8 front request only holds the back office services.
+     */
+    protected function getBuckarooPaymentService(): BuckarooPaymentService
+    {
+        try {
+            $service = $this->module->get('buckaroo.config.api.payment.service');
+            if ($service instanceof BuckarooPaymentService) {
+                return $service;
+            }
+        } catch (Throwable $e) {
+            // fall back to the PrestaShop container below
+        }
+
+        return $this->getService('buckaroo.config.api.payment.service');
     }
     private $id_order;
 
@@ -172,6 +197,29 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
+        return $this->bookOrderPayment(
+            $orderId,
+            $transactionKey,
+            (float) urldecode((string) ($response->amount ?? 0)),
+            (string) ($response->payment_method ?? '')
+        );
+    }
+
+    /**
+     * Record a payment Buckaroo confirmed in its direct response (no push data yet),
+     * so the order has the transaction key before it is marked paid.
+     */
+    protected function recordDirectPayment(int $orderId, string $transactionKey, float $amount, string $paymentMethod): bool
+    {
+        return $this->bookOrderPayment($orderId, $transactionKey, $amount, $paymentMethod);
+    }
+
+    private function bookOrderPayment(int $orderId, string $transactionKey, float $amount, string $paymentMethod): bool
+    {
+        if ($transactionKey === '' || $amount <= 0) {
+            return false;
+        }
+
         $order = new Order($orderId);
         if (!Validate::isLoadedObject($order)) {
             return false;
@@ -181,17 +229,12 @@ class BuckarooCommonController extends ModuleFrontController
             return false;
         }
 
-        $amount = (float) urldecode((string) ($response->amount ?? 0));
-        if ($amount <= 0) {
-            return false;
-        }
-
         $payment = new OrderPayment();
         $payment->order_reference = $order->reference;
         $payment->id_currency = $order->id_currency;
         $payment->conversion_rate = 1;
         $payment->amount = $amount;
-        $payment->payment_method = Tools::strtolower((string) ($response->payment_method ?? $order->payment));
+        $payment->payment_method = Tools::strtolower($paymentMethod !== '' ? $paymentMethod : (string) $order->payment);
         $payment->transaction_id = $transactionKey;
         $payment->save();
 
@@ -214,12 +257,24 @@ class BuckarooCommonController extends ModuleFrontController
         }
 
         $totalDue = (float) $order->total_paid;
-        if ($totalDue > 0 && abs($sum - $totalDue) <= 0.005) {
-            $order->total_paid_real = $totalDue;
-        } else {
-            $order->total_paid_real = $sum;
-        }
-        $order->save();
+        $totalPaidReal = ($totalDue > 0 && abs($sum - $totalDue) <= 0.005) ? $totalDue : $sum;
+
+        // Update only this column: saving the whole order could write back a status
+        // that the push changed in the meantime.
+        Db::getInstance()->update('orders', [
+            'total_paid_real' => (float) $totalPaidReal,
+            'date_upd' => date('Y-m-d H:i:s'),
+        ], 'id_order = ' . (int) $orderId);
+        $this->clearOrderCache($orderId);
+    }
+
+    /**
+     * PrestaShop caches loaded orders per request; drop the copy so the next
+     * new Order() reads what the push (another request) may have changed.
+     */
+    protected function clearOrderCache(int $orderId): void
+    {
+        Cache::clean('objectmodel_Order_' . (int) $orderId . '_*');
     }
 
     protected function prepareOrderPaymentsBeforePaidStatus(int $orderId, $response = null): void
@@ -276,7 +331,7 @@ class BuckarooCommonController extends ModuleFrontController
         }
 
         $invoices = $order->getInvoicesCollection();
-        if (!$invoices || !count($invoices)) {
+        if (!count($invoices)) {
             return;
         }
 
@@ -376,6 +431,8 @@ class BuckarooCommonController extends ModuleFrontController
 
     protected function updatePendingOrderStatus(int $orderId, int $newStatusCode, bool $sendEmail = false): bool
     {
+        // The push may have changed the status already: compare with the stored one.
+        $this->clearOrderCache($orderId);
         $order = new Order($orderId);
         if (!Validate::isLoadedObject($order)) {
             return false;
@@ -452,5 +509,59 @@ class BuckarooCommonController extends ModuleFrontController
         unset($this->context->cookie->buckaroo_giftcard_card_code);
         unset($this->context->cookie->buckaroo_giftcard_cart_id);
         $this->context->cookie->write();
+    }
+
+    /**
+     * The payment attempt a push or return refers to (order created only after payment), or null
+     * for a payment that started with the order (its invoice carries the order reference).
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function findPaymentAttempt($response): ?array
+    {
+        if (!is_object($response) || !method_exists($response, 'getReferenceId') || !method_exists($response, 'getCartId')) {
+            return null;
+        }
+
+        $reference = (string) $response->getReferenceId();
+        if (!RawPaymentAttemptRepository::isAttemptReference($reference)) {
+            return null;
+        }
+
+        return (new RawPaymentAttemptRepository())->findByInvoice($reference, (int) $response->getCartId());
+    }
+
+    /**
+     * Create the order for a paid attempt, or find the one another request created.
+     *
+     * @param array<string, mixed> $attempt
+     *
+     * @return array{id_order:int,created:bool,amount_matches:bool,duplicate:bool}|null
+     */
+    protected function createOrderForAttempt(array $attempt, float $paidAmount, string $transactionKey): ?array
+    {
+        if (!$this->module instanceof PaymentModule) {
+            return null;
+        }
+
+        $service = new OrderAfterPaymentService($this->module, $this->context);
+        $result = $service->createOrder($attempt, $paidAmount, $transactionKey);
+
+        if ($result === null && isset($this->logger)) {
+            $this->logger->logError('Order after payment: ' . $service->getLastError(), [
+                'attempt' => (string) $attempt['reference'],
+                'transaction' => $transactionKey,
+            ]);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Paid amount of a push or return (brq_amount, URL encoded in returns).
+     */
+    protected function getReplyAmount($response): float
+    {
+        return (float) urldecode((string) ($response->amount ?? 0));
     }
 }

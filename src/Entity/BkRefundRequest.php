@@ -59,7 +59,7 @@ class BkRefundRequest
     private $amount;
 
     /**
-     * @var string
+     * @var int
      *
      * @ORM\Column(name="order_id", type="integer")
      */
@@ -103,6 +103,31 @@ class BkRefundRequest
     public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getOrderId(): int
+    {
+        return (int) $this->orderId;
+    }
+
+    public function getPaymentKey(): string
+    {
+        return (string) $this->paymentKey;
+    }
+
+    public function getPayload(): array
+    {
+        return (array) $this->payload;
+    }
+
+    public function getData(): array
+    {
+        return (array) $this->data;
     }
 
     public function setStatus(string $status): self

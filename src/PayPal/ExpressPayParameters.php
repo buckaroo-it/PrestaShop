@@ -14,13 +14,23 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../api/corelogger.php';
+
+namespace Buckaroo\PrestaShop\Src\PayPal;
+
+use Buckaroo\PaymentMethods\Paypal\Models\ExtraInfo;
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-class Logger extends CoreLogger
+/**
+ * Service parameters of an express payment: the approved PayPal order and,
+ * when given, the seller protection data (customer name, address, phone).
+ */
+class ExpressPayParameters extends ExtraInfo
 {
-    private $logtype = 'plugin';
+    /**
+     * @var string
+     */
+    protected string $payPalOrderId;
 }

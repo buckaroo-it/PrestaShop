@@ -101,7 +101,7 @@
                             </button>
                             <div class="flex items-center space-x-2">
                                 <img :src="`/img/flags/${ country.icon }`" class="w-4" alt=""/>
-                                <span class="block">{{ $t(`countries.${ country.name }`) }}</span>
+                                <span class="block">{{ country.name }}</span>
                             </div>
                         </li>
 

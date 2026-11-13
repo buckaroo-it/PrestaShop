@@ -31,6 +31,9 @@ class Buckaroo3ClickToPayTokenModuleFrontController extends ModuleFrontControlle
 {
     use ContainerAwareTrait;
 
+    /** @var Buckaroo3 */
+    public $module;
+
     public $ssl = true;
     public $ajax = true;
     public $content_only = true;
@@ -70,6 +73,7 @@ class Buckaroo3ClickToPayTokenModuleFrontController extends ModuleFrontControlle
             return false;
         }
 
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart) || (int) $cart->nbProducts() <= 0) {
             return false;

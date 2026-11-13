@@ -16,8 +16,8 @@
  */
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Service\BuckarooFeeCalculator;
 use Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService;
-use PrestaShop\Decimal\DecimalNumber;
 use PrestaShop\PrestaShop\Core\Localization\Exception\LocalizationException;
 
 if (!defined('_PS_VERSION_')) {
@@ -26,9 +26,22 @@ if (!defined('_PS_VERSION_')) {
 
 class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 {
+    /** @var Buckaroo3 */
+    public $module;
+
     public $ssl = true;
     public $ajax = true;
     public $content_only = true;
+
+    /**
+     * Drop any output buffered so far, so the response body is JSON only.
+     */
+    private function discardOutputBuffers(): void
+    {
+        while (ob_get_level() > 0) {
+            @ob_end_clean();
+        }
+    }
 
     /**
      * @throws PrestaShopException
@@ -36,9 +49,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      */
     public function initContent()
     {
-        while (@ob_get_level()) {
-            @ob_end_clean();
-        }
+        $this->discardOutputBuffers();
 
         header('Content-Type: application/json;charset=utf-8');
         header('Cache-Control: no-cache, must-revalidate');
@@ -49,9 +60,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             // Ignore parent errors, we'll handle everything ourselves
         }
 
-        while (@ob_get_level()) {
-            @ob_end_clean();
-        }
+        $this->discardOutputBuffers();
 
         header('Content-Type: application/json;charset=utf-8');
 
@@ -75,9 +84,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 PrestaShopLogger::addLog('Buckaroo3 Ajax Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine(), 3);
             }
-            while (@ob_get_level()) {
-                @ob_end_clean();
-            }
+            $this->discardOutputBuffers();
             header('Content-Type: application/json;charset=utf-8');
             $this->ajaxRender(json_encode([
                 'error' => true,
@@ -92,9 +99,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             if (class_exists('\PrestaShopLogger')) {
                 PrestaShopLogger::addLog('Buckaroo3 Ajax Fatal Error: ' . $e->getMessage() . ' File: ' . $e->getFile() . ' Line: ' . $e->getLine() . ' Trace: ' . $e->getTraceAsString(), 3);
             }
-            while (@ob_get_level()) {
-                @ob_end_clean();
-            }
+            $this->discardOutputBuffers();
             header('Content-Type: application/json;charset=utf-8');
             $errorMessage = 'Fatal error processing request';
             if (defined('_PS_MODE_DEV_') && _PS_MODE_DEV_) {
@@ -117,6 +122,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
      */
     private function getPhoneStatus()
     {
+        /** @var Cart|null $cart The context has no cart outside a shop page request */
         $cart = $this->context->cart;
         if (!$cart || !Validate::isLoadedObject($cart)) {
             $this->ajaxRender(json_encode(['error' => true, 'delivery_phone' => '', 'billing_phone' => '']));
@@ -161,7 +167,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
 
     /**
      * @param Cart $cart
-     * @param array|PrestaShop\PrestaShop\Adapter\Presenter\Cart\CartLazyArray|null $presentedCart
+     * @param array|ArrayAccess|null $presentedCart Presented cart (an array or a lazy array, depending on the PrestaShop version)
      *
      * @throws PrestaShopException
      * @throws Exception
@@ -169,23 +175,6 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function renderCartSummary(Cart $cart, $presentedCart = null)
     {
         try {
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                $this->get('prestashop.core.cart.cart_presenter');
-            }
-
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
-                    $container = $this->module->getCoreServiceContainer();
-                    if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
-                        $this->cart_presenter = $container->get('prestashop.core.cart.cart_presenter');
-                    }
-                }
-            }
-
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                throw new Exception('Cart presenter is not available');
-            }
-
             $presentedCart = $presentedCart ?: $this->cart_presenter->present($cart);
 
             $this->context->smarty->assign([
@@ -240,23 +229,20 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function calculateTotalWithPaymentFee()
     {
         try {
-            if (!$this->context || !$this->context->cart || !Validate::isLoadedObject($this->context->cart)) {
+            if (!Validate::isLoadedObject($this->context->cart)) {
                 throw new Exception('Cart is not available');
             }
 
             $cart = $this->context->cart;
-            $paymentFeeValue = trim(Tools::getValue('paymentFee'));
+            $paymentFee = $this->resolvePaymentFee($cart);
 
-            if (!$paymentFeeValue || $paymentFeeValue === '') {
+            if ($paymentFee === null) {
                 $this->renderCartSummary($cart);
 
                 return;
             }
 
-            $paymentFee = $this->calculatePaymentFee($paymentFeeValue, $cart);
-            $orderTotals = $this->calculateOrderTotals($cart, $paymentFee);
-
-            $this->updatePresentedCart($cart, $orderTotals);
+            $this->updatePresentedCart($cart, $this->calculateOrderTotals($cart, $paymentFee));
         } catch (Exception $e) {
             // Log error and return empty response
             if (class_exists('\PrestaShopLogger')) {
@@ -273,99 +259,52 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
         }
     }
 
-    private function calculatePaymentFee($paymentFeeValue, $cart): ?DecimalNumber
+    /**
+     * Calculates the fee for the selected payment method with the same code that adds it
+     * to the order and to the Buckaroo transaction (Buckaroo3::getBuckarooFee()).
+     *
+     * The configured fee is read from the module settings when the payment method is
+     * known; the posted fee value is only a fallback for themes that do not send it.
+     *
+     * @return array|null
+     */
+    private function resolvePaymentFee(Cart $cart)
     {
-        $orderTotal = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
+        $cartTotal = (float) $cart->getOrderTotal(true, Cart::BOTH);
+        $paymentMethod = trim((string) Tools::getValue('paymentMethod'));
 
-        if (is_string($paymentFeeValue) && strpos(trim($paymentFeeValue), '%') !== false) {
-            $normalizedValue = trim(str_replace('%', '', $paymentFeeValue));
-
-            if (!is_numeric($normalizedValue)) {
-                if (class_exists('\PrestaShopLogger')) {
-                    PrestaShopLogger::addLog('Buckaroo3: Invalid percentage fee value: ' . $paymentFeeValue, 3);
-                }
-
-                return new DecimalNumber('0');
-            }
-
-            $percentage = (new DecimalNumber((string) $normalizedValue))->dividedBy(new DecimalNumber('100'));
-
-            return $orderTotal->times($percentage);
+        if ($paymentMethod !== '' && preg_match('/^[a-z0-9_]+$/i', $paymentMethod)) {
+            return $this->module->getBuckarooFee($paymentMethod, $cartTotal);
         }
 
-        if (!is_numeric($paymentFeeValue)) {
-            if (class_exists('\PrestaShopLogger')) {
-                PrestaShopLogger::addLog('Buckaroo3: Invalid fixed fee value: ' . $paymentFeeValue, 3);
-            }
-
-            return new DecimalNumber('0');
+        $paymentFeeValue = trim((string) Tools::getValue('paymentFee'));
+        if ($paymentFeeValue === '') {
+            return null;
         }
 
-        return new DecimalNumber($paymentFeeValue > 0 ? (string) $paymentFeeValue : '0');
+        return $this->module->calculateBuckarooFee($paymentFeeValue, $cartTotal);
     }
 
-    private function calculateOrderTotals($cart, $paymentFee): array
+    /**
+     * @param array $paymentFee result of Buckaroo3::getBuckarooFee()
+     */
+    private function calculateOrderTotals(Cart $cart, array $paymentFee): array
     {
-        try {
-            $paymentFeeValue = (float) (string) $paymentFee->toPrecision(2);
+        $precision = (int) $this->context->getComputingPrecision();
+        $cartTotalTaxIncl = (float) $cart->getOrderTotal(true, Cart::BOTH);
+        $cartTotalTaxExcl = (float) $cart->getOrderTotal(false, Cart::BOTH);
 
-            $addressId = $cart->id_address_invoice ?: $cart->id_address_delivery;
-            $taxRate = 0;
-            $taxRateDecimal = 0;
-
-            if ($addressId) {
-                try {
-                    $address = new Address($addressId);
-                    if (Validate::isLoadedObject($address)) {
-                        $taxManager = TaxManagerFactory::getManager($address, (int) Configuration::get('PS_TAX'));
-                        if ($taxManager) {
-                            $taxCalculator = $taxManager->getTaxCalculator();
-                            if ($taxCalculator) {
-                                $taxRate = $taxCalculator->getTotalRate();
-                                $taxRateDecimal = $taxRate / 100;
-                            }
-                        }
-                    }
-                } catch (Exception $e) {
-                    if (class_exists('\PrestaShopLogger')) {
-                        PrestaShopLogger::addLog('Buckaroo3 Tax Calculation Error: ' . $e->getMessage(), 3);
-                    }
-                }
-            }
-
-            if (Configuration::get(Config::PAYMENT_FEE_MODE) === 'subtotal_incl_tax') {
-                $baseFee = $paymentFeeValue / (1 + $taxRateDecimal);
-                $taxFee = $paymentFeeValue - $baseFee;
-                $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH)))->plus(new DecimalNumber((string) $paymentFee));
-                $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH)))->plus(new DecimalNumber((string) $paymentFee));
-                $paymentFeeTax = new DecimalNumber((string) $taxFee);
-                $paymentFee = new DecimalNumber((string) $baseFee);
-            } else {
-                $paymentFeeTaxAmount = $paymentFeeValue * $taxRateDecimal;
-                $totalFeePriceTaxIncl = $paymentFeeValue + $paymentFeeTaxAmount;
-                $paymentFeeTax = new DecimalNumber((string) $paymentFeeTaxAmount);
-                $orderTotalWithFee = (new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH)))->plus(new DecimalNumber((string) $totalFeePriceTaxIncl));
-                $orderTotalNoTaxWithFee = (new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH)))->plus($paymentFee);
-            }
-
-            return [
-                'total_including_tax' => (string) $orderTotalWithFee->toPrecision(2),
-                'total_excluding_tax' => (string) $orderTotalNoTaxWithFee->toPrecision(2),
-                'payment_fee' => (string) $paymentFee->toPrecision(2),
-                'payment_fee_tax' => (string) $paymentFeeTax->toPrecision(2),
-            ];
-        } catch (Exception $e) {
-            if (class_exists('\PrestaShopLogger')) {
-                PrestaShopLogger::addLog('Buckaroo3 CalculateOrderTotals Error: ' . $e->getMessage(), 3);
-            }
-
-            return [
-                'total_including_tax' => (string) $cart->getOrderTotal(true, Cart::BOTH),
-                'total_excluding_tax' => (string) $cart->getOrderTotal(false, Cart::BOTH),
-                'payment_fee' => '0',
-                'payment_fee_tax' => '0',
-            ];
-        }
+        return [
+            'total_including_tax' => BuckarooFeeCalculator::addToTotal($cartTotalTaxIncl, $paymentFee, $precision),
+            'total_excluding_tax' => BuckarooFeeCalculator::addToTotal($cartTotalTaxExcl, $paymentFee, $precision, false),
+            'payment_fee' => (float) $paymentFee['buckaroo_fee_tax_excl'],
+            'payment_fee_tax' => (float) $paymentFee['buckaroo_fee_tax'],
+            'payment_fee_tax_incl' => (float) $paymentFee['buckaroo_fee_tax_incl'],
+            'included_taxes' => (float) Tools::ps_round(
+                $cartTotalTaxIncl - $cartTotalTaxExcl + (float) $paymentFee['buckaroo_fee_tax'],
+                $precision
+            ),
+        ];
     }
 
     /**
@@ -376,24 +315,6 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
     private function updatePresentedCart($cart, $orderTotals)
     {
         try {
-            // Initialize cart_presenter if not available
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                if ($this->module && method_exists($this->module, 'getCoreServiceContainer')) {
-                    $container = $this->module->getCoreServiceContainer();
-                    if ($container && $container->has('prestashop.core.cart.cart_presenter')) {
-                        $this->cart_presenter = $container->get('prestashop.core.cart.cart_presenter');
-                    }
-                }
-            }
-
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                $this->cart_presenter = $this->get('prestashop.core.cart.cart_presenter');
-            }
-
-            if (!isset($this->cart_presenter) || !$this->cart_presenter) {
-                throw new Exception('Cart presenter is not available');
-            }
-
             $presentedCart = $this->cart_presenter->present($cart);
 
             $presentedCartArray = [];
@@ -408,16 +329,11 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
             $buckarooFee = $this->formatPrice($orderTotals['payment_fee']);
             $paymentFeeTax = $this->formatPrice($orderTotals['payment_fee_tax']);
             $hasPaymentFeeTax = (float) $orderTotals['payment_fee_tax'] > 0;
-            // Calculate total fee including tax
-            $paymentFeeTotal = (float) $orderTotals['payment_fee'] + (float) $orderTotals['payment_fee_tax'];
-            $paymentFeeTotalFormatted = $this->formatPrice($paymentFeeTotal);
+            $paymentFeeTotalFormatted = $this->formatPrice($orderTotals['payment_fee_tax_incl']);
             $paymentFeeDisplayValue = $hasPaymentFeeTax
                 ? sprintf('%s+%s', $buckarooFee, $paymentFeeTax)
                 : $buckarooFee;
-
-            $totalWithoutTax = new DecimalNumber((string) $cart->getOrderTotal(false, Cart::BOTH));
-            $totalWithTax = new DecimalNumber((string) $cart->getOrderTotal(true, Cart::BOTH));
-            $includedTaxes = (string) $totalWithTax->minus($totalWithoutTax)->plus(new DecimalNumber($orderTotals['payment_fee_tax']))->toPrecision(2);
+            $includedTaxes = $orderTotals['included_taxes'];
 
             $existingTotals = isset($presentedCartArray['totals']) && is_array($presentedCartArray['totals'])
                 ? $presentedCartArray['totals']
@@ -445,7 +361,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 return true;
             }, ARRAY_FILTER_USE_BOTH);
 
-            $paymentFeeLabel = Configuration::get('PAYMENT_FEE_FRONTEND_LABEL') ?: 'Payment Fee';
+            $paymentFeeLabel = Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL) ?: 'Payment Fee';
             $paymentFeeLabelWithSuffix = $paymentFeeLabel . ' (inc taxes)';
             $presentedCartArray['subtotals']['paymentFee'] = [
                 'type' => 'paymentFee',
@@ -493,7 +409,7 @@ class Buckaroo3AjaxModuleFrontController extends ModuleFrontController
                 'amount' => $orderTotals['total_excluding_tax'],
                 'value' => $this->formatPrice($orderTotals['total_excluding_tax']),
             ],
-            'paymentFeeTotal' => $paymentFeeDisplayValue ?: $this->formatPrice((float) $orderTotals['payment_fee'] + (float) $orderTotals['payment_fee_tax']),
+            'paymentFeeTotal' => $paymentFeeDisplayValue ?: $this->formatPrice($orderTotals['payment_fee_tax_incl']),
         ];
 
         if (Configuration::get(Config::PAYMENT_FEE_MODE) === 'subtotal') {

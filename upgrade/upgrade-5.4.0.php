@@ -62,6 +62,11 @@ function upgrade_module_5_4_0($object)
         return false;
     }
 
+    // Payment attempts of methods that create the order only after a successful payment.
+    if (!Db::getInstance()->execute(Buckaroo\PrestaShop\Src\Repository\RawPaymentAttemptRepository::createTableSql())) {
+        return false;
+    }
+
     // Earlier versions set the shop cookie SameSite setting to None; put back the PrestaShop default.
     (new Buckaroo\PrestaShop\Src\Install\CookieSameSiteRestorer())->restore();
 
@@ -69,5 +74,21 @@ function upgrade_module_5_4_0($object)
     // modules/buckaroo3/api/log/ (publicly reachable on Nginx) and drop that directory.
     (new Buckaroo\PrestaShop\Src\Install\LogDirectoryMigrator())->migrate();
 
-    return $object->registerHook('actionOrderStatusPostUpdate');
+    // The payment fee mode and frontend label keys carry the module prefix now;
+    // keep the merchant's values and drop the unprefixed keys.
+    (new Buckaroo\PrestaShop\Src\Install\ConfigurationKeyMigrator())->migrate();
+
+    // PayPal seller protection is the default now, also for PayPal express payments.
+    (new Buckaroo\PrestaShop\Src\Install\PayPalSellerProtectionEnabler())->enable();
+
+    // Apple Pay express button on the product and cart pages, and Apple's domain verification file.
+    if (method_exists($object, 'installApplePayDomainAssociation')) {
+        $object->installApplePayDomainAssociation();
+    }
+
+    return $object->registerHook('actionOrderStatusPostUpdate')
+        && $object->registerHook('displayProductAdditionalInfo')
+        && $object->registerHook('displayExpressCheckout')
+        // Payment fee line on the order confirmation and order details pages of every theme.
+        && $object->registerHook('actionPresentOrder');
 }

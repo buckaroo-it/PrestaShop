@@ -62,14 +62,14 @@ class StatusService
         $isFullyRefunded = $this->isReadyToBeRefunded($order);
 
         if ((int) $statusRefunded > 0 && $isFullyRefunded && !$isCurrentlyRefunded) {
-            $this->update($order->id, $statusRefunded);
+            $this->update($order->id, (int) $statusRefunded);
 
             return;
         }
 
         // Only set partial refund status if it's NOT fully refunded
         if (!$isFullyRefunded && (int) $statusPartialRefunded > 0 && $this->isPartiallyRefunded($order) && !$isCurrentlyPartiallyRefunded) {
-            $this->update($order->id, $statusPartialRefunded);
+            $this->update($order->id, (int) $statusPartialRefunded);
         }
     }
 

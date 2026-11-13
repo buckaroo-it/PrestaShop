@@ -328,7 +328,7 @@ class BuckarooClickToPayService
         $total = (float) $cart->getOrderTotal(true, \Cart::BOTH);
 
         $module = \Module::getInstanceByName('buckaroo3');
-        if ($module) {
+        if ($module instanceof \Buckaroo3) {
             $fee = $module->getBuckarooFee(self::METHOD_NAME, $total);
             if (is_array($fee) && isset($fee['buckaroo_fee_tax_incl'])) {
                 $total += (float) $fee['buckaroo_fee_tax_incl'];

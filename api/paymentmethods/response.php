@@ -14,7 +14,7 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../../library/logger.php';
+require_once dirname(__FILE__) . '/../corelogger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 
@@ -31,10 +31,8 @@ if (!defined('_PS_VERSION_')) {
 
 abstract class Response extends BuckarooAbstract
 {
-    private $received = false;
     private $validated = false;
     private $test = true;
-    private $signature;
     private $isPush;
     private ?string $gatewayMode = null;
     public $payment;
@@ -61,7 +59,7 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct(?TransactionResponse $response = null)
     {
-        $this->logger = new Logger(Logger::INFO, 'response');
+        $this->logger = new CoreLogger(CoreLogger::INFO, 'response');
         $this->logger->logInfo("\n\n\n\n***************** Response start ***********************");
 
         if ($response) {
@@ -69,7 +67,6 @@ abstract class Response extends BuckarooAbstract
             $this->logger->logInfo('Response object provided directly');
         } else {
             $this->isPush = $this->isPushRequest();
-            $this->received = true;
             $this->logger->logInfo(
                 $this->isPush
                     ? 'Response determined to be a push/return request'
@@ -112,7 +109,6 @@ abstract class Response extends BuckarooAbstract
         $this->test = $this->setPostVariable('brq_test');
         $this->timestamp = $this->setPostVariable('brq_timestamp');
         $this->transactions = $this->setPostVariable('brq_transactions');
-        $this->signature = $this->setPostVariable('brq_signature');
 
         $this->logger->logInfo('Parsed push request', [
             'statuscode' => $this->statuscode,
@@ -174,21 +170,6 @@ abstract class Response extends BuckarooAbstract
         return $this->response->getServiceParameters();
     }
 
-    public function getStatuscode()
-    {
-        return $this->response->statuscode;
-    }
-
-    public function getStatusmessage()
-    {
-        return $this->response->statusmessage;
-    }
-
-    public function getAmount()
-    {
-        return $this->response->amount;
-    }
-
     public function getBrqRelatedtransactionPartialpayment()
     {
         return $this->brq_relatedtransaction_partialpayment;
@@ -232,8 +213,8 @@ abstract class Response extends BuckarooAbstract
             if ($this->isPush) {
                 $buckaroo = new BuckarooClient(Configuration::get('BUCKAROO_MERCHANT_KEY'), Configuration::get('BUCKAROO_SECRET_KEY'));
                 try {
-                    // Customer return may arrive as GET; push is usually POST.
-                    $data = array_merge($_GET, $_POST);
+                    // Customer return may arrive as GET; push is usually POST. POST wins.
+                    $data = Tools::getAllValues();
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $data);
                     $reply_handler->validate();
                     $this->validated = $reply_handler->isValid() && $this->isPushFromStartedGateway();

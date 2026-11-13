@@ -118,6 +118,9 @@ class Installer implements InstallerInterface
             'actionAfterUpdateProductFormHandler',
             'displayShoppingCartFooter',
             'displayPaymentTop',
+            'displayProductAdditionalInfo',
+            'displayExpressCheckout',
+            'actionPresentOrder',
         ];
     }
 

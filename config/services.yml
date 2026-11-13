@@ -35,6 +35,7 @@ services:
       - "@buckaroo.refund.order.service"
       - "@buckaroo.session"
       - "@?prestashop.adapter.legacy.context"
+      - "@buckaroo.refund.admin.provider"
     public: true
 
   buckaroo.refund.request.handler:
@@ -142,8 +143,6 @@ services:
     class: Buckaroo\PrestaShop\Src\Form\Type\IdinTabType
     parent: 'form.type.translatable.aware'
     public: true
-    arguments:
-      - '@=service("prestashop.adapter.data_provider.currency").getDefaultCurrency()'
     tags:
       - { name: form.type }
 
@@ -253,8 +252,6 @@ services:
 
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
-    arguments:
-      - "@buckaroo.config.api.config.service"
     public: true
 
   buckaroo.repository.raw_payment_method:
