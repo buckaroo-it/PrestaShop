@@ -1265,7 +1265,14 @@ class Buckaroo3 extends PaymentModule
             $html .= $this->display(__FILE__, 'views/templates/hook/' . $settings->getWallet()->getMethod() . '_express.tpl');
         }
 
-        return $html;
+        if ($html === '') {
+            return '';
+        }
+
+        // One block for all buttons, so the theme spaces and places them as a group.
+        return '<div class="buckaroo-express buckaroo-express--' . htmlspecialchars($placement, ENT_QUOTES, 'UTF-8') . '">'
+            . $html
+            . '</div>';
     }
 
     /**

@@ -255,15 +255,44 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin-bottom: 15px;
 }
 
-/* Apple Pay express button */
-.buckaroo-applepay-express {
+/*
+ * Express buttons (Apple Pay, Google Pay, PayPal), rendered as one block per page.
+ * PayPal does not draw its buttons wider than 750px, so the other buttons get the same limit.
+ */
+.buckaroo-express {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 750px;
+}
+
+/* Hide the block while none of its buttons is shown */
+.buckaroo-express:not(:has(> :not([hidden]))) {
+    display: none;
+}
+
+.buckaroo-express--product {
     margin: 10px 0;
 }
 
-.buckaroo-applepay-express--checkout {
-    margin: 0 0 20px;
+/* Hummingbird: show the buttons directly below the Add to cart button */
+.product__additional-info > .buckaroo-express--product {
+    order: -1;
+    margin: 0;
 }
 
+.buckaroo-express--cart {
+    margin-top: 10px;
+}
+
+/* Separate the buttons from the list of payment methods */
+.buckaroo-express--checkout {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Apple Pay express button */
 /*
  * The Buckaroo SDK stylesheet makes the host an unsized inline-flex box and
  * sizes the web component to 100% of it, which collapses the button to Apple's
@@ -310,14 +339,6 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin-top: 10px;
 }
 
-.buckaroo-googlepay-express {
-    margin: 10px 0;
-}
-
-.buckaroo-googlepay-express--checkout {
-    margin: 0 0 20px;
-}
-
 .buckaroo-googlepay-express__button {
     width: 100%;
     height: 44px;
@@ -332,17 +353,14 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 }
 
 /* PayPal express button; PayPal sizes its own buttons (PayPal and Pay Later) */
-.buckaroo-paypal-express {
-    margin: 10px 0;
-}
-
-.buckaroo-paypal-express--checkout {
-    margin: 0 0 20px;
-}
-
 .buckaroo-paypal-express__button {
     width: 100%;
     min-height: 45px;
+}
+
+/* PayPal renders an inline-block; align it so no line gap is added below the button */
+.buckaroo-paypal-express__button .paypal-buttons {
+    vertical-align: top;
 }
 
 .buckaroo-paypal-express__message {
