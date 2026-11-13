@@ -51,7 +51,7 @@ class CoreLogger
     private function logEvent($info, $level, $descr = null)
     {
         if ($level >= $this->level) {
-            $prefix = self::$log_level[$level] . ' ' . date('Y-m-d h:i:s') . ' ';
+            $prefix = self::$log_level[$level] . ' ' . date('Y-m-d H:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {
                 if (is_object($descr) || is_array($descr)) {
@@ -68,7 +68,7 @@ class CoreLogger
 
     private function logUserEvent($info)
     {
-        $this->write('report_log.txt', date('Y-m-d h:i:s') . '|||' . $info . "\n");
+        $this->write('report_log.txt', date('Y-m-d H:i:s') . '|||' . $info . "\n");
     }
 
     /**
