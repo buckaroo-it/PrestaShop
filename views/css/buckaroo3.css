@@ -234,6 +234,15 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     white-space: nowrap;
 }
 
+/*
+ * The Riverty and In3 terms checkbox uses the Classic theme custom-checkbox markup.
+ * Hummingbird renders it inside .payment-option without styling it, so hide the
+ * check mark icon there and keep the native checkbox.
+ */
+.payment-option .custom-checkbox input[type="checkbox"] + span {
+    display: none;
+}
+
 /* Click to Pay Drop-in UI */
 
 .bk-clicktopay-button,
