@@ -77,7 +77,7 @@
                 {l s='MM' mod='buckaroo3'}
                 <input title="Year" name="customerbirthdate_y_billing" id="customerbirthdate_y_billing_digi"
                        type="text" value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
-                       class="form-control bk-form-control-middle" style="width: 70px;"
+                       class="form-control bk-form-control-middle"
                        autocomplete="off" maxlength="4" placeholder="{l s='YYYY' mod='buckaroo3'}"/>
                 {l s='YYYY' mod='buckaroo3'}
             </div>
@@ -107,7 +107,7 @@
                     <input title="Year" name="customerbirthdate_y_shipping"
                            id="customerbirthdate_y_shipping_digi" type="text"
                            value="{$customer_birthday[0]|escape:'html':'UTF-8'}"
-                           class="form-control bk-form-control-small" autocomplete="off"
+                           class="form-control bk-form-control-middle" autocomplete="off"
                            placeholder="{l s='YYYY' mod='buckaroo3'}"/>
                     {l s='YYYY' mod='buckaroo3'}
                 </div>
