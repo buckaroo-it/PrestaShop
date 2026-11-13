@@ -61,21 +61,17 @@ class LogFileReader
             if (!is_string($name) || !is_file($this->directory . $name)) {
                 continue;
             }
+            $size = (int) @filesize($this->directory . $name);
             if (preg_match(self::DAILY_FILE, $name, $match)) {
-                $files[] = ['name' => $name, 'channel' => $match[1], 'date' => $match[2]];
+                $files[] = ['name' => $name, 'channel' => $match[1], 'date' => $match[2], 'size' => $size];
             } elseif ($name === self::REPORT_FILE) {
-                $files[] = ['name' => $name, 'channel' => 'report', 'date' => ''];
+                $files[] = ['name' => $name, 'channel' => 'report', 'date' => '', 'size' => $size];
             }
         }
 
         usort($files, function (array $a, array $b) {
             return [$b['date'], $a['channel']] <=> [$a['date'], $b['channel']];
         });
-
-        foreach ($files as &$file) {
-            $file['size'] = (int) @filesize($this->directory . $file['name']);
-        }
-        unset($file);
 
         return $files;
     }
