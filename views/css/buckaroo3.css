@@ -112,7 +112,11 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin-top:5px;
 }
 
-.payment-option label img {
+/*
+ * Payment method logo. Hummingbird renders the additional information inside
+ * .payment-option, so leave the issuer logos (cards, giftcards, banks) alone.
+ */
+.payment-option label:not(.bk-issuer-label) img {
     float: left;
     margin-right: 10px;
     max-height: 25px;
