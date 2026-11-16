@@ -37,4 +37,3 @@ class BuckarooWechatpayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('wechatpay', $options[0]->getModuleName());
     }
 }
-

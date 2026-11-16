@@ -36,7 +36,7 @@
 }
 
 .bk-form-control-middle {
-    width: 70px;
+    width: 80px;
     display: inline;
     background-color: #f8f9fa;
     border: 1px solid #ced4da;
@@ -112,7 +112,11 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     margin-top:5px;
 }
 
-.payment-option label img {
+/*
+ * Payment method logo. Hummingbird renders the additional information inside
+ * .payment-option, so leave the issuer logos (cards, giftcards, banks) alone.
+ */
+.payment-option label:not(.bk-issuer-label) img {
     float: left;
     margin-right: 10px;
     max-height: 25px;
@@ -230,6 +234,15 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     white-space: nowrap;
 }
 
+/*
+ * The Riverty and In3 terms checkbox uses the Classic theme custom-checkbox markup.
+ * Hummingbird renders it inside .payment-option without styling it, so hide the
+ * check mark icon there and keep the native checkbox.
+ */
+.payment-option .custom-checkbox input[type="checkbox"] + span {
+    display: none;
+}
+
 /* Click to Pay Drop-in UI */
 
 .bk-clicktopay-button,
@@ -240,4 +253,116 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
 .bk-clicktopay-message {
     color: #ff3649;
     margin-bottom: 15px;
+}
+
+/*
+ * Express buttons (Apple Pay, Google Pay, PayPal), rendered as one block per page.
+ * PayPal does not draw its buttons wider than 750px, so the other buttons get the same limit.
+ */
+.buckaroo-express {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 750px;
+}
+
+/* Hide the block while none of its buttons is shown */
+.buckaroo-express:not(:has(> :not([hidden]))) {
+    display: none;
+}
+
+.buckaroo-express--product {
+    margin: 10px 0;
+}
+
+/* Hummingbird: show the buttons directly below the Add to cart button */
+.product__additional-info > .buckaroo-express--product {
+    order: -1;
+    margin: 0;
+}
+
+.buckaroo-express--cart {
+    margin-top: 10px;
+}
+
+/* Separate the buttons from the list of payment methods */
+.buckaroo-express--checkout {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Apple Pay express button */
+/*
+ * The Buckaroo SDK stylesheet makes the host an unsized inline-flex box and
+ * sizes the web component to 100% of it, which collapses the button to Apple's
+ * default 100px. Size the host here, with a more specific selector than the SDK.
+ */
+.buckaroo-applepay-express .buckaroo-applepay-express__button.apple-pay-sdk-host {
+    display: flex;
+    width: 100%;
+    height: 44px;
+}
+
+.buckaroo-applepay-express .buckaroo-applepay-express__button.apple-pay-sdk-host apple-pay-button {
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    height: 100%;
+    --apple-pay-button-width: 100%;
+    --apple-pay-button-height: 100%;
+    --apple-pay-button-border-radius: 4px;
+    --apple-pay-button-padding: 0;
+    --apple-pay-button-box-sizing: border-box;
+}
+
+/* Safari fallback when Apple's web component could not be loaded */
+.buckaroo-applepay-express__button.apple-pay-button:not(.apple-pay-sdk-host) {
+    display: block;
+    width: 100%;
+    height: 44px;
+    border-radius: 4px;
+    cursor: pointer;
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: plain;
+}
+
+.buckaroo-applepay-express__button.apple-pay-button-black { -apple-pay-button-style: black; }
+.buckaroo-applepay-express__button.apple-pay-button-white { -apple-pay-button-style: white; }
+.buckaroo-applepay-express__button.apple-pay-button-white-with-line { -apple-pay-button-style: white-outline; }
+.buckaroo-applepay-express__button.apple-pay-button-type-buy { -apple-pay-button-type: buy; }
+.buckaroo-applepay-express__button.apple-pay-button-type-check-out { -apple-pay-button-type: check-out; }
+.buckaroo-applepay-express__button.apple-pay-button-type-book { -apple-pay-button-type: book; }
+.buckaroo-applepay-express__button.apple-pay-button-type-subscribe { -apple-pay-button-type: subscribe; }
+
+.buckaroo-applepay-express__message {
+    margin-top: 10px;
+}
+
+.buckaroo-googlepay-express__button {
+    width: 100%;
+    height: 44px;
+}
+
+.buckaroo-googlepay-express__button button {
+    width: 100%;
+}
+
+.buckaroo-googlepay-express__message {
+    margin-top: 10px;
+}
+
+/* PayPal express button; PayPal sizes its own buttons (PayPal and Pay Later) */
+.buckaroo-paypal-express__button {
+    width: 100%;
+    min-height: 45px;
+}
+
+/* PayPal renders an inline-block; align it so no line gap is added below the button */
+.buckaroo-paypal-express__button .paypal-buttons {
+    vertical-align: top;
+}
+
+.buckaroo-paypal-express__message {
+    margin-top: 10px;
 }

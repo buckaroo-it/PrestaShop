@@ -23,6 +23,7 @@ if (!defined('_PS_VERSION_')) {
 
 /**
  * @return mixed
+ *
  * @throws Exception
  */
 function upgrade_module_4_2_0($object)
@@ -46,16 +47,15 @@ function upgrade_module_4_2_0($object)
     $insertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_payment_methods (' . implode(', ', $keys) . ') VALUES ("' . implode('", "', $values) . '")';
     Db::getInstance()->execute($insertQuery);
 
-
     // Get the inserted payment method ID
     $paymentMethodId = Db::getInstance()->Insert_ID();
 
     // Insert default configuration for Knaken Settle
     $knakenConfig = [
-        'mode' => 'off'
+        'mode' => 'off',
     ];
 
-    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int)$paymentMethodId . ', \'' . pSQL(json_encode($knakenConfig)) . '\')';
+    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int) $paymentMethodId . ', \'' . pSQL(json_encode($knakenConfig)) . '\')';
 
     Db::getInstance()->execute($configInsertQuery);
 

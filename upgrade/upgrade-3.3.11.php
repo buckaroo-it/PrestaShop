@@ -19,13 +19,12 @@ if (!defined('_PS_VERSION_')) {
 }
 
 /**
+ * This upgrade used to set the shop cookie SameSite setting to None on every configuration row.
+ * The module no longer changes the shop cookie setting; upgrade 5.4.0 restores it.
+ *
  * @return mixed
  */
 function upgrade_module_3_3_11($object)
 {
-    Db::getInstance()->execute(
-        'update ' . _DB_PREFIX_ . "configuration set value='None' where name='PS_COOKIE_SAMESITE';"
-    );
-
     return true;
 }

@@ -1,0 +1,12 @@
+# PHPStan configuration for the Buckaroo PrestaShop module.
+#
+# Run from the module root with the dev dependencies installed and a PrestaShop core available:
+#   composer install
+#   _PS_ROOT_DIR_=/path/to/prestashop vendor/bin/phpstan analyse -c tests/phpstan/phpstan.neon
+#
+# CI (see .github/workflows/tests.yml) runs this inside the official PrestaShop
+# Docker images for 1.7.8.x, 8.x and 9.x so the analysis sees each core version.
+includes:
+  - ../../vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
+  - common.neon
+  - phpstan-baseline.neon

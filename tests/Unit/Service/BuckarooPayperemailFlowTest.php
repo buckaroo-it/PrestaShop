@@ -37,4 +37,3 @@ class BuckarooPayperemailFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('payperemail', $options[0]->getModuleName());
     }
 }
-

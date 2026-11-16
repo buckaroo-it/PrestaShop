@@ -22,12 +22,20 @@ services:
 
   Buckaroo\PrestaShop\Controllers\admin\AdminRefundController:
     class: Buckaroo\PrestaShop\Controllers\admin\AdminRefundController
+    # autowire adds the @required AbstractController::setContainer() call and
+    # autoconfigure tags the controller as a service subscriber, so Symfony injects
+    # the service locator it needs (flash messages) on PrestaShop 1.7.8, 8 and 9.
+    # The explicit arguments below are kept as-is.
+    autowire: true
+    autoconfigure: true
     arguments:
       - "@buckaroo.refund.request.quantity_based_builder"
       - "@buckaroo.refund.request.handler"
       - "@buckaroo.refund.request.response.handler"
       - "@buckaroo.refund.order.service"
       - "@buckaroo.session"
+      - "@?prestashop.adapter.legacy.context"
+      - "@buckaroo.refund.admin.provider"
     public: true
 
   buckaroo.refund.request.handler:
@@ -90,6 +98,20 @@ services:
       - "@prestashop.router"
     public: true
 
+  buckaroo.klarna.reservation:
+    class: Buckaroo\PrestaShop\Src\Klarna\ReservationService
+    arguments:
+      - "@buckaroo.refund.order.message"
+    public: true
+
+  Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController:
+    class: Buckaroo\PrestaShop\Controllers\admin\AdminKlarnaReservationController
+    autowire: true
+    autoconfigure: true
+    arguments:
+      - "@buckaroo.klarna.reservation"
+    public: true
+
   buckaroo.decorator.issue_partial_refund_handler:
     class: Buckaroo\PrestaShop\Src\Refund\Decorators\IssuePartialRefundHandler
     decorates: "prestashop.adapter.order.command_handler.issue_partial_refund_handler"
@@ -121,8 +143,6 @@ services:
     class: Buckaroo\PrestaShop\Src\Form\Type\IdinTabType
     parent: 'form.type.translatable.aware'
     public: true
-    arguments:
-      - '@=service("prestashop.adapter.data_provider.currency").getDefaultCurrency()'
     tags:
       - { name: form.type }
 
@@ -140,6 +160,7 @@ services:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService
     arguments:
       - "@buckaroo.config.api.config.service"
+      - "@?prestashop.adapter.legacy.context"
     public: true
 
   Buckaroo\PrestaShop\Src\Service\BuckarooClickToPayService:
@@ -226,12 +247,11 @@ services:
     class: Buckaroo\PrestaShop\Src\Service\BuckarooFeeService
     arguments:
       - "@doctrine.orm.entity_manager"
+      - "@?prestashop.adapter.legacy.context"
     public: true
 
   buckaroo.classes.issuers.capayableIn3:
     class: Buckaroo\PrestaShop\Classes\CapayableIn3
-    arguments:
-      - "@buckaroo.config.api.config.service"
     public: true
 
   buckaroo.repository.raw_payment_method:
@@ -260,6 +280,8 @@ services:
 
   buckaroo.repository.country.repository:
     class: Buckaroo\PrestaShop\Src\Repository\CountryRepository
+    arguments:
+      - "@?prestashop.adapter.legacy.context"
     public: true
 
   Buckaroo\PrestaShop\Src\Repository\CountryRepository:

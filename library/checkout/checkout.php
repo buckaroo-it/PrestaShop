@@ -15,6 +15,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
 
+use Buckaroo\PrestaShop\Classes\Config;
 use Buckaroo\PrestaShop\Src\AddressComponents;
 use Buckaroo\PrestaShop\Src\Repository\RawBuckarooFeeRepository;
 use Buckaroo\PrestaShop\Src\Service\BuckarooConfigService;
@@ -95,7 +96,7 @@ abstract class Checkout
         self::CHECKOUT_TYPE_SWISH => 'Swish',
         self::CHECKOUT_TYPE_BIZUM => 'Bizum',
         self::CHECKOUT_TYPE_WERO => 'Wero',
-        self::CHECKOUT_TYPE_CLICKTOPAY => 'ClickToPay'
+        self::CHECKOUT_TYPE_CLICKTOPAY => 'ClickToPay',
     ];
 
     protected $payment_request;
@@ -131,7 +132,13 @@ abstract class Checkout
     {
         $this->context = $context;
         $this->initialize();
-        $this->module = \Module::getInstanceByName('buckaroo3');
+        if (is_object($this->payment_request) && method_exists($this->payment_request, 'setContext')) {
+            // Hand the controller context down so the request never resolves it statically.
+            $this->payment_request->setContext($context);
+        }
+        /** @var Buckaroo3 $module */
+        $module = Module::getInstanceByName('buckaroo3');
+        $this->module = $module;
         $this->cart = $cart;
         $this->customer = new Customer($cart->id_customer);
         $this->invoice_address = new Address((int) $cart->id_address_invoice);
@@ -159,7 +166,7 @@ abstract class Checkout
         return $this->reference;
     }
 
-    protected function setCheckout()
+    public function setCheckout()
     {
         $currency = new Currency((int) $this->cart->id_currency);
         $cartTotalInclTax = (float) $this->cart->getOrderTotal(true, Cart::BOTH);
@@ -168,10 +175,10 @@ abstract class Checkout
         // (skip for GiftCardCheckout itself so the full amount reaches Buckaroo first)
         $giftcardRemainder = 0.0;
         $giftcardGroupTx = '';
-        $isGiftcardCheckout = ($this instanceof GiftCardCheckout);
+        $isGiftcardCheckout = $this instanceof GiftCardCheckout;
 
         try {
-            $groupTransactionService = new \Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
+            $groupTransactionService = new Buckaroo\PrestaShop\Src\Service\BuckarooGroupTransactionService();
             $alreadyPaid = $groupTransactionService->getAlreadyPaid((int) $this->cart->id);
             if ($alreadyPaid > 0) {
                 $giftcardRemainder = $groupTransactionService->getRemainingAmount(
@@ -193,12 +200,12 @@ abstract class Checkout
                     $giftcardRemainder = (float) ($this->context->cookie->buckaroo_giftcard_remainder ?? 0);
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Keep remainder at 0 — never reuse stale cookies from another cart.
         }
 
         if (!$isGiftcardCheckout && $giftcardRemainder > 0 && !empty($giftcardGroupTx)) {
-            $this->payment_request->amountDebit        = $this->roundBuckarooPrice($giftcardRemainder);
+            $this->payment_request->amountDebit = $this->roundBuckarooPrice($giftcardRemainder);
             $this->payment_request->OriginalTransactionKey = $giftcardGroupTx;
         } else {
             $this->payment_request->amountDebit = $this->roundBuckarooPrice($cartTotalInclTax);
@@ -246,7 +253,7 @@ abstract class Checkout
         $currency = new Currency((int) $this->cart->id_currency);
         $order_id = Order::getIdByCartId($this->cart->id);
 
-        \PrestaShopLogger::addLog('buckarooFeeTaxExcl: ' . $buckarooFeeTaxExcl . ', buckarooFeeTaxIncl: ' . $buckarooFeeTaxIncl, 1);
+        PrestaShopLogger::addLog('buckarooFeeTaxExcl: ' . $buckarooFeeTaxExcl . ', buckarooFeeTaxIncl: ' . $buckarooFeeTaxIncl, 1);
 
         $this->payment_request->amountDebit = $this->roundBuckarooPrice(
             (float) $this->payment_request->amountDebit + (float) $buckarooFeeTaxIncl
@@ -254,7 +261,19 @@ abstract class Checkout
 
         (new RawBuckarooFeeRepository())->insertFee($this->reference, $this->cart->id, $order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl, $currency->iso_code);
 
-        $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
+        // Order after payment: the fee is stored on the attempt reference and added to
+        // the order totals when the order is created (OrderAfterPaymentService).
+        if ((int) $order_id > 0) {
+            $this->updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl);
+        }
+    }
+
+    /**
+     * Amount sent to Buckaroo, including the payment fee.
+     */
+    public function getAmountDebit(): float
+    {
+        return is_object($this->payment_request) ? (float) $this->payment_request->amountDebit : 0.0;
     }
 
     protected function updateOrderTotals($order_id, $buckarooFeeTaxExcl, $buckarooFeeTaxIncl)
@@ -265,10 +284,10 @@ abstract class Checkout
         $totalPriceIncl = $originalAmountIncl->plus(new DecimalNumber((string) $buckarooFeeTaxIncl));
 
         $order = new Order($order_id);
-        $order->total_paid_tax_excl = $totalPriceExcl->toPrecision(2);
-        $order->total_paid_tax_incl = $totalPriceIncl->toPrecision(2);
-        $order->total_paid = $totalPriceIncl->toPrecision(2);
-        $order->total_paid_real = $totalPriceIncl->toPrecision(2);
+        $order->total_paid_tax_excl = (float) $totalPriceExcl->toPrecision(2);
+        $order->total_paid_tax_incl = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid = (float) $totalPriceIncl->toPrecision(2);
+        $order->total_paid_real = (float) $totalPriceIncl->toPrecision(2);
         $order->update();
     }
 
@@ -285,6 +304,19 @@ abstract class Checkout
     abstract public function isRedirectRequired();
 
     abstract public function isVerifyRequired();
+
+    /**
+     * Start a verification request. Only checkouts that report
+     * isVerifyRequired() implement it.
+     *
+     * @param array $customVars
+     *
+     * @throws Exception
+     */
+    public function startVerify($customVars = [])
+    {
+        throw new Exception('Verification is not available for this payment method');
+    }
 
     public function doRedirect($redirect_url = null)
     {
@@ -322,10 +354,25 @@ abstract class Checkout
         checkoutautoload($class_name);
 
         if (!class_exists($class_name)) {
-            throw new Exception('Payment method not found', '1');
+            throw new Exception('Payment method not found', 1);
         }
 
-        return new $class_name($cart, $context);
+        $checkout = new $class_name($cart, $context);
+        $checkout->setGatewayMode(Config::getMode($payment_method));
+
+        return $checkout;
+    }
+
+    /**
+     * Gateway mode of the method validated in request.php. The payment request
+     * may switch its SDK service (PayByBank to iDEAL), so it must not look its
+     * mode up again.
+     */
+    public function setGatewayMode(string $mode)
+    {
+        if (is_object($this->payment_request)) {
+            $this->payment_request->mode = $mode;
+        }
     }
 
     /**
@@ -456,14 +503,14 @@ abstract class Checkout
         }
 
         $cover = Product::getCover($product['id_product']);
-        $imageTypes = ImageType::getImagesTypes("products", true);
+        $imageTypes = ImageType::getImagesTypes('products', true);
 
         foreach ($imageTypes as $imageType) {
-            if (isset($imageType['height'], $imageType['width']) &&
-                $imageType['height'] <= 1280 &&
-                $imageType['height'] >= 100 &&
-                $imageType['width'] <= 1280 &&
-                $imageType['width'] >= 100) {
+            if (isset($imageType['height'], $imageType['width'])
+                && $imageType['height'] <= 1280
+                && $imageType['height'] >= 100
+                && $imageType['width'] <= 1280
+                && $imageType['width'] >= 100) {
                 return $this->context->link->getImageLink($product['link_rewrite'], $cover['id_image'], $imageType['name']);
             }
         }
@@ -525,7 +572,7 @@ abstract class Checkout
             return null;
         }
 
-        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, Configuration::get('PS_TAX'));
+        $shippingCostsTax = $this->getTaxRate($this->cart->id_address_delivery, (int) Configuration::get('PS_TAX'));
 
         return [
             'identifier' => 'shipping',
@@ -549,6 +596,7 @@ abstract class Checkout
         $address = new Address($addressId);
         $taxManager = TaxManagerFactory::getManager($address, $taxRulesGroupId);
         $taxCalculator = $taxManager->getTaxCalculator();
+
         return $taxCalculator->getTotalRate();
     }
 
@@ -577,6 +625,7 @@ abstract class Checkout
         foreach (explode(' ', $str) as $word) {
             $ret .= Tools::strtoupper($word[0]) . '.';
         }
+
         return $ret;
     }
 }

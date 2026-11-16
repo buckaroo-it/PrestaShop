@@ -1,1 +1,20 @@
+# Module root .htaccess (PrestaShop Marketplace guidelines).
+# The module's PHP files are only ever reached through PrestaShop's own
+# index.php (front controllers via index.php?fc=module, admin controllers via
+# the admin router), so direct requests to any *.php in this tree are denied.
 Options -Indexes
+
+# Apache 2.4
+<IfModule mod_authz_core.c>
+    <Files *.php>
+        Require all denied
+    </Files>
+</IfModule>
+
+# Apache 2.2
+<IfModule !mod_authz_core.c>
+    <Files *.php>
+        Order allow,deny
+        Deny from all
+    </Files>
+</IfModule>

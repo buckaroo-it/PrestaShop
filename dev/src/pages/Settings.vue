@@ -135,6 +135,22 @@
 
               <div class="py-3 space-y-5 flex justify-between items-center">
                 <div>
+                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.order_emails') }}</h2>
+                </div>
+              </div>
+              <ToggleField class="p-5 space-y-5" v-model="settings.disable_unpaid_order_email">
+                <div>
+                  <label class="font-semibold text-sm">
+                    {{ $t('dashboard.pages.settings.disable_unpaid_order_email') }}
+                  </label>
+                  <div class="text-gray-400 text-xs">
+                    {{ $t('dashboard.pages.settings.disable_unpaid_order_email_label') }}
+                  </div>
+                </div>
+              </ToggleField>
+
+              <div class="py-3 space-y-5 flex justify-between items-center">
+                <div>
                   <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.refunds') }}</h2>
                   <div class="text-gray-400 text-xs">
                     {{ $t('dashboard.pages.settings.refunds_label_explanation') }}

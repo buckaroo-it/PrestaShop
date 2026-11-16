@@ -39,4 +39,21 @@ class ApplePay extends PaymentMethod
 
         return parent::executeCustomPayAction('payRedirect');
     }
+
+    /**
+     * Express checkout: the shopper authorized the payment in the Apple Pay
+     * sheet, so the encrypted token is paid directly instead of redirecting
+     * to the Buckaroo payment page.
+     */
+    public function payWithToken(string $paymentData, string $customerCardName)
+    {
+        if ($paymentData === '') {
+            throw new Exception('The Apple Pay token was not received.');
+        }
+
+        $this->payload['paymentData'] = $paymentData;
+        $this->payload['customerCardName'] = $customerCardName;
+
+        return parent::pay();
+    }
 }

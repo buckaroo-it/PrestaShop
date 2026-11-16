@@ -37,4 +37,3 @@ class BuckarooAlipayFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('alipay', $options[0]->getModuleName());
     }
 }
-

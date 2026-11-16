@@ -44,14 +44,21 @@ class Uninstaller
      */
     private $module;
 
+    /**
+     * @var CookieSameSiteRestorer
+     */
+    private $cookieSameSiteRestorer;
+
     public function __construct(
         $module,
         UninstallerInterface $databaseUninstaller,
-        UninstallerInterface $idinColumnsRemover
+        UninstallerInterface $idinColumnsRemover,
+        ?CookieSameSiteRestorer $cookieSameSiteRestorer = null
     ) {
         $this->module = $module;
         $this->databaseUninstaller = $databaseUninstaller;
         $this->idinColumnsRemover = $idinColumnsRemover;
+        $this->cookieSameSiteRestorer = $cookieSameSiteRestorer ?: new CookieSameSiteRestorer();
     }
 
     public function uninstall()
@@ -59,6 +66,10 @@ class Uninstaller
         foreach ($this->getHooks() as $hook) {
             $this->module->unregisterHook($hook);
         }
+
+        // Shops that never ran the 5.4.0 upgrade still have the None set by older versions.
+        $this->cookieSameSiteRestorer->restore();
+        $this->cookieSameSiteRestorer->forget();
 
         $this->deleteConfig();
 
@@ -89,6 +100,11 @@ class Uninstaller
             Config::LABEL_REFUND_CREDIT_SLIP,
             Config::LABEL_REFUND_VOUCHER,
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
+            Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
+            Config::PAYMENT_FEE_MODE,
+            Config::PAYMENT_FEE_FRONTEND_LABEL,
+            Config::LEGACY_PAYMENT_FEE_MODE,
+            Config::LEGACY_PAYMENT_FEE_FRONTEND_LABEL,
         ];
 
         $this->deleteConfigurations($configurations);
@@ -120,6 +136,7 @@ class Uninstaller
             'displayAdminOrderMainBottom',
             'displayOrderConfirmation',
             'actionEmailSendBefore',
+            'actionOrderStatusPostUpdate',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
             'displayProductExtraContent',

@@ -37,4 +37,3 @@ class BuckarooTransferFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('transfer', $options[0]->getModuleName());
     }
 }
-

@@ -17,9 +17,10 @@
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Buckaroo\PrestaShop\Src\Context\ContextResolver;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -46,11 +47,7 @@ class CsrfTokenManagerFactory
             }
         }
 
-        throw new \RuntimeException(
-            'CSRF Token Manager service is not available. ' .
-            'This service is required for admin functionality. ' .
-            'Please ensure you are running PrestaShop with the security component enabled.'
-        );
+        throw new \RuntimeException('CSRF Token Manager service is not available. This service is required for admin functionality. Please ensure you are running PrestaShop with the security component enabled.');
     }
 
     /**
@@ -121,11 +118,9 @@ class CsrfTokenManagerFactory
      */
     private static function getContextControllerContainer(): ?ContainerInterface
     {
-        if (!class_exists('\Context')) {
-            return null;
-        }
-
-        $context = \Context::getContext();
+        // The module instance carries the request context PrestaShop initialised,
+        // so no static Context lookup is needed here.
+        $context = ContextResolver::fromModule();
         if (!$context || !isset($context->controller) || !is_object($context->controller)) {
             return null;
         }
@@ -185,4 +180,3 @@ class CsrfTokenManagerFactory
         }
     }
 }
-

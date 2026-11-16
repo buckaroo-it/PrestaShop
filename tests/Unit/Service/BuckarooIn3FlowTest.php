@@ -193,4 +193,3 @@ class BuckarooIn3FlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertCount(0, $optionsBe, 'in3 should not be available for non-NL billing country');
     }
 }
-

@@ -23,6 +23,7 @@ if (!defined('_PS_VERSION_')) {
 
 /**
  * @return mixed
+ *
  * @throws Exception
  */
 function upgrade_module_4_4_0($object)
@@ -47,10 +48,10 @@ function upgrade_module_4_4_0($object)
 
     // Insert default configuration for Blik
     $blikConfig = [
-        'mode' => 'off'
+        'mode' => 'off',
     ];
 
-    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int)$paymentMethodId . ', \'' . pSQL(json_encode($blikConfig)) . '\')';
+    $configInsertQuery = 'INSERT INTO ' . _DB_PREFIX_ . 'bk_configuration (configurable_id, value) VALUES (' . (int) $paymentMethodId . ', \'' . pSQL(json_encode($blikConfig)) . '\')';
     Db::getInstance()->execute($configInsertQuery);
 
     $orderingRepository = new RawOrderingRepository();

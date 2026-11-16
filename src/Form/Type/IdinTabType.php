@@ -30,25 +30,6 @@ if (!defined('_PS_VERSION_')) {
 class IdinTabType extends TranslatorAwareType
 {
     /**
-     * @var \Currency
-     */
-    private $defaultCurrency;
-
-    /**
-     * @param mixed $translator
-     * @param array $locales
-     * @param \Currency $defaultCurrency
-     */
-    public function __construct(
-        $translator,
-        array $locales,
-        \Currency $defaultCurrency
-    ) {
-        parent::__construct($translator, $locales);
-        $this->defaultCurrency = $defaultCurrency;
-    }
-
-    /**
      * {@inheritDoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options)

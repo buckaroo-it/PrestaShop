@@ -50,4 +50,3 @@ class TwintCheckout extends Checkout
         $this->payment_request = PaymentRequestFactory::create(PaymentRequestFactory::REQUEST_TYPE_TWINT);
     }
 }
-

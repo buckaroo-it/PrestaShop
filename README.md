@@ -41,7 +41,7 @@ Card payments run through Hosted Fields, which keeps the card entry inside your 
 
 | Requirement | Supported versions |
 |---|---|
-| PrestaShop | 1.7.x up to 9.2.x |
+| PrestaShop | 1.7.8 up to 9.2.x |
 | PHP | 8.0 or higher |
 
 You also need a Buckaroo account. Don't have one yet? [Request an account](https://www.buckaroo.nl/start).
@@ -50,10 +50,13 @@ You also need a Buckaroo account. Don't have one yet? [Request an account](https
 
 ## Installation
 
-1. Go to the [releases page](https://github.com/buckaroo-it/PrestaShop/releases) and download the .ZIP file of the latest version.
+1. Go to the [releases page](https://github.com/buckaroo-it/PrestaShop/releases) and download the `buckaroo3.zip` asset of the latest version.
 2. Sign in to your PrestaShop backend and go to **Modules → Module Manager → Upload Module**.
 3. Select the .ZIP file. The installation starts automatically.
 4. Once installed, the module appears in the Payment section of the Module Manager.
+
+> [!IMPORTANT]
+> Install the `buckaroo3.zip` release asset, not the GitHub "Source code" archive. The source archive and a git clone do not contain the `vendor/` directory with the module's dependencies and cannot be installed. If you work from a clone, run `composer install --no-dev` inside the module directory first.
 
 ---
 
@@ -123,7 +126,9 @@ Still stuck? Contact us and include your PrestaShop version, module version, PHP
 
 ## Contribute
 
-We really appreciate it when developers help improve the Buckaroo plugins. Please read our [Contribution Guidelines](https://github.com/buckaroo-it/PrestaShop/blob/master/CONTRIBUTING.md) before opening a pull request, and target the `master` branch.
+We really appreciate it when developers help improve the Buckaroo plugins. Please read our [Contribution Guidelines](https://github.com/buckaroo-it/PrestaShop/blob/master/CONTRIBUTING.md) before opening a pull request, and target the `develop` branch.
+
+Every pull request runs the unit tests, the PrestaShop coding standard, PHPStan against PrestaShop 1.7.8, 8 and 9, and the package checks that mirror the [PrestaShop Validator](https://validator.prestashop.com/). Releases follow the [release checklist](https://github.com/buckaroo-it/PrestaShop/blob/master/RELEASE.md), which requires a clean official validator run on the exact release ZIP.
 
 Found a security issue? Please report it privately to [support@buckaroo.nl](mailto:support@buckaroo.nl) instead of opening a public issue.
 

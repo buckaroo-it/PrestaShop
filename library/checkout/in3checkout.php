@@ -104,7 +104,7 @@ class In3Checkout extends Checkout
         foreach ($this->products as $item) {
             $itemPrice = new DecimalNumber((string) $item['price_wt']);
             $itemPricePrecise = $itemPrice->toPrecision(2);
-            
+
             $products[] = [
                 'description' => $item['name'],
                 'identifier' => $item['id_product'],
@@ -156,7 +156,7 @@ class In3Checkout extends Checkout
         $amountDebit = new DecimalNumber((string) $this->payment_request->amountDebit);
         $difference = $amountDebit->minus($total);
         $differencePrecise = $difference->toPrecision(2);
-        
+
         if (abs((float) $differencePrecise) >= 0.01) {
             $products[] = [
                 'description' => 'Other fee/discount',

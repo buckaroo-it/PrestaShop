@@ -110,6 +110,7 @@ class Installer implements InstallerInterface
             'displayAdminOrderMainBottom',
             'displayOrderConfirmation',
             'actionEmailSendBefore',
+            'actionOrderStatusPostUpdate',
             'displayPDFInvoice',
             'displayBackOfficeHeader',
             'displayProductExtraContent',
@@ -117,6 +118,9 @@ class Installer implements InstallerInterface
             'actionAfterUpdateProductFormHandler',
             'displayShoppingCartFooter',
             'displayPaymentTop',
+            'displayProductAdditionalInfo',
+            'displayExpressCheckout',
+            'actionPresentOrder',
         ];
     }
 
@@ -137,6 +141,7 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT, false);
         \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
         \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
+        \Configuration::updateValue(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL, 0);
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

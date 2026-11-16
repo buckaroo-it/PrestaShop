@@ -13,13 +13,13 @@
 {if isset($buckarooAlreadyPaid) && $buckarooAlreadyPaid > 0}
 <div id="buckaroo-already-paid-block" class="bk-already-paid-block alert alert-info" style="margin-bottom:15px;">
 
-    {* One line per gift card that was applied *}
+    {* One line per gift card that was applied; amounts are formatted in PHP with the shop locale *}
     {if isset($buckarooGiftcardItems) && $buckarooGiftcardItems|@count > 0}
         {foreach $buckarooGiftcardItems as $item}
         <div class="cart-summary-line bk-giftcard-line">
             <span class="label">{$item.label|escape:'html':'UTF-8'}</span>
             <span class="value bk-giftcard-deduction">
-                &minus;{$item.amount|string_format:"%.2f"}&nbsp;{$currency->sign|escape:'html':'UTF-8'}
+                &minus;{$item.amountFormatted|escape:'htmlall':'UTF-8'}
             </span>
         </div>
         {/foreach}
@@ -27,7 +27,7 @@
         <div class="cart-summary-line bk-giftcard-line">
             <span class="label">{l s='Paid with Giftcard' mod='buckaroo3'}</span>
             <span class="value bk-giftcard-deduction">
-                &minus;{$buckarooAlreadyPaid|string_format:"%.2f"}&nbsp;{$currency->sign|escape:'html':'UTF-8'}
+                &minus;{$buckarooAlreadyPaidFormatted|escape:'htmlall':'UTF-8'}
             </span>
         </div>
     {/if}
@@ -37,7 +37,7 @@
     <div class="cart-summary-line bk-remaining-amount-line">
         <span class="label"><strong>{l s='Remaining Amount' mod='buckaroo3'}</strong></span>
         <span class="value bk-remaining-amount">
-            <strong>{$buckarooRemainingAmount|string_format:"%.2f"}&nbsp;{$currency->sign|escape:'html':'UTF-8'}</strong>
+            <strong>{$buckarooRemainingAmountFormatted|escape:'htmlall':'UTF-8'}</strong>
         </span>
     </div>
     {/if}

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Buckaroo\PrestaShop\Src\Service;
 
-/**
+/*
  * Shared test doubles used across BuckarooPaymentService unit tests.
  */
 
@@ -173,12 +173,32 @@ if (!class_exists(FakeBuckarooConfigService::class)) {
         /** @var array<string, array<string, mixed>> */
         private array $configByMethod;
 
+        /** @var array<string, array<string, string>> */
+        private array $activeCreditCards;
+
+        /** @var string[] */
+        private array $allowedGiftcardCodes;
+
         /**
          * @param array<string, array<string, mixed>> $configByMethod
+         * @param array<string, array<string, string>> $activeCreditCards keyed by lowercase service code
+         * @param string[] $allowedGiftcardCodes
          */
-        public function __construct(array $configByMethod)
+        public function __construct(array $configByMethod, array $activeCreditCards = [], array $allowedGiftcardCodes = [])
         {
             $this->configByMethod = $configByMethod;
+            $this->activeCreditCards = $activeCreditCards;
+            $this->allowedGiftcardCodes = $allowedGiftcardCodes;
+        }
+
+        public function getActiveCreditCards(): array
+        {
+            return $this->activeCreditCards;
+        }
+
+        public function getAllowedGiftcardCodes(): array
+        {
+            return $this->allowedGiftcardCodes;
         }
 
         public function getConfigArrayForMethod(string $method): ?array
@@ -194,5 +214,3 @@ if (!class_exists(FakeBuckarooConfigService::class)) {
         }
     }
 }
-
-

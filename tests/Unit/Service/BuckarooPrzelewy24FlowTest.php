@@ -37,4 +37,3 @@ class BuckarooPrzelewy24FlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('przelewy24', $options[0]->getModuleName());
     }
 }
-

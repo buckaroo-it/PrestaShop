@@ -1,0 +1,42 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Property OrderStateCore\\:\\:\\$template \\(array\\<string\\>\\) does not accept string\\.$#"
+			count: 1
+			path: ../../../buckaroo3.php
+
+		-
+			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
+			count: 4
+			path: ../../../controllers/front/common.php
+
+		-
+			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: ../../../controllers/front/request.php
+
+		-
+			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
+			count: 2
+			path: ../../../controllers/front/return.php
+
+		-
+			message: "#^Parameter \\#2 \\$type of static method TaxManagerFactoryCore\\:\\:getManager\\(\\) expects string, int given\\.$#"
+			count: 1
+			path: ../../../library/checkout/checkout.php
+
+		-
+			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: ../../../src/Klarna/ReservationService.php
+
+		-
+			message: "#^Parameter \\#1 \\$order_reference of static method OrderPaymentCore\\:\\:getByOrderReference\\(\\) expects int, string given\\.$#"
+			count: 1
+			path: ../../../src/Refund/KlarnaTransactionKey.php
+

@@ -54,7 +54,7 @@
         {else}
             {if $phone != ""}<input type="hidden" name="booSepaDirectdebitPhoneLand" value="{$phone|escape:'html':'UTF-8'}" />{/if}
             {if $phone_mobile != ""}<input type="hidden" name="booSepaDirectdebitPhoneMobile"
-                                           value="{$phone_mobile}" />{/if}
+                                           value="{$phone_mobile|escape:'html':'UTF-8'}" />{/if}
         {/if}
 
 

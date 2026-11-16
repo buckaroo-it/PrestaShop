@@ -14,7 +14,6 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -42,5 +41,23 @@ class GooglePay extends PaymentMethod
 
         return $this->payGlobal();
     }
-}
 
+    /**
+     * Express checkout: the shopper authorized the payment in the Google Pay
+     * sheet, so the token is paid directly instead of redirecting to the
+     * Buckaroo payment page.
+     *
+     * @param string $paymentData the Google Pay token, base64 encoded
+     */
+    public function payWithToken(string $paymentData, string $customerCardName)
+    {
+        if ($paymentData === '') {
+            throw new Exception('The Google Pay token was not received.');
+        }
+
+        $this->payload['paymentData'] = $paymentData;
+        $this->payload['customerCardName'] = $customerCardName;
+
+        return $this->payGlobal();
+    }
+}

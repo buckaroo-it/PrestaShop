@@ -83,7 +83,13 @@ class RawPaymentMethodRepository
                 break;
 
             case 'paypal':
-                $configValue['seller_protection'] = '0';
+                $configValue['seller_protection'] = '1';
+                $configValue['express_show_on'] = [];
+                $configValue['express_merchant_id'] = '';
+                $configValue['express_sandbox_merchant_id'] = '';
+                $configValue['button_style'] = 'gold';
+                $configValue['button_type'] = 'paypal';
+                $configValue['button_rounded'] = '0';
                 break;
 
             case 'afterpay':
@@ -209,9 +215,8 @@ class RawPaymentMethodRepository
         // Fetch and return the mode from the configuration
         if (isset($configArray['mode'])) {
             return $configArray['mode'];
-        } else {
-            throw new \Exception('Mode not set for payment id ' . $paymentId);
         }
+        throw new \Exception('Mode not set for payment id ' . $paymentId);
     }
 
     public function getPaymentMethodsLabel($name)

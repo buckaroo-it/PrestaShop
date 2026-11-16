@@ -37,4 +37,3 @@ class BuckarooIdealFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('ideal', $options[0]->getModuleName());
     }
 }
-

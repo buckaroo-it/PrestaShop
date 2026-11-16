@@ -37,4 +37,3 @@ class BuckarooSepaDirectDebitFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('sepadirectdebit', $options[0]->getModuleName());
     }
 }
-

@@ -37,4 +37,3 @@ class BuckarooBizumFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('bizum', $options[0]->getModuleName());
     }
 }
-

@@ -66,13 +66,13 @@ abstract class AbstractBuilder
     private function getPushUrl(): string
     {
         $link = new \Link();
+
         return $link->getModuleLink('buckaroo3', 'userreturn', [], true);
     }
 
     /**
      * Build body for credit & debit cards and gift cards
      *
-     * @param \Order $order
      * @param \OrderPayment $payment
      *
      * @return array

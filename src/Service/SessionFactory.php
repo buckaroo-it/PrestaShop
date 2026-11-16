@@ -28,6 +28,7 @@ class SessionFactory
 {
     /**
      * @param RequestStack $requestStack
+     *
      * @return SessionInterface
      */
     public static function create(RequestStack $requestStack): SessionInterface
@@ -36,7 +37,7 @@ class SessionFactory
         if ($request === null) {
             throw new \RuntimeException('Request is not available. Session can only be created in a request context.');
         }
+
         return $request->getSession();
     }
 }
-

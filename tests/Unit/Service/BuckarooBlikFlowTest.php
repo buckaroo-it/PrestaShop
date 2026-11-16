@@ -37,4 +37,3 @@ class BuckarooBlikFlowTest extends BuckarooPaymentServiceFlowTestCase
         $this->assertSame('blik', $options[0]->getModuleName());
     }
 }
-

@@ -32,12 +32,12 @@ class CarrierHandler
 
     private function initializeCarrier()
     {
-        $this->carrier = new Carrier((int) $this->cart->id_carrier, Configuration::get('PS_LANG_DEFAULT'));
+        $this->carrier = new Carrier((int) $this->cart->id_carrier, (int) Configuration::get('PS_LANG_DEFAULT'));
     }
 
     public function handleSendCloud()
     {
-        if ($this->carrier->external_module_name !== 'sendcloud') {
+        if ($this->carrier->external_module_name !== 'sendcloud' || !class_exists('SendcloudServicePoint')) {
             return null;
         }
 

@@ -1,52 +1,36 @@
 <?php
+/**
+ * PHP CS Fixer configuration.
+ *
+ * Mirrors the "Standards" section of the official PrestaShop Validator, which
+ * runs PHP CS Fixer with the PrestaShop coding standard shipped in
+ * prestashop/php-dev-tools. Run `composer cs-check` before opening a pull
+ * request and `composer cs-fix` to apply the fixes.
+ */
 
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
+$config = new class() extends PrestaShop\CodingStandards\CsFixer\Config {
+    public function getRules(): array
+    {
+        return array_merge(parent::getRules(), [
+            // Recent PHP CS Fixer releases also want a blank line between `<?php`
+            // and a leading comment. PrestaShop's license header sits directly
+            // under the open tag (as in PrestaShop itself and header-stamp), so
+            // keep that layout.
+            'blank_line_after_opening_tag' => false,
+            // Trailing commas in parameter lists need PHP 8.0; the fixer decides by
+            // the PHP it runs on, not by the project minimum (7.4). Same as the
+            // @Symfony configuration without 'parameters'.
+            'trailing_comma_in_multiline' => [
+                'after_heredoc' => true,
+                'elements' => ['array_destructuring', 'arrays', 'match'],
+            ],
+        ]);
+    }
+};
 
-ini_set('memory_limit','256M');
+$config->setUsingCache(true)
+    ->getFinder()
+    ->in(__DIR__)
+    ->exclude(['vendor', 'dev', 'build', 'var', 'tools']);
 
-$finder = PhpCsFixer\Finder::create()->in([
-    __DIR__,
-])->notPath([
-    'vendor',
-    'dev'
-]);
-
-return (new PhpCsFixer\Config())
-    ->setRiskyAllowed(true)
-    ->setRules([
-        '@Symfony' => true,
-        'array_indentation' => true,
-        'cast_spaces' => [
-            'space' => 'single',
-        ],
-        'combine_consecutive_issets' => true,
-        'concat_space' => [
-            'spacing' => 'one',
-        ],
-        'error_suppression' => [
-            'mute_deprecation_error' => false,
-            'noise_remaining_usages' => false,
-            'noise_remaining_usages_exclude' => [],
-        ],
-        'function_to_constant' => false,
-        'method_chaining_indentation' => true,
-        'no_alias_functions' => false,
-        'no_superfluous_phpdoc_tags' => false,
-        'non_printable_character' => [
-            'use_escape_sequences_in_strings' => true,
-        ],
-        'phpdoc_summary' => false,
-        'protected_to_private' => false,
-        'psr_autoloading' => false,
-        'self_accessor' => false,
-        'yoda_style' => false,
-        'single_line_throw' => false,
-        'no_alias_language_construct_call' => false,
-        'phpdoc_align' => [
-            'align' => 'vertical',
-        ],
-    ])
-    ->setFinder($finder)
-    ->setCacheFile(__DIR__.'/var/.php_cs.cache');
+return $config;

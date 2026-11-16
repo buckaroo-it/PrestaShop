@@ -14,12 +14,14 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
-require_once dirname(__FILE__) . '/../../library/logger.php';
+require_once dirname(__FILE__) . '/../corelogger.php';
 require_once dirname(__FILE__) . '/../abstract.php';
 require_once dirname(__FILE__) . '/responsefactory.php';
 require_once _PS_ROOT_DIR_ . '/modules/buckaroo3/vendor/autoload.php';
 use Buckaroo\BuckarooClient;
 use Buckaroo\PrestaShop\Classes\Config;
+use Buckaroo\PrestaShop\Src\Context\ContextAwareTrait;
+use Buckaroo\PrestaShop\Src\Repository\RawTransactionModeRepository;
 use PrestaShop\Decimal\DecimalNumber;
 
 if (!defined('_PS_VERSION_')) {
@@ -28,6 +30,8 @@ if (!defined('_PS_VERSION_')) {
 
 abstract class PaymentMethod extends BuckarooAbstract
 {
+    use ContextAwareTrait;
+
     protected $type;
     public $currency;
     public $amountDebit;
@@ -115,11 +119,51 @@ abstract class PaymentMethod extends BuckarooAbstract
 
         $this->payload = array_merge($basePayload, $this->payload);
 
-        $buckaroo = $this->getBuckarooClient(Config::getMode($this->type));
-        // Pay
-        $response = $buckaroo->method($this->type)->$payAction($this->payload);
+        $mode = $this->getGatewayMode();
+        // Pushes and returns for this invoice must come from the same gateway.
+        $this->recordGatewayMode((string) $this->invoiceId, $mode);
 
-        return ResponseFactory::getResponse($response);
+        $buckaroo = $this->getBuckarooClient($mode);
+        // Pay
+        $response = $this->sendPayRequest($buckaroo, $payAction);
+
+        $result = ResponseFactory::getResponse($response);
+        $result->setGatewayMode($mode);
+
+        return $result;
+    }
+
+    /**
+     * Send the payment request with the SDK method of this payment type.
+     *
+     * @param BuckarooClient $buckaroo
+     *
+     * @return mixed the SDK transaction response
+     */
+    protected function sendPayRequest($buckaroo, string $payAction)
+    {
+        return $buckaroo->method($this->type)->$payAction($this->payload);
+    }
+
+    /**
+     * Gateway mode of the method the shopper chose. The checkout sets it from the
+     * method validated in request.php, because the SDK type can differ from it
+     * (PayByBank sends an iDEAL request for ING on mobile).
+     *
+     * @throws Exception
+     */
+    protected function getGatewayMode(): string
+    {
+        if (is_string($this->mode) && $this->mode !== '') {
+            return $this->mode;
+        }
+
+        return Config::getMode($this->type);
+    }
+
+    protected function recordGatewayMode(string $invoice, string $mode): void
+    {
+        (new RawTransactionModeRepository())->record($invoice, $mode);
     }
 
     /**
@@ -193,9 +237,11 @@ abstract class PaymentMethod extends BuckarooAbstract
         preg_match_all('/{\w+}/', $description, $matches);
 
         if (!empty($matches[0])) {
-            $order = \Order::getByCartId($cartId);
+            $order = Order::getByCartId($cartId);
+            $context = $this->getContext();
+            $shopName = ($context && isset($context->shop) && is_object($context->shop)) ? (string) $context->shop->name : '';
             $patterns = ['/{order_number}/', '/{shop_name}/'];
-            $replacement = [$order->reference, \Context::getContext()->shop->name];
+            $replacement = [$order->reference, $shopName];
 
             foreach ($matches[0] as $match) {
                 if (!in_array("/$match/", $patterns)) {
