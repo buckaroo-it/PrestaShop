@@ -13,6 +13,7 @@ All notable changes to the Buckaroo PrestaShop module are documented in this fil
 - Added an option to hold the order confirmation email until the Buckaroo order is paid. The payment status email is still sent. Existing shops keep the current behavior until the option is enabled.
 
 ### Improved
+- BTI-2009 The Merchant name setting is removed from the Google Pay configuration, as in the other Buckaroo plugins. The Google Pay sheet shows the shop name (`PS_SHOP_NAME`). A merchant name stored by an earlier version is removed on upgrade and when the Google Pay settings are saved.
 - BTI-1916 The module version is declared as a string literal and the module name is a stable "Buckaroo Payments" (PrestaShop Validator "Requirements" findings, #306). The version is shown on the configuration page instead, and the response-specific payment label no longer overwrites the module name.
 - BTI-1916 Replaced static Context lookups with the context PrestaShop injects into the module, controllers and services (via the prestashop.adapter.legacy.context service, with a backward compatible fallback to the module instance).
 - BTI-1916 Smarty output is escaped everywhere (PrestaShop Validator "Security" findings): payment fee and gift card amounts are formatted in PHP with the shop locale and order currency, and the Riverty terms link and SEPA phone field are escaped.

@@ -51,12 +51,27 @@ final class ExpressSettingsTest extends TestCase
         $settings = new ExpressSettings([
             'gatewayMerchantId' => '  ABC123 ',
             'merchantId' => ' BCR2DN4T1234567 ',
-            'merchantName' => ' My Shop ',
         ]);
 
         self::assertSame('ABC123', $settings->getGatewayMerchantId());
         self::assertSame('BCR2DN4T1234567', $settings->getGoogleMerchantId());
-        self::assertSame('My Shop', $settings->getMerchantName());
+    }
+
+    /**
+     * BTI-2009: the Merchant name setting was removed (the Google Pay sheet shows the
+     * shop name). Saving the settings drops a value stored by an older version.
+     */
+    public function testSavingDropsTheRemovedMerchantName(): void
+    {
+        $data = ExpressSettings::sanitize([
+            'mode' => 'test',
+            'gatewayMerchantId' => 'ABC123',
+            'merchantName' => 'Old name',
+        ]);
+
+        self::assertArrayNotHasKey('merchantName', $data);
+        self::assertSame('ABC123', $data['gatewayMerchantId']);
+        self::assertFalse(method_exists(ExpressSettings::class, 'getMerchantName'));
     }
 
     public function testOnlyTheSelectedPlacementsShowTheButton(): void
@@ -102,7 +117,6 @@ final class ExpressSettingsTest extends TestCase
             'checkout_method' => 'false',
             'gatewayMerchantId' => ' ABC-123_x.y ',
             'merchantId' => 'BCR2DN4T1234567',
-            'merchantName' => ' <b>My Shop</b> ',
             'button_style' => 'white-outline',
             'button_type' => 'donate',
         ]);
@@ -112,7 +126,6 @@ final class ExpressSettingsTest extends TestCase
         self::assertSame('0', $data['checkout_method']);
         self::assertSame('ABC-123_x.y', $data['gatewayMerchantId']);
         self::assertSame('BCR2DN4T1234567', $data['merchantId']);
-        self::assertSame('My Shop', $data['merchantName']);
         self::assertSame('black', $data['button_style']);
         self::assertSame('pay', $data['button_type']);
     }

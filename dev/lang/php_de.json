@@ -133,8 +133,6 @@
   "dashboard.pages.payments.applepay.preview_label": "Wird aktualisiert, wenn Sie die Einstellungen oben ändern.",
   "dashboard.pages.payments.applepay.preview_unavailable": "Die Vorschau konnte nicht von Apple geladen werden.",
   "dashboard.pages.payments.googlepay.merchant_details": "Google Pay-Händlerdaten",
-  "dashboard.pages.payments.googlepay.merchant_name": "Händlername",
-  "dashboard.pages.payments.googlepay.merchant_name_label": "Name, den der Kunde im Google Pay-Fenster sieht. Wenn leer, wird der Shopname verwendet.",
   "dashboard.pages.payments.googlepay.merchant_id": "Google Merchant ID",
   "dashboard.pages.payments.googlepay.merchant_id_label": "Ihre Google Merchant ID finden Sie in der Google Pay & Wallet Console (z. B. BCR2DN4T...). Erforderlich für Live-Zahlungen.",
   "dashboard.pages.payments.googlepay.gateway_merchant_id": "Gateway Merchant ID",
