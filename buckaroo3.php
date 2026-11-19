@@ -1321,7 +1321,6 @@ class Buckaroo3 extends PaymentModule
     private function registerGooglePayExpressAssets(): void
     {
         $settings = $this->getGooglePayExpressSettings();
-        $merchantName = $settings->getMerchantName();
 
         Media::addJsDef([
             'buckarooGooglePayExpress' => [
@@ -1330,7 +1329,8 @@ class Buckaroo3 extends PaymentModule
                 'environment' => $settings->isLiveMode() ? 'PRODUCTION' : 'TEST',
                 'gatewayMerchantId' => $settings->getGatewayMerchantId(),
                 'googleMerchantId' => $settings->getGoogleMerchantId(),
-                'merchantName' => $merchantName !== '' ? $merchantName : (string) Configuration::get('PS_SHOP_NAME'),
+                // The Google Pay sheet shows the shop name (BTI-2009).
+                'merchantName' => (string) Configuration::get('PS_SHOP_NAME'),
                 'buttonColor' => $settings->getButtonStyle(),
                 'buttonType' => $settings->getButtonType(),
                 'buttonLocale' => (string) $this->context->language->iso_code,

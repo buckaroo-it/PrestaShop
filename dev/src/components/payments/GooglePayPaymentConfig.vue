@@ -42,25 +42,6 @@
           </div>
           <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.googlepay.merchant_id_label`) }}</div>
         </div>
-
-        <div class="space-y-2">
-          <div class="relative">
-            <input
-              type="text"
-              id="googlepay_merchant_name"
-              class="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-fifthly peer"
-              placeholder=" "
-              v-model="config.merchantName"
-            />
-            <label
-              for="googlepay_merchant_name"
-              class="absolute text-sm text-gray-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white px-2 peer-focus:px-2 peer-focus:text-fifthly peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
-            >
-              {{ $t(`dashboard.pages.payments.googlepay.merchant_name`) }}
-            </label>
-          </div>
-          <div class="text-gray-400 text-xs">{{ $t(`dashboard.pages.payments.googlepay.merchant_name_label`) }}</div>
-        </div>
       </div>
 
       <div class="p-5 space-y-5">
@@ -188,7 +169,7 @@ export default {
             if (!BUTTON_TYPES.includes(config.value.button_type)) {
                 config.value.button_type = DEFAULT_BUTTON_TYPE;
             }
-            ['gatewayMerchantId', 'merchantId', 'merchantName'].forEach((key) => {
+            ['gatewayMerchantId', 'merchantId'].forEach((key) => {
                 if (config.value[key] === undefined || config.value[key] === null) {
                     config.value[key] = '';
                 }

@@ -133,8 +133,6 @@
   "dashboard.pages.payments.applepay.preview_label": "Wordt bijgewerkt wanneer u de instellingen hierboven wijzigt.",
   "dashboard.pages.payments.applepay.preview_unavailable": "Het voorbeeld kon niet bij Apple worden geladen.",
   "dashboard.pages.payments.googlepay.merchant_details": "Google Pay-gegevens",
-  "dashboard.pages.payments.googlepay.merchant_name": "Naam van de webwinkel",
-  "dashboard.pages.payments.googlepay.merchant_name_label": "Naam die de klant in het Google Pay-venster ziet. Leeg gebruikt de winkelnaam.",
   "dashboard.pages.payments.googlepay.merchant_id": "Google Merchant ID",
   "dashboard.pages.payments.googlepay.merchant_id_label": "Uw Google Merchant ID vindt u in de Google Pay & Wallet Console (bijv. BCR2DN4T...). Vereist voor live betalingen.",
   "dashboard.pages.payments.googlepay.gateway_merchant_id": "Gateway Merchant ID",

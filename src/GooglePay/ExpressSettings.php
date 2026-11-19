@@ -46,8 +46,11 @@ final class ExpressSettings extends AbstractExpressSettings
     public const KEY_GATEWAY_MERCHANT_ID = 'gatewayMerchantId';
     /** Google merchant ID (Google Pay & Wallet Console); required for live payments. */
     public const KEY_GOOGLE_MERCHANT_ID = 'merchantId';
-    /** Name shown in the Google Pay sheet; the shop name when empty. */
-    public const KEY_MERCHANT_NAME = 'merchantName';
+    /**
+     * Merchant name setting removed in 5.4.0 (BTI-2009): the Google Pay sheet shows
+     * the shop name. Saving the settings drops a value stored by older versions.
+     */
+    public const REMOVED_KEY_MERCHANT_NAME = 'merchantName';
 
     public function getWallet(): Wallet
     {
@@ -74,11 +77,6 @@ final class ExpressSettings extends AbstractExpressSettings
         return $this->getString(self::KEY_GOOGLE_MERCHANT_ID);
     }
 
-    public function getMerchantName(): string
-    {
-        return $this->getString(self::KEY_MERCHANT_NAME);
-    }
-
     /**
      * Buckaroo needs its gateway merchant ID for the Google Pay token; Google
      * only requires its own merchant ID in production.
@@ -99,10 +97,7 @@ final class ExpressSettings extends AbstractExpressSettings
             $data[self::KEY_GOOGLE_MERCHANT_ID] = self::cleanCredential($data[self::KEY_GOOGLE_MERCHANT_ID], '/^[A-Za-z0-9]{0,64}$/');
         }
 
-        if (array_key_exists(self::KEY_MERCHANT_NAME, $data)) {
-            $name = is_string($data[self::KEY_MERCHANT_NAME]) ? trim(strip_tags($data[self::KEY_MERCHANT_NAME])) : '';
-            $data[self::KEY_MERCHANT_NAME] = function_exists('mb_substr') ? mb_substr($name, 0, 100) : substr($name, 0, 100);
-        }
+        unset($data[self::REMOVED_KEY_MERCHANT_NAME]);
 
         return $data;
     }

@@ -78,6 +78,9 @@ function upgrade_module_5_4_0($object)
     // keep the merchant's values and drop the unprefixed keys.
     (new Buckaroo\PrestaShop\Src\Install\ConfigurationKeyMigrator())->migrate();
 
+    // The Google Pay "Merchant name" setting was removed; the Google Pay sheet shows the shop name.
+    (new Buckaroo\PrestaShop\Src\Install\GooglePayMerchantNameRemover())->remove();
+
     // PayPal seller protection is the default now, also for PayPal express payments.
     (new Buckaroo\PrestaShop\Src\Install\PayPalSellerProtectionEnabler())->enable();
 
