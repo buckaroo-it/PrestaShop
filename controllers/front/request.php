@@ -657,7 +657,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $this->processSepaDirectDebit($id_order, $responseData);
         }
 
-        if ($response->payment_method == 'transfer') {
+        if ($response->payment_method == 'transfer' && !empty($response->consumerMessage['HtmlText'])) {
             $this->context->cookie->__set('HtmlText', $response->consumerMessage['HtmlText']);
         }
 
@@ -777,12 +777,13 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function processSepaDirectDebit($id_order, $responseData)
     {
+        // The SDK returns the service parameter names in lower case.
         $parameters = $responseData->getServiceParameters();
-        if (!empty($parameters['mandateReference'])) {
-            $this->createTransactionMessage($id_order, 'MandateReference: ' . $parameters['mandateReference']);
+        if (!empty($parameters['mandatereference'])) {
+            $this->createTransactionMessage($id_order, 'MandateReference: ' . $parameters['mandatereference']);
         }
-        if (!empty($parameters['mandateDate'])) {
-            $this->createTransactionMessage($id_order, 'MandateDate: ' . $parameters['mandateDate']);
+        if (!empty($parameters['mandatedate'])) {
+            $this->createTransactionMessage($id_order, 'MandateDate: ' . $parameters['mandatedate']);
         }
     }
 
