@@ -53,6 +53,7 @@ abstract class Response extends BuckarooAbstract
     public $brq_relatedtransaction_partialpayment;
     public $brq_relatedtransaction_refund;
     public $transactions;
+    public $consumerMessage;
     public $parameterError;
     protected ?TransactionResponse $response = null;
     protected $logger;
@@ -65,6 +66,7 @@ abstract class Response extends BuckarooAbstract
         if ($response) {
             $this->response = $response;
             $this->logger->logInfo('Response object provided directly');
+            $this->parseResponseObject();
         } else {
             $this->isPush = $this->isPushRequest();
             $this->logger->logInfo(
@@ -123,6 +125,54 @@ abstract class Response extends BuckarooAbstract
             $this->status = $responseArray['status'];
             $this->message = $responseArray['message'];
         }
+    }
+
+    /**
+     * Fill the public reply fields from a direct transaction response, the way
+     * parsePushRequest() fills them from a push or return.
+     */
+    protected function parseResponseObject(): void
+    {
+        $data = $this->response->data();
+        if (!is_array($data)) {
+            return;
+        }
+
+        $service = $data['Services'][0]['Name'] ?? ($data['ServiceCode'] ?? null);
+        if (is_string($service) && $service !== '') {
+            $this->payment_method = $this->getPaymentCode($service);
+        }
+
+        $this->transactions = $this->scalarOrNull($data['Key'] ?? null);
+        $this->invoice = $this->scalarOrNull($data['Invoice'] ?? null);
+        $this->invoicenumber = $this->invoice;
+        $this->amount = $this->scalarOrNull($data['AmountDebit'] ?? null);
+        $this->currency = $this->scalarOrNull($data['Currency'] ?? null);
+
+        // brq_statusmessage of a push carries the sub code text; fall back to the code text.
+        $statusMessage = $this->scalarOrNull($data['Status']['SubCode']['Description'] ?? null);
+        if ($statusMessage === null || $statusMessage === '') {
+            $statusMessage = $this->scalarOrNull($data['Status']['Code']['Description'] ?? null);
+        }
+        $this->statusmessage = $statusMessage;
+
+        if (isset($data['ConsumerMessage']) && is_array($data['ConsumerMessage'])) {
+            $this->consumerMessage = $data['ConsumerMessage'];
+        }
+
+        $statusCode = (int) ($data['Status']['Code']['Code'] ?? 0);
+        if (isset($this->responseCodes[$statusCode])) {
+            $this->status = $this->responseCodes[$statusCode]['status'];
+            $this->message = $this->responseCodes[$statusCode]['message'];
+        }
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function scalarOrNull($value): ?string
+    {
+        return is_scalar($value) ? (string) $value : null;
     }
 
     public function isSuccess(): bool
