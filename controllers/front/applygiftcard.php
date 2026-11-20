@@ -43,12 +43,12 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new CoreLogger(CoreLogger::INFO, 'applygiftcard');
+        $this->logger = new CoreLogger('applygiftcard');
     }
 
     public function postProcess()
     {
-        $this->logger->logInfo('Apply Giftcard – start');
+        $this->logger->logDebug('Apply Giftcard – start');
 
         $cart = $this->context->cart;
 
@@ -202,7 +202,7 @@ class Buckaroo3ApplygiftcardModuleFrontController extends BuckarooCommonControll
             $groupTransaction
         );
 
-        $this->logger->logInfo('Giftcard response', [
+        $this->logger->logDebug('Giftcard response', [
             'status' => $statusCode,
             'outcome' => $outcome,
             'applied' => $appliedAmount,

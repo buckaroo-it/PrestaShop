@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Install;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Logs\LogLevel;
 use Buckaroo\PrestaShop\Src\Repository\RawCreditCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawGiftCardsRepository;
 use Buckaroo\PrestaShop\Src\Repository\RawOrderingRepository;
@@ -142,6 +143,7 @@ class Installer implements InstallerInterface
         \Configuration::updateValue(Config::PAYMENT_FEE_MODE, 'subtotal');
         \Configuration::updateValue(Config::PAYMENT_FEE_FRONTEND_LABEL, 'Payment Fee');
         \Configuration::updateValue(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL, 0);
+        \Configuration::updateValue(Config::BUCKAROO_LOG_LEVEL, LogLevel::DEFAULT_LEVEL);
     }
 
     public function installTab($className, $parent, $name, $active = true, $icon = '')

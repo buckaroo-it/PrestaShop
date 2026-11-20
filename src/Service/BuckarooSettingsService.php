@@ -18,6 +18,7 @@
 namespace Buckaroo\PrestaShop\Src\Service;
 
 use Buckaroo\PrestaShop\Src\Config\Config;
+use Buckaroo\PrestaShop\Src\Logs\LogLevel;
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -40,6 +41,7 @@ class BuckarooSettingsService
             'payment_fee_mode' => \Configuration::get(Config::PAYMENT_FEE_MODE),
             'payment_fee_frontend_label' => \Configuration::get(Config::PAYMENT_FEE_FRONTEND_LABEL),
             'disable_unpaid_order_email' => (int) \Configuration::get(Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL) === 1,
+            'log_level' => LogLevel::configured(),
         ];
     }
 
@@ -57,6 +59,11 @@ class BuckarooSettingsService
             if (!isset($data[$key])) {
                 return false;
             }
+        }
+
+        // Optional, so a configuration page cached from before the setting existed can still save.
+        if (isset($data['log_level']) && LogLevel::normalize($data['log_level']) === null) {
+            return false;
         }
 
         return true;
@@ -78,5 +85,11 @@ class BuckarooSettingsService
             Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
             !empty($data['disable_unpaid_order_email']) ? 1 : 0
         );
+        if (isset($data['log_level'])) {
+            $logLevel = LogLevel::normalize($data['log_level']);
+            if ($logLevel !== null) {
+                \Configuration::updateValue(Config::BUCKAROO_LOG_LEVEL, $logLevel);
+            }
+        }
     }
 }

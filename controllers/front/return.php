@@ -38,7 +38,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new CoreLogger(CoreLogger::INFO, 'return');
+        $this->logger = new CoreLogger('return');
         $this->buckarooFeeRepository = $this->resolveBuckarooFeeRepository();
     }
 
@@ -56,7 +56,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
      */
     public function initContent()
     {
-        $this->logger->logInfo("\n\n\n\n***************** Return start ***********************");
+        $this->logger->logDebug("\n\n\n\n***************** Return start ***********************");
 
         parent::initContent();
 
@@ -67,10 +67,10 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
         }
 
         $response = ResponseFactory::getResponse();
-        $this->logger->logInfo('Parse response', $response);
+        $this->logger->logDebug('Parse response', $response);
 
         if ($response->isValid()) {
-            $this->logger->logInfo('Response valid');
+            $this->logger->logDebug('Response valid');
 
             // An iDIN verification has no order; store the result and stop here.
             if ($response instanceof IdinResponse) {
@@ -103,7 +103,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $references[] = $row['reference'];
             }
 
-            $this->logger->logInfo('Get order by cart id', 'Order ID: ' . $id_order);
+            $this->logger->logDebug('Get order by cart id', 'Order ID: ' . $id_order);
 
             if ($response->brq_relatedtransaction_refund != null) {
                 $order = $id_order ? new Order($id_order) : null;
@@ -155,7 +155,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $this->logger->logError('PUSH', 'Order does not exist');
                 exit;
             }
-            $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+            $this->logger->logDebug('Update the order', 'Order ID: ' . $id_order);
 
             $new_status_code = (int) Buckaroo3::resolveStatusCode($response->status, $id_order);
             $order = new Order($id_order);
@@ -226,7 +226,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                     }
                 }
             } else {
-                $this->logger->logInfo('Order status not updated');
+                $this->logger->logDebug('Order status not updated');
             }
 
             $statusCodeName = $new_status_code;
@@ -247,7 +247,11 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
             }
         } else {
             header('HTTP/1.1 503 Service Unavailable');
-            $this->logger->logError('Payment response not valid', $response);
+            $this->logger->logError('Payment response not valid', [
+                'invoice' => $response->invoicenumber,
+                'statuscode' => $response->statuscode,
+            ]);
+            $this->logger->logDebug('Invalid payment response', $response);
             echo 'Payment response not valid';
             exit;
         }
@@ -548,7 +552,7 @@ class Buckaroo3ReturnModuleFrontController extends BuckarooCommonController
                 $message->add();
             }
         } catch (Throwable $th) {
-            $this->logger->logInfo('PUSH', (string) $th);
+            $this->logger->logError('Refund push fallback failed', (string) $th);
         }
     }
 }

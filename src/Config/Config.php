@@ -46,6 +46,9 @@ class Config
 
     public const BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL = 'BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL';
 
+    /** Lowest level CoreLogger writes: one of the CoreLogger::DEBUG ... CoreLogger::ERROR values. */
+    public const BUCKAROO_LOG_LEVEL = 'BUCKAROO_LOG_LEVEL';
+
     public const FILE_NAME = 'Installer';
 
     /**

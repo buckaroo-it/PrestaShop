@@ -128,7 +128,7 @@ class Buckaroo3 extends PaymentModule
 
     private function initializeLogger()
     {
-        $this->logger = new CoreLogger(CoreLogger::INFO, '');
+        $this->logger = new CoreLogger('');
     }
 
     /**
