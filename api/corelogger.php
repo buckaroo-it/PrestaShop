@@ -14,43 +14,49 @@
  *  @copyright Copyright (c) Buckaroo B.V.
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  */
+use Buckaroo\PrestaShop\Src\Logs\LogLevel;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
 class CoreLogger
 {
-    // put your code here
-
-    public const DEBUG = '0';
-    public const INFO = '1';
-    public const WARN = '2';
-    public const ERROR = '3';
+    public const DEBUG = LogLevel::DEBUG;
+    public const INFO = LogLevel::INFO;
+    public const WARN = LogLevel::WARNING;
+    public const ERROR = LogLevel::ERROR;
 
     public const LOG = true;
 
     /** Log directory below the shop root, outside the public module directory. */
     public const LOG_DIR = '/var/logs/buckaroo3/';
 
-    public static $log_level = [
-        self::DEBUG => 'Debug',
-        self::INFO => 'Info',
-        self::WARN => 'Warning',
-        self::ERROR => 'Error',
-    ];
-    private $level = self::DEBUG;
+    public static $log_level = LogLevel::LABELS;
+    private $level = LogLevel::DEFAULT_LEVEL;
     private $filename = 'logger';
     private $logtype = 'api';
 
-    public function __construct($level, $filename = 'logger')
+    /**
+     * @param string $filename part of the log file name, e.g. "return" for api-return-log-<date>.txt
+     * @param string|int|null $level lowest level to write; null uses the level set in the module settings
+     */
+    public function __construct($filename = 'logger', $level = null)
     {
-        $this->level = $level;
-        $this->filename = $filename;
+        $this->filename = (string) $filename;
+        $this->level = $level === null
+            ? LogLevel::configured()
+            : (LogLevel::normalize($level) ?? LogLevel::DEFAULT_LEVEL);
+    }
+
+    public function getLevel(): string
+    {
+        return $this->level;
     }
 
     private function logEvent($info, $level, $descr = null)
     {
-        if ($level >= $this->level) {
+        if ((int) $level >= (int) $this->level) {
             $prefix = self::$log_level[$level] . ' ' . date('Y-m-d H:i:s') . ' ';
             $info_str = $info;
             if (!is_null($descr)) {

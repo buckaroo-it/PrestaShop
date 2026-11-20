@@ -58,7 +58,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new CoreLogger(CoreLogger::INFO, 'request');
+        $this->logger = new CoreLogger('request');
         $this->paymentMethodRepository = $this->resolvePaymentMethodRepository();
     }
 
@@ -73,7 +73,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     public function postProcess()
     {
-        $this->logger->logInfo("\n\n\n\n***************** Request start ***********************");
+        $this->logger->logDebug("\n\n\n\n***************** Request start ***********************");
 
         try {
             if (!Validate::isLoadedObject($this->context->cart)) {
@@ -140,7 +140,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             }
 
             $debug = 'Currency: ' . $currency->name . "\nTotal Amount: " . $total . "\nPayment Method: " . $payment_method;
-            $this->logger->logInfo('Checkout info', $debug);
+            $this->logger->logDebug('Checkout info', $debug);
 
             $this->initializeCheckout($cart, $payment_method, $currency, $total, $customer);
 
@@ -564,10 +564,10 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
                 (new RawPaymentAttemptRepository())->setAmount((int) $this->attempt['id_bk_payment_attempt'], $this->checkout->getAmountDebit());
             }
             if ($this->checkout->isVerifyRequired()) {
-                $this->logger->logInfo('Start verify process');
+                $this->logger->logDebug('Start verify process');
                 $this->checkout->startVerify(['cid' => (int) $cart->id_customer, 'cart' => (int) $cart->id]);
             } else {
-                $this->logger->logInfo('Start the payment process');
+                $this->logger->logDebug('Start the payment process');
                 $this->checkout->startPayment();
             }
         } catch (Exception $e) {
@@ -616,7 +616,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
     private function handleSuccessfulRequest($cartId, $customer)
     {
         $response = $this->checkout->getResponse();
-        $this->logger->logInfo('Request succeeded');
+        $this->logger->logDebug('Request succeeded');
 
         if ($this->attempt !== null) {
             $this->handleAttemptResponse((int) $cartId, $customer, $response);
@@ -627,7 +627,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($this->checkout->isRedirectRequired()) {
             $this->storeKlarnaDataRequestKey($response);
             $this->setCartCookie($cartId);
-            $this->logger->logInfo('Redirecting ... ');
+            $this->logger->logDebug('Redirecting ... ');
             $this->checkout->doRedirect();
             exit;
         }
@@ -689,7 +689,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
         if ($this->checkout->isRedirectRequired()) {
             $attempts->markPending($attemptId, $transactionKey);
             $this->freezePaidCart($cartId);
-            $this->logger->logInfo('Redirecting ... ');
+            $this->logger->logDebug('Redirecting ... ');
             $this->checkout->doRedirect();
             exit;
         }
@@ -812,18 +812,18 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
 
     private function updateOrderHistory($response)
     {
-        $this->logger->logInfo('Payment request valid');
+        $this->logger->logDebug('Payment request valid');
         $id_order = Order::getIdByCartId($response->getCartId());
         if ($id_order) {
             $this->updateOrderStatus($response, $id_order);
         } else {
-            $this->logger->logInfo('Find order by cart ID', 'Order not found.');
+            $this->logger->logDebug('Find order by cart ID', 'Order not found.');
         }
     }
 
     private function updateOrderStatus($response, $id_order)
     {
-        $this->logger->logInfo('Find order by cart ID', 'Order found. ID: ' . $id_order);
+        $this->logger->logDebug('Find order by cart ID', 'Order found. ID: ' . $id_order);
         $this->logger->logInfo('Update order history with status: ' . Buckaroo3::resolveStatusCode($response->status));
 
         $order = new Order($id_order);
@@ -852,7 +852,7 @@ class Buckaroo3RequestModuleFrontController extends BuckarooCommonController
             $response = $this->checkout->getResponse();
         }
 
-        $this->logger->logInfo('Request not succeeded');
+        $this->logger->logDebug('Request not succeeded');
 
         if ($this->attempt !== null) {
             (new RawPaymentAttemptRepository())->markFailed((int) $this->attempt['id_bk_payment_attempt']);

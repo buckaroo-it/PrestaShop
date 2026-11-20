@@ -101,6 +101,7 @@ class Uninstaller
             Config::LABEL_REFUND_VOUCHER,
             Config::LABEL_REFUND_CREATE_NEGATIVE_PAYMENT,
             Config::BUCKAROO_DISABLE_UNPAID_ORDER_EMAIL,
+            Config::BUCKAROO_LOG_LEVEL,
             Config::PAYMENT_FEE_MODE,
             Config::PAYMENT_FEE_FRONTEND_LABEL,
             Config::LEGACY_PAYMENT_FEE_MODE,

@@ -71,7 +71,7 @@ class BuckarooPaymentService
     public function __construct(EntityManager $entityManager, $buckarooFeeService, $buckarooConfigService, $issuersPayByBank, $capayableIn3, $countryRepository, $legacyContext = null)
     {
         $this->module = \Module::getInstanceByName('buckaroo3');
-        $this->logger = new \CoreLogger(\CoreLogger::INFO, '');
+        $this->logger = new \CoreLogger('');
         $this->contextSource = $legacyContext;
         $this->bkOrderingRepository = $entityManager->getRepository(BkOrdering::class);
         $this->paymentMethodRepository = $entityManager->getRepository(BkPaymentMethods::class);
@@ -741,7 +741,7 @@ class BuckarooPaymentService
 
     private function logError($message)
     {
-        $this->logger->logInfo($message, 'error');
+        $this->logger->logError($message);
     }
 
     /**

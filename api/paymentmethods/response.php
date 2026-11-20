@@ -60,16 +60,16 @@ abstract class Response extends BuckarooAbstract
 
     public function __construct(?TransactionResponse $response = null)
     {
-        $this->logger = new CoreLogger(CoreLogger::INFO, 'response');
-        $this->logger->logInfo("\n\n\n\n***************** Response start ***********************");
+        $this->logger = new CoreLogger('response');
+        $this->logger->logDebug("\n\n\n\n***************** Response start ***********************");
 
         if ($response) {
             $this->response = $response;
-            $this->logger->logInfo('Response object provided directly');
+            $this->logger->logDebug('Response object provided directly');
             $this->parseResponseObject();
         } else {
             $this->isPush = $this->isPushRequest();
-            $this->logger->logInfo(
+            $this->logger->logDebug(
                 $this->isPush
                     ? 'Response determined to be a push/return request'
                     : 'Response has no brq_statuscode (not a push/return payload)'
@@ -86,7 +86,7 @@ abstract class Response extends BuckarooAbstract
     private function parsePushRequest()
     {
         if (!$this->isPushRequest()) {
-            $this->logger->logInfo('Not a push request');
+            $this->logger->logDebug('Not a push request');
 
             return false;
         }
@@ -112,7 +112,7 @@ abstract class Response extends BuckarooAbstract
         $this->timestamp = $this->setPostVariable('brq_timestamp');
         $this->transactions = $this->setPostVariable('brq_transactions');
 
-        $this->logger->logInfo('Parsed push request', [
+        $this->logger->logDebug('Parsed push request', [
             'statuscode' => $this->statuscode,
             'statusmessage' => $this->statusmessage,
             'amount' => $this->amount,
@@ -268,17 +268,27 @@ abstract class Response extends BuckarooAbstract
                     $reply_handler = new ReplyHandler($buckaroo->client()->config(), $data);
                     $reply_handler->validate();
                     $this->validated = $reply_handler->isValid() && $this->isPushFromStartedGateway();
-                    $this->logger->logInfo('Push request validation status', ['validated' => $this->validated]);
+                    $this->logValidation('Push request validation status');
                 } catch (Throwable $e) {
                     $this->logger->logError('Push request validation failed', ['exception' => $e->getMessage()]);
                 }
             } elseif ($this->response) {
                 $this->validated = !$this->response->isValidationFailure() && $this->isResponseFromRequestedGateway();
-                $this->logger->logInfo('Response validation status', ['validated' => $this->validated]);
+                $this->logValidation('Response validation status');
             }
         }
 
         return $this->validated;
+    }
+
+    /** A valid reply is routine (Debug); a rejected one is worth a Warning. */
+    private function logValidation(string $message): void
+    {
+        if ($this->validated) {
+            $this->logger->logDebug($message, ['validated' => true]);
+        } else {
+            $this->logger->logWarn($message, ['validated' => false]);
+        }
     }
 
     /**
@@ -337,7 +347,7 @@ abstract class Response extends BuckarooAbstract
             try {
                 if ($this->isValid()) {
                     if ($this->isPendingProcessing() || $this->isAwaitingConsumer() || $this->isWaitingOnUserInput() || $this->isSuccess()) {
-                        $this->logger->logInfo('Response has succeeded');
+                        $this->logger->logDebug('Response has succeeded');
 
                         return true;
                     }
@@ -346,12 +356,12 @@ abstract class Response extends BuckarooAbstract
                 $this->logger->logError('Exception while checking success', ['exception' => $e->getMessage()]);
             }
         } elseif (in_array($this->status, [self::BUCKAROO_PENDING_PAYMENT, self::BUCKAROO_SUCCESS])) {
-            $this->logger->logInfo('Response status indicates success');
+            $this->logger->logDebug('Response status indicates success');
 
             return true;
         }
 
-        $this->logger->logInfo('Response has not succeeded');
+        $this->logger->logDebug('Response has not succeeded');
 
         return false;
     }

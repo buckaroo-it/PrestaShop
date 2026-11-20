@@ -267,6 +267,26 @@
                 </div>
               </div>
 
+              <div class="py-3 space-y-5 flex justify-between items-center">
+                <div>
+                  <h2 class="font-semibold text-sm">{{ $t('dashboard.pages.settings.logging') }}</h2>
+                </div>
+              </div>
+              <div class="p-5 space-y-5">
+                <div>
+                  <label for="log_level" class="font-semibold text-sm">
+                    {{ $t('dashboard.pages.settings.log_level') }}
+                  </label>
+                  <div class="text-gray-400 text-xs">{{ $t('dashboard.pages.settings.log_level_description') }}</div>
+                </div>
+                <select id="log_level" class="md:w-80 w-full rounded-lg border border-gray-300 p-2.5" v-model="settings.log_level">
+                  <option value="3">{{ $t('dashboard.pages.settings.log_level_error') }}</option>
+                  <option value="2">{{ $t('dashboard.pages.settings.log_level_warning') }}</option>
+                  <option value="1">{{ $t('dashboard.pages.settings.log_level_info') }}</option>
+                  <option value="0">{{ $t('dashboard.pages.settings.log_level_debug') }}</option>
+                </select>
+              </div>
+
             </div>
           </div>
         </Transition>

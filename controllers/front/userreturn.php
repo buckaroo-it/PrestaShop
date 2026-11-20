@@ -47,7 +47,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     public function __construct()
     {
         parent::__construct();
-        $this->logger = new CoreLogger(CoreLogger::INFO, 'userreturn');
+        $this->logger = new CoreLogger('userreturn');
     }
 
     public function init()
@@ -66,7 +66,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
      */
     public function initContent()
     {
-        $this->logger->logInfo("\n\n\n\n***************** User return start ***********************");
+        $this->logger->logDebug("\n\n\n\n***************** User return start ***********************");
 
         try {
             $state = (string) Tools::getValue(self::STATE_PARAMETER);
@@ -118,7 +118,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
     private function handleReturn($response): void
     {
         if ($response->isValid()) {
-            $this->logger->logInfo('Payment request succeeded');
+            $this->logger->logDebug('Payment request succeeded');
 
             if (!empty($response->payment_method)
                 && ($response->payment_method == 'paypal')
@@ -131,7 +131,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 
             $cartId = (int) $response->getCartId();
             $id_order = $cartId > 0 ? (int) Order::getIdByCartId($cartId) : 0;
-            $this->logger->logInfo('Update the order', 'Order ID: ' . $id_order);
+            $this->logger->logDebug('Update the order', 'Order ID: ' . $id_order);
 
             $attempt = $this->findPaymentAttempt($response);
             if ($attempt !== null && $response->hasSucceeded()) {
@@ -339,7 +339,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
             'key' => $customer->secure_key,
             'success' => 'true',
         ]);
-        $this->logger->logInfo('Redirecting to order confirmation', ['url' => $redirectUrl]);
+        $this->logger->logDebug('Redirecting to order confirmation', ['url' => $redirectUrl]);
         Tools::redirect($redirectUrl);
         exit;
     }
@@ -363,7 +363,7 @@ class Buckaroo3UserreturnModuleFrontController extends BuckarooCommonController
 
     private function redirectWithState(int $cartId, string $outcome, string $msg = ''): void
     {
-        $this->logger->logInfo('Return without session cookie; continuing with a signed state', [
+        $this->logger->logDebug('Return without session cookie; continuing with a signed state', [
             'cartId' => $cartId,
             'outcome' => $outcome,
         ]);

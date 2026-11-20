@@ -2,6 +2,17 @@
 
 All notable changes to the Buckaroo PrestaShop module are documented in this file.
 
+## Unreleased
+
+### Added
+- Log level setting under Settings > Logging (Error, Warning, Info, Debug; default Warning) (#269). The Buckaroo logs only contain entries at or above the chosen level. New installations and upgraded shops start at Warning (upgrade script 5.5.0).
+
+### Improved
+- Routine push, return and request flow entries ("Request start", "Response start", "Return start", "Parse response", validation results, redirects) and full response object dumps are logged at Debug. Errors stay at Error, payment status changes and order creation stay at Info, and a rejected push or response signature is logged as a Warning.
+
+### Fixed
+- Payment service errors (template and JSON decode errors) and refund push fallback failures were written as Info entries; they are logged as Errors now, so they also appear at the default Warning level.
+
 ## v5.4.0
 
 ### Added
