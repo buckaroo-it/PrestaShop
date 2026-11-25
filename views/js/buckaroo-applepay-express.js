@@ -45,6 +45,56 @@
         return 'ApplePaySession' in window && typeof window.ApplePaySession !== 'undefined';
     }
 
+    function waitForSdk() {
+        if (sdkAvailable()) {
+            return Promise.resolve(true);
+        }
+        if (window.isSecureContext === false) {
+            return Promise.resolve(false);
+        }
+
+        return new Promise(function (resolve) {
+            var settled = false;
+            var pollId = null;
+            var timeoutId = null;
+
+            function cleanup() {
+                document.removeEventListener('DOMContentLoaded', check);
+                window.removeEventListener('load', check);
+                if (pollId !== null) {
+                    clearInterval(pollId);
+                    pollId = null;
+                }
+                if (timeoutId !== null) {
+                    clearTimeout(timeoutId);
+                    timeoutId = null;
+                }
+            }
+
+            function finish(result) {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                cleanup();
+                resolve(result);
+            }
+
+            function check() {
+                if (sdkAvailable()) {
+                    finish(true);
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', check);
+            window.addEventListener('load', check);
+            pollId = setInterval(check, 50);
+            timeoutId = setTimeout(function () {
+                finish(sdkAvailable());
+            }, 15000);
+        });
+    }
+
     /*
      * Apple's Apple Pay JS SDK provides ApplePaySession in every browser: Safari
      * opens the native sheet, other browsers (Chrome, Edge, Firefox, also on
@@ -54,26 +104,24 @@
      */
     function isApplePaySupported() {
         if (supportCheck === null) {
-            supportCheck = new Promise(function (resolve) {
+            supportCheck = waitForSdk().then(function (available) {
                 var applePay;
-                if (!sdkAvailable()) {
-                    resolve(false);
-                    return;
+                if (!available) {
+                    return false;
                 }
                 applePay = window.BuckarooSdk.ApplePay;
                 try {
                     if (typeof applePay.loadApplePaySdk === 'function') {
-                        Promise.resolve(applePay.loadApplePaySdk())
-                            .then(function () { resolve(hasApplePaySession()); })
-                            .catch(function () { resolve(hasApplePaySession()); });
-                        return;
+                        return Promise.resolve(applePay.loadApplePaySdk())
+                            .then(function () { return hasApplePaySession(); })
+                            .catch(function () { return hasApplePaySession(); });
                     }
                     // Older Buckaroo SDK without the Apple Pay JS SDK loader.
-                    Promise.resolve(applePay.checkApplePaySupport(config.merchantGuid))
-                        .then(function (supported) { resolve(supported === true || hasApplePaySession()); })
-                        .catch(function () { resolve(hasApplePaySession()); });
+                    return Promise.resolve(applePay.checkApplePaySupport(config.merchantGuid))
+                        .then(function (supported) { return supported === true || hasApplePaySession(); })
+                        .catch(function () { return hasApplePaySession(); });
                 } catch (e) {
-                    resolve(hasApplePaySession());
+                    return hasApplePaySession();
                 }
             });
         }
