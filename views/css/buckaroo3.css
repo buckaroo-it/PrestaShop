@@ -123,6 +123,13 @@ table.bankdetails td.label, table.bankdetails td.labelvalue {
     width: 32px;
 }
 
+/* Keep the official 1.88:1 Google Pay acceptance mark at the same visual height as sibling payment icons */
+.payment-option label:not(.bk-issuer-label) img[src*="GooglePay.svg"] {
+    width: auto;
+    height: 24px;
+    max-height: 25px;
+}
+
 /* paybybank,ideal, creditcards  */
 
 .bk-toggle-down {
