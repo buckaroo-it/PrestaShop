@@ -240,20 +240,23 @@ abstract class PaymentMethod extends BuckarooAbstract
             $order = Order::getByCartId($cartId);
             $context = $this->getContext();
             $shopName = ($context && isset($context->shop) && is_object($context->shop)) ? (string) $context->shop->name : '';
+            $orderNumber = (is_object($order) && (string) $order->reference !== '')
+                ? (string) $order->reference
+                : (string) ($this->invoiceId ?: $this->orderId ?: $cartId);
             $patterns = ['/{order_number}/', '/{shop_name}/'];
-            $replacement = [$order->reference, $shopName];
+            $replacement = [$orderNumber, $shopName];
 
             foreach ($matches[0] as $match) {
                 if (!in_array("/$match/", $patterns)) {
                     $property = trim($match, '{}');
-                    if (isset($order->$property)) {
+                    if (is_object($order) && isset($order->$property)) {
                         $replacement[] = $order->$property;
                         $patterns[] = "/$match/";
                     }
                 }
             }
             $patterns[] = '/{\w+}/';
-            $description = preg_replace($patterns, $replacement, $description);
+            $description = trim((string) preg_replace($patterns, $replacement, $description));
         }
 
         $this->description = $description;

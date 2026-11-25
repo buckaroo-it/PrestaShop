@@ -223,10 +223,10 @@ abstract class Checkout
     protected function setPaymentRequestDetails($currency)
     {
         $reference = $this->reference . '_' . $this->cart->id;
-        $this->payment_request->setDescription($this->cart->id);
-        $this->payment_request->currency = $currency->iso_code;
         $this->payment_request->invoiceId = $reference;
         $this->payment_request->orderId = $reference;
+        $this->payment_request->setDescription($this->cart->id);
+        $this->payment_request->currency = $currency->iso_code;
         $this->payment_request->platformName = $this->platformName;
         $this->payment_request->platformVersion = $this->platformVersion;
         $this->payment_request->moduleSupplier = $this->moduleSupplier;
