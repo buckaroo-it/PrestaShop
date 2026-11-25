@@ -298,6 +298,34 @@ if (!class_exists('Country')) {
     }
 }
 
+if (!class_exists('Order')) {
+    class Order
+    {
+        /** @var array<int, object|null> */
+        public static $byCartId = [];
+
+        public $id = 326;
+        public $id_cart = 55;
+        public $id_currency = 1;
+        public $id_customer = 28;
+        public $reference = 'GGADEYTRM';
+        public $total_paid = 28.80;
+        public $module = 'buckaroo3';
+
+        public function __construct($id = null)
+        {
+            if ($id !== null) {
+                $this->id = (int) $id;
+            }
+        }
+
+        public static function getByCartId($idCart)
+        {
+            return self::$byCartId[(int) $idCart] ?? null;
+        }
+    }
+}
+
 // ---- Namespaced PaymentOption stub ----
 if (!class_exists('\PrestaShop\PrestaShop\Core\Payment\PaymentOption')) {
     eval('
